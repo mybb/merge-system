@@ -228,9 +228,14 @@ class Log {
 
 		$serverload = get_server_load();
 		
-		if(function_exists("memory_get_usage"))
+		$current_memory_usage = get_memory_usage();
+		if($current_memory_usage)
 		{
-			$memory_usage = " / Memory Usage: ".get_friendly_size(memory_get_peak_usage(true));
+			$memory_usage = " / Memory Usage: ".get_friendly_size($memory_usage);
+		}
+		else
+		{
+			$memory_usage = '';
 		}
 		
 		$this->trace0("Generated in {$total_time} seconds ({$percentphp}% PHP / {$percentsql}% MySQL) / Initialize Load Time: {$load_time} / SQL Queries: {$db->query_count}{$memory_usage} PHP version: {$phpversion} / Server Load: {$serverload}");

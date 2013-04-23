@@ -880,7 +880,8 @@ function check_encoding($string, $encoding)
 **/
 function check_memory()
 {
-	if(!function_exists("memory_get_usage"))
+	$memory_usage = get_memory_usage();
+	if(!$memory_usage)
 	{
 		return false;
 	}
@@ -907,7 +908,7 @@ function check_memory()
 				$memory_limit = $matches[1] * 1073741824;
 		}
 	}
-	$current_usage = memory_get_usage();
+	$current_usage = get_memory_usage();
 	$free_memory = $memory_limit - $current_usage;
 	
 	// Do we have less then 2 MB's left?

@@ -31,8 +31,8 @@ else
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
-$merge_version = "1.6.7";
-$version_code = 1607;
+$merge_version = "1.6.10";
+$version_code = 1610;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
@@ -90,7 +90,6 @@ $timer = new timer;
 require_once MYBB_ROOT.'inc/class_datacache.php';
 $cache = new datacache;
 
-require_once MYBB_ROOT."inc/functions_compat.php";
 require_once MYBB_ROOT."inc/functions_rebuild.php";
 require_once MYBB_ROOT."inc/functions.php";
 require_once MYBB_ROOT."inc/settings.php";
