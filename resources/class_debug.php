@@ -231,7 +231,7 @@ class Log {
 		$current_memory_usage = get_memory_usage();
 		if($current_memory_usage)
 		{
-			$memory_usage = " / Memory Usage: ".get_friendly_size($memory_usage);
+			$memory_usage = " / Memory Usage: ".get_friendly_size($current_memory_usage);
 		}
 		else
 		{
