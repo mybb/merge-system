@@ -96,7 +96,6 @@ class Converter_Module_Users extends Converter_Module
 		'coppauser' => 0,
 		'classicpostbit' => 0,
 		'loginattempts' => 0,
-		'failedlogin' => 0,
 		'usernotes' => '',
 	);
 	
