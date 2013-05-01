@@ -522,7 +522,7 @@ EOF;
 	</div>
 	<div id="problems">
 		<h3>Problems?</h3>
-		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquery at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
+		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
 	</div>
 	<div id="footer">
 		<div class="float_right"><a href="http://mybb.com/">MyBB</a> &copy; 2002-{$year} <a href="http://mybb.com/">MyBB Group</a></div>
@@ -637,7 +637,7 @@ if($mybb->input['board'])
 			echo "The MyBB Merge System cannot continue until you upload loginconvert.php (found in this directory via a file transfer application) to your MyBB Forums' inc/plugins folder.";
 			echo "\n			</div>";
 			
-			echo "<p>More Information can be found <a href=\"http://wiki.mybb.com/index.php/Running_the_Merge_System#loginconvert.php_plugin\" target=\"_blank\">here</a>.</p>
+			echo "<p>More Information can be found <a href=\"http://docs.mybb.com/Running_the_Merge_System.html#loginconvert.php_plugin\" target=\"_blank\">here</a>.</p>
 				<p>Once you have uploaded the file, click next to continue.</p>
 				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
@@ -677,10 +677,10 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 	
 	echo "<script type=\"text/javascript\">function button_undisable() { document.getElementById('main_submit_button').disabled = false; document.getElementById('main_submit_button').className = 'submit_button'; } window.onload = button_undisable; </script>";
 	
-	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.6. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System at our wiki: <a href=\"http://wiki.mybb.com/index.php/Merge_System\" target=\"_blank\">Merge System</a></p>
+	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.6. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/Merge_System.html\" target=\"_blank\">Merge System</a></p>
 		<input type=\"hidden\" name=\"first_page\" value=\"1\" />";
 	
-	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://wiki.mybb.com/index.php/Running_the_Merge_System#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)';
+	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/Running_the_Merge_System.html#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)';
 	
 	$output->print_warning("The MyBB Merge system is <u><strong>not</strong></u> used for upgrading or linking MyBB forums. In addition, please make sure all modifications or plugins that may interefere with the conversion process are <strong>deactivated</strong> on both forums (your old forum and your new forum), before you run the MyBB Merge System. It is also <strong>strongly</strong> recommended to make a backup of both forums before you continue.", "Please Note");
 
