@@ -26,7 +26,7 @@ class BBCode_Parser {
 	 */
 	function convert($text, $uid=0)
 	{
-		$text = str_replace(array(':'.$uid, '[/*:m]', '[/list:o]'), array('', '', '[/list]'), utf8_unhtmlentities($text));
+		$text = str_replace(array(':'.$uid, '[/*:m]', '[/list:o]', '[/list:u]'), array('', '', '[/list]', '[/list]'), utf8_unhtmlentities($text));
 		$text = preg_replace('#<!\-\- s(.*?) \-\-><img src="\{SMILIES_PATH\}\/.*? \/><!\-\- s\1 \-\->#', '\1', $text);
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)" \/>(.*?)<\/a><!\-\- \1 \-\->#', '\2', $text);
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)" \/><!\-\- \1 \-\->#', '\2', $text);
