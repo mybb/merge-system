@@ -52,7 +52,12 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		$insert_data['fromid'] = $this->get_import->uid($data['author_id']);
 		$insert_data['toid'] = $toid;
 		$insert_data['recipients'] = serialize(array('to' => $to));
-		$insert_data['subject'] = encode_to_utf8($data['message_subject'], "privmsgs", "privatemessages");
+		$text = encode_to_utf8($data['message_subject'], "privmsgs", "privatemessages");
+		$text = preg_replace('/&quot;/','"', $text);  
+		$text = preg_replace('/&lt;/','<', $text); 
+		$text = preg_replace('/&gt;/','>', $text); 
+		$text = preg_replace('/&amp;/','&', $text);
+		$insert_data['subject'] = $text;
 		$insert_data['status'] = $this->get_pm_status($data['msg_id']);
 		$insert_data['readtime'] = TIME_NOW;
 		$insert_data['dateline'] = $data['message_time'];
