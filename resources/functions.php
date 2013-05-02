@@ -424,10 +424,10 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 		$module->old_db->set_table_prefix('');
 		
         $table = $module->old_db->show_create_table($old_table_name);
-        preg_match("#CHARSET=(.*)#i", $table, $old_charset);
+        preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
 		
         $table = $db->show_create_table($new_table_name);
-        preg_match("#CHARSET=(.*)#i", $table, $new_charset);
+        preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
 		
 		$db->set_table_prefix($old_table_prefix);
 		$module->old_db->set_table_prefix($old_old_db_table_prefix);
