@@ -107,7 +107,38 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['receivepms'] = $data['user_allow_pm'];
 		$insert_data['pmnotice'] = $data['user_notify_pm'];
 		$insert_data['pmnotify'] = $data['user_notify_pm'];
-		$insert_data['timeformat'] = $data['user_dateformat'];
+		$date = $data['user_dateformat'];
+		if(strpos($date, 'd M Y') !== FALSE) 
+		{
+			$dateformat = 11;
+		} 
+		elseif(strpos($date, 'D M d') !== FALSE) 
+		{
+			$dateformat = 10;
+		} 
+		elseif (strpos($date, 'jS') !== FALSE) 
+		{
+			$dateformat = 9;
+		} 
+		else 
+		{
+			$dateformat = 10;
+		}
+
+		if(strpos($date, 'H:i') !== FALSE) 
+		{
+			$timeformat = 3;
+		} 
+		elseif (strpos($date, 'g:i') !== FALSE) 
+		{
+			$timeformat = 1;
+		} 
+		else
+		{
+			$timeformat = 1;
+		}
+		$insert_data['dateformat'] = $dateformat;
+		$insert_data['timeformat'] = $timeformat;
 		$insert_data['timezone'] = $data['user_timezone'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);	
 		$insert_data['dst'] = $data['user_dst'];
