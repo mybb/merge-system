@@ -331,6 +331,9 @@ class loginConvert
 			case 'bbpress':
 				$return = $this->authenticate_bbpress($password);
 				break;
+			case 'mingle':
+				$return = $this->authenticate_bbpress($password);
+				break;
             default:
                 return false;
         }
