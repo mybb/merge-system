@@ -30,9 +30,9 @@ class BBCode_Parser {
 		$text = preg_replace('#<!\-\- s(.*?) \-\-><img src="\{SMILIES_PATH\}\/.*? \/><!\-\- s\1 \-\->#', '\1', $text);
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)" \/>(.*?)<\/a><!\-\- \1 \-\->#', '\2', $text);
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)" \/><!\-\- \1 \-\->#', '\2', $text);
+		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)">(.*?)<\/a><!\-\- \1 \-\->#', '[url=\3]\4[/url]', $text);
 		$text = preg_replace('#<!\-\- ia(.*?) \-\->(.*?)<!\-\- ia\1 \-\->\[\/attachment\]#', '', $text);
 		$text = preg_replace('/\[color=#(.)(.)(.)\]/', '[color=#\1\1\2\2\3\3]', $text);	
-
 		return $text;
 	}
 	
