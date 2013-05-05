@@ -49,6 +49,17 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['usergroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['user_id']));
 		$insert_data['displaygroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true));
+
+		//phpBB3 inactive for user registration (not yet activated) force awaiting and remove possible registered group from additionalgroups
+		if($data['user_inactive_reason'] == '1' && $data['user_type'] == '1')
+		{
+			$insert_data['usergroup'] = 5;
+			$insert_data['displaygroup'] = 5;
+			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
+			unset($groups[2]);
+			$insert_data['additionalgroups'] = implode(',', array_keys($groups));
+		}
+		
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true, "original" => true));
 		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['user_id'], array("original" => true));
 		$insert_data['import_displaygroup'] = $data['group_id'];

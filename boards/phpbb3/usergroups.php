@@ -27,8 +27,8 @@ class PHPBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 	{
 		global $import_session, $db;
 		
-		// Get only non-staff groups.
-		$query = $this->old_db->simple_select("groups", "*", "group_id > 6", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
+		// Get only non-standard groups.
+		$query = $this->old_db->simple_select("groups", "*", "group_id > 7", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
 			$gid = $this->insert($group);

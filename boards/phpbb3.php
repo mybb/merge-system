@@ -78,12 +78,12 @@ class PHPBB3_Converter extends Converter
 
 		$query = $this->old_db->simple_select("user_group", "*", "user_id = '{$uid}'", $settings);
 
-		$comma = $group = '';
+		$group = array();
 		while($phpbbgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group .= $phpbbgroup['group_id'].$comma;
+				$group[$phpbbgroup['group_id']] = 1;
 			}
 			else
 			{
@@ -93,38 +93,37 @@ class PHPBB3_Converter extends Converter
 					return 5;
 				}
 
-				$group .= $comma;
 				switch($phpbbgroup['group_id'])
 				{
 					case 1: // Guests
 					case 6: // Bots
-						$group .= 1;
+						$group[1] = 1;
 						break;
 					case 2: // Register
 					case 3: // Registered coppa
-						$group .= 2;
+					case 7: // Newly Registered
+						$group[2] = 1;
 						break;
 					case 4: // Super Moderator
-						$group .= 3;
+						$group[3] = 1;
 						break;
 					case 5: // Administrator
-						$group .= 4;
+						$group[4] = 1;
 						break;
 					default:
 						$gid = $this->get_import->gid($phpbbgroup['group_id']);
 						if($gid > 0)
 						{
 							// If there is an associated custom group...
-							$group .= $gid;
+							$group[$gid] = 1;
 						}
 						else
 						{
 							// The lot
-							$group .= 2;
+							$group[2] = 1;
 						}					
 				}			
 			}
-			$comma = ',';
 		}
 		if(!$query)
 		{
@@ -132,7 +131,7 @@ class PHPBB3_Converter extends Converter
 		}			
 		
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_keys($group));
 	}
 }
 
