@@ -7,7 +7,6 @@
  * License: http://www.mybb.com/about/license
  *
  * $Id$
- * Modified for Mingle Forums 1.0 by http://www.communityplugins.com
  */
 
 // Disallow direct access to this file for security reasons
@@ -25,21 +24,21 @@ class MINGLE_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "Mingle Forum 1.0";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "Mingle Forum 1.0";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -55,7 +54,7 @@ class MINGLE_Converter extends Converter
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						);
-	
+
 	/**
 	 * Convert a Mingle group ID into a MyBB group ID (really only for admins)
 	 *
@@ -91,12 +90,12 @@ class MINGLE_Converter extends Converter
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
-		}			
-		
+		}
+
 		$this->old_db->free_result($query);
 		return $group;
 	}
-	
+
 
 }
 

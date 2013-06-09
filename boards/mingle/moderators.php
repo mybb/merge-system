@@ -7,7 +7,6 @@
   * License: http://www.mybb.com/about/license
  *
  * $Id$
- * Modified for Mingle Forums 1.0 by http://www.communityplugins.com
  */
 
 // Disallow direct access to this file for security reasons
@@ -27,7 +26,7 @@ class MINGLE_Converter_Module_Moderators extends Converter_Module_Moderators {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("usermeta", "*", "meta_key='wpf_moderator' AND meta_value <> 'mod_global'", array('limit_start' => $this->trackers['start_mods'], 'limit' => $import_session['mods_per_screen']));
 		while($moderator = $this->old_db->fetch_array($query))
 		{
@@ -44,23 +43,23 @@ class MINGLE_Converter_Module_Moderators extends Converter_Module_Moderators {
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// Mingle values
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['id'] = $this->get_import->uid($data['id']);		
-		
+		$insert_data['id'] = $this->get_import->uid($data['id']);
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 
 		global $import_session;
-		
+
 		// Get number of moderators (single serialized as single record, iterate over results)
 		if(!isset($import_session['total_moderators']))
 		{
@@ -68,7 +67,7 @@ class MINGLE_Converter_Module_Moderators extends Converter_Module_Moderators {
 			$import_session['total_moderators'] = $this->old_db->fetch_field($query, 'totalnum');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_moderators'];
 	}
 }
