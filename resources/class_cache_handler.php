@@ -271,7 +271,7 @@ class Cache_Handler
 	 * @param string Username used before import
 	 * @return string Username in MyBB or the old username (if provided)/'Guest' if the old UID cannot be found
 	 */
-	function username($old_uid, $old_username="")
+	function username($old_uid, $old_username)
 	{
 		if(!is_array($this->cache_usernames))
 		{

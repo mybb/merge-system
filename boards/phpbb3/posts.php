@@ -47,7 +47,7 @@ class PHPBB3_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert_title($data['post_subject']), "posts", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['poster_id']);
 		$insert_data['import_uid'] = $data['poster_id'];
-		$insert_data['username'] = $this->get_import->username($data['poster_id']);
+		$insert_data['username'] = $this->get_import->username($data['poster_id'], $data['post_username']);
 		$insert_data['dateline'] = $data['post_time'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['post_text'], $data['bbcode_uid']), "posts", "posts");
 		$insert_data['ipaddress'] = $data['poster_ip'];
