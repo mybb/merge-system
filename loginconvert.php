@@ -142,7 +142,8 @@ function loginconvert_convert()
 		}
 
 		my_setcookie('loginattempts', 1);
-		$db->delete_query("sessions", "ip='".$db->escape_string($session->ipaddress)."' AND sid != '".$session->sid."'");
+		$ip_address = $db->escape_binary($session->packedip);
+		$db->delete_query("sessions", "ip = {$ip_address} AND sid != '{$session->sid}'");
 		$newsession = array(
 			"uid" => $user['uid'],
 		);
