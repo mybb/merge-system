@@ -320,7 +320,7 @@ div.module {
 	vertical-align: middle;
 }
 div.completed {
-	background: url(images/ok.gif) no-repeat;
+	background: url(images/ok.png) no-repeat;
 }
 div.awaiting {
 	background: url(images/awaiting.png) no-repeat;
@@ -351,6 +351,9 @@ div.module_description {
 div.flash_error, div.flash_success {
 	margin: 10px 0;
 	padding: 5px 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
 }
 
 div.flash_error {
@@ -383,7 +386,7 @@ div.flash_error p em {
 
 div.flash_success p em {
 	color: #080;
-	background: url('images/ok.gif') no-repeat;
+	background: url('images/ok.png') no-repeat;
 }
 
 div.flash_success ul, div.flash_error.ul {
