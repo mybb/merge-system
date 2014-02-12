@@ -11,7 +11,7 @@
  */
 
 $load_timer = microtime(true);
- 
+
 header('Content-type: text/html; charset=utf-8');
 if(function_exists("unicode_decode"))
 {
@@ -31,8 +31,8 @@ else
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
-$merge_version = "1.6.10";
-$version_code = 1610;
+$merge_version = "1.8.0";
+$version_code = 1800;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
@@ -171,9 +171,9 @@ if(!$import_session['resume_module'])
 	$import_session['resume_module'] = array();
 }
 
-if($mybb->version_code < 1600)
+if($mybb->version_code < 1800)
 {
-	$output->print_error("The MyBB Merge System requires MyBB 1.6 or higher to run.");
+	$output->print_error("The MyBB Merge System requires MyBB 1.8 or higher to run.");
 }
 
 if($mybb->version_code >= 2000)
@@ -190,11 +190,11 @@ if(version_compare(PHP_VERSION, '5.0.0', '<'))
 if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 {
 	$debug->log->event("Generating report for completed merge");
-	
+
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
-	
+
 	$board = new $class_name;
 
 	// List of statistics we'll be using
@@ -217,14 +217,14 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		'total_settings' => 'Settings',
 		'total_attachtypes' => 'Attachment Types'
 	);
-	
+
 	$begin_date = gmdate("r", $import_session['start_date']);
 	$end_date = gmdate("r", $import_session['end_date']);
-	
+
 	$import_session['newdb_query_count'] = my_number_format($import_session['newdb_query_count']);
 	$import_session['olddb_query_count'] = my_number_format($import_session['olddb_query_count']);
 	$import_session['total_query_time_friendly'] = my_friendly_time($import_session['total_query_time']);
-	
+
 	if(empty($import_session['total_query_time_friendly']))
 	{
 		$import_session['total_query_time_friendly'] = "0 seconds";
@@ -233,15 +233,15 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 	$generation_time = gmdate("r");
 
 	$year = gmdate("Y");
-	
+
 	$debug->log->trace2("Generating report in {$mybb->input['reportgen']} format");
-	
+
 	// Did we request it in plain txt format?
 	if($mybb->input['reportgen'] == "txt")
 	{
 		$ext = "txt";
 		$mime = "text/plain";
-		
+
 		// Generate the list of all the modules we ran (Threads, Posts, Users, etc)
 		$module_list = "";
 		foreach($board->modules as $key => $module)
@@ -256,7 +256,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		{
 			$module_list = "None\r\n";
 		}
-		
+
 		$errors = "";
 		if(!empty($import_session['error_logs']))
 		{
@@ -269,14 +269,14 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 				}
 			}
 		}
-		
+
 		if(empty($errors))
 		{
 			$errors = "None\r\n";
 		}
-		
+
 		// This may seem weird but it's not. We determine the longest length of the title,
-		// so we can then pad it all neatly in the txt file. 
+		// so we can then pad it all neatly in the txt file.
 		$max_len = 0;
 		foreach($import_stats as $key => $title)
 		{
@@ -292,13 +292,13 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			if(array_key_exists($key, $import_session))
 			{
 				$title = "{$title}: ";
-				
+
 				// Determine the amount of spaces we need to line it all up nice and neatly.
 				$title = str_pad($title, $max_len+2);
 				$import_totals .= "{$title}".my_number_format($import_session[$key])."\r\n";
 			}
 		}
-		
+
 		$output = <<<EOF
 MyBB Merge System - Merge Report
 --------------------------------------------------------
@@ -342,7 +342,7 @@ please file a support inquery at http://community.mybb.com/.
 Generated: {$generation_time}
 EOF;
 	}
-	
+
 	// Ah, our users requests our pretty html format!
 	if($mybb->input['reportgen'] == "html")
 	{
@@ -357,12 +357,12 @@ EOF;
 				$module_list .= "<li>{$module['name']}</li>\n";
 			}
 		}
-		
+
 		if(empty($module_list))
 		{
 			$module_list = "<li>None</li>\n";
 		}
-		
+
 		// Generate the list of stats we have (Amount of threads imported, amount of posts imported, etc)
 		foreach($import_stats as $key => $title)
 		{
@@ -372,12 +372,12 @@ EOF;
 				$import_totals .= "<dd>".my_number_format($import_session[$key])."</dd>\n";
 			}
 		}
-		
+
 		if(empty($import_totals))
 		{
 			$import_totals = "<dt>None</dt>\n";
 		}
-		
+
 		$errors = "";
 		if(!empty($import_session['error_logs']))
 		{
@@ -391,7 +391,7 @@ EOF;
 				}
 			}
 		}
-		
+
 		if(empty($errors))
 		{
 			$errors = "<li>None</li>\n";
@@ -491,7 +491,7 @@ EOF;
 		<dl>
 			<dt>Queries on the MyBB database</dt>
 			<dd>{$import_session['newdb_query_count']}</dd>
-			
+
 			<dt>Queries on the {$board->plain_bbname} database</dt>
 			<dd>{$import_session['olddb_query_count']}</dd>
 
@@ -542,21 +542,21 @@ EOF;
 	header("Content-Length: ".strlen($output));
 
 	echo $output;
-	
+
 	$debug->log->event("Report generated");
 	exit;
 }
 
 
-// The placement of this function is important and it should stay here. $import_session['finished_convert'] is set 
-// during $mybb->input['action'] == 'finish' which displays the last page and also displays the links to the Report Generations. 
-// The Report Generations are run right above this piece of code which we "exit;" before we reach this code so we don't clear out 
-// our statistics we've got saved. This will only run the next time someone visits the merge system script after we visit the 
+// The placement of this function is important and it should stay here. $import_session['finished_convert'] is set
+// during $mybb->input['action'] == 'finish' which displays the last page and also displays the links to the Report Generations.
+// The Report Generations are run right above this piece of code which we "exit;" before we reach this code so we don't clear out
+// our statistics we've got saved. This will only run the next time someone visits the merge system script after we visit the
 // 'finished' page and we're not downloading a report for the last merge.
 if($import_session['finished_convert'] == '1')
 {
 	$debug->log->event("Running import session cleanup");
-	
+
 	// Delete import session cache
 	$import_session = null;
 	update_import_session();
@@ -565,41 +565,41 @@ if($import_session['finished_convert'] == '1')
 if($mybb->input['board'])
 {
 	$debug->log->event("Setting up board merge classes: {$mybb->input['board']}");
-	
+
 	// Sanatize and check if it exists.
 	$mybb->input['board'] = str_replace(".", "", $mybb->input['board']);
-	
+
 	$debug->log->trace1("Loading board module {$mybb->input['board']}");
-	
+
 	if(!file_exists(MERGE_ROOT."boards/".$mybb->input['board'].".php"))
 	{
 		$output->print_error("The board module you have selected does not exist.");
 	}
-	
+
 	require_once MERGE_ROOT."boards/".$mybb->input['board'].".php";
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$mybb->input['board'].".php";
 	$class_name = strtoupper($mybb->input['board'])."_Converter";
-	
+
 	$board = new $class_name;
-	
+
 	if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
 	{
 		$plugins_cache = $cache->read("plugins");
 		$active_plugins = $plugins_cache['active'];
 
 		$active_plugins['loginconvert'] = "loginconvert";
-		
+
 		$plugins_cache['active'] = $active_plugins;
 		$cache->update("plugins", $plugins_cache);
-		
+
 		$debug->log->trace1("Login convert already exists, automatically activating loginconvert plugin");
 	}
-	
+
 	if($board->requires_loginconvert == true)
 	{
 		$debug->log->trace1("loginconvert plugin required for this board module");
-		
+
 		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php") && file_exists(MYBB_ROOT."convert/loginconvert.php"))
 		{
 			$debug->log->trace2("Attempting to move convert/loginconvert.php to inc/plugins/loginconvert.php");
@@ -611,39 +611,39 @@ if($mybb->input['board'])
 				@my_chmod(MYBB_ROOT.'inc/plugins/loginconvert.php', '0555');
 				$debug->log->trace2("Successfully moved loginconvert.php to inc/plugins/ automatically");
 			}
-			
+
 			$debug->log->trace2("Attempting to automatically activate inc/plugins/loginconvert.php");
 			if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
 			{
 				$plugins_cache = $cache->read("plugins");
 				$active_plugins = $plugins_cache['active'];
-		
+
 				$active_plugins['loginconvert'] = "loginconvert";
-				
+
 				$plugins_cache['active'] = $active_plugins;
 				$cache->update("plugins", $plugins_cache);
 				$debug->log->trace2("Succesfully activated inc/plugins/loginconvert.php automatically");
 			}
 		}
-		
+
 		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
 		{
 			$debug->log->error("Unable to setup loginconvert.php. Cannot continue script execution");
-			
+
 			$output->print_header("MyBB Merge System - Setup Password Conversion");
-			
+
 			echo "			<div class=\"error\">\n				";
 			echo "<h3>Error</h3>";
 			echo "The MyBB Merge System cannot continue until you upload loginconvert.php (found in this directory via a file transfer application) to your MyBB Forums' inc/plugins folder.";
 			echo "\n			</div>";
-			
+
 			echo "<p>More Information can be found <a href=\"http://docs.mybb.com/Running_the_Merge_System.html#loginconvert.php_plugin\" target=\"_blank\">here</a>.</p>
 				<p>Once you have uploaded the file, click next to continue.</p>
 				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
 		}
 	}
-	
+
 	// Save it to the import session so we don't have to carry it around in the url/source.
 	$import_session['board'] = $mybb->input['board'];
 }
@@ -652,16 +652,16 @@ if($mybb->input['board'])
 if($mybb->input['module'])
 {
 	$debug->log->event("Setting up board module specific classes: {$mybb->input['module']}");
-	
-	// Set our $resume_module variable to the last module we were working on (if there is one) 
+
+	// Set our $resume_module variable to the last module we were working on (if there is one)
 	// incase we come back to it at a later time.
 	$resume_module = $import_session['module'];
-	
+
 	if(!array_search($import_session['module'], $import_session['resume_module']))
 	{
 		$import_session['resume_module'][] = $resume_module;
 	}
-	
+
 	// Save our new module we're working on to the import session
 	$import_session['module'] = $mybb->input['module'];
 }
@@ -670,24 +670,24 @@ if($mybb->input['module'])
 if(!$import_session['first_page'] && !$mybb->input['first_page'])
 {
 	$debug->log->event("Showing first agreement/welcome page");
-	
+
 	define("BACK_BUTTON", false);
-	
+
 	$output->print_header("Welcome");
-	
+
 	echo "<script type=\"text/javascript\">function button_undisable() { document.getElementById('main_submit_button').disabled = false; document.getElementById('main_submit_button').className = 'submit_button'; } window.onload = button_undisable; </script>";
-	
-	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.6. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/Merge_System.html\" target=\"_blank\">Merge System</a></p>
+
+	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.8. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/Merge_System.html\" target=\"_blank\">Merge System</a></p>
 		<input type=\"hidden\" name=\"first_page\" value=\"1\" />";
-	
+
 	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/Running_the_Merge_System.html#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)';
-	
+
 	$output->print_warning("The MyBB Merge system is <u><strong>not</strong></u> used for upgrading or linking MyBB forums. In addition, please make sure all modifications or plugins that may interefere with the conversion process are <strong>deactivated</strong> on both forums (your old forum and your new forum), before you run the MyBB Merge System. It is also <strong>strongly</strong> recommended to make a backup of both forums before you continue.", "Please Note");
 
 	echo '<noscript>';
 	$output->print_warning('It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.');
 	echo '</noscript>';
-	
+
 	$output->print_footer("", "", 1, false, "Next", "id=\"main_submit_button\" disabled=\"disabled\"", "submit_button_disabled");
 }
 
@@ -696,37 +696,37 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 if($mybb->input['requirements_check'] == 1 && $import_session['requirements_pass'] == 1 && $mybb->request_method == "post")
 {
 	$debug->log->event("Passed requirements check");
-	
+
 	// Save the check to the import session and move on.
 	$import_session['requirements_check'] = 1;
-	
+
 	update_import_session();
 }
 // Otherwise show our requirements check to our user
 else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] == 1 && $mybb->request_method == "post") || !$import_session['requirements_pass'])
 {
 	$debug->log->event("Showing requirements check page");
-	
+
 	$import_session['allow_anonymous_info'] = intval($mybb->input['allow_anonymous_info']);
 	$import_session['first_page'] = 1;
-	
+
 	define("BACK_BUTTON", false);
-	
+
 	$errors = array();
 	$checks = array();
-	
+
 	$output->print_header("Requirements Check");
-	
+
 	$checks['version_check_status'] = '<span class="pass">Up to Date</span>';
 
 	// Check for a new version of the Merge System!
 	require_once MYBB_ROOT."inc/class_xml.php";
-	$contents = merge_fetch_remote_file("http://www.mybb.com/merge_version_check.php?ver=160");
+	$contents = merge_fetch_remote_file("http://www.mybb.com/merge_version_check.php");
 	if($contents)
 	{
 		$parser = new XMLParser($contents);
 		$tree = $parser->get_tree();
-	
+
 		$latest_code = $tree['mybb_merge']['version_code']['value'];
 		$latest_version = "<strong>".$tree['mybb_merge']['latest_version']['value']."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
@@ -736,7 +736,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 			$debug->log->warning("This version of the merge system is out-of-date");
 		}
 	}
-	
+
 	// Uh oh, problemos mi amigo?
 	if(!$contents || !$latest_code)
 	{
@@ -762,12 +762,12 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		@unlink(MYBB_ROOT.'uploads/test.write');
 		$debug->log->trace0("Attachments directory writable");
 	}
-	
+
 	if(!empty($errors))
 	{
 		$output->print_warning(error_list($errors), "The MyBB Merge System Requirements check failed:");
 	}
-	
+
 	echo '<p><div class="border_wrapper">
 			<div class="title">Requirements Check</div>
 		<table class="general" cellspacing="0">
@@ -790,7 +790,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		</div>
 		</p>
 		<input type="hidden" name="requirements_check" value="1" />';
-	
+
 	if(!empty($errors))
 	{
 		$import_session['requirements_pass'] = 0;
@@ -815,57 +815,57 @@ if(!$import_session['board'])
 elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'completed')
 {
 	$debug->log->event("Show the merge competion page");
-	
+
 	$import_session['finished_convert'] = 1;
 	$import_session['agreement'] = 0;
 	$import_session['first_page'] = 0;
-	
+
 	$output->finish_conversion();
 }
 // Perhaps we have selected to stop converting or we are actually finished
 elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 {
 	$debug->log->event("Show the merge cleanup page");
-	
+
 	define("BACK_BUTTON", false);
-	
+
 	$output->print_header("MyBB Merge System - Final Step: Cleanup");
-	
+
 	// Delete import fields and update our cache's
 	$output->construct_progress_bar();
-	
+
 	echo "<br />\nPerforming final cleanup and maintenance (This may take a while)... \n";
 	flush();
-	
+
 	delete_import_fields();
-	
+
 	$cache->update_stats();
 	$output->update_progress_bar(30);
-	
+
 	$cache->update_usergroups();
 	$output->update_progress_bar(60);
-	
+
 	$cache->update_forums();
 	$output->update_progress_bar(90);
-	
+
 	$cache->update_forumpermissions();
 	$output->update_progress_bar(120);
-	
+
 	$cache->update_moderators();
 	$output->update_progress_bar(150);
-	
+
 	$cache->update_usertitles();
 	$output->update_progress_bar(180);
 
 	// Update import session cache
 	$import_session['end_date'] = time();
-	
+
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
-	
+
 	$board = new $class_name;
-	
+
 	// List of statistics we'll be using
 	$import_stats = array(
 		'total_usergroups' => 'User Groups',
@@ -883,18 +883,18 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 		'total_events' => 'Events',
 		'total_settings' => 'Settings',
 	);
-	
+
 	$post_data = array();
-	
+
 	// Are we sending anonymous data from the conversion?
 	if($import_session['allow_anonymous_info'] == 1)
 	{
 		$debug->log->trace0("Sending anonymous data from the conversion");
-		
+
 		// Prepare data
 		$post_data['post'] = "1";
 		$post_data['title'] = $mybb->settings['bbname'];
-		
+
 		foreach($board->modules as $key => $module)
 		{
 			if(in_array($key, $import_session['completed']))
@@ -906,7 +906,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 				$post_data[$key] = "0";
 			}
 		}
-		
+
 		// Generate the list of stats we have (Amount of threads imported, amount of posts imported, etc)
 		foreach($import_stats as $key => $title)
 		{
@@ -915,7 +915,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 				$post_data[$key]  = $import_session[$key];
 			}
 		}
-		
+
 		$post_data['newdb_query_count'] = intval($import_session['newdb_query_count']);
 		$post_data['olddb_query_count'] = intval($import_session['olddb_query_count']);
 		$post_data['start_date'] = $import_session['start_date'];
@@ -924,19 +924,19 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 		$post_data['return'] = "1";
 		$post_data['rev'] = $revision;
 	}
-	
+
 	// Try and send statistics
 	merge_fetch_remote_file("http://www.mybb.com/stats/mergesystem.php", $post_data);
-	
+
 	$import_session['allow_anonymous_info'] = 0;
-	
+
 	update_import_session();
-	
+
 	$output->update_progress_bar(200);
-	
+
 	echo "done.<br />\n";
 	flush();
-	
+
 	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
 	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
 	echo "<br /><br />\nPlease wait...<meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
@@ -945,23 +945,23 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 elseif($import_session['counters_cleanup'])
 {
 	$debug->log->event("Show the counters cleanup page");
-	
+
 	define("BACK_BUTTON", false);
-	
+
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
-	
+
 	$board = new $class_name;
-	
+
 	require_once MERGE_ROOT.'resources/class_converter_module.php';
 	require_once MERGE_ROOT.'resources/modules/posts.php';
 	$module = new Converter_Module_Posts($board);
-	
+
 	$module->counters_cleanup();
-	
+
 	update_import_session();
-	
+
 	// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
 	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
 	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
@@ -970,20 +970,20 @@ elseif($import_session['counters_cleanup'])
 }
 // Otherwise that means we've selected a module to run or we're in one
 elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
-{	
+{
 	$debug->log->event("Running a specific module");
-	
+
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
-	
+
 	$board = new $class_name;
-	
+
 	// Are we ready to configure out database details?
 	if($import_session['module'] == "db_configuration")
 	{
 		$debug->log->trace0("Configuring our module");
-		
+
 		// Show the database details configuration
 		$result = $board->db_configuration();
 	}
@@ -991,23 +991,23 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 	elseif($board->modules[$import_session['module']])
 	{
 		$debug->log->trace0("Setting up our module");
-		
+
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
-		
+
 		require_once MERGE_ROOT.'resources/class_converter_module.php';
 		require_once MERGE_ROOT.'resources/modules/'.$module_name.'.php';
 		require_once MERGE_ROOT."boards/".$import_session['board']."/".$module_name.".php";
-		
+
 		$importer_class_name = strtoupper($import_session['board'])."_Converter_Module_".ucfirst($module_name);
-		
+
 		$module = new $importer_class_name($board);
-		
+
 		// Open our DB Connection
 		$module->board->db_connect();
-		
+
 		// See how many we have to convert
 		$module->fetch_total();
-		
+
 		// Check to see if perhaps we're finished already
 		if($module->board->check_if_done())
 		{
@@ -1016,36 +1016,36 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 			{
 				$module->finish();
 			}
-			
+
 			$result = "finished";
 		}
 		// Otherwise, run the module
 		else
-		{			
+		{
 			// Get number of posts per screen from the form if it was just submitted
 			if(isset($mybb->input[$module_name.'_per_screen']))
 			{
 				$import_session[$module_name.'_per_screen'] = intval($mybb->input[$module_name.'_per_screen']);
-				
+
 				// This needs to be here so if we "Pause" (aka terminate script execution) our "per screen" amount will still be saved
 				update_import_session();
 			}
-			
+
 			// Do we need to do any setting up or checking before we start the actual import?
 			if(method_exists($module, "pre_setup"))
 			{
 				$module->pre_setup();
-				
+
 				// Incase we updated any $import_session variables while we were setting up
 				update_import_session();
 			}
-			
+
 			// Have we set our "per screen" amount yet?
 			if($import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
 			{
 				// Print our header
 				$output->print_header($module->board->modules[$import_session['module']]['name']);
-			
+
 				// Do we need to check a table type?
 				if(!empty($module->settings['check_table_type']))
 				{
@@ -1057,17 +1057,17 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 			{
 				// Yes, we're actually running a module now
 				define("IN_MODULE", 1);
-				
+
 				// Print our header
 				$output->print_header($module->board->modules[$import_session['module']]['name']);
-			
+
 				// A bit of stats to show the progress of the current import
 				$output->calculate_stats();
-				
+
 				// Run, baby, run
 				$result = $module->import();
 			}
-			
+
 			$output->print_footer();
 		}
 	}
@@ -1075,10 +1075,10 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 	else
 	{
 		$debug->log->trace0("Invalid module or still at the beginning. Redirect back to last step.");
-		
+
 		$import_session['resume_module'][] = $resume_module;
 		$import_session['module'] = '';
-		
+
 		update_import_session();
 		header("Location: index.php");
 		exit;
@@ -1089,7 +1089,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 	if($result == "finished")
 	{
 		$debug->log->trace1("Module finished. Run cleanup if needed.");
-		
+
 		// Once we finished running a module we check if there are any post-functions that need to be run
 		// For instance, ususally we need to run a post-function on the forums to update the 'parentlist' properly
 		if(method_exists($module, "cleanup"))
@@ -1097,7 +1097,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 			$debug->log->trace2("Running module cleanup.");
 			$module->cleanup();
 		}
-		
+
 		// Once we finish with posts we always recount and update lastpost info, etc.
 		if($import_session['module'] == "import_posts")
 		{
@@ -1116,7 +1116,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		$import_session['completed'][] = $import_session['module'];
 		$import_session['module'] = '';
 		update_import_session();
-		
+
 		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
 		if(!headers_sent())
 		{
@@ -1133,7 +1133,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 else
 {
 	$debug->log->event("Show the module selection list page.");
-	
+
 	// Set the start date for the end report.
 	if(!$import_session['start_date'])
 	{
@@ -1143,7 +1143,7 @@ else
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
-	
+
 	$board = new $class_name;
 
 	$output->module_list();
