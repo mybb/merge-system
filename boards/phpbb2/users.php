@@ -93,7 +93,7 @@ class PHPBB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['showavatars'] = $data['user_allowavatar'];
 		$insert_data['timeformat'] = $data['user_dateformat'];
 		$insert_data['timezone'] = $data['user_timezone'];
-		$insert_data['regip'] = $last_post['poster_ip'];
+		$insert_data['regip'] = my_inet_pton($last_post['poster_ip']);
 		$insert_data['totalpms'] = $this->get_private_messages($data['user_id']);
 		$insert_data['unreadpms'] = $data['user_unread_privmsg'];
 		$insert_data['salt'] = generate_salt();

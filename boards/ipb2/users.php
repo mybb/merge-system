@@ -80,7 +80,7 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);
 		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']);
 		$insert_data['style'] = 0;
-		$insert_data['regip'] = $data['ip_address'];
+		$insert_data['regip'] = my_inet_pton($data['ip_address']);
 		$insert_data['totalpms'] = $data['msg_total'];
 		$insert_data['unreadpms'] = $data['new_msg'];
 		$insert_data['dst'] = $data['dst_in_use'];

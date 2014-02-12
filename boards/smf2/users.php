@@ -87,7 +87,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['buddylist'] = $data['buddy_list'];
 		$insert_data['ignorelist'] = $data['pm_ignore_list'];
-		$insert_data['regip'] = $data['member_ip'];
+		$insert_data['regip'] = my_inet_pton($data['member_ip']);
 		$insert_data['timeonline'] = $data['total_time_logged_in'];
 		$insert_data['totalpms'] = $data['instant_messages'];
 		$insert_data['unreadpms'] = $data['unread_messages'];
