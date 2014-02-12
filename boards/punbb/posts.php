@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: posts.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -27,25 +27,25 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("posts", "*", "", array('limit_start' => $this->trackers['start_posts'], 'limit' => $import_session['posts_per_screen']));
 		while($post = $this->old_db->fetch_array($query))
 		{
 			$pid = $this->insert($post);
-			
+
 			if($insert_post['replyto'] == 0)
 			{
 				$db->update_query("threads", array('firstpost' => $pid), "import_tid='{$post['topic_id']}'");
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		$insert_data = array();
-		
+
 		// punBB values
 		$insert_data['import_pid'] = $data['id'];
 		$insert_data['tid'] = $this->get_import->tid($data['topic_id']);
@@ -65,9 +65,9 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 		{
 			$insert_data['replyto'] = $first_post;
 		}
-		
+
 		$insert_data['subject'] = encode_to_utf8($thread['subject'], "topics", "posts");
-		
+
 		// Check usernames for guests
 		$data['username'] = $this->get_import->username($data['poster_id'], $data['poster']);
 
@@ -86,14 +86,14 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 			$insert_data['edittime'] = $data['edited'];
 		}
 		else
-		{	
+		{
 			$insert_data['edituid'] = 0;
 			$insert_data['edittime'] = 0;
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	/**
 	 * Get a user from the SMF database
 	 *
@@ -110,19 +110,19 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 				'memberName' => 'Guest'
 			);
 		}
-		
+
 		$query = $this->old_db->simple_select("members", "*", "ID_MEMBER = '{$uid}'", array('limit' => 1));
-		
+
 		$result = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of posts
 		if(!isset($import_session['total_posts']))
 		{
@@ -130,7 +130,7 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 			$import_session['total_posts'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_posts'];
 	}
 }

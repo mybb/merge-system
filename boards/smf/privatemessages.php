@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: privatemessages.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,25 +26,25 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->query("
-			SELECT * 
+			SELECT *
 			FROM ".OLD_TABLE_PREFIX."personal_messages p
 			LEFT JOIN ".OLD_TABLE_PREFIX."pm_recipients r ON(p.ID_PM=r.ID_PM)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
-		);			
+		);
 		while($privatemessage = $this->old_db->fetch_array($query))
 		{
 			$this->insert($privatemessage);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		$insert_data = array();
-		
+
 		// SMF values
 		$insert_data['pmid'] = null;
 		$insert_data['import_pmid'] = $data['ID_PM'];
@@ -62,10 +62,10 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			$insert_data['readtime'] = TIME_NOW;
 			$insert_data['receipt'] = '2';
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		// import_uid => uid
@@ -73,7 +73,7 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			5 => 10,
 			6 => 11,
 		);
-		
+
 		$data = array(
 			'ID_PM' => 1,
 			'ID_MEMBER' => 5,
@@ -84,7 +84,7 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			'msgtime' => 12345678,
 			'body' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
 		);
-		
+
 		$match_data = array(
 			'pmid' => null,
 			'import_pmid' => 1,
@@ -100,14 +100,14 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			'readtime' => TIME_NOW,
 			'receipt' => '2',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of private messages
 		if(!isset($import_session['total_privatemessages']))
 		{
@@ -115,7 +115,7 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_privatemessages'];
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: forumperms.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -22,7 +22,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		'progress_column' => 'fid',
 		'default_per_screen' => 1000,
 	);
-	
+
 	var $convert_val = array(
 			'caneditposts' => 'f_edit',
 			'candeleteposts' => 'f_delete',
@@ -41,7 +41,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->query("
 			SELECT g.group_id, g.forum_id, g.auth_option_id, g.auth_setting, o.auth_option
 			FROM ".OLD_TABLE_PREFIX."acl_groups g
@@ -52,17 +52,17 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		while($perm = $this->old_db->fetch_array($query))
 		{
 			$this->debug->log->datatrace('$perm', $perm);
-			
+
 			$this->permissions[$perm['forum_id']][$perm['group_id']][$perm['auth_option']] = $perm['auth_setting'];
 		}
-			
+
 		$this->process_permissions();
 	}
-	
+
 	function process_permissions()
 	{
 		$this->debug->log->datatrace('$this->permissions', $this->permissions);
-		
+
 		if(is_array($this->permissions))
 		{
 			foreach($this->permissions as $fid => $groups)
@@ -74,23 +74,23 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 						'gid' => $gid,
 						'columns' => $columns,
 					);
-					
+
 					$this->debug->log->datatrace('$perm', $perm);
-					
+
 					$this->insert($perm);
 				}
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// phpBB 3 values
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
 		$insert_data['gid'] = $this->get_import->gid($data['gid']);
-		
+
 		foreach($this->convert_val as $mybb_column => $phpbb_column)
 		{
 			if(!$data['columns'][$phpbb_column])
@@ -101,23 +101,23 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			{
 				$data['columns'][$phpbb_column] = 1;
 			}
-			
-			$insert_data[$mybb_column] = $data['columns'][$phpbb_column];					
+
+			$insert_data[$mybb_column] = $data['columns'][$phpbb_column];
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		$this->get_import->cache_fids = array(
 			2 => 10,
 		);
-		
+
 		$this->get_import->cache_gids = array(
 			3 => 11,
 		);
-		
+
 		$data = array(
 			'fid' => 2,
 			'gid' => 3,
@@ -134,7 +134,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				'f_search' => 1,
 			),
 		);
-		
+
 		$match_data = array(
 			'fid' => 10,
 			'gid' => 11,
@@ -151,14 +151,14 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			'canview' => 1,
 			'cansearch' => 1,
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
@@ -171,7 +171,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forumperms'];
 	}
 }

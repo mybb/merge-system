@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: phpbb3.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -24,21 +24,21 @@ class PHPBB3_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "phpBB 3";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "phpBB 3";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -58,7 +58,7 @@ class PHPBB3_Converter extends Converter
 						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
-	
+
 	/**
 	 * Convert a phpBB 3 group ID into a MyBB group ID
 	 *
@@ -121,15 +121,15 @@ class PHPBB3_Converter extends Converter
 						{
 							// The lot
 							$group[2] = 1;
-						}					
-				}			
+						}
+				}
 			}
 		}
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
-		}			
-		
+		}
+
 		$this->old_db->free_result($query);
 		return implode(',', array_keys($group));
 	}

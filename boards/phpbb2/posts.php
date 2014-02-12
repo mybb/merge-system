@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: posts.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -27,7 +27,7 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->query("
 			SELECT p.*, pt.*
 			FROM ".OLD_TABLE_PREFIX."posts p
@@ -39,37 +39,37 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 			$this->insert($post);
 		}
 	}
-	
+
 	function convert_data($data)
-	{		
+	{
 		$insert_data = array();
-		
+
 		// phpBB 2 values
 		$insert_data['import_pid'] = $data['post_id'];
 		$insert_data['tid'] = $this->get_import->tid($data['topic_id']);
-		
+
 		// Check the last post for any NULL's, converted by phpBB's parser to a default topic
 		if($data['post_subject'] === 'NULL')
 		{
 			$data['post_subject'] = 'Welcome to phpBB 2';
 		}
-		
+
 		// Get Username
 		$topic_poster = $this->get_user($data['poster_id']);
-		
+
 		// Check to see if we need to inherit any post subjects from the thread
 		if(empty($data['post_subject']))
 		{
 			$query = $this->old_db->simple_select("topics", "topic_first_post_id, topic_title", "topic_first_post_id='{$data['post_id']}'", array('limit' => 1));
 			$topic = $this->old_db->fetch_array($query);
 			$this->old_db->free_result($query);
-		
+
 			if($topic['topic_first_post_id'] == $data['post_id'])
 			{
 				$data['post_subject'] = 'RE: '.$topic['topic_title'];
 			}
 		}
-		
+
 		$insert_data['fid'] = $this->get_import->fid_f($data['forum_id']);
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['post_subject']), "posts", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['poster_id']);
@@ -80,14 +80,14 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['ipaddress'] = $this->decode_ip($data['poster_ip']);
 		$insert_data['includesig'] = $data['enable_sig'];
 		$insert_data['smilieoff'] = int_to_01($data['enable_smilies']);
-		
+
 		return $insert_data;
 	}
-	
+
 	function after_insert($data, $insert_data, $pid)
 	{
 		global $db;
-		
+
 		$db->update_query("threads", array('firstpost' => $pid), "tid = '{$insert_data['tid']}' AND import_firstpost = '{$insert_data['import_pid']}'");
 		if($db->affected_rows() == 0)
 		{
@@ -97,7 +97,7 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 			$db->update_query("posts", array('replyto' => $first_post), "pid = '{$pid}'");
 		}
 	}
-	
+
 	/**
 	 * Get a user from the phpBB database
 	 *
@@ -113,14 +113,14 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 				'user_id' => 0,
 			);
 		}
-		
-		$query = $this->old_db->simple_select("users", "*", "user_id='{$uid}'", array('limit' => 1));		
-		$results = $this->old_db->fetch_array($query);		
+
+		$query = $this->old_db->simple_select("users", "*", "user_id='{$uid}'", array('limit' => 1));
+		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-			
+
 		return $results;
 	}
-	
+
 	/**
 	 * Decode function for phpBB's IP Addresses
 	 *
@@ -132,11 +132,11 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 		$hex_ip = explode('.', chunk_split($ip, 2, '.'));
 		return hexdec($hex_ip[0]). '.' . hexdec($hex_ip[1]) . '.' . hexdec($hex_ip[2]) . '.' . hexdec($hex_ip[3]);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of posts
 		if(!isset($import_session['total_posts']))
 		{
@@ -144,7 +144,7 @@ class PHPBB2_Converter_Module_Posts extends Converter_Module_Posts {
 			$import_session['total_posts'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_posts'];
 	}
 }

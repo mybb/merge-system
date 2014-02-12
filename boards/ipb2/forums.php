@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: forums.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,24 +26,24 @@ class IPB2_Converter_Module_Forums extends Converter_Module_Forums {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("forums", "*", "", array('order_by' => 'parent_id', 'order_dir' => 'asc', 'limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
 		while($forum = $this->old_db->fetch_array($query))
 		{
 			$fid = $this->insert($forum);
-			
+
 			// Update parent list.
 			if($forum['parent_id'] == '-1')
 			{
-				$db->update_query("forums", array('parentlist' => $fid), "fid = '{$fid}'");				
+				$db->update_query("forums", array('parentlist' => $fid), "fid = '{$fid}'");
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['import_fid'] = $data['id'];
 		$insert_data['name'] = $data['name'];
@@ -55,7 +55,7 @@ class IPB2_Converter_Module_Forums extends Converter_Module_Forums {
 			$data['sort_key'] = '';
 		}
 		$insert_data['defaultsortby'] = $data['sort_key'];
-		
+
 		if($data['sort_order'] == 'A-Z')
 		{
 			$data['sort_order'] = 'asc';
@@ -64,8 +64,8 @@ class IPB2_Converter_Module_Forums extends Converter_Module_Forums {
 		{
 			$data['sort_order'] = 'desc';
 		}
-		$insert_data['defaultsortorder'] = $data['sort_order'];	
-		
+		$insert_data['defaultsortorder'] = $data['sort_order'];
+
 		// We have a category
 		if($data['parent_id'] == '-1')
 		{
@@ -79,14 +79,14 @@ class IPB2_Converter_Module_Forums extends Converter_Module_Forums {
 			$insert_data['type'] = 'f';
 			$insert_data['import_pid'] = $data['parent_id'];
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forums
 		if(!isset($import_session['total_forums']))
 		{
@@ -94,10 +94,10 @@ class IPB2_Converter_Module_Forums extends Converter_Module_Forums {
 			$import_session['total_forums'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forums'];
 	}
-	
+
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing
 	 * forums.

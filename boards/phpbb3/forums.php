@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: forums.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,24 +26,24 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("forums", "*", "", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
 		while($forum = $this->old_db->fetch_array($query))
 		{
 			$fid = $this->insert($forum);
-			
+
 			// Update parent list.
 			if($forum['forum_type'] == '0')
 			{
-				$db->update_query("forums", array('parentlist' => $fid), "fid = '{$fid}'");					
-			}		
-		}	
+				$db->update_query("forums", array('parentlist' => $fid), "fid = '{$fid}'");
+			}
+		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// phpBB 3 Values
 		$insert_data['import_fid'] = intval($data['forum_id']);
 		$insert_data['name'] = encode_to_utf8($this->fix_ampersand($data['forum_name']), "forums", "forums");
@@ -81,16 +81,16 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 			$insert_data['type'] = 'f';
 			$insert_data['import_pid'] = $data['parent_id'];
 		}
-		
+
 		// TODO: last post data?
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forums
 		if(!isset($import_session['total_forums']))
 		{
@@ -98,16 +98,16 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 			$import_session['total_forums'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forums'];
 	}
-	
+
 	function test()
 	{
 		$this->get_import->cache_fids_f = array(
 			5 => 11,
 		);
-			
+
 		$data = array(
 			'forum_id' => 2,
 			'forum_name' => 'estéfdf fdsfds &amp; sÿÿ',
@@ -119,7 +119,7 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 			'forum_type' => 1,
 			'parent_id' => 5,
 		);
-		
+
 		$match_data = array(
 			'import_fid' => 2,
 			'name' => utf8_encode('estéfdf fdsfds & sÿÿ'),
@@ -132,10 +132,10 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 			'type' => 'f',
 			'import_pid' => 5,
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing
 	 * forums.

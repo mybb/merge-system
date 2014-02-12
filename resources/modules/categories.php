@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
- * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: categories.php 4395 2010-12-14 14:43:03Z ralgith $
  */
@@ -54,7 +54,7 @@ class Converter_Module_Categories extends Converter_Module
 		'usepostcounts' => 0,
 		'mod_edit_posts' => 0,
 	);
-	
+
 	/**
 	 * Insert forum into database
 	 *
@@ -63,14 +63,14 @@ class Converter_Module_Categories extends Converter_Module
 	public function insert($data)
 	{
 		global $db, $output;
-		
+
 		$this->debug->log->datatrace('$data', $data);
-		
+
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
-		
+
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
-		
+
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
 		$data = $this->process_default_values($data);
 
@@ -78,27 +78,27 @@ class Converter_Module_Categories extends Converter_Module
 		{
 			$insert_array[$key] = $db->escape_string($value);
 		}
-		
+
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
 		$db->insert_query("forums", $insert_array);
 		$fid = $db->insert_id();
-		
+
 		// Update internal array caches
 		$this->get_import->cache_fids[$forum['import_fid']] = $fid; // TODO: Fix?
-		
+
 		if($data['type'] == "f")
 		{
 			$this->get_import->cache_fids_f[$forum['import_fid']] = $fid; // TODO: Fix?
 		}
-		
+
 		$this->increment_tracker('categories');
-		
+
 		$output->print_progress("end");
-		
+
 		return $fid;
 	}
-	
+
 	function fix_ampersand($text)
 	{
 		return str_replace('&amp;', '&', $text);

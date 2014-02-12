@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: attachments.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -22,7 +22,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		'progress_column' => 'attachmentid',
 		'default_per_screen' => 20,
 	);
-	
+
 	function pre_setup()
 	{
 		$this->check_attachments_dir_perms();
@@ -31,22 +31,22 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("attachment", "*", "", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			$this->insert($attachment);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// vBulletin 3 values
-		$insert_data['import_aid'] = $data['attachmentid'];				
+		$insert_data['import_aid'] = $data['attachmentid'];
 		$insert_data['filetype'] = $this->get_attach_type($data['extension']);
-		
+
 		// Check if it is it an image
 		switch(strtolower($insert_data['filetype']))
 		{
@@ -64,7 +64,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 				$is_image = 0;
 				break;
 		}
-		
+
 		// Should have thumbnail if it's an image
 		if($is_image == 1)
 		{
@@ -74,7 +74,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		{
 			$insert_data['thumbnail'] = '';
 		}
-		
+
 		$posthash = $this->get_import->post_attachment_details($data['postid']);
 		$insert_data['pid'] = $posthash['pid'];
 		if($posthash['posthash'])
@@ -85,26 +85,26 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		{
 			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
 		}
-		
+
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['filename'] = $data['filename'];
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['dateline'].".attach";
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['counter'];
 		$insert_data['visible'] = $data['visible'];
-		
+
 		if($data['thumbnail'])
 		{
 			$insert_data['thumbnail'] = str_replace(".attach", "_thumb.{$data['extension']}", $insert_data['attachname']);
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function after_insert($data, $insert_data, $aid)
 	{
 		global $mybb, $db;
-		
+
 		if($data['thumbnail'])
 		{
 			// Transfer attachment thumbnails
@@ -120,7 +120,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 			@fclose($file);
 			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], '0777');
 		}
-		
+
 		// Transfer attachments
 		$file = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
 		if($file)
@@ -133,14 +133,14 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		}
 		@fclose($file);
 		@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		
+
 		if(!$posthash)
 		{
 			// Restore connection
 			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
 		}
 	}
-	
+
 	/**
 	 * Get a attachment mime type from the vB database
 	 *
@@ -151,17 +151,17 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	{
 		$query = $this->old_db->simple_select("attachmenttype", "mimetype", "extension = '{$ext}'");
 		$mimetype = unserialize($this->old_db->fetch_field($query, "mimetype"));
-		
+
 		$results = str_replace('Content-type: ', '', $mimetype[0]);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
@@ -169,7 +169,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_attachments'];
 	}
 }

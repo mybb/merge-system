@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -21,7 +21,7 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	// What settings do we need to get and what is their MyBB equivalent?
 	var $convert_settings = array(
 			"board_offline" => "boardclosed",
@@ -63,19 +63,19 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 			"ipb_bruteforce_period" => "failedlogintime",
 			"no_reg" => "disableregs",
 			"flood_control" => "postfloodsecs",
-			"ipb_display_version" => "showvernum",			
+			"ipb_display_version" => "showvernum",
 		);
 
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("conf_settings", "conf_key, conf_value, conf_default", "conf_key IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			// Invision Power Board 2 values
 			$name = $this->convert_settings[$setting['conf_key']];
-			
+
 			if(empty($setting['conf_value']))
 			{
 				$value = $setting['conf_default'];
@@ -84,7 +84,7 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 			{
 				$value = $setting['conf_value'];
 			}
-			
+
 			if($setting['conf_key'] == "disable_subforum_show")
 			{
 				if($value == "on")
@@ -96,7 +96,7 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 0;
 				}
 			}
-			
+
 			if($setting['conf_key'] == "search_sql_method")
 			{
 				if($value == "ftext")
@@ -108,15 +108,15 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = "standard";
 				}
 			}
-				
+
 			$this->update_setting($name, $value);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -124,10 +124,10 @@ class IPB2_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

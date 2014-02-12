@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: forums.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,12 +26,12 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("forums", "*", "", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen'], 'order_by' => 'type', 'order_dir' => 'asc'));
 		while($forum = $this->old_db->fetch_array($query))
 		{
 			$fid = $this->insert($forum);
-			
+
 			// Update parent list.
 			if($insert_forum['type'] == 'c')
 			{
@@ -39,20 +39,20 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
 		static $field_info;
-		
+
 		if(!isset($field_info))
 		{
 			// Get columns so we avoid any 'unknown column' errors
 			$field_info = $db->show_fields_from("forums");
 		}
-		
+
 		$insert_data = array();
-		
+
 		foreach($field_info as $key => $field)
 		{
 			if($field['Extra'] == 'auto_increment')
@@ -69,22 +69,22 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 				$insert_data[$field['Field']] = $data[$field['Field']];
 			}
 		}
-		
+
 		// MyBB 1.6 values
 		$insert_data['import_fid'] = $data['fid'];
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['description'] = encode_to_utf8($insert_data['description'], "forums", "forums");
-		
+
 		// This value NEEDS to be here for the cleanup() to work
 		$insert_data['pid'] = 0;
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forums
 		if(!isset($import_session['total_forums']))
 		{
@@ -92,28 +92,28 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 			$import_session['total_forums'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forums'];
 	}
-	
+
 	function test()
-	{		
+	{
 		$data = array(
 			'fid' => 4,
 			'pid' => 5,
 			'description' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'
 		);
-		
+
 		$match_data = array(
 			'import_fid' => 4,
 			'import_pid' => 5,
 			'pid' => 0,
 			'description' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ')
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing forums.
 	 */

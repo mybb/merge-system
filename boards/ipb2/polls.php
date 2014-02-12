@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: polls.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,23 +26,23 @@ class IPB2_Converter_Module_Polls extends Converter_Module_Polls {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("polls", "*", "", array('limit_start' => $this->trackers['start_polls'], 'limit' => $import_session['polls_per_screen']));
 		while($poll = $this->old_db->fetch_array($query))
 		{
 			$pid = $this->insert($poll);
-			
+
 			// Restore connections
-			$db->update_query("threads", array('poll' => $pid), "import_tid = '".$poll['tid']."'");		
+			$db->update_query("threads", array('poll' => $pid), "import_tid = '".$poll['tid']."'");
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		$insert_data = array();
-		
+
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
 		$choices = unserialize(utf8_decode($data['choices']));
@@ -57,7 +57,7 @@ class IPB2_Converter_Module_Polls extends Converter_Module_Polls {
 			$choices1 .= $seperator.$db->escape_string($choice);
 			$seperator = '||~|~||';
 		}
-		
+
 		$seperator = '';
 		$votes = '';
 		foreach($choices['votes'] as $key => $vote)
@@ -65,7 +65,7 @@ class IPB2_Converter_Module_Polls extends Converter_Module_Polls {
 			$votes .= $seperator.$vote;
 			$seperator = '||~|~||';
 		}
-		
+
 		$insert_data['question'] = $choices['question'];
 		$insert_data['dateline'] = $data['start_date'];
 		$insert_data['options'] = $choices1;
@@ -73,14 +73,14 @@ class IPB2_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data['numoptions'] = $choice_count;
 		$insert_data['numvotes'] = $data['votes'];
 		$insert_data['multiple'] = $choices['multi'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of polls
 		if(!isset($import_session['total_polls']))
 		{
@@ -88,7 +88,7 @@ class IPB2_Converter_Module_Polls extends Converter_Module_Polls {
 			$import_session['total_polls'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_polls'];
 	}
 }

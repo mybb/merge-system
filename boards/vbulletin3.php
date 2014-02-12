@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: vbulletin3.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -24,21 +24,21 @@ class VBULLETIN3_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "vBulletin 3.6, 3.7 or 3.8";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "vBulletin 3";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -59,7 +59,7 @@ class VBULLETIN3_Converter extends Converter
 						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
-	
+
 	/**
 	 * Convert a vB group ID into a MyBB group ID
 	 *
@@ -76,9 +76,9 @@ class VBULLETIN3_Converter extends Converter
 			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
 			$this->old_db->free_result($query);
 		}
-		
+
 		$query = $this->old_db->simple_select("usergroup", "*", "usergroupid='{$gid}'", $settings);
-		
+
 		$comma = $group = '';
 		while($vbgroup = $this->old_db->fetch_array($query))
 		{
@@ -119,16 +119,16 @@ class VBULLETIN3_Converter extends Converter
 							// The lot
 							$group .= 2;
 						}
-				}			
+				}
 			}
 			$comma = ',';
 		}
-		
+
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
-		}			
-		
+		}
+
 		$this->old_db->free_result($query);
 		return $group;
 	}

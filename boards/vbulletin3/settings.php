@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -21,7 +21,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	// What settings do we need to get and what is their MyBB equivalent?
 	var $convert_settings = array(
 			"addtemplatename" => "tplhtmlcomments",
@@ -31,7 +31,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 			"attachthumbs" => "attachthumbnails",
 			"attachthumbssize" => "attachthumbh",
 			"bbactive" => "boardclosed",
-			"bbclosedreason" => "boardclosed_reason", 
+			"bbclosedreason" => "boardclosed_reason",
 			"dateformat" => "dateformat",
 			"displayloggedin" => "showwol",
 			"dstonoff" => "dstcorrection",
@@ -87,7 +87,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 	function import()
 	{
 		global $import_session;
-		
+
 		$settings = "";
 		$int_to_yes_no = array(
 			"addtemplatename" => 1,
@@ -119,7 +119,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 			// vBulletin 3.6 values
 			$name = $this->convert_settings[$setting['varname']];
 			$value = $setting['value'];
-			
+
 			if($setting['varname'] == "logip")
 			{
 				if($value == 1)
@@ -135,7 +135,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 0;
 				}
 			}
-			
+
 			if($setting['varname'] == "moderatenewmembers")
 			{
 				if($setting['config_value'] == 1)
@@ -147,12 +147,12 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = "verify";
 				}
 			}
-			
+
 			if($setting['varname'] == "WOLrefresh")
 			{
 				$value = ceil($value / 60);
 			}
-			
+
 			if($setting['varname'] == "showforumusers")
 			{
 				if($value == 0)
@@ -164,7 +164,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 1;
 				}
 			}
-			
+
 			if($setting['varname'] == "useheaderredirect")
 			{
 				if($value == 0)
@@ -176,7 +176,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 1;
 				}
 			}
-			
+
 			if($setting['varname'] == "showprivateforums")
 			{
 				if($value == 0)
@@ -188,14 +188,14 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 1;
 				}
 			}
-			
+
 			if(($value == 0 || $value == 1) && isset($int_to_yes_no[$setting['varname']]))
 			{
 				$value = int_to_yes_no($value, $int_to_yes_no[$setting['varname']]);
 			}
-			
+
 			$this->update_setting($name, $value);
-			
+
 			if($setting['varname'] == "attachthumbssize")
 			{
 				$name = "attachthumbw";
@@ -203,11 +203,11 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 			}
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -215,10 +215,10 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

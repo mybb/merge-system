@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -21,7 +21,7 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	// What settings do we need to get and what is their MyBB equivalent?
 	var $convert_settings = array(
 			"avatar_max_height" => "maxavatardims",
@@ -61,14 +61,14 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 		$int_to_on_off = array(
 			"enable_confirm" => 1
 		);
-		
+
 		$query = $this->old_db->simple_select("config", "config_name, config_value", "config_name IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			// phpBB 3 values
 			$name = $this->convert_settings[$setting['config_name']];
 			$value = $setting['config_value'];
-			
+
 			if($setting['config_name'] == "avatar_max_height")
 			{
 				$avatar_setting = "x".$value;
@@ -79,7 +79,7 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 				$value = $value.$avatar_setting;
 				unset($avatar_setting);
 			}
-			
+
 			if($setting['config_name'] == "avatar_filesize")
 			{
 				$value = ceil($value / 1024);
@@ -89,12 +89,12 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 			{
 				$value = int_to_yes_no($value, $int_to_yes_no[$setting['config_name']]);
 			}
-			
+
 			if(($value == 0 || $value == 1) && isset($int_to_on_off[$setting['config_name']]))
 			{
 				$value = int_to_on_off($value, $int_to_on_off[$setting['config_name']]);
 			}
-			
+
 			if($setting['config_name'] == 'search_type')
 			{
 				$value = "fulltext";
@@ -116,11 +116,11 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 			$this->update_setting($name, $value);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -128,10 +128,10 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

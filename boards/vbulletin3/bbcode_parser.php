@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: bbcode_parser.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -42,7 +42,7 @@ class BBCode_Parser {
 			'[/IMG]',
 			'[/QUOTE]',
 		);
-		
+
 		$replace = array(
 			'[align=center]',
 			'[/align]',
@@ -66,7 +66,7 @@ class BBCode_Parser {
 			'[/img]',
 			'[/quote]',
 		);
-		
+
 		if(function_exists("str_ireplace"))
 		{
 			$text = str_ireplace($find, $replace, $text);
@@ -75,7 +75,7 @@ class BBCode_Parser {
 		{
 			$text = str_replace($find, $replace, $text);
 		}
-		
+
 		$find = array(
 			'#\[COLOR\="(.*?)"\](.*?)\[/COLOR\]#i', // TODO: Test?!
 			'#\[COLOR\=(.*?)\](.*?)\[/COLOR\]#i',
@@ -83,7 +83,7 @@ class BBCode_Parser {
 			'#\[url\="(.*?)"](.*?)\[/url\]#i',
 			'#\[url\=(.*?)](.*?)\[/url\]#i',
 		);
-		
+
 		$replace = array(
 			'[color=$1]$2[/color]',
 			'[color=$1]$2[/color]',
@@ -91,9 +91,9 @@ class BBCode_Parser {
 			'[url=$1]$2[/url]',
 			'[url=$1]$2[/url]',
 		);
-		
+
 		$text = preg_replace($find, $replace, $text);
-		
+
 		return $text;
 	}
 }

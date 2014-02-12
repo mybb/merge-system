@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: moderators.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,29 +26,29 @@ class VBULLETIN3_Converter_Module_Moderators extends Converter_Module_Moderators
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("moderator", "*", "forumid != '-1'", array('limit_start' => $this->trackers['start_mods'], 'limit' => $import_session['mods_per_screen']));
 		while($moderator = $this->old_db->fetch_array($query))
 		{
 			$this->insert($moderator);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// vBulletin 3 values
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
-		$insert_data['id'] = $this->get_import->uid($data['userid']);		
-		
+		$insert_data['id'] = $this->get_import->uid($data['userid']);
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of moderators
 		if(!isset($import_session['total_moderators']))
 		{
@@ -56,7 +56,7 @@ class VBULLETIN3_Converter_Module_Moderators extends Converter_Module_Moderators
 			$import_session['total_moderators'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_moderators'];
 	}
 }

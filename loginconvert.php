@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
- * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: loginconvert.php 4415 2011-04-10 18:05:10Z ralgith $
  */
@@ -23,10 +23,10 @@ function loginconvert_info()
 		"name"				=> "Login Password Conversion",
 		"description"		=> "Converts passwords to the correct type when logging in. To be used in conjunction with the MyBB Merge System.",
 		"website"			=> "http://www.mybb.com",
-		"author"				=> "MyBB Group",
+		"author"			=> "MyBB Group",
 		"authorsite"		=> "http://www.mybb.com",
-		"version"				=> "1.4",
-		"guid"					=> "",
+		"version"			=> "1.4",
+		"guid"				=> "",
 		"compatibility"	=> "18*",
 	);
 }

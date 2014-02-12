@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: bbcode_parser.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -32,14 +32,14 @@ class BBCode_Parser {
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)" \/><!\-\- \1 \-\->#', '\2', $text);
 		$text = preg_replace('#<!\-\- (.*?) \-\-><a(.*?)href="(.*?)">(.*?)<\/a><!\-\- \1 \-\->#', '[url=\3]\4[/url]', $text);
 		$text = preg_replace('#<!\-\- ia(.*?) \-\->(.*?)<!\-\- ia\1 \-\->\[\/attachment\]#', '', $text);
-		$text = preg_replace('/\[color=#(.)(.)(.)\]/', '[color=#\1\1\2\2\3\3]', $text);	
+		$text = preg_replace('/\[color=#(.)(.)(.)\]/', '[color=#\1\1\2\2\3\3]', $text);
 		return $text;
 	}
-	
+
 	function convert_title($text)
 	{
 		$text = utf8_unhtmlentities($text);
-		
+
 		return $text;
 	}
 }

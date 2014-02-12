@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: class_converter.php 4350 2010-08-14 04:46:34Z ralgith $
  */
@@ -18,12 +18,12 @@ if(!defined("IN_MYBB"))
 class Debug {
 
 	public $log;
-	
+
 	/**
 	 * Class constructor
 	 */
 	function __construct()
-	{		
+	{
 		$this->log = new Log();
 	}
 }
@@ -38,9 +38,9 @@ class Log {
 	const TRACE2 = 6;
 	const TRACE3 = 7;
 	const DATATRACE = 8;
-	
+
 	private $table_exists = false;
-	
+
 	function __construct()
 	{
 		$this->create_debug_table();
@@ -50,91 +50,91 @@ class Log {
 	{
 		$this->write(self::ERROR, $message);
 	}
-	
+
 	public function warning($message)
 	{
 		$this->write(self::WARNING, $message);
 	}
-	
+
 	public function event($message)
 	{
 		$this->write(self::EVENT, $message);
 	}
-	
+
 	public function trace0($message)
 	{
 		$this->write(self::TRACE0, $message);
 	}
-	
+
 	public function trace1($message)
 	{
 		$this->write(self::TRACE1, $message);
 	}
-	
+
 	public function trace2($message)
 	{
 		$this->write(self::TRACE2, $message);
 	}
-	
+
 	public function trace3($message)
 	{
 		$this->write(self::TRACE3, $message);
 	}
-	
+
 	public function datatrace($message, $data)
 	{
 		$this->write(self::DATATRACE, $message.': '.var_export($data, true));
 	}
-	
+
 	private function write($type, $message)
 	{
 		global $db;
-		
+
 		if(WRITE_LOGS != 1)
 		{
 			return;
 		}
-		
+
 		$log_insert = array(
 			'type' => intval($type),
 			'message' => $this->generate_plain_backtrace(2).$message,
 			'timestamp' => time(),
 		);
 		$this->log_inserts[] = $log_insert;
-		
+
 		// If our database connection is established
 		if(is_object($db) && $db->read_link)
 		{
 			// Create our debug table if it does not exist already
 			$this->create_debug_table();
-			
+
 			// Loop through our queue of logs and insert into debug table
 			foreach($this->log_inserts as $log_insert)
 			{
 				$log_insert['message'] = $db->escape_string($log_insert['message']);
-				
+
 				$db->insert_query("debuglogs", $log_insert);
 			}
-			
+
 			// Clear out our log queue now that they're all inserted
 			$this->log_inserts = array();
 		}
 	}
-	
+
 	private function create_debug_table()
 	{
 		global $db;
-		
+
 		if($this->table_exists == true)
 		{
 			return;
 		}
-		
+
 		if(!is_object($db) || !$db->read_link)
 		{
 			return;
 		}
-		
+
 		if(!$db->table_exists("debuglogs"))
 		{
 			switch($db->type)
@@ -166,10 +166,10 @@ class Log {
 					) ENGINE=MyISAM;");
 			}
 		}
-		
+
 		$this->table_exists = true;
 	}
-	
+
 	/**
 	 * Generates a plain backtrace if the server supports it.
 	 *
@@ -199,16 +199,16 @@ class Log {
 		}
 		return $backtrace;
 	}
-	
+
 	public function __destruct()
 	{
 		global $start_timer, $load_timer, $db;
-		
+
 		$load_time = $start_timer-$load_timer;
-		
+
 		$end_timer = microtime(true);
 		$total_time = $end_timer-$start_timer;
-		
+
 		$php_time = number_format($total_time - $db->query_time, 7);
 		$query_time = number_format($db->query_time, 7);
 
@@ -223,11 +223,11 @@ class Log {
 			$percentphp = 0;
 			$percentsql = 0;
 		}
-		
+
 		$phpversion = PHP_VERSION;
 
 		$serverload = get_server_load();
-		
+
 		$current_memory_usage = get_memory_usage();
 		if($current_memory_usage)
 		{
@@ -237,7 +237,7 @@ class Log {
 		{
 			$memory_usage = '';
 		}
-		
+
 		$this->trace0("Generated in {$total_time} seconds ({$percentphp}% PHP / {$percentsql}% MySQL) / Initialize Load Time: {$load_time} / SQL Queries: {$db->query_count}{$memory_usage} PHP version: {$phpversion} / Server Load: {$serverload}");
 	}
 }

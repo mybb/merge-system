@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: usergroups.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,7 +26,7 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		// Get only non-staff groups.
 		$query = $this->old_db->simple_select("groups", "*", "g_id > 3", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
@@ -35,18 +35,18 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			{
 				continue;
 			}
-			
+
 			$gid = $this->insert($group);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// punBB values
-		$insert_data['import_gid'] = $data['g_id'];				
-		$insert_data['title'] = $data['g_title'];				
+		$insert_data['import_gid'] = $data['g_id'];
+		$insert_data['title'] = $data['g_title'];
 		$insert_data['canview'] = $data['g_read_board'];
 		$insert_data['canpostthreads'] = $data['g_post_topics'];
 		$insert_data['canpostreplys'] = $data['g_post_replies'];
@@ -55,14 +55,14 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data['candeletethreads'] = $data['g_delete_topics'];
 		$insert_data['cansearch'] = $data['g_search'];
 		$insert_data['canviewmemberlist'] = $data['g_search_users'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of usergroups
 		if(!isset($import_session['total_usergroups']))
 		{
@@ -70,7 +70,7 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			$import_session['total_usergroups'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_usergroups'];
 	}
 }

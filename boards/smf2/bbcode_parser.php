@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: bbcode_parser.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,7 +26,7 @@ class BBCode_Parser {
 		$message = preg_replace("#\[quote(.*?)\](.*?)\[\/quote\]#esi", "\$this->mycode_parse_post_quotes('$2', '$1')", $message);
 		return $message;
 	}
-	
+
 	/**
 	* Parses SMF quotes with author, post id and/or dateline.
 	*
@@ -38,27 +38,27 @@ class BBCode_Parser {
 	{
 		require_once MERGE_ROOT.'resources/class_cache_handler.php';
 		$this->get_import = new Cache_Handler();
-		
+
 		$info = trim($info);
-		
+
 		preg_match("#author=(.*?)=#i", $info, $match);
 		if($match[1])
 		{
 			$username = $match[1];
 		}
-		
+
 		preg_match("#link=topic=([0-9]+).msg?([0-9]+)\#msg([0-9]+)?#i", $info, $match);
 		if($match[1])
 		{
 			$pid = $this->get_import->pid($match[1]);
 		}
-		
+
 		preg_match("#date=?([0-9]+)#i", $info, $match);
 		if($match[1])
 		{
 			$dateline = $match[1];
 		}
-		
+
 		// Build the return quote, in case not all fields are present.
 		$retval = '[quote';
 		if(isset($username))

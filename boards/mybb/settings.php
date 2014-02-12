@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -21,24 +21,24 @@ class MYBB_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	var $convert_ignore_settings = array('bbname', 'bburl', 'homename', 'homeurl', 'adminemail', 'contactlink', 'cookiedomain', 'cookiepath');
 
 	function import()
 	{
 		global $mybb, $output, $import_session, $db;
-		
+
 		$query = $this->old_db->simple_select("settings", "name, value", "sid < 149 AND name NOT IN('".implode("','", array_keys($this->convert_ignore_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			$this->update_setting($setting['name'], $setting['value']);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -46,10 +46,10 @@ class MYBB_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

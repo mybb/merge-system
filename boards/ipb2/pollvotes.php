@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: pollvotes.php 4394 2010-12-14 14:38:21Z ralgith $
  */
@@ -26,36 +26,36 @@ class IPB2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("voters", "*", "", array('limit_start' => $this->trackers['start_pollvotes'], 'limit' => $import_session['pollvotes_per_screen']));
 		while($pollvote = $this->old_db->fetch_array($query))
 		{
 			$this->insert($pollvote);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['uid'] = $this->get_import->uid($data['member_id']);
 		$insert_data['dateline'] = $data['vote_date'];
-		
+
 		// Get poll id from thread id
 		$query = $db->simple_select("threads", "poll", "tid = '".$this->get_import->tid($data['tid'])."'");
 		$insert_data['pid'] = $db->fetch_field($query, "poll");
 		$db->free_result($query);
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of poll votes
 		if(!isset($import_session['total_pollvotes']))
 		{
@@ -63,7 +63,7 @@ class IPB2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 			$import_session['total_pollvotes'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_pollvotes'];
 	}
 }
