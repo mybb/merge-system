@@ -105,7 +105,7 @@ class converterOutput
 <head>
 	<title>$this->title &gt; $title</title>
 	<link rel="stylesheet" href="stylesheet.css" type="text/css" />
-	<script type="text/javascript" src="../jscripts/prototype.js"></script>
+	<script type="text/javascript" src="../jscripts/jquery.js"></script>
 	<script type="text/javascript" src="../jscripts/general.js"></script>
 </head>
 <body>
@@ -458,21 +458,25 @@ END;
 		echo "<script type=\"text/javascript\">
 		function updateDBSettings()
 		{
-			dbengine = \$('dbengine').options[\$('dbengine').selectedIndex].value;
-			$$('.db_settings').each(function(element)
+			var dbengine = \$(\"#dbengine\").val();
+			$('.db_settings').each(function()
 			{
-				element.className = 'db_settings';
-				if(dbengine+'_settings' == element.id)
+				var element = $(this);
+				element.addClass('db_settings');
+				if(dbengine+'_settings' == element.attr('id'))
 				{
-					Element.show(element);
+					element.show();
 				}
 				else
 				{
-					Element.hide(element);
+					element.hide();
 				}
 			});
 		}
-		Event.observe(window, 'load', updateDBSettings);
+		$(function()
+		{
+			updateDBSettings();
+		});
 		</script>";
 
 		$versions = "";
