@@ -23,7 +23,6 @@ class Converter_Module_Posts extends Converter_Module
 		'dateline' => 0,
 		'message' => '',
 		'ipaddress' => '',
-		'longipaddress' => 0,
 		'includesig' => 1,
 		'smilieoff' => 0,
 		'edituid' => 0,
