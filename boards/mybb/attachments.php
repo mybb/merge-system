@@ -91,7 +91,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_aid'] = $data['aid'];
 		$insert_data['pid'] = $this->get_import->pid($data['pid']);
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);

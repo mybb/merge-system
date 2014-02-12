@@ -74,7 +74,7 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_uid'] = $data['uid'];
 		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroup'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroup']));

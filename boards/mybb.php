@@ -22,14 +22,14 @@ class MYBB_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "MyBB 1.6 (Merge)";
+	var $bbname = "MyBB 1.8 (Merge)";
 
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "MyBB 1.6";
+	var $plain_bbname = "MyBB 1.8";
 
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin

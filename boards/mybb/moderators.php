@@ -64,7 +64,7 @@ class MYBB_Converter_Module_Moderators extends Converter_Module_Moderators {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
 		$insert_data['id'] = $this->get_import->uid($data['id']);
 

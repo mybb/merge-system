@@ -64,7 +64,7 @@ class MYBB_Converter_Module_Threads extends Converter_Module_Threads {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);

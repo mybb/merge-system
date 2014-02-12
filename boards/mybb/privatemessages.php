@@ -64,7 +64,7 @@ class MYBB_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
 		$insert_data['fromid'] = $this->get_import->uid($data['fromid']);

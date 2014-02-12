@@ -70,7 +70,7 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_fid'] = $data['fid'];
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['description'] = encode_to_utf8($insert_data['description'], "forums", "forums");

@@ -68,7 +68,7 @@ class MYBB_Converter_Module_Posts extends Converter_Module_Posts {
 			}
 		}
 
-		// MyBB 1.6 values
+		// MyBB 1.8 values
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
