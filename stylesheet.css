@@ -323,7 +323,7 @@ div.completed {
 	background: url(images/ok.gif) no-repeat;
 }
 div.awaiting {
-	background: url(images/awaiting.gif) no-repeat;
+	background: url(images/awaiting.png) no-repeat;
 }
 div.module_description {
 	padding-left: 20px;
@@ -378,7 +378,7 @@ div.flash_error p em, div.flash_success p em {
 
 div.flash_error p em {
 	color: #C00;
-	background: url('images/awaiting.gif') no-repeat;
+	background: url('images/awaiting.png') no-repeat;
 }
 
 div.flash_success p em {
