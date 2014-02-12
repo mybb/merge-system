@@ -171,7 +171,7 @@ if(!$import_session['resume_module'])
 	$import_session['resume_module'] = array();
 }
 
-if($mybb->version_code < 1800)
+if($mybb->version_code < 1700)
 {
 	$output->print_error("The MyBB Merge System requires MyBB 1.8 or higher to run.");
 }
