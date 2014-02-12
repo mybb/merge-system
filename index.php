@@ -178,7 +178,7 @@ if($mybb->version_code < 1800)
 
 if($mybb->version_code >= 2000)
 {
-	$output->print_error("This version of the MyBB Merge System will not run on MyBB 2.0 or higher. Please check for updates at the <a href=\"http://mybb.com/downloads/merge-system\" target=\"_blank\">MyBBoard Website</a>.");
+	$output->print_error("This version of the MyBB Merge System will not run on MyBB 2.0 or higher. Please check for updates at the <a href=\"http://www.mybb.com/download/merge-system\" target=\"_blank\">MyBB Website</a>.");
 }
 
 if(version_compare(PHP_VERSION, '5.0.0', '<'))
@@ -525,7 +525,7 @@ EOF;
 		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
 	</div>
 	<div id="footer">
-		<div class="float_right"><a href="http://mybb.com/">MyBB</a> &copy; 2002-{$year} <a href="http://mybb.com/">MyBB Group</a></div>
+		<div class="float_right"><a href="http://www.mybb.com/">MyBB</a> &copy; 2002-{$year} <a href="http://www.mybb.com/">MyBB Group</a></div>
 		<div>Generated {$generation_time}</div>
 	</div>
 </div>
@@ -731,7 +731,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		$latest_version = "<strong>".$tree['mybb_merge']['latest_version']['value']."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
 		{
-			$errors['version_check'] = "Your MyBB Merge System is out of date! Your MyBB Merge System may not work properly until you update. Latest version: <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://mybb.com/downloads/merge-system\" target=\"_blank\">Download</a>)";
+			$errors['version_check'] = "Your MyBB Merge System is out of date! Your MyBB Merge System may not work properly until you update. Latest version: <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/downloads/merge-system\" target=\"_blank\">Download</a>)";
 			$checks['version_check_status'] = '<span class="fail">Out of Date</span>';
 			$debug->log->warning("This version of the merge system is out-of-date");
 		}
@@ -748,7 +748,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	$attachmentswritable = @fopen(MYBB_ROOT.'uploads/test.write', 'w');
 	if(!$attachmentswritable)
 	{
-		$errors['attachments_check'] = 'The attachments directory (/uploads/) is not writable. Please adjust the <a href="http://wiki.mybb.com/index.php/CHMOD%20Files" target="_blank">chmod</a> permissions to allow it to be written to.';
+		$errors['attachments_check'] = 'The attachments directory (/uploads/) is not writable. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be written to.';
 		$checks['attachments_check_status'] = '<span class="fail"><strong>Not Writable</strong></span>';
 		@fclose($attachmentswritable);
 		$debug->log->trace0("Attachments directory not writable");

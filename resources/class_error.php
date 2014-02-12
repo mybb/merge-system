@@ -3,14 +3,14 @@
  * MyBB 1.6
  * Copyright 2010 MyBB Group, All Rights Reserved
  *
- * Website: http://mybb.com
- * License: http://mybb.com/about/license
+ * Website: http://www.mybb.com
+ * License: http://www.mybb.com/about/license
  *
  * $Id: class_error.php 5027 2010-06-16 04:22:21Z RyanGordon $
  */
 
 class debugErrorHandler extends errorHandler {
-	
+
 	/**
 	 * Initializes the error handler
 	 *
@@ -18,12 +18,12 @@ class debugErrorHandler extends errorHandler {
 	function __construct()
 	{
 		global $debug;
-		
+
 		$this->debug = &$debug;
-		
+
 		parent::__construct();
 	}
- 	
+
 	/**
 	 * Parses a error for processing.
 	 *
@@ -32,7 +32,7 @@ class debugErrorHandler extends errorHandler {
 	 * @param string The error file
 	 * @param integer The error line
 	 * @return boolean True if parsing was a success, otherwise assume a error
-	 */			
+	 */
 	function error($type, $message, $file=null, $line=0)
 	{
 		global $mybb;
@@ -49,7 +49,7 @@ class debugErrorHandler extends errorHandler {
 		}
 
 		$file = str_replace(MYBB_ROOT, "", $file);
-		
+
 		// Do we have a PHP error?
 		if(my_strpos(my_strtolower($this->error_types[$type]), 'warning') === false)
 		{
@@ -63,9 +63,9 @@ class debugErrorHandler extends errorHandler {
 
 		return parent::error($type, $message, $file, $line);
 	}
-	
+
 	/**
-	 * Triggers a user created error 
+	 * Triggers a user created error
 	 * Example: $error_handler->trigger("Some Warning", E_USER_ERROR);
 	 *
 	 * @param string Message
@@ -74,7 +74,7 @@ class debugErrorHandler extends errorHandler {
 	function trigger($message="", $type=E_USER_ERROR)
 	{
 		$this->debug->log->error("\$message: {$message} \$type: {$type}");
-		
+
 		parent::trigger($message, $type);
 	}
 }
