@@ -525,7 +525,7 @@ EOF;
 		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
 	</div>
 	<div id="footer">
-		<div class="float_right"><a href="http://www.mybb.com/">MyBB</a> &copy; 2002-{$year} <a href="http://www.mybb.com/">MyBB Group</a></div>
+		<div class="float_right">MyBB &copy; 2002-{$year} MyBB Group</div>
 		<div>Generated {$generation_time}</div>
 	</div>
 </div>
