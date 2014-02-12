@@ -44,8 +44,6 @@ class Converter_Module_Users extends Converter_Module
 		'allownotices' => 1,
 		'regip' => '',
 		'lastip' => '',
-		'longregip' => 0,
-		'longlastip' => 0,
 		'language' => '',
 		'passwordconvert' => '',
 		'passwordconverttype' => '',
@@ -133,7 +131,14 @@ class Converter_Module_Users extends Converter_Module
 
 		foreach($data as $key => $value)
 		{
-			$insert_array[$key] = $db->escape_string($value);
+			if($key == 'regip' || $key == 'lastip')
+			{
+				$insert_array[$key] = $db->escape_binary($value);
+			}
+			else
+			{
+				$insert_array[$key] = $db->escape_string($value);
+			}
 		}
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
