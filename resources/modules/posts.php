@@ -29,7 +29,6 @@ class Converter_Module_Posts extends Converter_Module
 		'edittime' => 0,
 		'icon' => 0,
 		'visible' => 1,
-		'posthash' => '',
 	);
 
 	/**
