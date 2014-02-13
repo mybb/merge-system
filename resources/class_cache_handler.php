@@ -87,13 +87,13 @@ class Cache_Handler
 			return $this->cache_post_attachment_details[$old_pid];
 		}
 
-		$query = $db->simple_select("posts", "posthash, tid, uid, pid", "pid = '".$this->pid($old_pid)."'");
-		$posthash = $db->fetch_array($query);
+		$query = $db->simple_select("posts", "tid, uid, pid", "pid = '".$this->pid($old_pid)."'");
+		$details = $db->fetch_array($query);
 		$db->free_result($query);
 
-		$this->cache_post_attachment_details[$old_pid] = $posthash;
+		$this->cache_post_attachment_details[$old_pid] = $details;
 
-		return $posthash;
+		return $details;
 	}
 
 	/**

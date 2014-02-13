@@ -116,16 +116,9 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['filesize'] = $data['size'];
 		$insert_data['downloads'] = $data['downloads'];
 
-		$posthash = $this->get_import->post_attachment_details($data['id_msg']);
-		$insert_data['pid'] = $posthash['pid'];
-		if($posthash['posthash'])
-		{
-			$insert_data['posthash'] = $posthash['posthash'];
-		}
-		else
-		{
-			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
-		}
+		$attach_details = $this->get_import->post_attachment_details($data['id_msg']);
+		$insert_data['pid'] = $attach_details['pid'];
+		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
 		if($data['id_thumb'] != 0)
 		{
@@ -214,12 +207,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		else
 		{
 			$this->board->set_error_notice_in_progress("Error could not find the attachment (ID: {$aid})");
-		}
-
-		if(!$posthash)
-		{
-			// Restore connection
-			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
 		}
 
 		$posthash = $this->get_import->post_attachment_details($data['id_msg']);

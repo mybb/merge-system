@@ -165,7 +165,6 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$message = $db->fetch_field($query, 'message');
 		$db->free_result($query);
 		$message = str_replace('[attachment='.$data['aid'].']', '[attachment='.$aid.']', $message);
-		$db->update_query("posts", array('posthash' => $insert_data['posthash'], 'message' => $db->escape_string($message)), "pid = '{$insert_data['pid']}'");
 	}
 
 	function print_attachments_per_screen_page()

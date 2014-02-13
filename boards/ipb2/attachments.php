@@ -74,16 +74,9 @@ class IPB2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Invision Power Board 2 values
 		$insert_data['import_aid'] = $data['attach_id'];
 
-		$posthash = $this->get_import->post_attachment_details($data['attach_pid']);
-		$insert_data['pid'] = $posthash['pid'];
-		if($posthash['posthash'])
-		{
-			$insert_data['posthash'] = $posthash['posthash'];
-		}
-		else
-		{
-			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
-		}
+		$attach_details = $this->get_import->post_attachment_details($data['attach_pid']);
+		$insert_data['pid'] = $attach_details['pid'];
+		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
 		$insert_data['filetype'] = $this->get_attach_type($data['attach_ext']);
 

@@ -82,17 +82,10 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['download_count'];
 
-		$posthash = $this->get_import->post_attachment_details($data['post_msg_id']);
+		$attach_details = $this->get_import->post_attachment_details($data['post_msg_id']);
 
-		$insert_data['pid'] = $posthash['pid'];
-		if($posthash['posthash'])
-		{
-			$insert_data['posthash'] = $posthash['posthash'];
-		}
-		else
-		{
-			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
-		}
+		$insert_data['pid'] = $attach_details['pid'];
+		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
 		// Check if this is an image
 		switch(strtolower($insert_data['filetype']))
@@ -150,14 +143,8 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$this->board->set_error_notice_in_progress("Could not find the attachment (ID: {$aid})");
 		}
 
-		if(!$posthash)
-		{
-			// Restore connection
-			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
-		}
-
-		$posthash = $this->get_import->post_attachment_details($data['post_msg_id']);
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$posthash['tid']."'");
+		$attach_details = $this->get_import->post_attachment_details($data['post_msg_id']);
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$attach_details['tid']."'");
 	}
 
 	function print_attachments_per_screen_page()

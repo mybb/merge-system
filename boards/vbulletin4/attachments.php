@@ -75,16 +75,9 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 			$insert_data['thumbnail'] = '';
 		}
 
-		$posthash = $this->get_import->post_attachment_details($data['postid']);
-		$insert_data['pid'] = $posthash['pid'];
-		if($posthash['posthash'])
-		{
-			$insert_data['posthash'] = $posthash['posthash'];
-		}
-		else
-		{
-			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
-		}
+		$attach_details = $this->get_import->post_attachment_details($data['postid']);
+		$insert_data['pid'] = $attach_details['pid'];
+		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['filename'] = $data['filename'];
@@ -133,12 +126,6 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		}
 		@fclose($file);
 		@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-
-		if(!$posthash)
-		{
-			// Restore connection
-			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
-		}
 	}
 
 	/**
