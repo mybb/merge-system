@@ -88,7 +88,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['style'] = 0;
 		$insert_data['referrer'] = $data['referrerid'];
-		$insert_data['regip'] = $data['ipaddress'];
+		$insert_data['regip'] = my_inet_pton($data['ipaddress']);
 		$insert_data['totalpms'] = $data['pmtotal'];
 		$insert_data['unreadpms'] = $data['pmunread'];
 		$insert_data['passwordconvert'] = $data['password'];
