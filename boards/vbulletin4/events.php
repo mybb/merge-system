@@ -1,10 +1,10 @@
 <?php
 /**
- * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  *
  * $Id: events.php 4399 2011-01-30 06:12:31Z ralgith $
  */
