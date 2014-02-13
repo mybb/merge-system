@@ -30,7 +30,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	function import()
 	{
 		global $import_session;
-		
+
 		// Get members
 		$query = $this->old_db->simple_select("user", "*", "", array('order_by' => 'userid', 'order_dir' => 'asc', 'limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
 		while($user = $this->old_db->fetch_array($query))
@@ -38,11 +38,11 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 			$this->insert($user);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// vBulletin 3 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroupid']));
@@ -62,8 +62,8 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$customavatar = $this->get_custom_avatar($data['userid']);
 			if(!$customavatar)
-			{	
-				$insert_data['avatardimensions'] = '';			
+			{
+				$insert_data['avatardimensions'] = '';
 				$insert_data['avatar'] = '';
 				$insert_data['avatartype'] = '';
 			}
@@ -71,7 +71,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		else
 		{
 			list($width, $height) = @getimagesize($avatar['avatarpath']);
-			$insert_data['avatardimensions'] = $width.'|'.$height;			
+			$insert_data['avatardimensions'] = $width.'|'.$height;
 			$insert_data['avatar'] = $avatar['avatarpath'];
 			$insert_data['avatartype'] = 'remote';
 		}
@@ -84,21 +84,21 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
-		$insert_data['msn'] = $data['msn'];				
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);						
-		$insert_data['style'] = 0;				
-		$insert_data['referrer'] = $data['referrerid'];				
-		$insert_data['regip'] = $data['ipaddress'];				
+		$insert_data['msn'] = $data['msn'];
+		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
+		$insert_data['style'] = 0;
+		$insert_data['referrer'] = $data['referrerid'];
+		$insert_data['regip'] = $data['ipaddress'];
 		$insert_data['totalpms'] = $data['pmtotal'];
 		$insert_data['unreadpms'] = $data['pmunread'];
 		$insert_data['passwordconvert'] = $data['password'];
 		$insert_data['passwordconverttype'] = 'vb3';
 		$insert_data['salt'] = $data['salt'];
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($this->get_signature($data['userid'])), "user", "users");
-		
+
 		return $insert_data;
 	}
-	
+
 	/**
 	 * Get a avatar from the vB database
 	 *
@@ -108,13 +108,13 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	function get_avatar($aid)
 	{
 		$aid = intval($aid);
-		$query = $this->old_db->simple_select("avatar", "*", "avatarid = '{$aid}'");		
+		$query = $this->old_db->simple_select("avatar", "*", "avatarid = '{$aid}'");
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Get a avatar from the vB database
 	 *
@@ -124,10 +124,10 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	function get_custom_avatar($uid)
 	{
 		$uid = intval($uid);
-		$query = $this->old_db->simple_select("customavatar", "*", "userid = '{$uid}'");		
+		$query = $this->old_db->simple_select("customavatar", "*", "userid = '{$uid}'");
 		return $this->old_db->fetch_array($query);
 	}
-	
+
 	/**
 	 * Get a signature from a user in the vB database
 	 *
@@ -140,11 +140,11 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$query = $this->old_db->simple_select("usertextfield", "signature", "userid = '{$userid}'", array('limit' => 1));
 		return $this->old_db->fetch_field($query, "signature");
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of members
 		if(!isset($import_session['total_users']))
 		{
@@ -152,7 +152,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 			$import_session['total_users'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_users'];
 	}
 }

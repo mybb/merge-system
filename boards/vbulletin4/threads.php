@@ -26,18 +26,18 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("thread", "*", "", array('order_by' => 'firstpostid', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
-			$this->insert($thread);		
+			$this->insert($thread);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// vBulletin 3 values
 		$insert_data['import_tid'] = $data['threadid'];
 		$insert_data['sticky'] = $data['sticky'];
@@ -50,30 +50,30 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_uid'] = $data['postuserid'];
 		$insert_data['views'] = $data['views'];
 		$insert_data['closed'] = int_to_01($data['open']);
-						
+
 		if($insert_data['closed'] == 'no')
 		{
 			$insert_data['closed'] = '';
 		}
-		
+
 		if($data['open'] == '10')
 		{
 			$insert_data['closed'] = 'moved|'.$this->get_import->tid($data['pollid']);
 		}
-		
+
 		$insert_data['totalratings'] = $data['votetotal'];
 		$insert_data['notes'] = $data['notes'];
 		$insert_data['visible'] = $data['visible'];
 		$insert_data['numratings'] = $data['votenum'];
 		$insert_data['attachmentcount'] = $data['attach'];
-				
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of threads
 		if(!isset($import_session['total_threads']))
 		{
@@ -81,7 +81,7 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_threads'];
 	}
 }

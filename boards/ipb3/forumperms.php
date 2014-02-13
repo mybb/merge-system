@@ -22,18 +22,18 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		'progress_column' => 'id',
 		'default_per_screen' => 1000,
 	);
-	
+
 	function pre_setup()
 	{
 		global $import_session;
-		
+
 		if(empty($import_session['forumperms_groups']))
 		{
 			$query = $this->old_db->query("
-				SELECT p.perm_id, g.g_perm_id, g.g_id 
+				SELECT p.perm_id, g.g_perm_id, g.g_id
 				FROM ".OLD_TABLE_PREFIX."forum_perms p
 				LEFT JOIN ".OLD_TABLE_PREFIX."groups g ON (p.perm_id=g.g_perm_id)
-			");			
+			");
 			while($permgroup = $this->old_db->fetch_array($query))
 			{
 				$import_session['forumperms_groups'][$permgroup['g_perm_id']] = $permgroup;
@@ -42,7 +42,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$import_session['forumperms_groups_count'] = count($import_session['forumperms_groups']);
 		}
 	}
-	
+
 	function import()
 	{
 		global $import_session;
@@ -53,7 +53,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$this->process_permission($perm);
 		}
 	}
-	
+
 	function process_permission($data)
 	{
 		$permission_array = unserialize(stripslashes($data['permission_array']));
@@ -69,7 +69,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			);
 		}
 		$this->debug->log->datatrace('$permission_array', $permission_array);
-		
+
 		foreach($permission_array as $key => $permission)
 		{
 			$this->debug->log->trace3("\$key: {$key} \$permission: {$permission}");
@@ -83,17 +83,17 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				}
 			}
 			else
-			{						
-				$perm_split = explode(',', $permission);						
+			{
+				$perm_split = explode(',', $permission);
 				foreach($perm_split as $key2 => $gid)
 				{
 					$new_perms[$this->board->get_group_id($gid, array("not_multiple" => true))][$key] = 1;
 				}
 			}
 		}
-		
+
 		$this->debug->log->datatrace('$new_perms', $new_perms);
-		
+
 		if(!empty($new_perms))
 		{
 			foreach($new_perms as $gid => $perm2)
@@ -107,18 +107,18 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				}
 				$perm_array = $perm2;
 				$perm_array['gid'] = $gid;
-				
+
 				$this->debug->log->datatrace('$perm_array', $perm_array);
 
 				$this->insert($perm_array);
 			}
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 3 values
 		$insert_data['fid'] = $this->get_import->fid($data['id']);
 		$insert_data['gid'] = $data['gid'];
@@ -128,14 +128,14 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		$insert_data['canpostattachments'] = yesno_to_int($data['upload_perms']);
 		$insert_data['canviewthreads'] = yesno_to_int($data['read_perms']);
 		$insert_data['canview'] = yesno_to_int($data['show_perms']);
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
@@ -143,7 +143,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forumperms'];
 	}
 }

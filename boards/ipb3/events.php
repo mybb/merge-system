@@ -26,18 +26,18 @@ class IPB3_Converter_Module_Events extends Converter_Module_Events {
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("cal_events", "*", "", array('limit_start' => $this->trackers['start_events'], 'limit' => $import_session['events_per_screen']));
 		while($event = $this->old_db->fetch_array($query))
 		{
 			$this->insert($event);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['import_eid'] = $data['event_id'];
 		$insert_data['name'] = encode_to_utf8($data['event_title'], "cal_events", "events");
@@ -49,14 +49,14 @@ class IPB3_Converter_Module_Events extends Converter_Module_Events {
 		$insert_data['starttime'] = $insert_data['dateline'];
 		$insert_data['endtime'] = $data['event_unix_to'];
 		$insert_data['repeats'] = $data['event_recurring'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of events
 		if(!isset($import_session['total_events']))
 		{
@@ -64,7 +64,7 @@ class IPB3_Converter_Module_Events extends Converter_Module_Events {
 			$import_session['total_events'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_events'];
 	}
 }

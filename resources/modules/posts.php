@@ -55,7 +55,14 @@ class Converter_Module_Posts extends Converter_Module
 
 		foreach($data as $key => $value)
 		{
-			$insert_array[$key] = $db->escape_string($value);
+			if($key == 'ipaddress')
+			{
+				$insert_array[$key] = $db->escape_binary($value);
+			}
+			else
+			{
+				$insert_array[$key] = $db->escape_string($value);
+			}
 		}
 
 		unset($insert_array['import_pid']);

@@ -51,7 +51,7 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['pagetext']), "post", "posts");
-		$insert_data['ipaddress'] = $data['ipaddress'];
+		$insert_data['ipaddress'] = my_inet_pton($data['ipaddress']);
 		$edit = $this->get_editlog($data['postid']);
 		$insert_data['edituid'] = $this->get_import->uid($edit['userid']);
 		$insert_data['edittime'] = $edit['dateline'];

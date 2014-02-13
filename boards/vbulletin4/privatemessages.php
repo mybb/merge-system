@@ -26,23 +26,23 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 	function import()
 	{
 		global $import_session;
-		
+
 			$query = $this->old_db->query("
-				SELECT * 
+				SELECT *
 				FROM ".OLD_TABLE_PREFIX."pm p
 				LEFT JOIN ".OLD_TABLE_PREFIX."pmtext pt ON(p.pmtextid=pt.pmtextid)
 				LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
-			);			
+			);
 			while($pm = $this->old_db->fetch_array($query))
 			{
 				$this->insert($pm);
 			}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		// vBulletin 3 values
 		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
@@ -56,12 +56,12 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		{
 			foreach($touserarray['cc'] as $key => $to)
 			{
-				$username = $this->get_username($to);					
+				$username = $this->get_username($to);
 				$recipients['to'][] = $this->get_import->uid($username['userid']);
 			}
 		}
 		$insert_data['recipients'] = serialize($recipients);
-		
+
 		if($data['folderid'] == -1)
 		{
 			$insert_data['folder'] = 2;
@@ -70,22 +70,22 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		{
 			$insert_data['folder'] = 0;
 		}
-		
+
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "pm", "privatemessages");
 		$insert_data['status'] = $data['messageread'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
 		$insert_data['includesig'] = $data['showsignature'];
 		$insert_data['smilieoff'] = int_to_01($data['allowsmilie']);
-		
+
 		if($data['messageread'] == 1)
 		{
 			$insert_data['readtime'] = time();
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	/**
 	 * Get a user from the vB database
 	 *
@@ -101,19 +101,19 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 				'userid' => 0,
 			);
 		}
-				
+
 		$query = $this->old_db->simple_select("user", "*", "username = '".$this->old_db->escape_string($username)."'", array('limit' => 1));
-		
+
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of private messages
 		if(!isset($import_session['total_privatemessages']))
 		{
@@ -121,7 +121,7 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_privatemessages'];
 	}
 }

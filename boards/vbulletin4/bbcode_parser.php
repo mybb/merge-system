@@ -42,7 +42,7 @@ class BBCode_Parser {
 			'[/IMG]',
 			'[/QUOTE]',
 		);
-		
+
 		$replace = array(
 			'[align=center]',
 			'[/align]',
@@ -66,7 +66,7 @@ class BBCode_Parser {
 			'[/img]',
 			'[/quote]',
 		);
-		
+
 		if(function_exists("str_ireplace"))
 		{
 			$text = str_ireplace($find, $replace, $text);
@@ -75,7 +75,7 @@ class BBCode_Parser {
 		{
 			$text = str_replace($find, $replace, $text);
 		}
-		
+
 		$find = array(
 			'#\[COLOR\="(.*?)"\](.*?)\[/COLOR\]#i', // TODO: Test?!
 			'#\[COLOR\=(.*?)\](.*?)\[/COLOR\]#i',
@@ -83,7 +83,7 @@ class BBCode_Parser {
 			'#\[url\="(.*?)"](.*?)\[/url\]#i',
 			'#\[url\=(.*?)](.*?)\[/url\]#i',
 		);
-		
+
 		$replace = array(
 			'[color=$1]$2[/color]',
 			'[color=$1]$2[/color]',
@@ -91,9 +91,9 @@ class BBCode_Parser {
 			'[url=$1]$2[/url]',
 			'[url=$1]$2[/url]',
 		);
-		
+
 		$text = preg_replace($find, $replace, $text);
-		
+
 		return $text;
 	}
 }

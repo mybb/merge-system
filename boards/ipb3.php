@@ -23,21 +23,21 @@ class IPB3_Converter extends Converter {
 	 * @var string
 	 */
 	var $bbname = "Invision Power Board 3 (Beta)";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "Invision Power Board 3";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -63,7 +63,7 @@ class IPB3_Converter extends Converter {
 			'name' => 'IPB 3.x series',
 			'3.0.2' => 'IPB 3.0.2',
 		);
-	
+
 	/**
 	 * Convert a IPB group ID into a MyBB group ID
 	 *
@@ -81,8 +81,8 @@ class IPB3_Converter extends Converter {
 		else
 		{
 			$query = $this->old_db->simple_select("groups", "*", "g_id='{$gid}'");
-		}		
-				
+		}
+
 		$comma = $group = '';
 		while($ipbgroup = $this->old_db->fetch_array($query))
 		{
@@ -113,7 +113,7 @@ class IPB3_Converter extends Converter {
 					case 6: // Administrator
 						$group .= 6;
 						break;
-					default:						
+					default:
 						$gid = $this->get_import->gid($ipbgroup['g_id']);
 						if($gid > 0)
 						{
@@ -125,11 +125,11 @@ class IPB3_Converter extends Converter {
 							// The lot
 							$group .= 2;
 						}
-				}			
+				}
 			}
 			$comma = ',';
 		}
-		
+
 		if(!$query)
 		{
 			return 2; // Return regular registered user.

@@ -49,7 +49,7 @@ class BBPRESS_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $this->get_import->username($data['poster_id']);
 		$insert_data['dateline'] = strtotime($data['post_time']);
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['post_text'], $data['bbcode_uid']), "posts", "posts");
-		$insert_data['ipaddress'] = $data['poster_ip'];
+		$insert_data['ipaddress'] = my_inet_pton($data['poster_ip']);
 
 		return $insert_data;
 	}

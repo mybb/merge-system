@@ -69,7 +69,7 @@ class SMF_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $data['posterName'];
 		$insert_data['dateline'] = $data['posterTime'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['body'])), "messages", "posts");
-		$insert_data['ipaddress'] = $data['posterIP'];
+		$insert_data['ipaddress'] = my_inet_pton($data['posterIP']);
 
 		if($data['smileysEnabled'] == '1')
 		{

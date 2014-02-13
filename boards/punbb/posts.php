@@ -77,7 +77,7 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $data['poster'];
 		$insert_data['dateline'] = $data['posted'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "posts", "posts");
-		$insert_data['ipaddress'] = $data['poster_ip'];
+		$insert_data['ipaddress'] = my_inet_pton($data['poster_ip']);
 		$insert_data['smilieoff'] = $data['hide_smilies'];
 		if($data['edited'] != 0)
 		{

@@ -26,30 +26,30 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		'email_column' => 'email',
 		'default_per_screen' => 1000,
 	);
-	
+
 	function import()
 	{
 		global $import_session;
-		
+
 		// Get members
 		//$query = $this->old_db->simple_select("members", "*", "", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
 		$query = $this->old_db->query("
 			SELECT *
-			FROM ".OLD_TABLE_PREFIX."members m 
+			FROM ".OLD_TABLE_PREFIX."members m
 			LEFT JOIN ".OLD_TABLE_PREFIX."profile_portal pp ON (m.member_id=pp.pp_member_id)
 			LEFT JOIN ".OLD_TABLE_PREFIX."pfields_content pc ON (m.member_id=pc.member_id)
 			LIMIT ".$this->trackers['start_users'].", ".$import_session['users_per_screen']
 		);
 		while($user = $this->old_db->fetch_array($query))
-		{				
+		{
 			$this->insert($user);
 		}
 	}
-	
+
 	function convert_data($data)
-	{		
+	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 3 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['member_group_id'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = $this->board->get_group_id($data['mgroup_others']);
@@ -78,10 +78,10 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['aim'] = $data['field_1'];
 		$insert_data['yahoo'] = $data['field_8'];
 		$insert_data['msn'] = $data['field_2'];
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);                
-		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']); 			
-		$insert_data['style'] = 0;							
-		$insert_data['regip'] = $data['ip_address'];				
+		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);
+		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']);
+		$insert_data['style'] = 0;
+		$insert_data['regip'] = $data['ip_address'];
 		$insert_data['totalpms'] = $data['msg_count_total'];
 		$insert_data['unreadpms'] = $data['msg_count_new'];
 		$insert_data['dst'] = $data['dst_in_use'];
@@ -89,14 +89,14 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['salt'] = $data['members_pass_salt'];
 		$insert_data['passwordconvert'] = $data['members_pass_hash'];
 		$insert_data['passwordconverttype'] = 'ipb3';
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of members
 		if(!isset($import_session['total_users']))
 		{
@@ -104,7 +104,7 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 			$import_session['total_users'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_users'];
 	}
 }

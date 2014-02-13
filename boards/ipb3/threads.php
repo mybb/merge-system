@@ -22,24 +22,24 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 		'progress_column' => 'tid',
 		'default_per_screen' => 1000,
 	);
-	
+
 	function import()
 	{
 		global $import_session;
-			
+
 		$query = $this->old_db->simple_select("topics", "*", "state != 'link'", array('order_by' => 'topic_firstpost', 'order_dir' => 'DESC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
 			$this->insert($thread);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $import_session;
-		
+
 		$insert_data = array();
-				
+
 		// Invision Power Board 3 values
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['sticky'] = $data['pinned'];
@@ -55,14 +55,14 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 			$insert_data['closed'] = 1;
 		}
 		else
-		{				
-			$insert_data['closed'] = '';	
+		{
+			$insert_data['closed'] = '';
 		}
 
 		$insert_data['totalratings'] = $data['topic_rating_total'];
 		$insert_data['visible'] = $data['approved'];
 		$insert_data['numratings'] = $data['topic_rating_hits'];
-		
+
 		$pids = '';
 		$seperator = '';
 		$query = $this->old_db->simple_select("posts", "pid", "topic_id = '{$data['tid']}'");
@@ -72,7 +72,7 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 			$seperator = ', ';
 		}
 		$this->old_db->free_result($query);
-		
+
 		$insert_data['attachmentcount'] = '';
 		if($pids != '')
 		{
@@ -80,16 +80,16 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 			$insert_data['attachmentcount'] = $this->old_db->fetch_field($query, "attach_count");
 			$this->old_db->free_result($query);
 		}
-		
+
 		$insert_data['import_poll'] = $data['poll_state'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of threads
 		if(!isset($import_session['total_threads']))
 		{
@@ -97,7 +97,7 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_threads'];
 	}
 }
