@@ -22,22 +22,22 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'progress_column' => 'ID_ATTACH',
 		'default_per_screen' => 20,
 	);
-	
+
 	var $thumbs = array();
-	
+
 	var $cache_attach_filenames = array();
-	
+
 	function pre_setup()
 	{
 		global $import_session, $output;
-		
+
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
 		{
 			$query = $this->old_db->simple_select("settings", "value", "variable = 'attachmentUploadDir'", array('limit' => 1));
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'value');
 			$this->old_db->free_result($query);
-			
+
 			if(empty($import_session['uploadspath']))
 			{
 				$query = $this->old_db->simple_select("settings", "value", "variable = 'avatar_url'", array('limit' => 1));
@@ -45,9 +45,9 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$this->old_db->free_result($query);
 			}
 		}
-		
+
 		$this->check_attachments_dir_perms();
-		
+
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
@@ -60,7 +60,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$this->test_readability("attachments", "ID_ATTACH,filename");
 			}
 		}
-		
+
 		$output->print_inline_errors();
 	}
 
@@ -75,23 +75,31 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 			{
 				continue;
 			}
-			
+
 			$this->insert($attachment);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
+		global $import_session;
+
 		$insert_data = array();
-		
+
 		// SMF values
 		$insert_data['import_aid'] = $data['ID_ATTACH'];
-		
+
 		$insert_data['uid'] = $this->get_import->uid($data['ID_MEMBER']);
 		$insert_data['filename'] = $data['filename'];
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW.".attach";
-		
-		if(function_exists('mime_content_type'))
+
+		if(function_exists("finfo_open"))
+		{
+			$file_info = finfo_open(FILEINFO_MIME);
+			list($insert_data['filetype'], ) = explode(';', finfo_file($file_info, $import_session['uploadspath'].$this->generate_raw_filename($data)), 1);
+			finfo_close($file_info);
+		}
+		else if(function_exists("mime_content_type"))
 		{
 			$insert_data['filetype'] = mime_content_type(get_extension($data['filename']));
 		}
@@ -99,7 +107,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$insert_data['filetype'] = '';
 		}
-		
+
 		// Check if this is an image
 		switch(strtolower($insert_data['filetype']))
 		{
@@ -117,7 +125,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$is_image = 0;
 				break;
 		}
-		
+
 		// Check if this is an image
 		if($is_image == 1)
 		{
@@ -127,10 +135,10 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$insert_data['thumbnail'] = '';
 		}
-		
+
 		$insert_data['filesize'] = $data['size'];
 		$insert_data['downloads'] = $data['downloads'];
-		
+
 		$posthash = $this->get_import->post_attachment_details($data['ID_MSG']);
 		$insert_data['pid'] = $posthash['pid'];
 		if($posthash['posthash'])
@@ -141,32 +149,32 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
 		}
-		
+
 		if($data['ID_THUMB'] != 0)
 		{
 			$this->thumbs[] = $data['ID_THUMB'];
 			$thumbnail = $this->get_import_attach_filename($data['ID_THUMB']);
 			$ext = get_extension($thumbnail['filename']);
-			
+
 			$insert_data['thumbnail'] = str_replace(".attach", "_thumb.$ext", $insert_data['attachname']);
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function after_insert($data, $insert_data, $aid)
 	{
 		global $import_session, $mybb, $db;
-		
+
 		// Transfer attachment thumbnail
 		$thumb_not_exists = "";
 		if($data['ID_THUMB'] != 0)
-		{			
+		{
 			// Transfer attachment thumbnail
 			$attachment_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].$this->generate_raw_filename($data));
-			
+
 			if(!empty($attachment_thumbnail_file))
-			{						
+			{
 				$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], 'w');
 				if($attachrs)
 				{
@@ -184,11 +192,11 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$this->board->set_error_notice_in_progress("Error could not find the attachment thumbnail (ID: {$aid})");
 			}
 		}
-		
+
 		// Transfer attachment
 		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].$this->generate_raw_filename($data));
 		if(!empty($attachment_file))
-		{					
+		{
 			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
 			if($attachrs)
 			{
@@ -205,21 +213,21 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$this->board->set_error_notice_in_progress("Error could not find the attachment (ID: {$aid})");
 		}
-		
+
 		if(!$posthash)
 		{
 			// Restore connection
 			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
 		}
-		
+
 		$posthash = $this->get_import->post_attachment_details($data['ID_MSG']);
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$posthash['tid']."'");
 	}
-	
+
 	function print_attachments_per_screen_page()
 	{
 		global $import_session;
-		
+
 		echo '<tr>
 <th colspan="2" class="first last">Please type in the link to your '.$this->plain_bbname.' forum attachment directory:</th>
 </tr>
@@ -229,13 +237,13 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 <td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
 </tr>';
 	}
-	
+
 	function test()
 	{
 		$this->get_import->cache_uids = array(
 			3 => 10
 		);
-		
+
 		$this->get_import->cache_post_attachment_details = array(
 			4 => array(
 				'posthash' => 'ds12312dsffdsfs132123f5t54teuhybum',
@@ -244,7 +252,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				'uid' => 10,
 			),
 		);
-		
+
 		$data = array(
 			'ID_ATTACH' => 2,
 			'ID_MEMBER' => 3,
@@ -254,7 +262,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 			'ID_MSG' => 4,
 			'ID_THUMB' => 0,
 		);
-		
+
 		$match_data = array(
 			'import_aid' => 2,
 			'thumbnail' => '',
@@ -265,26 +273,26 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 			'pid' => 11,
 			'posthash' => 'ds12312dsffdsfs132123f5t54teuhybum',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	function get_import_attach_filename($aid)
 	{
 		if(array_key_exists($aid, $this->cache_attach_filenames))
 		{
 			return $this->cache_attach_filenames[$aid];
 		}
-		
+
 		$query = $this->old_db->simple_select("attachments", "filename", "ID_ATTACH = '{$aid}'");
 		$thumbnail = $this->old_db->fetch_array($query, "filename");
 		$this->old_db->free_result($query);
-		
+
 		$this->cache_attach_filenames[$aid] = $thumbnail;
-		
+
 		return $thumbnail;
 	}
-	
+
 	function generate_raw_filename($attachment)
 	{
 		// If we're using the newer model, return it here.
@@ -319,14 +327,14 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$attachment['filename']);
 
 		$attachment['filename'] = preg_replace(array('#\s#', '#[^\w_\.\-]#'), array('_', ''), $attachment['filename']);
-		
+
 		return $attachment['ID_ATTACH']."_".str_replace('.', '_', $attachment['filename']).md5($attachment['filename']);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
@@ -334,7 +342,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_attachments'];
 	}
 }
