@@ -82,6 +82,8 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function convert_data($data)
 	{
+		global $import_session;
+
 		$insert_data = array();
 
 		// SMF values
@@ -92,6 +94,21 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW.".attach";
 
 		if(function_exists('mime_content_type'))
+		{
+			$insert_data['filetype'] = mime_content_type(get_extension($data['filename']));
+		}
+		else
+		{
+			$insert_data['filetype'] = '';
+		}
+
+		if(function_exists("finfo_open"))
+		{
+			$file_info = finfo_open(FILEINFO_MIME);
+			list($insert_data['filetype'], ) = explode(';', finfo_file($file_info, $import_session['uploadspath'].$this->generate_raw_filename($data)), 1);
+			finfo_close($file_info);
+		}
+		else if(function_exists("mime_content_type"))
 		{
 			$insert_data['filetype'] = mime_content_type(get_extension($data['filename']));
 		}
