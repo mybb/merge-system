@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: threads.php 4419 2011-07-20 19:48:14Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

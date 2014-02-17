@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id$
  */
 
 // Disallow direct access to this file for security reasons

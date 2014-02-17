@@ -6,7 +6,6 @@
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
  *
- * $Id: smf2.php 4394 2010-12-14 14:38:21Z ralgith $
  * Many thanks to Dylan Myers and MaFeSa for helping develop and test this converter.
  */
 

@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: loginconvert.php 4415 2011-04-10 18:05:10Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

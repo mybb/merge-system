@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2010 MyBB Group, All Rights Reserved
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: class_error.php 5027 2010-06-16 04:22:21Z RyanGordon $
  */
 
 class debugErrorHandler extends errorHandler {

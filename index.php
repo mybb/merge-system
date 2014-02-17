@@ -5,9 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: index.php 4394 2010-12-14 14:38:21Z ralgith $
- * NOT TO BE DISTRIBUTED WITH THE MYBB PACKAGE
  */
 
 $load_timer = microtime(true);

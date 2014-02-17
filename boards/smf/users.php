@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: users.php 4397 2011-01-01 15:49:46Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

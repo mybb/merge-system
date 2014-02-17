@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: class_converter.php 4350 2010-08-14 04:46:34Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

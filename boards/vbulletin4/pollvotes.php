@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: pollvotes.php 4399 2011-01-30 06:12:31Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

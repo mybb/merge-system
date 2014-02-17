@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: privatemessages.php 4396 2010-12-14 20:02:15Z ralgith $
  */
 
 // Disallow direct access to this file for security reasons

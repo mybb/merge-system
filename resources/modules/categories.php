@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
- *
- * $Id: categories.php 4395 2010-12-14 14:43:03Z ralgith $
  */
 
 class Converter_Module_Categories extends Converter_Module
