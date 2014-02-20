@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright ï¿½ 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -61,7 +61,7 @@ class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms
 		
 		foreach($perm_bits as $key => $val) 
 		{
-			if($data['forumpermissions'] & $val) 
+			if($data['forumpermission'] & $val) 
 			{
 				$insert_data[$key] = 1; 
 			} 
@@ -81,7 +81,7 @@ class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
-			$query = $this->old_db->simple_select("forumpermissions", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("forumpermission", "COUNT(*) as count");
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
