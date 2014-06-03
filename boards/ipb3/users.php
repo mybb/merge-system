@@ -75,7 +75,7 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['field_4'];
 		$insert_data['aim'] = $data['field_1'];
 		$insert_data['yahoo'] = $data['field_8'];
-		$insert_data['msn'] = $data['field_2'];
+		$insert_data['skype'] = $data['field_10'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);
 		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']);
 		$insert_data['style'] = 0;

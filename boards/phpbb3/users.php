@@ -101,7 +101,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['user_icq'];
 		$insert_data['aim'] = $data['user_aim'];
 		$insert_data['yahoo'] = $data['user_yim'];
-		$insert_data['msn'] = $data['user_msnm'];
 		$insert_data['hideemail'] = $data['user_allow_viewemail'];
 		$insert_data['invisible'] = $data['user_allow_viewonline'];
 		$insert_data['allownotices'] = $data['user_notify'];
@@ -187,7 +186,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			'user_icq' => '34567890',
 			'user_aim' => 'blarg',
 			'user_yim' => 'test@yahoo.com',
-			'user_msnm' => 'test@hotmail.com',
 			'user_allow_viewemail' => 1,
 			'user_allow_viewonline' => 0,
 			'user_notify' => 1,
@@ -225,7 +223,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			'icq' => '34567890',
 			'aim' => 'blarg',
 			'yahoo' => 'test@yahoo.com',
-			'msn' => 'test@hotmail.com',
 			'hideemail' => 1,
 			'invisible' => 0,
 			'allownotices' => 1,

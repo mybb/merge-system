@@ -71,7 +71,6 @@ class PHPBB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['user_icq'];
 		$insert_data['aim'] = $data['user_aim'];
 		$insert_data['yahoo'] = $data['user_yim'];
-		$insert_data['msn'] = $data['user_msnm'];
 		$insert_data['hideemail'] = $data['hideEmail'];
 		$insert_data['invisible'] = int_to_01($data['user_allow_viewonline']);
 		$insert_datar['allownotices'] = $data['user_notify'];

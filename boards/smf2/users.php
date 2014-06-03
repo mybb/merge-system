@@ -76,7 +76,6 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yim'];
-		$insert_data['msn'] = $data['msn'];
 		$insert_data['hideemail'] = $data['hide_email'];
 		$insert_data['invisible'] = int_to_01($data['show_online']);
 		$insert_data['pmnotify'] = $data['pm_email_notify'];
@@ -124,7 +123,6 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			'ICQ' => '34567890',
 			'AIM' => 'blarg',
 			'YIM' => 'test@yahoo.com',
-			'MSN' => 'test@hotmail.com',
 			'hideEmail' => 1,
 			'showOnline' => 1,
 			'pm_email_notify' => 1,
@@ -161,7 +159,6 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			'icq' => '34567890',
 			'aim' => 'blarg',
 			'yahoo' => 'test@yahoo.com',
-			'msn' => 'test@hotmail.com',
 			'hideemail' => 1,
 			'invisible' => 0,
 			'pmnotify' => 1,

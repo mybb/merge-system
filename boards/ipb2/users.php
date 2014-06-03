@@ -74,7 +74,6 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['icq_number'];
 		$insert_data['aim'] = $data['aim_name'];
 		$insert_data['yahoo'] = $data['yahoo'];
-		$insert_data['msn'] = $data['msnname'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);
 		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']);
 		$insert_data['style'] = 0;
