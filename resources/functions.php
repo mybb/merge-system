@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright ? 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -617,11 +617,16 @@ function generate_loginkey()
  */
 function check_url_exists($url)
 {
+	if(!$url)
+	{
+		return false;
+	}
+
 	$buffer = '';
 
 	$url_parsed = @parse_url($url);
 	
-	if(!$url)
+	if($url_parsed === false)
 	{
 		return false;
 	}
@@ -634,7 +639,7 @@ function check_url_exists($url)
 		return false;
 	}
 	
-	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]$path");
+	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]");
 	
 	if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
 	{
