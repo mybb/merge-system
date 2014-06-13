@@ -19,14 +19,14 @@ class Converter_Module_Privatemessages extends Converter_Module
 		'recipients' => '',
 		'folder' => 1,
 		'subject' => '',
-		'icon' => '',
+		'icon' => 0,
 		'message' => '',
 		'dateline' => 0,
 		'deletetime' => 0,
 		'status' => 0,
 		'statustime' => 0,
 		'includesig' => 0,
-		'smilieoff' => '',
+		'smilieoff' => 0,
 		'receipt' => 2,
 		'readtime' => 0
 	);
