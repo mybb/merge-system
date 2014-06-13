@@ -168,19 +168,9 @@ if(!$import_session['resume_module'])
 	$import_session['resume_module'] = array();
 }
 
-if($mybb->version_code < 1700)
+if($mybb->version_code < 1700 || $mybb->version_code >= 2000)
 {
-	$output->print_error("The MyBB Merge System requires MyBB 1.8 or higher to run.");
-}
-
-if($mybb->version_code >= 2000)
-{
-	$output->print_error("This version of the MyBB Merge System will not run on MyBB 2.0 or higher. Please check for updates at the <a href=\"http://www.mybb.com/download/merge-system\" target=\"_blank\">MyBB Website</a>.");
-}
-
-if(version_compare(PHP_VERSION, '5.0.0', '<'))
-{
-	$output->print_error("The MyBB Merge System requires a PHP installation of PHP 5.0 or above. Please contact your host to resolve this issue.");
+	$output->print_error("The MyBB Merge System requires MyBB 1.8 to run.");
 }
 
 // Are we done? Generate the report!
