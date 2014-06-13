@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: phpbb2.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -24,21 +22,21 @@ class PHPBB2_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "phpBB 2";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "phpBB 2";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = false;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -57,7 +55,7 @@ class PHPBB2_Converter extends Converter
 						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
 						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
 						);
-	
+
 	/**
 	 * Convert a phpBB group ID into a MyBB group ID
 	 *
@@ -74,9 +72,9 @@ class PHPBB2_Converter extends Converter
 			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
 			$this->old_db->free_result($query);
 		}
-		
+
 		$comma = $group = '';
-		
+
 		switch($user['user_level'])
 		{
 			case 0:
@@ -92,7 +90,7 @@ class PHPBB2_Converter extends Converter
 				$comma = ',';
 				break;
 		}
-		
+
 		$query = $this->old_db->simple_select("user_group", "*", "user_id='{$user['user_id']}'", $settings);
 		while($phpbbgroup = $this->old_db->fetch_array($query))
 		{
@@ -107,7 +105,7 @@ class PHPBB2_Converter extends Converter
 				{
 					return 5;
 				}
-				
+
 				$group .= $comma;
 				switch($phpbbgroup['group_id'])
 				{
@@ -125,19 +123,19 @@ class PHPBB2_Converter extends Converter
 						{
 							// The lot
 							$group .= 2;
-						}					
-				}			
+						}
+				}
 			}
 			$comma = ',';
 		}
-		
+
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
-		}			
-		
+		}
+
 		$this->old_db->free_result($query);
-		
+
 		return $group;
 	}
 }

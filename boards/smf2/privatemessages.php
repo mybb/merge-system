@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: privatemessages.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,25 +24,25 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->query("
-			SELECT * 
+			SELECT *
 			FROM ".OLD_TABLE_PREFIX."personal_messages p
 			LEFT JOIN ".OLD_TABLE_PREFIX."pm_recipients r ON(p.id_pm=r.id_pm)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
-		);			
+		);
 		while($privatemessage = $this->old_db->fetch_array($query))
 		{
 			$this->insert($privatemessage);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $db;
-		
+
 		$insert_data = array();
-		
+
 		$query = $this->old_db->simple_select("pm_recipients", "*", "id_pm = '{$data['id_pm']}'");
 		$sep = '';
 		while($recip = $this->old_db->fetch_field($query, 'id_member'))
@@ -54,7 +52,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		}
 		$this->old_db->free_result($query);
 		$recip_list = explode(",", $recip_list);
-		
+
 		// SMF values
 		$insert_data['pmid'] = null;
 		$insert_data['import_pmid'] = $data['id_pm'];
@@ -72,14 +70,14 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			$insert_data['readtime'] = TIME_NOW;
 			$insert_data['receipt'] = '2';
 		}
-		
+
 		// Hack to work around SMF 2's way of storing multiple recipients in the db...
 		// NOT a very efficient way to handle this, but it works for now.
 		$this->insert_extra_pms($recip_list, $insert_data);
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		// import_uid => uid
@@ -87,7 +85,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			5 => 10,
 			6 => 11,
 		);
-		
+
 		$data = array(
 			'id_pm' => 1,
 			'id_member' => 5,
@@ -98,7 +96,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			'msgtime' => 12345678,
 			'body' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
 		);
-		
+
 		$match_data = array(
 			'pmid' => null,
 			'import_pmid' => 1,
@@ -114,43 +112,43 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			'readtime' => TIME_NOW,
 			'receipt' => '2',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
 
 	function insert_extra_pms($recip_list, $data)
 	{
 		global $db;
-		
+
 		$this->debug->log->datatrace('$data', $data);
-		
+
 		foreach($recip_list as $pos => $val)
 		{
 			if($pos == '0')
 			{
 				continue;
 			}
-			
+
 			$data['toid'] = $this->get_import->uid($val);
-			
+
 			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
 			$data = $this->process_default_values($data);
-			
+
 			foreach($data as $key => $value)
 			{
 				$insert_array[$key] = $db->escape_string($value);
 			}
-			
+
 			$this->debug->log->datatrace('$insert_array', $insert_array);
-			
+
 			$db->insert_query("privatemessages", $insert_array);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of private messages
 		if(!isset($import_session['total_privatemessages']))
 		{
@@ -158,7 +156,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_privatemessages'];
 	}
 }

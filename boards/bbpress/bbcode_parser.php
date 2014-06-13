@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/about/license
- *
- * $Id$
  */
 
 // Disallow direct access to this file for security reasons
@@ -32,14 +30,14 @@ class BBCode_Parser {
 		$text = preg_replace('#<code>(.*?)</code>#', '[code]$1[/code]', $text);
 		$text = preg_replace('#<a href ="(.*?)".*?>(.*?)</em>#', '[url=$1]$2[/url]', $text);
 		$text = str_replace(array('<p>', '</p>'), array('', ''), $text);
-		
+
 		return $text;
 	}
-	
+
 	function convert_title($text)
 	{
 		$text = utf8_unhtmlentities($text);
-		
+
 		return $text;
 	}
 }

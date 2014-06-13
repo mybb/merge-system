@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: threads.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -22,21 +20,21 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 		'progress_column' => 'tid',
 		'default_per_screen' => 1000,
 	);
-	
+
 	function pre_setup()
 	{
 		global $import_session;
-		
+
 		if(!isset($import_session['column_attach_rel_id']))
 		{
 			$import_session['column_attach_rel_id'] = $this->old_db->field_exists("attach_rel_id", "attachments");
 		}
-		
+
 		if(!isset($import_session['column_attach_pid']))
 		{
 			$import_session['column_attach_pid'] = $this->old_db->field_exists("attach_pid", "attachments");
 		}
-		
+
 		if(!isset($import_session['column_attach_id']))
 		{
 			$import_session['column_attach_id'] = $this->old_db->field_exists("attach_id", "attachments");
@@ -46,20 +44,20 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 	function import()
 	{
 		global $import_session;
-			
+
 		$query = $this->old_db->simple_select("topics", "*", "state != 'link'", array('order_by' => 'topic_firstpost', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
 			$this->insert($thread);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		global $import_session;
-		
+
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['sticky'] = $data['pinned'];
@@ -75,15 +73,15 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 			$insert_data['closed'] = 1;
 		}
 		else
-		{				
-			$insert_data['closed'] = '';	
+		{
+			$insert_data['closed'] = '';
 		}
 
 		$insert_data['totalratings'] = $data['topic_rating_total'];
 		$insert_data['notes'] = $data['notes'];
 		$insert_data['visible'] = $data['approved'];
 		$insert_data['numratings'] = $data['topic_rating_hits'];
-		
+
 		$pids = '';
 		$seperator = '';
 		$query = $this->old_db->simple_select("posts", "pid", "topic_id = '{$data['tid']}'");
@@ -93,7 +91,7 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 			$seperator = ', ';
 		}
 		$this->old_db->free_result($query);
-		
+
 		$insert_data['attachmentcount'] = '';
 		if($pids != '')
 		{
@@ -123,16 +121,16 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 			$insert_data['attachmentcount'] = $this->old_db->fetch_field($query, "attach_count");
 			$this->old_db->free_result($query);
 		}
-		
+
 		$insert_data['import_poll'] = $data['poll_state'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of threads
 		if(!isset($import_session['total_threads']))
 		{
@@ -140,7 +138,7 @@ class IPB2_Converter_Module_Threads extends Converter_Module_Threads {
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_threads'];
 	}
 }

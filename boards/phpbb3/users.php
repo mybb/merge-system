@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: users.php 4397 2011-01-01 15:49:46Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,13 +24,13 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		'email_column' => 'user_email',
 		'default_per_screen' => 1000,
 	);
-	
+
 	var $get_private_messages_cache = array();
 
 	function import()
 	{
 		global $import_session;
-		
+
 		// Get members
 		$query = $this->old_db->simple_select("users", "*", "user_id > 0 AND username != 'Anonymous' AND group_id != 6", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
 		while($user = $this->old_db->fetch_array($query))
@@ -40,11 +38,11 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			$this->insert($user);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// phpBB 3 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['user_id']));
@@ -66,13 +64,13 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		}
 		$insert_data['avatar'] = $data['avatar'];
 		$insert_data['lastpost'] = $data['user_lastpost_time'];
-		
+
 		$birthday = '';
 		$data['user_birthday'] = trim($data['user_birthday']);
 		if(!empty($data['user_birthday']))
 		{
 			$birthday_arr = explode('-', $data['user_birthday']);
-			
+
 			foreach($birthday_arr as $bday_part)
 			{
 				if(substr($bday_part, 0, 1) == "0")
@@ -83,11 +81,11 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 				{
 					$birthday .= $bday_part;
 				}
-			
+
 				$birthday .= "-";
 			}
 		}
-		
+
 		$insert_data['birthday'] = $birthday;
 		$insert_data['icq'] = $data['user_icq'];
 		$insert_data['aim'] = $data['user_aim'];
@@ -109,7 +107,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['pmnotify'] = $data['user_notify_pm'];
 		$insert_data['timeformat'] = $data['user_dateformat'];
 		$insert_data['timezone'] = $data['user_timezone'];
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);	
+		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['dst'] = $data['user_dst'];
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['user_sig'], $data['user_sig_bbcode_uid']), "users", "users");
 		$insert_data['regip'] = $data['user_ip'];
@@ -119,16 +117,16 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['passwordconvert'] = $data['user_password'];
 		$insert_data['passwordconverttype'] = 'phpbb3';
 		$insert_data['loginkey'] = generate_loginkey();
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		$this->get_private_messages_cache = array(
 			1 => 150,
 		);
-		
+
 		$data = array(
 			'user_id' => 1,
 			'usergroup' => 4,
@@ -162,7 +160,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			'user_form_salt' => '5XfjI',
 			'user_password' => 'dsfdssw132rdstr13112rwedsxc',
 		);
-		
+
 		$match_data = array(
 			'usergroup' => 1,
 			'additionalgroups' => '',
@@ -202,10 +200,10 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			'passwordconvert' => 'dsfdssw132rdstr13112rwedsxc',
 			'passwordconverttype' => 'phpbb3',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	/**
 	 * Get total number of Private Messages the user has from the phpBB database
 	 *
@@ -218,21 +216,21 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		{
 			return $this->get_private_messages_cache[$uid];
 		}
-		
+
 		$query = $this->old_db->simple_select("privmsgs", "COUNT(*) as pms", "to_address = '{$uid}' OR author_id = '{$uid}'");
-		
+
 		$results = $this->old_db->fetch_field($query, 'pms');
 		$this->old_db->free_result($query);
-		
+
 		$this->get_private_messages_cache[$uid] = $results;
-		
+
 		return $results;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of members
 		if(!isset($import_session['total_users']))
 		{
@@ -240,7 +238,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			$import_session['total_users'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_users'];
 	}
 }

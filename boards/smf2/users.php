@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: users.php 4397 2011-01-01 15:49:46Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -30,7 +28,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 	function import()
 	{
 		global $import_session;
-		
+
 		// Get members
 		$query = $this->old_db->simple_select("members", "*", "", array('order_by' => 'id_member', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
 		while($user = $this->old_db->fetch_array($query))
@@ -38,11 +36,11 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			$this->insert($user);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// SMF values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['id_group'], true, $data['is_activated']);
 		$insert_data['additionalgroups'] = $this->board->get_group_id($data['additional_groups']);
@@ -92,7 +90,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['totalpms'] = $data['instant_messages'];
 		$insert_data['unreadpms'] = $data['unread_messages'];
 		$insert_data['signature'] = str_replace(array("[bgcolor=", "[/bgcolor]"), array("[color=", "[/color]"), preg_replace('#\[quote author\=(.*?) link\=topic\=([0-9]*).msg([0-9]*)\#msg([0-9]*) date\=(.*?)\]#i', "[quote='$1' pid='{$pid}' dateline='$5']", encode_to_utf8($data['signature'], "members", "users")));
-		
+
 		if($data['passwd'])
 		{
 			$insert_data['passwordconvert'] = $data['passwd'];
@@ -101,15 +99,15 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$insert_data['passwordconvert'] = $data['password'];
 		}
-		
+
 		$insert_data['passwordconverttype'] = 'smf2';
 		$insert_data['salt'] = $data['password_salt'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
-	{		
+	{
 		$data = array(
 			'ID_GROUP' => 1,
 			'is_activated' => 1,
@@ -141,7 +139,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			'signature' => 'Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��',
 			'password' => 'dsfdssw132rdstr13112rwedsxc',
 		);
-		
+
 		$match_data = array(
 			'usergroup' => 4,
 			'additionalgroups' => 3,
@@ -179,10 +177,10 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			'passwordconvert' => 'dsfdssw132rdstr13112rwedsxc',
 			'passwordconverttype' => 'smf11',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	/**
 	 * Gets the time of the last post of a user from the SMF database
 	 *
@@ -195,14 +193,14 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$query = $this->old_db->simple_select("messages", "*", "id_member = '{$uid}'", array('order_by' => 'poster_time', 'order_dir' => 'ASC', 'limit' => 1));
 		$result = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $result;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of members
 		if(!isset($import_session['total_users']))
 		{
@@ -210,7 +208,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 			$import_session['total_users'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_users'];
 	}
 }

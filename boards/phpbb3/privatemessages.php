@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: privatemessages.php 4396 2010-12-14 20:02:15Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,27 +24,27 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->simple_select("privmsgs", "*", "", array('limit_start' => $this->trackers['start_privatemessages'], 'limit' => $import_session['privatemessages_per_screen']));
 		while($privatemessage = $this->old_db->fetch_array($query))
 		{
 			$this->insert($privatemessage);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// phpBB 3 values
 		$to = explode(':', $data['to_address']);
-		
+
 		foreach($to as $key => $uid)
 		{
 			$to[$key] = $this->get_import->uid(str_replace('u_', '', $uid));
 		}
 		$toid = $to[0];
-		
+
 		$insert_data['import_pmid'] = $data['msg_id'];
 		$insert_data['uid'] = $toid;
 		$insert_data['fromid'] = $this->get_import->uid($data['author_id']);
@@ -59,10 +57,10 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message_text'], $data['bbcode_uid']), "privmsgs", "privatemessages");
 		$insert_data['includesig'] = $data['enable_sig'];
 		$insert_data['smilieoff'] = int_to_01($data['enable_smilies']);
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		// import_uid => uid
@@ -71,7 +69,7 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			6 => 11,
 			7 => 12,
 		);
-		
+
 		$data = array(
 			'msg_id' => 1,
 			'to_address' => 'u_5:u_6',
@@ -83,7 +81,7 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			'enable_sig' => 1,
 			'enable_smilies' => 1,
 		);
-		
+
 		$match_data = array(
 			'import_pmid' => 1,
 			'uid' => 10,
@@ -98,14 +96,14 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			'includesig' => 1,
 			'smilieoff' => 0,
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of private messages
 		if(!isset($import_session['total_privatemessages']))
 		{
@@ -113,12 +111,12 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_privatemessages'];
 	}
 
 	function get_pm_status($pm_id)
-	{	
+	{
 		$query = $this->old_db->simple_select("privmsgs_to", "pm_unread", "msg_id = {$pm_id}");
 		$retval = $this->old_db->fetch_field($query, "pm_unread");
 		$this->old_db->free_result($query);

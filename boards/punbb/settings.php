@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -21,7 +19,7 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	// What settings do we need to get and what is their MyBB equivalent?
 	var $convert_settings = array(
 			"o_server_timezone" => "timezoneoffset",
@@ -54,7 +52,7 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 	function import()
 	{
 		global $import_session;
-		
+
 		$int_to_yes_no = array(
 			"o_show_version" => 1,
 			"o_smilies_sig" => 1,
@@ -67,42 +65,42 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 			"p_sig_bbcode" => 1,
 			"p_sig_img_tag" => 1
 		);
-		
+
 		$query = $this->old_db->simple_select("config", "conf_name, conf_value", "conf_name IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			// punBB 1 values
 			$name = $this->convert_settings[$setting['conf_name']];
 			$value = $setting['conf_value'];
-			
+
 			if($setting['conf_name'] == "o_timeout_online")
 			{
 				$value = ceil($value / 60);
 			}
-			
+
 			if($setting['conf_name'] == "o_server_timezone")
 			{
 				$value = str_replace(".5", "", $value);
 			}
-			
+
 			if($setting['conf_name'] == "o_avatars_width")
 			{
 				$avatar_setting = $value."x";
 				echo "done.<br />\n";
 				continue;
 			}
-			
+
 			if($setting['conf_name'] == "o_avatars_height")
 			{
 				$value = $avatar_setting.$value;
 				unset($avatar_setting);
 			}
-			
+
 			if($setting['conf_name'] == "o_avatars_size")
 			{
 				$value = ceil($value / 1024);
 			}
-			
+
 			if($setting['conf_name'] == "o_regs_verify")
 			{
 				if($value == 0)
@@ -114,7 +112,7 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = "verify";
 				}
 			}
-			
+
 			if($setting['conf_name'] == "o_quickpost")
 			{
 				if($value == 0)
@@ -126,20 +124,20 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 					$value = 1;
 				}
 			}
-			
+
 			if(($value == 0 || $value == 1) && isset($int_to_yes_no[$setting['conf_name']]))
 			{
 				$value = int_to_yes_no($value, $int_to_yes_no[$setting['conf_name']]);
 			}
-			
+
 			$this->update_setting($name, $value);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -147,10 +145,10 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

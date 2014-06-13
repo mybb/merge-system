@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: forumperms.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -22,7 +20,7 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		'progress_column' => 'ID_BOARD',
 		'default_per_screen' => 1000,
 	);
-	
+
 	var $perm2mybb = array(
 			'poll_vote' => 'canvotepolls',
 			'remove_own' => 'candeletethreads',
@@ -34,11 +32,11 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			'post_reply_any' => 'canpostreplys',
 			'view_attachments' => 'candlattachments'
 		);
-	
+
 	function import()
 	{
 		global $import_session;
-		
+
 		$query = $this->old_db->query("
 			SELECT ID_GROUP, ID_BOARD, GROUP_CONCAT(permission) as permissions
 			FROM ".OLD_TABLE_PREFIX."board_permissions
@@ -51,15 +49,15 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$this->insert($perm);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// SMF values
 		$insert_data['fid'] = $this->get_import->fid($data['ID_BOARD']);
 		$insert_data['gid'] = $this->get_import->gid($data['ID_GROUP']);
-		
+
 		$permissions = explode(',', $data['permissions']);
 		foreach($permissions as $name)
 		{
@@ -67,29 +65,29 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			{
 				continue;
 			}
-			
-			$insert_data[$this->perm2mybb[$name]] = 1;			
+
+			$insert_data[$this->perm2mybb[$name]] = 1;
 		}
-		
+
 		return $insert_data;
 	}
-	
+
 	function test()
 	{
 		$this->get_import->cache_fids = array(
 			2 => 10,
 		);
-		
+
 		$this->get_import->cache_gids = array(
 			3 => 11,
 		);
-		
+
 		$data = array(
 			'ID_BOARD' => 2,
 			'ID_GROUP' => 3,
 			'permissions' => 'poll_vote,remove_own,delete_own,modify_own,poll_add_own,post_attachment,post_new,post_reply_any,view_attachments',
 		);
-		
+
 		$match_data = array(
 			'fid' => 10,
 			'gid' => 11,
@@ -103,14 +101,14 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			'canpostreplys' => 1,
 			'candlattachments' => 1,
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
@@ -118,7 +116,7 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_forumperms'];
 	}
 }

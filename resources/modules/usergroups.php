@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/about/license
- *
- * $Id: usergroups.php 4395 2010-12-14 14:43:03Z ralgith $
  */
 
 class Converter_Module_Usergroups extends Converter_Module
@@ -68,7 +66,7 @@ class Converter_Module_Usergroups extends Converter_Module
 		'attachquota' => 0,
 		'cancustomtitle' => 1,
 	);
-	
+
 	/**
 	 * Insert usergroup into database
 	 *
@@ -77,34 +75,34 @@ class Converter_Module_Usergroups extends Converter_Module
 	public function insert($data)
 	{
 		global $db, $output;
-		
+
 		$this->debug->log->datatrace('$data', $data);
-		
+
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
-		
+
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
-		
+
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
 		$data = $this->process_default_values($data);
-		
+
 		foreach($data as $key => $value)
 		{
 			$insert_array[$key] = $db->escape_string($value);
 		}
-		
+
 		$this->debug->log->datatrace('$insert_array', $insert_array);
-		
+
 		$db->insert_query("usergroups", $insert_array);
 		$gid = $db->insert_id();
-		
+
 		// Update internal array cache
 		$this->cache_gids[$group['import_gid']] = $gid; // TODO: Fix?
-		
+
 		$output->print_progress("end");
-		
+
 		$this->increment_tracker('usergroups');
-		
+
 		return $gid;
 	}
 }

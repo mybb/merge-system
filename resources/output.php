@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: output.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,63 +24,63 @@ class converterOutput
 	 * @var int 1 or 0
 	 */
 	var $doneheader;
-	
+
 	/**
 	 * This is set to 1 if a form has been opened.
 	 *
 	 * @var int 1 or 0
 	 */
 	var $opened_form;
-	
+
 	/**
 	 * Script name
 	 *
-	 * @var string  
+	 * @var string
 	 */
 	var $script = "index.php";
-	
+
 	/**
 	 * Steps for conversion
 	 *
 	 * @var array
 	 */
 	var $steps = array();
-	
+
 	/**
 	 * Title of the system
 	 *
 	 * @var string
 	 */
 	var $title = "MyBB Merge System";
-	
+
 	/**
 	* Internal position counter for friendly progress bar
 	*
 	* @var integer
 	*/
 	var $_internal_counter = 0;
-	
+
 	/**
 	* Internal string for friendly name but in English singular form
 	*
 	* @var integer
 	*/
 	var $_friendly_name_singular = "";
-	
+
 	/**
 	* Internal denominator for friendly progress bar percentage completed algorithm
 	*
 	* @var integer
 	*/
 	var $_progress_denominator = 0;
-	
+
 	/**
 	* Internal indicator to see if the progress bar was already constructed or not
 	*
 	* @var integer
 	*/
 	var $_progress_bar_constructed = 0;
-	
+
 	var $_last_left = 0;
 
 	/**
@@ -125,14 +123,14 @@ END;
 			echo "\n	<form method=\"post\" action=\"".$this->script."\">\n";
 			$this->opened_form = 1;
 		}
-		
+
 		// Only if we're in a module
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 		if(IN_MODULE == 1)
 		{
 			echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
 			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; Pause\" /></div>\n";
-			
+
 			define("BACK_BUTTON", false);
 		}
 
@@ -172,7 +170,7 @@ END;
 
 		$this->print_footer();
 	}
-	
+
 	/**
 	 * Print an warning block
 	 *
@@ -212,7 +210,7 @@ END;
 			if($file != "." && $file != ".." && get_extension($file) == "php")
 			{
 				$bb_name = str_replace(".php", "", $file);
-				$board_script = file_get_contents(MERGE_ROOT."boards/{$file}");				
+				$board_script = file_get_contents(MERGE_ROOT."boards/{$file}");
 				// Match out board name
 				preg_match("#var \\\$bbname \= \"(.*?)\"\;#i", $board_script, $version_info);
 				if($version_info[1])
@@ -232,7 +230,7 @@ END;
 			echo "<td><label for=\"$bb_name\">$version_info</label></td>\n";
 			echo "<td><input type=\"radio\" name=\"board\" value=\"$bb_name\" id=\"$bb_name\" /></td>\n";
 			echo "</tr>\n";
-			
+
 			if($class == "alt_row")
 			{
 				$class = "";
@@ -264,7 +262,7 @@ END;
 		}
 
 		$this->print_header("Module Selection", "", 0);
-		
+
 		if($import_session['flash_message'])
 		{
 			echo "<div class=\"flash_success\"><p><em>{$import_session['flash_message']}</em></p></div>\n";
@@ -298,7 +296,7 @@ END;
 					{
 						break;
 					}
-					
+
 					$prefix = "";
 					if($dependency != 'db_configuration')
 					{
@@ -401,7 +399,7 @@ END;
 	function print_database_details_table($name, $extra="")
 	{
 		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $oldver, $mybb;
-		
+
 		if(function_exists('mysql_connect'))
 		{
 			$dboptions['mysql'] = array(
@@ -410,7 +408,7 @@ END;
 				'short_title' => 'MySQL',
 			);
 		}
-		
+
 		if(function_exists('mysqli_connect'))
 		{
 			$dboptions['mysqli'] = array(
@@ -419,7 +417,7 @@ END;
 				'short_title' => 'MySQLi',
 			);
 		}
-		
+
 		if(function_exists('pg_connect'))
 		{
 			$dboptions['pgsql'] = array(
@@ -428,7 +426,7 @@ END;
 				'short_title' => 'PostgreSQL',
 			);
 		}
-		
+
 		if(class_exists('PDO'))
 		{
 			$supported_dbs = PDO::getAvailableDrivers();
@@ -454,7 +452,7 @@ END;
 				$dbengines .= "<option value=\"{$dbfile}\">{$dbtype['title']}</option>";
 			}
 		}
-		
+
 		echo "<script type=\"text/javascript\">
 		function updateDBSettings()
 		{
@@ -474,7 +472,7 @@ END;
 		}
 		Event.observe(window, 'load', updateDBSettings);
 		</script>";
-		
+
 		$versions = "";
 		if(count($board->supported_versions) >= 3)
 		{
@@ -484,7 +482,7 @@ END;
 				{
 					continue;
 				}
-				
+
 				if($oldver == $key)
 				{
 					$versions .= "<option value=\"{$key}\" selected=\"selected\">{$nice_ver}</option>\n";
@@ -494,7 +492,7 @@ END;
 					$versions .= "<option value=\"{$key}\">{$nice_ver}</option>\n";
 				}
 			}
-			
+
 			$versions = "<tbody>
 			<tr>
 	<th colspan=\"2\" class=\"first last\">Version</th>
@@ -509,7 +507,7 @@ END;
 </tr>
 </tbody>";
 		}
-		
+
 		foreach($dboptions as $dbfile => $dbtype)
 		{
 			require_once MYBB_ROOT."inc/db_{$dbfile}.php";
@@ -517,7 +515,7 @@ END;
 			{
 				continue;
 			}
-			
+
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
 			$encoding_select = '';
@@ -533,7 +531,7 @@ END;
 			{
 				$mybb->input['config'][$dbfile]['encoding'] = "utf8";
 			}
-	
+
 			$class = '';
 			if(!$first && !$mybb->input['dbengine'])
 			{
@@ -544,13 +542,13 @@ END;
 			{
 				$class = "_selected";
 			}
-	
+
 			$db_info[$dbfile] = "
 				<tbody id=\"{$dbfile}_settings\" class=\"db_settings db_type{$class}\">
 					<tr>
 						<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Database Settings</th>
 					</tr>";
-				
+
 			// SQLite gets some special settings
 			if($dbfile == 'sqlite')
 			{
@@ -581,7 +579,7 @@ END;
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
 					</tr>";
 			}
-	
+
 			// Now we're up to table settings
 			$db_info[$dbfile] .= "
 				<tr>
@@ -592,7 +590,7 @@ END;
 					<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
 				</tr>
 				";
-			
+
 			// Encoding selection only if supported
 			if(is_array($encodings))
 			{
@@ -613,12 +611,12 @@ END;
 						<td class=\"first\"><label for=\"config_{$dbfile}_encoding\">Table Encoding:</label></td>
 						<td class=\"last alt_col\"><select name=\"config[{$dbfile}][encoding]\" id=\"config_{$dbfile}_encoding\">{$select_options}</select></td>
 					</tr>
-					
+
 					</tbody>";
 			}
 		}
 		$dbconfig = implode("", $db_info);
-		
+
 		if($mybb->input['encode_to_utf8'] === 0)
 		{
 			$encoding_checked_no = "checked=\"checked\"";
@@ -629,7 +627,7 @@ END;
 			$encoding_checked_yes = "checked=\"checked\"";
 			$encoding_checked_no = "";
 		}
-		
+
 		$encoding_utf8 = "<tbody>
 		<tr>
 			<tr>
@@ -641,7 +639,7 @@ END;
 			</td>
 		</tr>
 		</tbody>";
-		
+
 		echo <<<EOF
 <div class="border_wrapper">
 <div class="title">$name Database Configuration</div>
@@ -684,7 +682,7 @@ EOF;
 		echo '<p>The current conversion session has been finished.  You may now go to your copy of <a href="../">MyBB</a> or your <a href="../'.$config['admin_dir'].'/index.php">Admin Control Panel</a>.  It is recommended that you run the Rebuild and Recount tools in the Admin CP.</p>';
 		echo '
 <p>Please remove this directory if you are not planning on converting any other forums.</p>';
-		
+
 		echo '<br />
 <p>The following will allow you to download a detailed report generated by the converter in several styles.
 <div class="border_wrapper">
@@ -709,7 +707,7 @@ EOF;
 </div>
 
 		<div id="next_button"><input type="submit" class="submit_button" value="Download &raquo;" /></div>
-		
+
 </form>';
 
 		$import_session['finished'] = '1';
@@ -729,31 +727,31 @@ EOF;
 		global $import_session, $conf_global_not_found, $mybb;
 
 		if($this->opened_form && $override_form != true)
-		{			
+		{
 			if($mybb->input['autorefresh'] == "yes" || $mybb->input['autorefresh'] == "no")
 			{
 				$import_session['autorefresh'] = $mybb->input['autorefresh'];
 			}
-			
+
 			if(IN_MODULE == 1)
 			{
 				echo "\n	</form>\n";
 				echo "\n	<form method=\"post\" action=\"".$this->script."\">\n";
 			}
-			
+
 			if($import_session['autorefresh'] == "yes" && !$conf_global_not_found)
 			{
 				echo "\n		<meta http-equiv=\"Refresh\" content=\"2; url=".$this->script."\" />";
-				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"Redirecting... &raquo;\" alt=\"Click to continue, if you do not wish to wait.\" {$button_extra} /></div>"; 
+				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"Redirecting... &raquo;\" alt=\"Click to continue, if you do not wish to wait.\" {$button_extra} /></div>";
 			}
 			else
 			{
-				
+
 				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"{$next} &raquo;\" {$button_extra} /></div>";
-				
+
 			}
 			echo "\n	</form>\n";
-			
+
 			// Only if we're in a module
 			if($import_session['module'] && (!defined('BACK_BUTTON') || BACK_BUTTON != false))
 			{
@@ -769,7 +767,7 @@ EOF;
 					echo "\n		<div id=\"back_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; Back\" {$button_extra} /></div><br style=\"clear: both;\" />\n";
 				}
 				echo "\n	</form>\n";
-				
+
 			}
 			else
 			{
@@ -803,37 +801,37 @@ END;
 		}
 		exit;
 	}
-	
+
 	function print_inline_errors()
 	{
 		$this->print_error_page(true);
 	}
-	
+
 	function print_error_page($inline=false)
 	{
 		global $import_session, $mybb, $output, $module;
-		
+
 		$errors = $module->errors;
 		if(empty($errors))
 		{
 			return;
 		}
-		
+
 		$module->is_errors = true;
-		
+
 		if(!$this->doneheader && $inline == false)
 		{
 			$this->print_header("Error Encountered", '', 1);
 		}
-		
+
 		$error_list = "";
 		if(!is_array($errors))
 		{
 			$errors = array($errors);
 		}
-		
+
 		$error_list = implode("</li>\n<li>", $errors);
-		
+
 		echo "<p>
 		<div class=\"error\">
 		<strong>The MyBB Merge System encountered the following problems:</strong><br />
@@ -845,28 +843,28 @@ END;
 		<br />
 		<br />
 		</p>";
-		
+
 		if($inline == false)
 		{
 			$output->print_footer($import_session['module'], 'module', 1);
 		}
 	}
-	
+
 	function print_per_screen_page($per_screen=10)
 	{
 		global $import_session, $mybb, $output, $module, $db;
-		
+
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
-		
+
 		$module->trackers['start_'.$module_name] = 0;
-		
+
 		$db->write_query("REPLACE INTO ".TABLE_PREFIX."trackers SET count=".intval($this->trackers['start_'.$module_name]).", type='".$db->escape_string($module_name)."'");
-		
+
 		$this->calculate_stats(false);
-		
+
 		echo '
 <div class="border_wrapper">
-<div class="title">Options Configuration</div>		
+<div class="title">Options Configuration</div>
 <table class="general" cellspacing="0">
 <tr>
 <th colspan="2" class="first last">Please select how many '.$module->settings['friendly_name'].' to import at a time:</th>
@@ -889,30 +887,30 @@ END;
 </label></td>
 <td><input type="radio" name="autorefresh" id="autorefresh_no" value="no" /></td>
 </tr>';
-		
+
 		$import_session['autorefresh'] = "";
 		$mybb->input['autorefresh'] = "no";
-		
+
 		$print_screen_func = "print_{$module_name}_per_screen_page";
-		
+
 		if(method_exists($module, $print_screen_func))
 		{
 			$module->$print_screen_func();
 		}
-		
+
 		echo '</table></div><br />';
-		
+
 		$output->print_footer($import_session['module'], 'module', 1);
 	}
-	
+
 	function calculate_stats($in_progress_stats=true)
 	{
 		global $import_session, $module;
-		
+
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
-		
+
 		$left = $import_session['total_'.$module_name]-$module->trackers['start_'.$module_name]-$import_session[$module_name.'_per_screen'];
-		
+
 		if($import_session[$module_name.'_per_screen'] <= 0)
 		{
 			$pages = 0;
@@ -921,23 +919,23 @@ END;
 		{
 			$pages = ceil(($left/$import_session[$module_name.'_per_screen']));
 		}
-		
+
 		if($left <= 0)
 		{
 			$left = 0;
 		}
-		
+
 		if($pages <= 0)
 		{
 			$pages = 0;
 		}
-		
+
 		$importing_now = $import_session[$module_name.'_per_screen'];
 		if($left < $importing_now && $pages == 0)
 		{
 			$importing_now = $import_session['total_'.$module_name]-$module->trackers['start_'.$module_name];
 		}
-		
+
 		if($in_progress_stats == true)
 		{
 			echo "<i>".my_number_format($importing_now)." {$module->settings['friendly_name']} are importing right now. There are ".my_number_format($left)." {$module->settings['friendly_name']} left to import and ".my_number_format($pages)." pages left.</i><br /><br />";
@@ -948,59 +946,59 @@ END;
 		}
 		flush();
 	}
-	
+
 	function set_error_notice_in_progress($error_message)
 	{
 		$this->error_notice_in_progress = $error_message;
 	}
-	
+
 	function construct_progress_bar()
 	{
 		if($this->_progress_bar_constructed == 1)
 		{
 			return;
 		}
-		
+
 		echo "<div align=\"center\"><p class=\"progressBar\">
 						<span><em id=\"progress_bar\">&nbsp;</em></span>
 					</p>
 					<span id=\"status_message\">&nbsp;</span></div>";
 		flush();
-		
+
 		$this->update_progress_bar(0, "Loading data from database...");
-		
+
 		$this->_progress_bar_constructed = 1;
 	}
-	
+
 	function update_progress_bar($left, $status_message="")
 	{
 		if($this->_last_left == $left && empty($status_message))
 		{
 			return;
 		}
-		
+
 		echo "<script type=\"text/javascript\">";
 		if($this->_last_left != $left)
 		{
 			echo " document.getElementById('progress_bar').style.left='{$left}px';";
 		}
-		
+
 		if($status_message)
 		{
 			echo " document.getElementById('status_message').innerHTML='".str_replace("'", "\\'", $status_message)."';";
 		}
 		echo "</script>\n";
 		flush();
-		
+
 		$this->_last_left = $left;
 	}
-	
+
 	function print_progress($position, $id="")
 	{
 		global $import_session, $module;
-		
+
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
-		
+
 		// Are we using the friendly progress bar or not?
 		if($position == "start")
 		{
@@ -1008,7 +1006,7 @@ END;
 			if($this->_internal_counter == 0)
 			{
 				$this->construct_progress_bar();
-				
+
 				++$this->_internal_counter;
 			}
 		}
@@ -1026,7 +1024,7 @@ END;
 					$this->_progress_denominator = $import_session[$module_name.'_per_screen'];
 				}
 			}
-			
+
 			// If it is still == 0 then don't cause division by 0 error (we shouldn't normally get this, but if we do then there is a bug and we should gracefully handle it)
 			if($this->_progress_denominator == 0)
 			{
@@ -1037,7 +1035,7 @@ END;
 				$percent_done = $this->_internal_counter/$this->_progress_denominator;
 				$left = round($percent_done*200, 0);
 			}
-			
+
 			if($import_session[$module_name.'_per_screen'] > 1000)
 			{
 				$modulus = round(($import_session[$module_name.'_per_screen']/1000), 0);
@@ -1046,7 +1044,7 @@ END;
 			{
 				$modulus = 1;
 			}
-			
+
 			if($import_session[$module_name.'_per_screen'] <= 1000 || ($import_session[$module_name.'_per_screen'] > 1000 && ($this->_internal_counter % $modulus) == 0))
 			{
 				// If we're merging a user
@@ -1056,13 +1054,13 @@ END;
 				}
 				else
 				{
-				
+
 					if($this->_friendly_name_singular == "")
 					{
 						// Removes the "s" from the friendly name to make it singular
 						$this->_friendly_name_singular = substr($module->settings['friendly_name'], 0, -1);
 					}
-					
+
 					// Settings are special case
 					if($import_session['module'] == "settings")
 					{
@@ -1077,23 +1075,23 @@ END;
 						$status_message = "Inserting {$this->_friendly_name_singular} #{$this->_current_id}";
 					}
 				}
-				
+
 				if($percent_done >= 1)
 				{
 					$status_message = "Please wait... ";
 				}
 			}
-			
+
 			$this->update_progress_bar($left, $status_message);
-			
+
 			++$this->_internal_counter;
 		}
 	}
-	
+
 	function print_none_left_message()
 	{
 		global $module, $import_session;
-		
+
 		echo "<div class=\"alert\">";
 		if($import_session['module'] == "import_settings")
 		{

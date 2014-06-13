@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: privatemessages.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -21,27 +19,27 @@ class IPB2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		'friendly_name' => 'private messages',
 		'progress_column' => 'msg_id',
 	);
-	
+
 	function import()
 	{
 		global $import_session;
 
 		$query = $this->old_db->query("
-			SELECT * 
+			SELECT *
 			FROM ".OLD_TABLE_PREFIX."message_text m
 			LEFT JOIN ".OLD_TABLE_PREFIX."message_topics mt ON(m.msg_id=mt.mt_msg_id)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
-		);			
+		);
 		while($pm = $this->old_db->fetch_array($query))
 		{
 			$this->insert($pm);
 		}
 	}
-	
+
 	function convert_data($data)
-	{		
+	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['import_pmid'] = $data['msg_id'];
 		$insert_data['uid'] = $this->get_import->uid($data['msg_author_id']);
@@ -53,11 +51,11 @@ class IPB2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$recipients = array();
 		foreach($touserarray as $key => $to)
 		{
-			$username = $this->get_username($to);				
+			$username = $this->get_username($to);
 			$recipients['to'][] = $this->get_import->username($username['id']);
 		}
 		$insert_data['recipients'] = serialize($recipients);
-		
+
 		if($data['mt_vid_folder'] == 'sent')
 		{
 			$insert_data['folder'] = 2;
@@ -70,16 +68,16 @@ class IPB2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		{
 			$insert_data['folder'] = 1;
 		}
-		
+
 		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "message_text", "privatemessages");
 		$insert_data['status'] = $data['mt_read'];
 		$insert_data['dateline'] = $data['mt_date'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['msg_post']), "message_text", "privatemessages");
 		$insert_data['readtime'] = $data['mt_user_read'];
-		
+
 		return $insert_data;
 	}
-	
+
 	/**
 	 * Get a user from the IPB database
 	 *
@@ -95,19 +93,19 @@ class IPB2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 				'id' => 0,
 			);
 		}
-		
+
 		$query = $this->old_db->simple_select("members", "*", "name='{$username}'", array('limit' => 1));
-		
+
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of private messages
 		if(!isset($import_session['total_privatemessages']))
 		{
@@ -115,7 +113,7 @@ class IPB2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_privatemessages'];
 	}
 }

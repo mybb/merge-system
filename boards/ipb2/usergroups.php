@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: usergroups.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,24 +24,24 @@ class IPB2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 	function import()
 	{
 		global $import_session, $db;
-		
+
 		// Get only non-staff groups.
 		$query = $this->old_db->simple_select("groups", "*", "g_id > 6", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
 			$gid = $this->insert($group);
-			
+
 			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '{$group['g_id']}' OR import_displaygroup = '{$group['g_id']}'");	
+			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '{$group['g_id']}' OR import_displaygroup = '{$group['g_id']}'");
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
-		$insert_data['import_gid'] = $data['g_id'];				
+		$insert_data['import_gid'] = $data['g_id'];
 		$insert_data['title'] = $data['g_title'];
 		$insert_data['pmquota'] = $data['g_max_messages'];
 		$insert_data['maxpmrecipients'] = $data['g_max_mass_pm'];
@@ -62,14 +60,14 @@ class IPB2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data['canviewprofiles'] = $data['g_mem_info'];
 		$insert_data['canpostthreads'] = $data['g_post_new_topics'];
 		$insert_data['canpostreplys'] = $data['g_reply_other_topics'];
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of usergroups
 		if(!isset($import_session['total_usergroups']))
 		{
@@ -77,7 +75,7 @@ class IPB2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			$import_session['total_usergroups'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_usergroups'];
 	}
 }

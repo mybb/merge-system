@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: settings.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -21,7 +19,7 @@ class PHPBB2_Converter_Module_Settings extends Converter_Module_Settings {
 		'friendly_name' => 'settings',
 		'default_per_screen' => 1000,
 	);
-	
+
 	// What settings do we need to get and what is their MyBB equivalent?
 	var $convert_settings = array(
 			"max_sig_chars" => "siglength",
@@ -47,18 +45,18 @@ class PHPBB2_Converter_Module_Settings extends Converter_Module_Settings {
 	function import()
 	{
 		global $import_session;
-		
+
 		$int_to_yes_no = array(
 			"privmsg_disable" => 0
 		);
-		
+
 		$query = $this->old_db->simple_select("config", "config_name, config_value", "config_name IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			// phpBB 2 values
 			$name = $this->convert_settings[$setting['config_name']];
 			$value = $setting['config_value'];
-			
+
 			if($setting['config_name'] == "avatar_max_height")
 			{
 				if(isset($avatar_width))
@@ -85,12 +83,12 @@ class PHPBB2_Converter_Module_Settings extends Converter_Module_Settings {
 					continue;
 				}
 			}
-			
+
 			if($setting['config_name'] == "avatar_filesize")
 			{
 				$value = ceil($value / 1024);
 			}
-			
+
 			if(($value == 0 || $value == 1) && isset($int_to_yes_no[$setting['config_name']]))
 			{
 				$value = int_to_yes_no($value, $int_to_yes_no[$setting['config_name']]);
@@ -99,11 +97,11 @@ class PHPBB2_Converter_Module_Settings extends Converter_Module_Settings {
 			$this->update_setting($name, $value);
 		}
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
@@ -111,10 +109,10 @@ class PHPBB2_Converter_Module_Settings extends Converter_Module_Settings {
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_settings'];
 	}
-	
+
 	function finish()
 	{
 		rebuild_settings();

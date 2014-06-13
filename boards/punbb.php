@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: punbb.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -24,21 +22,21 @@ class PUNBB_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "punBB 1.2";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "punBB 1";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -54,7 +52,7 @@ class PUNBB_Converter extends Converter
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
 						);
-	
+
 	/**
 	 * Get a user from the punBB database
 	 *
@@ -70,15 +68,15 @@ class PUNBB_Converter extends Converter
 				'id' => 0,
 			);
 		}
-	
+
 		$query = $this->old_db->simple_select("users", "id, username", "username = '".$this->old_db->escape_string($username)."'", array('limit' => 1));
-		
+
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Convert a punBB group ID into a MyBB group ID
 	 *
@@ -120,7 +118,7 @@ class PUNBB_Converter extends Converter
 				$groupcache[$punbbgroup['g_id']] = $group;
 			}
 		}
-		
+
 		if(isset($groupcache[$gid]))
 		{
 			if($options['original'] == true)

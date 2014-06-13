@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: users.php 4397 2011-01-01 15:49:46Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -26,29 +24,29 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 		'email_column' => 'email',
 		'default_per_screen' => 1000,
 	);
-	
+
 	function import()
 	{
 		global $import_session;
-			
+
 		// Get members
 		$query = $this->old_db->query("
 			SELECT *
-			FROM ".OLD_TABLE_PREFIX."members m 
+			FROM ".OLD_TABLE_PREFIX."members m
 			LEFT JOIN ".OLD_TABLE_PREFIX."member_extra me ON (m.id=me.id)
 			LEFT JOIN ".OLD_TABLE_PREFIX."members_converge mc ON (m.id=mc.converge_id)
 			LIMIT ".$this->trackers['start_users'].", ".$import_session['users_per_screen']
 		);
 		while($user = $this->old_db->fetch_array($query))
-		{				
+		{
 			$this->insert($user);
 		}
 	}
-	
+
 	function convert_data($data)
-	{		
+	{
 		$insert_data = array();
-				
+
 		// Invision Power Board 2 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['mgroup'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['mgroup'], '', $this->board->get_group_id($data['mgroup']));
@@ -77,10 +75,10 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['aim'] = $data['aim_name'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['msn'] = $data['msnname'];
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);                
-		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']); 			
-		$insert_data['style'] = 0;							
-		$insert_data['regip'] = $data['ip_address'];				
+		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['time_offset']);
+		$insert_data['timezone'] = ((!strstr($insert_data['timezone'], '+') && !strstr($insert_data['timezone'], '-')) ? '+'.$insert_data['timezone'] : $insert_data['timezone']);
+		$insert_data['style'] = 0;
+		$insert_data['regip'] = $data['ip_address'];
 		$insert_data['totalpms'] = $data['msg_total'];
 		$insert_data['unreadpms'] = $data['new_msg'];
 		$insert_data['dst'] = $data['dst_in_use'];
@@ -88,14 +86,14 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['salt'] = $data['converge_pass_salt'];
 		$insert_data['passwordconvert'] = $data['converge_pass_hash'];
 		$insert_data['passwordconverttype'] = 'ipb2';
-		
+
 		return $insert_data;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of members
 		if(!isset($import_session['total_users']))
 		{
@@ -103,7 +101,7 @@ class IPB2_Converter_Module_Users extends Converter_Module_Users {
 			$import_session['total_users'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_users'];
 	}
 }

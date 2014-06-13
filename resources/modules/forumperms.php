@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/about/license
- *
- * $Id: forumperms.php 4395 2010-12-14 14:43:03Z ralgith $
  */
 
 class Converter_Module_Forumperms extends Converter_Module
@@ -29,7 +27,7 @@ class Converter_Module_Forumperms extends Converter_Module
 		'canvotepolls' => 1,
 		'cansearch' => 1,
 	);
-		
+
 	/**
 	 * Insert forumpermissions into database
 	 *
@@ -38,14 +36,14 @@ class Converter_Module_Forumperms extends Converter_Module
 	public function insert($data)
 	{
 		global $db, $output;
-		
+
 		$this->debug->log->datatrace('$data', $data);
-		
+
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
-		
+
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
-		
+
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
 		$data = $this->process_default_values($data);
 
@@ -53,16 +51,16 @@ class Converter_Module_Forumperms extends Converter_Module
 		{
 			$insert_array[$key] = $db->escape_string($value);
 		}
-		
+
 		$this->debug->log->datatrace('$insert_array', $insert_array);
-		
+
 		$query = $db->insert_query("forumpermissions", $insert_array);
 		$fpid = $db->insert_id();
-		
+
 		$this->increment_tracker('forumperms');
-		
+
 		$output->print_progress("end");
-		
+
 		return $fpid;
 	}
 }

@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: class_cache_handler.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -25,13 +23,13 @@ class Cache_Handler
 	/**
 	 * Cache for the new FIDs
 	 */
-	var $cache_fids;	
-	
+	var $cache_fids;
+
 	/**
 	 * Cache for the new type 'f' FIDs
 	 */
 	var $cache_fids_f;
-	
+
 	/**
 	 * Cache for the new type 'c' FIDs
 	 */
@@ -61,17 +59,17 @@ class Cache_Handler
 	 * Cache for the new Attachments
 	 */
 	var $cache_attachments;
-	
+
 	/**
 	 * Cache for poll information
 	 */
 	var $cache_polls = array();
-	
+
 	/**
 	 * Cache for post attachment information
 	 */
 	var $cache_post_attachment_details = array();
-	
+
 	/**
 	 * Get an array of data needed for attachments from the posts table
 	 *
@@ -81,18 +79,18 @@ class Cache_Handler
 	function post_attachment_details($old_pid)
 	{
 		global $db;
-		
+
 		if(array_key_exists($pid, $this->cache_post_attachment_details))
 		{
 			return $this->cache_post_attachment_details[$old_pid];
 		}
-		
+
 		$query = $db->simple_select("posts", "posthash, tid, uid, pid", "pid = '".$this->pid($old_pid)."'");
 		$posthash = $db->fetch_array($query);
 		$db->free_result($query);
-		
+
 		$this->cache_post_attachment_details[$old_pid] = $posthash;
-		
+
 		return $posthash;
 	}
 
@@ -112,7 +110,7 @@ class Cache_Handler
 		}
 		$this->cache_pollids = $polls;
 		$db->free_result($query);
-		
+
 		return $polls;
 	}
 
@@ -133,10 +131,10 @@ class Cache_Handler
 		{
 			return 0;
 		}
-		
+
 		return $this->cache_pollids[$old_pid];
 	}
-	
+
 	/**
 	 * Get the MyBB PID of an old PID.
 	 *
@@ -146,7 +144,7 @@ class Cache_Handler
 	function poll($old_pid)
 	{
 		global $db;
-		
+
 		if(!array_key_exists($old_pid, $this->cache_polls))
 		{
 			$query = $db->simple_select("polls", "*", "pid = '".$this->pollid($data['ID_POLL'])."'");
@@ -158,10 +156,10 @@ class Cache_Handler
 		{
 			return 0;
 		}
-		
+
 		return $this->cache_polls[$old_pid];
 	}
-	
+
 	/**
 	 * Get an array of imported poll votes (e.x. array vBulletin poll vote id => MyBB poll vote id)
 	 *
@@ -178,7 +176,7 @@ class Cache_Handler
 		}
 		$this->cache_pollvotes = $pollvotes;
 		$db->free_result($query);
-		
+
 		return $pollvotes;
 	}
 
@@ -199,10 +197,10 @@ class Cache_Handler
 		{
 			return 0;
 		}
-		
+
 		return $this->cache_pollvotes[$old_vid];
 	}
-	
+
 	/**
 	 * Get an array of imported users (e.x. array vBulletin user id => MyBB user id)
 	 *
@@ -219,10 +217,10 @@ class Cache_Handler
 		}
 		$this->cache_uids = $users;
 		$db->free_result($query);
-		
+
 		return $users;
 	}
-	
+
 	/**
 	 * Get the MyBB UID of an old UID. (e.x. vBulletin user id)
 	 *
@@ -240,10 +238,10 @@ class Cache_Handler
 		{
 			return 0;
 		}
-		
+
 		return $this->cache_uids[$old_uid];
 	}
-	
+
 	/**
 	 * Get an array of imported usernames (e.x. array vBulletin user id => MyBB username)
 	 *
@@ -260,7 +258,7 @@ class Cache_Handler
 		}
 		$this->cache_usernames = $users;
 		$db->free_result($query);
-		
+
 		return $users;
 	}
 
@@ -287,7 +285,7 @@ class Cache_Handler
 			// Otherwise, just return 'Guest' to be safe
 			return 'Guest';
 		}
-		
+
 		return $this->cache_usernames[$old_uid];
 	}
 
@@ -307,7 +305,7 @@ class Cache_Handler
 		}
 		$this->cache_fids = $forums;
 		$db->free_result($query);
-		
+
 		return $forums;
 	}
 
@@ -323,10 +321,10 @@ class Cache_Handler
 		{
 			$this->cache_forums();
 		}
-		
+
 		return $this->cache_fids[$old_fid];
 	}
-	
+
 	/**
 	 * Get an array of imported forums of type 'f' only (forums only, not categories) (e.x. array vBulletin forum id => MyBB forum id)
 	 *
@@ -343,7 +341,7 @@ class Cache_Handler
 		}
 		$this->cache_fids_f = $forums;
 		$db->free_result($query);
-		
+
 		return $forums;
 	}
 
@@ -359,10 +357,10 @@ class Cache_Handler
 		{
 			$this->cache_forums_f();
 		}
-		
+
 		return $this->cache_fids_f[$old_fid];
 	}
-	
+
 	/**
 	 * Get an array of imported forums of type 'c' only (categories only, not forums) (e.x. array vBulletin category id => MyBB category id)
 	 *
@@ -379,7 +377,7 @@ class Cache_Handler
 		}
 		$this->cache_fids_c = $forums;
 		$db->free_result($query);
-		
+
 		return $forums;
 	}
 
@@ -395,7 +393,7 @@ class Cache_Handler
 		{
 			$this->cache_forums_c();
 		}
-		
+
 		return $this->cache_fids_c[$old_fid];
 	}
 
@@ -415,7 +413,7 @@ class Cache_Handler
 		}
 		$this->cache_tids = $threads;
 		$db->free_result($query);
-		
+
 		return $threads;
 	}
 
@@ -431,7 +429,7 @@ class Cache_Handler
 		{
 			$this->cache_threads();
 		}
-		
+
 		return $this->cache_tids[$old_tid];
 	}
 
@@ -451,7 +449,7 @@ class Cache_Handler
 		}
 		$this->cache_gids = $usergroups;
 		$db->free_result($query);
-		
+
 		return $usergroups;
 	}
 
@@ -467,10 +465,10 @@ class Cache_Handler
 		{
 			$this->cache_usergroups();
 		}
-		
+
 		return $this->cache_gids[$old_gid];
 	}
-	
+
 	/**
 	 * Get an array of imported attachments (e.x. array vBulletin attachment id => MyBB attachment id)
 	 *
@@ -487,7 +485,7 @@ class Cache_Handler
 		}
 		$this->cache_attachments = $attachments;
 		$db->free_result($query);
-		
+
 		return $attachments;
 	}
 
@@ -503,10 +501,10 @@ class Cache_Handler
 		{
 			$this->cache_attachments();
 		}
-		
+
 		return $this->cache_attachments[$old_aid];
 	}
-	
+
 	/**
 	 * Get an array of imported events (e.x. array vBulletin event id => MyBB event id)
 	 *
@@ -523,7 +521,7 @@ class Cache_Handler
 		}
 		$this->cache_eids = $events;
 		$db->free_result($query);
-		
+
 		return $events;
 	}
 
@@ -539,10 +537,10 @@ class Cache_Handler
 		{
 			$this->cache_events();
 		}
-		
+
 		return $this->cache_events[$old_eid];
 	}
-	
+
 	/**
 	 * Get an array of imported posts (e.x. array vBulletin post id => MyBB post id)
 	 *
@@ -551,12 +549,12 @@ class Cache_Handler
 	function cache_posts()
 	{
 		global $db;
-		
+
 		if(!$db->table_exists("post_trackers"))
 		{
 			return false;
 		}
-		
+
 		$query = $db->simple_select("post_trackers", "pid, import_pid");
 		while($post = $db->fetch_array($query))
 		{
@@ -564,10 +562,10 @@ class Cache_Handler
 		}
 		$this->cache_posts = $posts;
 		$db->free_result($query);
-		
+
 		return $posts;
 	}
-	
+
 	/**
 	 * Get the MyBB post ID of an old PID. (e.x. vBulletin post id)
 	 *
@@ -580,7 +578,7 @@ class Cache_Handler
 		{
 			$this->cache_posts();
 		}
-		
+
 		return $this->cache_posts[$old_pid];
 	}
 }

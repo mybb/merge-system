@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: functions.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -27,7 +25,7 @@ function update_import_session()
 	{
 		$import_session['completed'] = array();
 	}
-	
+
 	// Stats
 	if(!empty($board->old_db->query_count))
 	{
@@ -39,13 +37,13 @@ function update_import_session()
 	$import_session['completed'] = array_unique($import_session['completed']);
 
 	$cache->update("import_cache", $import_session);
-	
+
 	if(WRITE_LOGS == 1)
 	{
 		global $debug;
-		
+
 		$debug_import_session = $import_session;
-		
+
 		// Remove private information
 		unset($debug_import_session['old_db_host']);
 		unset($debug_import_session['old_db_user']);
@@ -53,7 +51,7 @@ function update_import_session()
 		unset($debug_import_session['old_db_name']);
 		unset($debug_import_session['old_tbl_prefix']);
 		unset($debug_import_session['connect_config']);
-		
+
 		$debug->log->datatrace('$debug_import_session', $debug_import_session);
 	}
 }
@@ -70,7 +68,7 @@ function yesno_to_int($setting, $yes="yes")
 	{
 		return $setting;
 	}
-	
+
 	if($setting == "no" && $yes == "yes")
 	{
 		return 0;
@@ -167,7 +165,7 @@ function int_to_on_off($setting, $on=1)
 
 /**
  * Return a formatted list of errors
- * 
+ *
  * @param array Errors
  * @return string Formatted errors list
  */
@@ -190,30 +188,30 @@ function error_list($array)
 function delete_import_fields($text=true)
 {
 	global $db, $output;
-	
+
 	if($text == true)
 	{
 		$output->construct_progress_bar();
 	}
-	
+
 	if($text == true)
-	{	
+	{
 		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."trackers table.");
 	}
 	$db->drop_table("trackers");
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."post_trackers table.");
 	}
 	$db->drop_table("post_trackers");
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."privatemessage_trackers table.");
 	}
 	$db->drop_table("privatemessage_trackers");
-	
+
 	$drop_list = array(
 		"users" => array('import_uid', 'import_usergroup', 'import_additionalgroups', 'import_displaygroup'),
 		"forums" => array('import_fid', 'import_pid'),
@@ -223,7 +221,7 @@ function delete_import_fields($text=true)
 		"events" => array('import_eid'),
 		"attachments" => array('import_aid'),
 	);
-	
+
 	$increment = 200/(count($drop_list, COUNT_RECURSIVE)-count($drop_list));
 	$progress = 0;
 	foreach($drop_list as $table => $columns)
@@ -239,16 +237,16 @@ function delete_import_fields($text=true)
 				$comma = ",";
 			}
 		}
-		
+
 		if($text == true)
 		{
 			$output->update_progress_bar($progress, "Removing columns ".$columns_list." from table ".TABLE_PREFIX.$table);
 			$progress += $increment;
 		}
-		
+
 		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
 	}
-	
+
 	$db->delete_query("datacache", "title='import_cache'");
 }
 
@@ -260,35 +258,35 @@ function delete_import_fields($text=true)
 function create_import_fields($text=true)
 {
 	global $db, $output;
-	
+
 	if($text == true)
 	{
 		$output->construct_progress_bar();
-		
+
 		echo "<br />Creating fields for tracking data during the Merge process (This may take a while)...";
 		flush();
 	}
 
 	// First clear all.
 	delete_import_fields(false);
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."trackers table.");
 	}
-	
+
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."trackers (
 	  type varchar(20) NOT NULL default '',
 	  count int NOT NULL default '0',
 	  PRIMARY KEY (type),
 	  KEY count (count)
 	) ENGINE=MyISAM;");
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."post_trackers table.");
 	}
-	
+
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."post_trackers (
 	  pid int NOT NULL default '0',
 	  import_pid int NOT NULL default '0',
@@ -297,19 +295,19 @@ function create_import_fields($text=true)
 	  KEY import_pid (import_pid),
 	  KEY import_uid (import_uid)
 	) ENGINE=MyISAM;");
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."privatemessage_trackers table.");
 	}
-	
+
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."privatemessage_trackers (
 	  pmid int NOT NULL default '0',
 	  import_pmid int NOT NULL default '0',
 	  PRIMARY KEY (pmid),
 	  KEY import_pmid (import_pmid)
 	) ENGINE=MyISAM;");
-	
+
 	$add_list = array(
 		"int" => array(
 			"users" => array('import_uid', 'import_usergroup', 'import_displaygroup'),
@@ -324,12 +322,12 @@ function create_import_fields($text=true)
 			"users" => array('passwordconvert', 'passwordconverttype', 'passwordconvertsalt', 'import_additionalgroups'),
 		),
 	);
-	
+
 	foreach($add_list as $array)
 	{
 		$increment += (count($array, COUNT_RECURSIVE)-count($array));
 	}
-	
+
 	$increment = 200/$increment;
 	$progress = 0;
 	foreach($add_list['int'] as $table => $columns)
@@ -345,15 +343,15 @@ function create_import_fields($text=true)
 				$comma = ",";
 			}
 		}
-		
+
 		if($text == true)
 		{
 			$output->update_progress_bar($progress, "Adding int columns ".$columns_list." to table ".TABLE_PREFIX.$table);
 			$progress += $increment;
 		}
-		
+
 		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
-		
+
 		if($db->type == "mysql" || $db->type == "mysqli")
 		{
 			foreach($columns as $column)
@@ -362,7 +360,7 @@ function create_import_fields($text=true)
 			}
 		}
 	}
-	
+
 	foreach($add_list['text'] as $table => $columns)
 	{
 		$columns_list = implode(', ', $columns);
@@ -376,16 +374,16 @@ function create_import_fields($text=true)
 				$comma = ",";
 			}
 		}
-			
+
 		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
-			
+
 		if($text == true)
 		{
 			$output->update_progress_bar($progress, "Adding text columns ".$columns_list." to table ".TABLE_PREFIX.$table);
 			$progress += $increment;
 		}
 	}
-	
+
 	if($text == true)
 	{
 		$output->update_progress_bar(200, "Please wait...");
@@ -405,59 +403,59 @@ function create_import_fields($text=true)
 function encode_to_utf8($text, $old_table_name, $new_table_name)
 {
     global $import_session, $db, $module;
-	
+
 	if($import_session['encode_to_utf8'] == 0)
 	{
 		return $text;
 	}
-	
+
 	$old_table_name = OLD_TABLE_PREFIX.$old_table_name;
 	$new_table_name = TABLE_PREFIX.$new_table_name;
-	
+
     // Get the character set if needed
     if(empty($import_session['table_charset_old'][$old_table_name]) || empty($import_session['table_charset_new'][$new_table_name]))
     {
 		$old_table_prefix = $db->table_prefix;
 		$db->set_table_prefix('');
-		
+
 		$old_old_db_table_prefix = $module->old_db->table_prefix;
 		$module->old_db->set_table_prefix('');
-		
+
         $table = $module->old_db->show_create_table($old_table_name);
         preg_match("#CHARSET=(.*)#i", $table, $old_charset);
-		
+
         $table = $db->show_create_table($new_table_name);
         preg_match("#CHARSET=(.*)#i", $table, $new_charset);
-		
+
 		$db->set_table_prefix($old_table_prefix);
 		$module->old_db->set_table_prefix($old_old_db_table_prefix);
-		
+
         $import_session['table_charset_old'][$old_table_name] = $old_charset[1];
         $import_session['table_charset_new'][$new_table_name] = $new_charset[1];
     }
 
     // Convert as needed
-    if(($import_session['table_charset_new'][$new_table_name] != $import_session['table_charset_old'][$old_table_name] 
+    if(($import_session['table_charset_new'][$new_table_name] != $import_session['table_charset_old'][$old_table_name]
 	|| check_encoding($text, fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name])) === false)
-    && $import_session['table_charset_old'][$old_table_name] != '' 
+    && $import_session['table_charset_old'][$old_table_name] != ''
     && $import_session['table_charset_new'][$new_table_name] != '')
     {
-        if(!function_exists('iconv')) 
+        if(!function_exists('iconv'))
         {
             if(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]) != 'iso-8859-1' || !function_exists("utf8_encode"))
             {
                 return $text;
             }
-			
+
 			return utf8_encode($text);
         }
-    	
+
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
-		
+
 		// Do we have bad characters? (i.e. db/table encoding set to UTF-8 but string is actually ISO)
 		if(my_strlen($converted_str) < my_strlen($text))
 		{
-			// Was our database/tables set to UTF-8 encoding and the data actually in iso encoding? 
+			// Was our database/tables set to UTF-8 encoding and the data actually in iso encoding?
 			// Stop trying to confuse us!!
 			$converted_str = iconv("iso-8859-1", fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
 			if(my_strlen($converted_str) >= my_strlen($text))
@@ -465,11 +463,11 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 				return $converted_str;
 			}
 		}
-		
+
         // Try to convert, but don't stop when a character cannot be converted
         return iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
     }
-	
+
 	return $text;
 }
 
@@ -505,9 +503,9 @@ function fetch_iconv_encoding($mysql_encoding)
 function make_parent_list($fid, $navsep=",", $parent_list="")
 {
    global $pforumcache, $db;
-   
+
    if(!$pforumcache)
-   {   
+   {
        $query = $db->simple_select("forums", "fid, import_fid, import_pid", "import_fid > 0", array("order_by" => "import_pid"));
        while($forum = $db->fetch_array($query))
        {
@@ -524,15 +522,15 @@ function make_parent_list($fid, $navsep=",", $parent_list="")
 		{
 			$parent_list = make_parent_list($pforumcache[$fid]['import_pid'], $navsep, $parent_list).$parent_list;
 		}
-		
+
 		if($parent_list)
 		{
 			$parent_list .= ',';
 		}
-		
+
 		$parent_list .= $pforumcache[$fid]['fid'];
 	}
-	
+
 	return $parent_list;
 }
 
@@ -546,9 +544,9 @@ function make_parent_list($fid, $navsep=",", $parent_list="")
 function make_parent_list_pid($fid, $navsep=",", $parent_list="")
 {
    global $pforumcache, $db;
-   
+
    if(!$pforumcache)
-   {   
+   {
        $query = $db->simple_select("forums", "fid, pid", "import_fid > 0", array("order_by" => "pid"));
        while($forum = $db->fetch_array($query))
        {
@@ -565,15 +563,15 @@ function make_parent_list_pid($fid, $navsep=",", $parent_list="")
 		{
 			$parent_list = make_parent_list_pid($pforumcache[$fid]['pid'], $navsep, $parent_list).$parent_list;
 		}
-		
+
 		if($parent_list)
 		{
 			$parent_list .= ',';
 		}
-		
+
 		$parent_list .= $pforumcache[$fid]['fid'];
 	}
-	
+
 	return $parent_list;
 }
 
@@ -604,7 +602,7 @@ function generate_salt()
  *
  * @return string The login key.
  */
-function generate_loginkey() 
+function generate_loginkey()
 {
 	return random_str(50);
 }
@@ -620,32 +618,32 @@ function check_url_exists($url)
 	$buffer = '';
 
 	$url_parsed = @parse_url($url);
-	
+
 	if(!$url)
 	{
 		return false;
 	}
-	
+
 	$url_parsed = array_map('trim', $url_parsed);
 	$url_parsed['port'] = (!isset($url_parsed['port'])) ? 80 : (int)$url_parsed['port'];
-	
+
 	if(!isset($url_parsed['host']))
 	{
 		return false;
 	}
-	
+
 	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]$path");
-	
+
 	if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
 	{
 		$status = $matches[1];
 	}
-	
+
 	if($status >= 200 & $status < 300)
 	{
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -666,7 +664,7 @@ function merge_fetch_remote_file($url, $post_data=array())
 		}
 		$post_body = ltrim($post_body, '&');
 	}
-	
+
 	// Use this method if we have a relative or absolute path as our url
 	if(my_substr($url, 0, 1) == '.' || my_substr($url, 0, 1) == '/' || my_substr($url, 1, 2) == ':\\')
 	{
@@ -679,14 +677,14 @@ function merge_fetch_remote_file($url, $post_data=array())
 			return $data;
 		}
 	}
-	
+
 	if(function_exists("curl_init"))
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		if(!empty($post_body))
 		{
 			curl_setopt($ch, CURLOPT_POST, 1);
@@ -732,16 +730,16 @@ function merge_fetch_remote_file($url, $post_data=array())
 		{
 			$headers[] = "GET {$url['path']} HTTP/1.0";
 		}
-		
+
 		$headers[] = "Host: {$url['host']}";
-		$headers[] = "Connection: Close";		
+		$headers[] = "Connection: Close";
 		$headers[] = "\r\n";
 
 		if(!empty($post_body))
 		{
 			$headers[] = $post_body;
 		}
-		
+
 		$headers = implode("\r\n", $headers);
 		if(!@fwrite($fp, $headers))
 		{
@@ -790,11 +788,11 @@ function utf8_unhtmlentities($string)
 	// Replace numeric entities
 	$string = preg_replace('~&#x([0-9a-f]+);~ei', 'unichr(hexdec("\\1"))', $string);
 	$string = preg_replace('~&#([0-9]+);~e', 'unichr("\\1")', $string);
-	
+
 	// Replace literal entities
 	$trans_tbl = get_html_translation_table(HTML_ENTITIES);
 	$trans_tbl = array_flip($trans_tbl);
-	
+
 	return strtr($string, $trans_tbl);
 }
 
@@ -849,12 +847,12 @@ function check_encoding($string, $encoding)
 	{
         return true;
     }
-	
+
 	if(strtolower($encoding) != "utf-8")
 	{
 		return -1;
 	}
-	
+
 	// These functions can have significant load or crash if the string passed is too long.
 	if(strlen($string) < 1024*5)
 	{
@@ -869,7 +867,7 @@ function check_encoding($string, $encoding)
             |  \xF4[\x80-\x8F][\x80-\xBF]{2}
         )*$#xs', $string) != 0);
 	}
-	
+
 	return (preg_match('#^.{1}#us', $string) == 1);
 }
 
@@ -910,10 +908,10 @@ function check_memory()
 	}
 	$current_usage = get_memory_usage();
 	$free_memory = $memory_limit - $current_usage;
-	
+
 	// Do we have less then 2 MB's left?
 	if($free_memory < 2097152)
-	{		
+	{
 		if($matches[1] && $matches[2])
 		{
 			switch($matches[2])
@@ -928,7 +926,7 @@ function check_memory()
 					$memory_limit = (($memory_limit+2097152) / 1073741824)."G";
 			}
 		}
-		
+
 		@ini_set("memory_limit", $memory_limit);
 	}
 }
@@ -936,61 +934,61 @@ function check_memory()
 function my_friendly_time($timestamp)
 {
 	$timestamp = floor($timestamp);
-	
+
 	$years = floor($timestamp/31104000);
 	$timestamp -= $years*31104000;
-	
+
 	$months = floor($timestamp/2592000);
 	$timestamp -= $months*2592000;
-	
+
 	$days = floor($timestamp/86400);
 	$timestamp -= $days*86400;
-	
+
 	$hours = floor($timestamp/3600);
 	$timestamp -= $hours*3600;
-	
+
 	$minutes = floor($timestamp/60);
 	$timestamp -= $minutes*60;
-	
+
 	$seconds = $timestamp;
-	
+
 	$string = $comma = "";
 	if($years)
 	{
 		$string .= "{$years} years";
 		$comma = ", ";
 	}
-	
+
 	if($months)
 	{
 		$string .= "{$comma}{$months} months";
 		$comma = ", ";
 	}
-	
+
 	if($days)
 	{
 		$string .= "{$comma}{$days} days";
 		$comma = ", ";
 	}
-	
+
 	if($hours)
 	{
 		$string .= "{$comma}{$hours} hours";
 		$comma = ", ";
 	}
-	
+
 	if($minutes)
 	{
 		$string .= "{$comma}{$minutes} minutes";
 		$comma = ", ";
 	}
-	
+
 	if($seconds)
 	{
 		$string .= "{$comma}{$seconds} seconds";
 		$comma = ", ";
 	}
-	
+
 	return $string;
 }
 

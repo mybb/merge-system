@@ -1,14 +1,12 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/about/license
- *
- * $Id: loginconvert.php 4415 2011-04-10 18:05:10Z ralgith $
  */
- 
+
 // Disallow direct access to this file for security reasons
 if(!defined("IN_MYBB"))
 {
@@ -42,17 +40,17 @@ function loginconvert_deactivate()
 function loginconvert_convert()
 {
 	global $mybb, $db, $lang, $session, $plugins, $inline_errors, $errors;
-	
+
 	if($mybb->input['action'] != "do_login" || $mybb->request_method != "post")
 	{
 		return;
 	}
-	
+
 	// Checks to make sure the user can login; they haven't had too many tries at logging in.
 	// Is a fatal call if user has had too many tries
 	$logins = login_attempt_check();
 	$login_text = '';
-	
+
 	// Did we come from the quick login form?
 	if($mybb->input['quick_login'] == "1" && $mybb->input['quick_password'] && $mybb->input['quick_username'])
 	{
@@ -65,35 +63,35 @@ function loginconvert_convert()
 		my_setcookie('loginattempts', $logins + 1);
 		error($lang->error_invalidpworusername.$login_text);
 	}
-	
+
 	$query = $db->simple_select("users", "loginattempts", "LOWER(username)='".$db->escape_string(my_strtolower($mybb->input['username']))."'", array('limit' => 1));
 	$loginattempts = $db->fetch_field($query, "loginattempts");
-	
+
 	$errors = array();
-	
+
 	$user = loginconvert_validate_password_from_username($mybb->input['username'], $mybb->input['password']);
 	if(!$user['uid'])
 	{
 		my_setcookie('loginattempts', $logins + 1);
 		$db->write_query("UPDATE ".TABLE_PREFIX."users SET loginattempts=loginattempts+1 WHERE LOWER(username) = '".$db->escape_string(my_strtolower($mybb->input['username']))."'");
-		
+
 		$mybb->input['action'] = "login";
 		$mybb->input['request_method'] = "get";
-		
+
 		if($mybb->settings['failedlogintext'] == 1)
 		{
 			$login_text = $lang->sprintf($lang->failed_login_again, $mybb->settings['failedlogincount'] - $logins);
 		}
-		
+
 		$errors[] = $lang->error_invalidpworusername.$login_text;
 	}
 	else
 	{
 		$correct = true;
 	}
-	
+
 	if($loginattempts > 3 || intval($mybb->cookies['loginattempts']) > 3)
-	{		
+	{
 		// Show captcha image for guests if enabled
 		if($mybb->settings['captchaimage'] == 1 && function_exists("imagepng") && !$mybb->user['uid'])
 		{
@@ -105,7 +103,7 @@ function loginconvert_convert()
 				$query = $db->simple_select("captcha", "*", "imagehash='{$imagehash}' AND imagestring='{$imagestring}'");
 				$imgcheck = $db->fetch_array($query);
 				if($imgcheck['dateline'] > 0)
-				{		
+				{
 					$correct = true;
 				}
 				else
@@ -123,47 +121,47 @@ function loginconvert_convert()
 				$errors[] = $lang->error_regimagerequired;
 			}
 		}
-		
+
 		$do_captcha = true;
 	}
-	
+
 	if(!empty($errors))
 	{
 		$mybb->input['action'] = "login";
 		$mybb->input['request_method'] = "get";
-		
+
 		$inline_errors = inline_error($errors);
 	}
 	else if($correct)
-	{		
+	{
 		if($user['coppauser'])
 		{
 			error($lang->error_awaitingcoppa);
 		}
-		
+
 		my_setcookie('loginattempts', 1);
 		$db->delete_query("sessions", "ip='".$db->escape_string($session->ipaddress)."' AND sid != '".$session->sid."'");
 		$newsession = array(
 			"uid" => $user['uid'],
 		);
 		$db->update_query("sessions", $newsession, "sid='".$session->sid."'");
-		
+
 		$db->update_query("users", array("loginattempts" => 1), "uid='{$user['uid']}'");
-	
+
 		my_setcookie("mybbuser", $user['uid']."_".$user['loginkey'], null, true);
 		my_setcookie("sid", $session->sid, -1, true);
-	
+
 		$plugins->run_hooks("member_do_login_end");
-	
+
 		if($mybb->input['url'] != "" && my_strpos(basename($mybb->input['url']), 'member.php') === false)
 		{
 			if((my_strpos(basename($mybb->input['url']), 'newthread.php') !== false || my_strpos(basename($mybb->input['url']), 'newreply.php') !== false) && my_strpos($mybb->input['url'], '&processed=1') !== false)
 			{
 				$mybb->input['url'] = str_replace('&processed=1', '', $mybb->input['url']);
 			}
-			
+
 			$mybb->input['url'] = str_replace('&amp;', '&', $mybb->input['url']);
-			
+
 			// Redirect to the URL if it is not member.php
 			redirect(htmlentities($mybb->input['url']), $lang->redirect_loggedin);
 		}
@@ -189,7 +187,7 @@ function loginconvert_convert()
 function loginconvert_validate_password_from_username($username, $password)
 {
 	global $db;
-	
+
 	if($db->field_exists("passwordconvert", "users") && $db->field_exists("passwordconverttype", "users"))
 	{
 		$query = $db->simple_select("users", "uid,username,password,salt,loginkey,passwordconvert,passwordconvertsalt,passwordconverttype", "username='".$db->escape_string($username)."'", array('limit' => 1));
@@ -223,12 +221,12 @@ function loginconvert_validate_password_from_username($username, $password)
 function loginconvert_validate_password_from_uid($uid, $password, $user = array(), $converted=false)
 {
 	global $db, $mybb;
-	
+
 	if($mybb->user['uid'] == $uid)
 	{
 		$user = $mybb->user;
 	}
-	
+
 	if(!isset($user['password']))
 	{
 		if($converted == true)
@@ -242,14 +240,14 @@ function loginconvert_validate_password_from_uid($uid, $password, $user = array(
 			$user = $db->fetch_array($query);
 		}
 	}
-	
+
 	if(isset($user['passwordconvert']) && trim($user['passwordconvert']) != '' && trim($user['passwordconverttype']) != '' && trim($user['password']) == '')
 	{
 		$convert = new loginConvert($user);
-			
+
 		return $convert->login($user['passwordconverttype'], $uid, $password);
 	}
-	
+
 	if(!$user['salt'] && trim($user['password']) != '')
 	{
 		// Generate a salt for this user and assume the password stored in db is a plain md5 password
@@ -270,9 +268,9 @@ function loginconvert_validate_password_from_uid($uid, $password, $user = array(
 		);
 		$db->update_query("users", $sql_array, "uid = ".$user['uid'], 1);
 	}
-	
+
 	if(salt_password(md5($password), $user['salt']) == $user['password'])
-	{	
+	{
 		return $user;
 	}
 	else
@@ -287,9 +285,9 @@ function loginconvert_validate_password_from_uid($uid, $password, $user = array(
  * the Merge System. If we have success then apply MyBB's encryption to the plain-text password.
  */
 class loginConvert
-{ 
+{
 	var $user;
-	
+
 	function loginConvert($user)
 	{
 		$user['passwordconvert'] = trim($user['passwordconvert']);
@@ -297,14 +295,14 @@ class loginConvert
 		$user['passwordconverttype'] = trim($user['passwordconverttype']);
 		$this->user = $user;
 	}
-	
+
     function login($type, $uid, $password)
     {
 		global $db;
-		
+
 		$password = trim($password);
 		$return = false;
-		
+
         switch($type)
         {
             case 'vb3':
@@ -337,7 +335,7 @@ class loginConvert
             default:
                 return false;
         }
-		
+
 		if($return == true)
 		{
 			// Generate a salt for this user and assume the password stored in db is empty
@@ -355,7 +353,7 @@ class loginConvert
 			$this->user['passwordconvertsalt'] = '';
 
 			$db->update_query("users", $user, "uid='{$uid}'", 1);
-			
+
 			return $this->user;
 		}
 
@@ -373,7 +371,7 @@ class loginConvert
 		{
 			$is_sha1 = false;
 		}
-		
+
 		if(function_exists('sha1') && $is_sha1 && (sha1($password) == $this->user['passwordconvert'] || sha1($this->user['passwordconvertsalt'].sha1($password)) == $this->user['passwordconvert']))
 		{
 			return true;
@@ -389,7 +387,7 @@ class loginConvert
 
 		return false;
 	}
-	
+
     // Authentication for vB3
     function authenticate_vb3($password)
     {
@@ -397,7 +395,7 @@ class loginConvert
 		{
 			return true;
 		}
-		
+
 		return false;
     }
 
@@ -413,7 +411,7 @@ class loginConvert
 		{
 			$is_sha1 = false;
 		}
-		
+
 		if($is_sha1 && sha1(strtolower(preg_replace("#\_smf1\.1\_import(\d+)$#i", '', $this->user['username'])).$password) == $this->user['passwordconvert'])
 		{
 			return true;
@@ -422,10 +420,10 @@ class loginConvert
 		{
 		   return $this->authenticate_smf($password);
 		}
-		
+
 		return false;
     }
-	
+
 	// Authentication for SMF 2
     function authenticate_smf2($password)
     {
@@ -437,7 +435,7 @@ class loginConvert
 		{
 			$is_sha1 = false;
 		}
-		
+
 		if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $this->user['username'])).$password) == $this->user['passwordconvert'])
 		{
 			return true;
@@ -446,11 +444,11 @@ class loginConvert
 		{
 		   return $this->authenticate_smf($password);
 		}
-		
+
 		return false;
     }
-    
-    // Authentication for SMF   
+
+    // Authentication for SMF
     function authenticate_smf($password)
     {
 		if(crypt($password, substr($password, 0, 2)) == $this->user['passwordconvert'])
@@ -468,17 +466,17 @@ class loginConvert
 
         return false;
     }
-	
+
 	function authenticate_phpbb3($password)
 	{
 		if(phpbb_check_hash($password, $this->user['passwordconvert']))
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	// TODO: Finish this!
 	function authenticate_bbpress($password)
 	{
@@ -488,7 +486,7 @@ class loginConvert
 		}
 		return false;
 	}
-	
+
 	// Authentication for IPB 2
 	function authenticate_ipb2($password)
 	{
@@ -496,10 +494,10 @@ class loginConvert
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-    
+
    	function md5_hmac($username, $password)
 	{
 		if(my_strlen($username) > 64)
@@ -507,10 +505,10 @@ class loginConvert
 			$username = pack('H*', md5($username));
 		}
 		$username = str_pad($username, 64, chr(0x00));
-	
+
 		$k_ipad = $username ^ str_repeat(chr(0x36), 64);
 		$k_opad = $username ^ str_repeat(chr(0x5c), 64);
-	
+
 		return md5($k_opad.pack('H*', md5($k_ipad.$password)));
 	}
 }
@@ -593,7 +591,7 @@ function _hash_encode64($input, $count, &$itoa64)
 		}
 
 		$output .= $itoa64[($value >> 12) & 0x3f];
-		
+
 		if ($i++ >= $count)
 		{
 			break;

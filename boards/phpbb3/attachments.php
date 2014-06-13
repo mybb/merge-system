@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: attachments.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -22,31 +20,31 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'progress_column' => 'attach_id',
 		'default_per_screen' => 20,
 	);
-	
+
 	function pre_setup()
 	{
 		global $import_session, $output;
-		
+
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
 		{
 			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_protocol'", array('limit' => 1));
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'config_value');
 			$this->old_db->free_result($query);
-			
+
 			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_name'", array('limit' => 1));
 			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value');
 			$this->old_db->free_result($query);
-			
+
 			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'script_path'", array('limit' => 1));
 			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value').'/';
 			$this->old_db->free_result($query);
-			
+
 			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'upload_path'", array('limit' => 1));
 			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value');
 			$this->old_db->free_result($query);
 		}
-		
+
 		$this->check_attachments_dir_perms();
 
 		if($mybb->input['uploadspath'])
@@ -54,7 +52,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			// Test our ability to read attachment files from the forum software
 			$this->test_readability("attachments", "physical_filename");
 		}
-		
+
 		$output->print_inline_errors();
 	}
 
@@ -68,11 +66,11 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$this->insert($attachment);
 		}
 	}
-	
+
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
+
 		// phpBB 3 values
 		$insert_data['import_aid'] = $data['attach_id'];
 		$insert_data['uid'] = $this->get_import->uid($data['poster_id']);
@@ -81,9 +79,9 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['filetype'] = $data['mimetype'];
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['download_count'];
-		
+
 		$posthash = $this->get_import->post_attachment_details($data['post_msg_id']);
-		
+
 		$insert_data['pid'] = $posthash['pid'];
 		if($posthash['posthash'])
 		{
@@ -93,7 +91,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$insert_data['posthash'] = md5($posthash['tid'].$posthash['uid'].random_str());
 		}
-		
+
 		// Check if this is an image
 		switch(strtolower($insert_data['filetype']))
 		{
@@ -111,7 +109,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$is_image = 0;
 				break;
 		}
-		
+
 		// Check if this is an image
 		if($is_image == 1)
 		{
@@ -120,19 +118,19 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		else
 		{
 			$insert_data['thumbnail'] = '';
-		}	
-		
+		}
+
 		return $insert_data;
 	}
-	
+
 	function after_insert($data, $insert_data, $aid)
 	{
 		global $mybb, $db, $import_session;
-		
+
 		// Transfer attachment
 		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['physical_filename']);
 		if(!empty($attachment_file))
-		{					
+		{
 			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
 			if($attachrs)
 			{
@@ -155,15 +153,15 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			// Restore connection
 			$db->update_query("posts", array('posthash' => $insert_data['posthash']), "pid = '{$insert_data['pid']}'");
 		}
-		
+
 		$posthash = $this->get_import->post_attachment_details($data['post_msg_id']);
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$posthash['tid']."'");
 	}
-	
+
 	function print_attachments_per_screen_page()
 	{
 		global $import_session;
-		
+
 		echo '<tr>
 <th colspan="2" class="first last">Please type in the link to your '.$this->plain_bbname.' forum attachment directory:</th>
 </tr>
@@ -173,7 +171,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 <td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
 </tr>';
 	}
-	
+
 	function test()
 	{
 		// poster_id -> array
@@ -184,12 +182,12 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 				'uid' => 3,
 				'pid' => 4)
 		);
-		
+
 		// import_uid -> uid
 		$this->get_import->cache_uids = array(
 			5 => 11,
 		);
-		
+
 		$data = array(
 			'attach_id' => 1,
 			'poster_id' => 5,
@@ -199,7 +197,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			'filesize' => 1234,
 			'download_count' => 500,
 		);
-		
+
 		$match_data = array(
 			'import_aid' => 1,
 			'uid' => 11,
@@ -212,10 +210,10 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			'posthash' => 'dsrw4eqwsd34255676ffsd#@!',
 			'thumbnail' => 'SMALL',
 		);
-		
+
 		$this->assert($data, $match_data);
 	}
-	
+
 	/**
 	 * Checks if a URL exists (if it is correct or not)
 	 *
@@ -228,14 +226,14 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
  		if(!$file)
 		{
   			return false;
-		}		
+		}
  		return true;
 	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
-		
+
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
@@ -243,7 +241,7 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
-		
+
 		return $import_session['total_attachments'];
 	}
 }

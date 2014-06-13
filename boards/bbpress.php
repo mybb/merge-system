@@ -5,8 +5,6 @@
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/about/license
- *
- * $Id$
  */
 
 // Disallow direct access to this file for security reasons
@@ -24,21 +22,21 @@ class BBPRESS_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "BBPress 1.0";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "BBPress 1.0";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -50,7 +48,7 @@ class BBPRESS_Converter extends Converter
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						);
-	
+
 	/**
 	 * Convert a bbPress group ID into a MyBB group ID
 	 *
@@ -102,15 +100,15 @@ class BBPRESS_Converter extends Converter
 					{
 						// The lot
 						$group .= 2;
-					}					
+					}
 			}
 			$comma = ',';
 		}
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
-		}			
-		
+		}
+
 		$this->old_db->free_result($query);
 		return $group;
 	}

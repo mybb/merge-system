@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: smf.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -24,21 +22,21 @@ class SMF_Converter extends Converter
 	 * @var string
 	 */
 	var $bbname = "SMF 1.1";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "SMF 1";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -60,9 +58,9 @@ class SMF_Converter extends Converter
 						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_posts"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
-						
+
 	var $get_post_cache = array();
-	
+
 	/**
 	 * Get a post from the SMF database
 	 *
@@ -75,18 +73,18 @@ class SMF_Converter extends Converter
 		{
 			return $this->get_post_cache[$pid];
 		}
-		
+
 		$pid = intval($pid);
-		
+
 		$query = $this->old_db->simple_select("messages", "*", "ID_MSG = '{$pid}'", array('limit' => 1));
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
-		
+
 		$this->get_post_cache[$pid] = $results;
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Convert a SMF group ID into a MyBB group ID
 	 *
@@ -100,7 +98,7 @@ class SMF_Converter extends Converter
 		{
 			return 2; // Return regular registered user.
 		}
-		
+
 		if(!is_numeric($group_id))
 		{
 			$groups = $group_id;
@@ -109,8 +107,8 @@ class SMF_Converter extends Converter
 		{
 			$groups = array($group_id);
 		}
-		
-		
+
+
 		$comma = $group = '';
 		foreach($groups as $key => $smfgroup)
 		{
@@ -119,7 +117,7 @@ class SMF_Converter extends Converter
 			{
 				return 5;
 			}
-			
+
 			$group .= $comma;
 			switch($smfgroup)
 			{
@@ -133,7 +131,7 @@ class SMF_Converter extends Converter
 					$group .= 6;
 					break;
 				// case 0 group = 2 // Member
-				default: 
+				default:
 					$gid = $this->get_import->gid($smfgroup);
 					if($gid > 0)
 					{
@@ -145,11 +143,11 @@ class SMF_Converter extends Converter
 						// The lot
 						$group .= 2;
 					}
-					
+
 			}
 			$comma = ',';
 		}
-		
+
 		return $group;
 	}
 }

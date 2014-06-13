@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: bbcode_parser.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -22,7 +20,7 @@ class BBCode_Parser {
 	 * Unconvert the HTML in posts, back to BBCode
 	 * @param ref parser object
 	 * @param string post message
-	 * @return string post message 
+	 * @return string post message
 	 */
 	function convert($text)
 	{
@@ -33,7 +31,7 @@ class BBCode_Parser {
 
 		return str_replace($sizes_finds, $sizes_replaces, $new_text);
 	}
-	
+
 	/**
 	 * Unconvert IPB BBCode functions
 	 *
@@ -41,10 +39,10 @@ class BBCode_Parser {
 	function unconvert($text)
 	{
 		$text = str_replace("<#EMO_DIR#>", "&lt;#EMO_DIR&gt;", $text);
-		
+
 		$text = preg_replace(array("#(\s)?<([^>]+?)emoid=\"(.*?)\"([^>]*?)".">(\s)?#is", // problem, \\3 returns Array?
 		"#<!--emo&(.*?)-->.+?<!--endemo-->#",
-		"#<!--sql-->(.*?)<!--sql1-->(.+?)<!--sql2-->(.*?)<!--sql3-->#eis", 
+		"#<!--sql-->(.*?)<!--sql1-->(.+?)<!--sql2-->(.*?)<!--sql3-->#eis",
 		"#<!--html-->(.*?)<!--html1-->(.*?)<!--html2-->(.*?)<!--html3-->#e",
 		"#<!--Flash (.+?)-->.+?<!--End Flash-->#e",
 		"#<img src=[\"'](\S+?)['\"].+?".">#",
@@ -67,13 +65,13 @@ class BBCode_Parser {
 		"#(\n){0,}</ol>(\n){0,}#",
 		"#<!--quoteo([^>]+?)?-->(.*?)<!--quotec-->#esi",
 		"#<!--sizeo([^>]+?)?-->(.*?)<!--\/sizeo-->#i",
-		"#<!--sizec-->(.*?)<!--sizec-->#si", 
+		"#<!--sizec-->(.*?)<!--sizec-->#si",
 		"#<!--coloro([^>]+?)?-->(.*?)<!--\/coloro-->#si",
 		"#<!--colorc-->(.*?)<!--\/colorc-->#si",
 		"#<!--fonto([^>]+?)?-->(.*?)<!--\/fonto-->#si",
 		"#<!--fontc-->(.*?)<!--\/fontc-->#si",
-		"#<div align=\"center\">(.*?)</div>#i"), 
-				
+		"#<div align=\"center\">(.*?)</div>#i"),
+
 		array("\\3",
 		"\\1",
 		"\$this->unconvert_sql_tag(\"\\2\")",
@@ -105,61 +103,61 @@ class BBCode_Parser {
 		"\\2",
 		"\\1",
 		"[align=center]\\1[/align]"), $text);
-			
+
 		while(preg_match("#<span style=['\"]font-size:(.+?)pt;line-height:100%['\"]>(.+?)</span>#is", $text))
 		{
 			$text = preg_replace("#<span style=['\"]font-size:(.+?)pt;line-height:100%['\"]>(.+?)</span>#ise", "\$this->unconvert_size_tag('\\1', '\\2')", $text);
 		}
-			
+
 		while(preg_match("#<span style=['\"]color:(.+?)['\"]>(.+?)</span>#is", $text))
 		{
 			$text = preg_replace( "#<span style=['\"]color:(.+?)['\"]>(.+?)</span>#is", "\[color=\\1\]\\2\[/color\]", $text);
 		}
-			
+
 		while(preg_match("#<span style=['\"]font-family:(.+?)['\"]>(.+?)</span>#is", $text))
 		{
 			$text = preg_replace("#<span style=['\"]font-family:(.+?)['\"]>(.+?)</span>#is", "\[font=\\1\]\\2\[/font\]", $text);
 		}
 
-		$text = preg_replace(array("#(\[/QUOTE\])\s*?<br />\s*#si", 
-		"#(\[/QUOTE\])\s*?<br>\s*#si", 
-		"#<!--EDIT\|.+?\|.+?-->#", 
+		$text = preg_replace(array("#(\[/QUOTE\])\s*?<br />\s*#si",
+		"#(\[/QUOTE\])\s*?<br>\s*#si",
+		"#<!--EDIT\|.+?\|.+?-->#",
 		"</li>"), array("\\1\n", "\\1\n", "", ""), $text);
-        
+
 		return trim(stripslashes($text));
 	}
-	
+
 	function unconvert_quote_tag($matches=array())
 	{
 		$quote_data = $matches[1];
 		$quote_text = $matches[2];
-		
+
 		if(!$quote_data)
 		{
 			return '[quote]';
 		}
 		else
 		{
-			preg_match("#\(post=(.+?)?:date=(.+?)?:name=(.+?)?\)#", $quote_data, $match);			
+			preg_match("#\(post=(.+?)?:date=(.+?)?:name=(.+?)?\)#", $quote_data, $match);
 			return str_replace('  ', ' ', "[quote='{$match[3]}']");
 		}
 	}
-	
+
 	function unconvert_size_tag($size="", $text="")
-	{		
-		$size -= 7;		
-		return "[size={$size}]{$text}[/size]";		
+	{
+		$size -= 7;
+		return "[size={$size}]{$text}[/size]";
 	}
 
 	function unconvert_flash_tag($flash="")
-	{	
-		$flash_array = explode("+", $flash);		
+	{
+		$flash_array = explode("+", $flash);
 		return "Flash Code: {$flash_array[2]} ({$flash_array[0]}X{$flash_array[1]}";
 	}
-	
+
 	function unconvert_sql_tag($sql="")
 	{
-		return "[code]".preg_replace("#<span style='(.*?)'>#is", "#</span>#i", array("", ""), stripslashes($sql))."[/code]";	
+		return "[code]".preg_replace("#<span style='(.*?)'>#is", "#</span>#i", array("", ""), stripslashes($sql))."[/code]";
 	}
 
 	function unconvert_html_tag($html="")

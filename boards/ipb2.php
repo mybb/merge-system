@@ -1,12 +1,10 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: ipb2.php 4394 2010-12-14 14:38:21Z ralgith $
+ * License: http://www.mybb.com/about/license
  */
 
 // Disallow direct access to this file for security reasons
@@ -23,21 +21,21 @@ class IPB2_Converter extends Converter {
 	 * @var string
 	 */
 	var $bbname = "Invision Power Board 2.1, 2.2 or 2.3";
-	
+
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
 	var $plain_bbname = "Invision Power Board 2";
-	
+
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
 	 *
 	 * @var boolean
 	 */
 	var $requires_loginconvert = true;
-	
+
 	/**
 	 * Array of all of the modules
 	 *
@@ -65,7 +63,7 @@ class IPB2_Converter extends Converter {
 			'2.2' => 'IPB 2.2',
 			'2.3' => 'IPB 2.3',
 		);
-	
+
 	/**
 	 * Convert a IPB group ID into a MyBB group ID
 	 *
@@ -83,8 +81,8 @@ class IPB2_Converter extends Converter {
 		else
 		{
 			$query = $this->old_db->simple_select("groups", "*", "g_id='{$gid}'");
-		}		
-				
+		}
+
 		$comma = $group = '';
 		while($ipbgroup = $this->old_db->fetch_array($query))
 		{
@@ -113,7 +111,7 @@ class IPB2_Converter extends Converter {
 					case 6: // Administrator
 						$group .= 4;
 						break;
-					default:						
+					default:
 						$gid = $this->get_import->gid($ipbgroup['g_id']);
 						if($gid > 0)
 						{
@@ -125,11 +123,11 @@ class IPB2_Converter extends Converter {
 							// The lot
 							$group .= 2;
 						}
-				}			
+				}
 			}
 			$comma = ',';
 		}
-		
+
 		if(!$query)
 		{
 			return 2; // Return regular registered user.
