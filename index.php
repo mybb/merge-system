@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright ? 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -13,20 +13,6 @@
 $load_timer = microtime(true);
  
 header('Content-type: text/html; charset=utf-8');
-if(function_exists("unicode_decode"))
-{
-    // Unicode extension introduced in 6.0
-    error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE ^ E_STRICT);
-}
-elseif(defined("E_DEPRECATED"))
-{
-    // E_DEPRECATED introduced in 5.3
-    error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE);
-}
-else
-{
-    error_reporting(E_ALL & ~E_NOTICE);
-}
 @set_time_limit(0);
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
