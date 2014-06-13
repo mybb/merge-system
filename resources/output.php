@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright ? 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -93,7 +93,7 @@ class converterOutput
 	 * @param int Open a form 1/0
 	 * @param int Error???
 	 */
-	function print_header($title="Welcome", $image="welcome", $form=1, $error=0)
+	function print_header($title="Welcome", $image="welcome", $form=1)
 	{
 		global $mybb, $merge_version, $import_session;
 
@@ -163,7 +163,7 @@ END;
 	{
 		if(!$this->doneheader)
 		{
-			$this->print_header('Error', "", 0, 1);
+			$this->print_header('Error', "", 0);
 		}
 		echo "			<div class=\"error\">\n				";
 		echo "<h3>Error</h3>";
