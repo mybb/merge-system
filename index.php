@@ -574,7 +574,6 @@ if($mybb->input['board'])
 		$output->print_error("The board module you have selected does not exist.");
 	}
 
-	require_once MERGE_ROOT."boards/".$mybb->input['board'].".php";
 	// Get the converter up.
 	require_once MERGE_ROOT."boards/".$mybb->input['board'].".php";
 	$class_name = strtoupper($mybb->input['board'])."_Converter";
