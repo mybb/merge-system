@@ -29,8 +29,8 @@ else
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
-$merge_version = "1.6.10";
-$version_code = 1610;
+$merge_version = "1.6.14";
+$version_code = 1614;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
