@@ -220,7 +220,7 @@ END;
 			}
 		}
 
-		asort($board_array);
+		natcasesort($board_array);
 
 		$class = "first";
 
