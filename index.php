@@ -555,19 +555,6 @@ if($mybb->input['board'])
 
 	$board = new $class_name;
 
-	if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
-	{
-		$plugins_cache = $cache->read("plugins");
-		$active_plugins = $plugins_cache['active'];
-
-		$active_plugins['loginconvert'] = "loginconvert";
-
-		$plugins_cache['active'] = $active_plugins;
-		$cache->update("plugins", $plugins_cache);
-
-		$debug->log->trace1("Login convert already exists, automatically activating loginconvert plugin");
-	}
-
 	if($board->requires_loginconvert == true)
 	{
 		$debug->log->trace1("loginconvert plugin required for this board module");
@@ -582,19 +569,6 @@ if($mybb->input['board'])
 				@fclose($writable);
 				@my_chmod(MYBB_ROOT.'inc/plugins/loginconvert.php', '0555');
 				$debug->log->trace2("Successfully moved loginconvert.php to inc/plugins/ automatically");
-			}
-
-			$debug->log->trace2("Attempting to automatically activate inc/plugins/loginconvert.php");
-			if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
-			{
-				$plugins_cache = $cache->read("plugins");
-				$active_plugins = $plugins_cache['active'];
-
-				$active_plugins['loginconvert'] = "loginconvert";
-
-				$plugins_cache['active'] = $active_plugins;
-				$cache->update("plugins", $plugins_cache);
-				$debug->log->trace2("Succesfully activated inc/plugins/loginconvert.php automatically");
 			}
 		}
 
@@ -614,6 +588,16 @@ if($mybb->input['board'])
 				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
 		}
+
+		$plugins_cache = $cache->read("plugins");
+		$active_plugins = $plugins_cache['active'];
+
+		$active_plugins['loginconvert'] = "loginconvert";
+
+		$plugins_cache['active'] = $active_plugins;
+		$cache->update("plugins", $plugins_cache);
+
+		$debug->log->trace1("Activated loginconvert plugin");
 	}
 
 	// Save it to the import session so we don't have to carry it around in the url/source.
