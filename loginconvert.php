@@ -321,6 +321,7 @@ class loginConvert
             case 'smf':
                 $return = $this->authenticate_smf($password);
                 break;
+			case 'fluxbb':
 			case 'punbb':
 				$return = $this->authenticate_punbb($password);
 				break;
