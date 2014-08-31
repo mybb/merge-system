@@ -47,9 +47,29 @@ class Converter_Module
 	 * Fills an array of insert data with default MyBB values if they were not specified
 	 *
 	 */
-	public function process_default_values($values)
+	public function prepare_insert_array($values)
 	{
-		return array_merge($this->default_values, $values);
+		global $db;
+
+		$data = array_merge($this->default_values, $values);
+		
+		foreach($data as $key => $value)
+		{
+			if(isset($this->binary_fields) && in_array($key, $this->binary_fields))
+			{
+				$insert_array[$key] = $db->escape_binary($value);
+			}
+			else if(isset($this->integer_fields) && in_array($key, $this->integer_fields))
+			{
+				$insert_array[$key] = (int)$value;
+			}
+			else
+			{
+				$insert_array[$key] = $db->escape_string($value);
+			}
+		}
+
+		return $insert_array;
 	}
 
 	public function check_table_type($tables)
