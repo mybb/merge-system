@@ -35,12 +35,8 @@ class Converter_Module_Forums extends Converter_Module
 		'allowvideocode' => 1,
 		'allowpicons' => 1,
 		'allowtratings' => 1,
-		'status' => 1,
 		'password' => '',
 		'showinjump' => 1,
-		'modposts' => 0,
-		'modthreads' => 0,
-		'modattachments' => 0,
 		'style' => 0,
 		'overridestyle' => 0,
 		'rulestype' => 0,
@@ -50,8 +46,6 @@ class Converter_Module_Forums extends Converter_Module
 		'defaultdatecut' => 0,
 		'defaultsortby' => 0,
 		'defaultsortorder' => '',
-		'usepostcounts' => 1,
-		'mod_edit_posts' => 0,
 	);
 
 	/**
