@@ -61,7 +61,7 @@ class BBPRESS_Converter extends Converter
 	 *
 	 * @var String
 	 */
-	var $prefix_suggestion = "bb_";
+	var $prefix_suggestion = "wp_";
 	
 	/**
 	 * Convert a bbPress group ID into a MyBB group ID
