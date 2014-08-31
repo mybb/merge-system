@@ -72,7 +72,7 @@ class PHPBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		// Get number of usergroups
 		if(!isset($import_session['total_usergroups']))
 		{
-			$query = $this->old_db->simple_select("groups", "COUNT(*) as count", "group_id > 6");
+			$query = $this->old_db->simple_select("groups", "COUNT(*) as count", "group_id > 7");
 			$import_session['total_usergroups'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
