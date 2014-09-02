@@ -67,6 +67,59 @@ class Converter_Module_Usergroups extends Converter_Module
 		'cancustomtitle' => 1,
 	);
 
+	public $integer_fields = array(
+		'import_gid',
+		'canview',
+		'canpostthreads',
+		'canpostreplys',
+		'caneditposts',
+		'candeleteposts',
+		'candeletethreads',
+		'cansearch',
+		'canviewmemberlist',
+		'caneditattachments',
+		'canpostpolls',
+		'canvotepolls',
+		'canundovotes',
+		'canpostattachments',
+		'canratethreads',
+		'canviewthreads',
+		'canviewprofiles',
+		'candlattachments',
+		'type',
+		'stars',
+		'disporder',
+		'isbannedgroup',
+		'canusepms',
+		'cansendpms',
+		'cantrackpms',
+		'candenypmreceipts',
+		'pmquota',
+		'maxpmrecipients',
+		'cansendemail',
+		'canviewcalendar',
+		'canaddevents',
+		'canviewonline',
+		'canviewwolinvis',
+		'canviewonlineips',
+		'cancp',
+		'issupermod',
+		'canusercp',
+		'canuploadavatars',
+		'canratemembers',
+		'canchangename',
+		'showforumteam',
+		'usereputationsystem',
+		'cangivereputations',
+		'reputationpower',
+		'maxreputationsday',
+		'maxreputationsperuser',
+		'maxreputationsperthread',
+		'candisplaygroup',
+		'attachquota',
+		'cancustomtitle',
+	);
+
 	/**
 	 * Insert usergroup into database
 	 *
@@ -83,13 +136,8 @@ class Converter_Module_Usergroups extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			$insert_array[$key] = $db->escape_string($value);
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
