@@ -26,7 +26,8 @@ class Converter_Module_Privatemessages extends Converter_Module
 		'includesig' => 0,
 		'smilieoff' => 0,
 		'receipt' => 2,
-		'readtime' => 0
+		'readtime' => 0,
+		'ipaddress' => '',
 	);
 
 	public $integer_fields = array(
@@ -44,6 +45,10 @@ class Converter_Module_Privatemessages extends Converter_Module
 		'smielieoff',
 		'receipt',
 		'readtime',
+	);
+
+	public $binary_fields = array(
+		'ipaddress'
 	);
 
 	/**
