@@ -155,7 +155,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastip'] = my_inet_pton($data['user_ip']);
 		$insert_data['totalpms'] = $this->get_private_messages($data['user_id']);
 		$insert_data['unreadpms'] = $data['user_unread_privmsg'];
-		$insert_data['salt'] = $data['user_form_salt'];
 		$insert_data['passwordconvert'] = $data['user_password'];
 		$insert_data['passwordconverttype'] = 'phpbb3';
 		$insert_data['loginkey'] = generate_loginkey();
