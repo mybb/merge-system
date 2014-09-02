@@ -51,7 +51,7 @@ class MYBB_Converter_Module_Events extends Converter_Module_Events {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

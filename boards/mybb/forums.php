@@ -57,7 +57,7 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

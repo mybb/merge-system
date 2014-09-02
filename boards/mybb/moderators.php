@@ -51,7 +51,7 @@ class MYBB_Converter_Module_Moderators extends Converter_Module_Moderators {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

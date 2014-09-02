@@ -61,7 +61,7 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}
