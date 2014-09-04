@@ -41,7 +41,7 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			SELECT p.id_group, GROUP_CONCAT(p.permission) as permissions, b.id_board
 			FROM ".OLD_TABLE_PREFIX."boards b
 			LEFT JOIN ".OLD_TABLE_PREFIX."board_permissions p ON (p.id_profile=b.id_profile)
-			WHERE p.id_group>4 AND p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
+			WHERE p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
 			GROUP BY b.id_board
 			LIMIT {$this->trackers['start_forumperms']}, {$import_session['forumperms_per_screen']}
 		");
@@ -57,7 +57,7 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		// SMF values
 		$insert_data['fid'] = $this->get_import->fid($data['id_board']);
-		$insert_data['gid'] = $this->get_import->gid($data['id_group']);
+		$insert_data['gid'] = $this->board->get_gid($data['id_group']);
 
 		$permissions = explode(',', $data['permissions']);
 		foreach($permissions as $name)

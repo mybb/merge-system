@@ -38,7 +38,7 @@ class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms
 
 		// vBulletin 3 values
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
-		$insert_data['gid'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
+		$insert_data['gid'] = $this->board->get_gid($data['usergroupid']);
 
 		$perm_bits = array(
 			"canview" => 1,
