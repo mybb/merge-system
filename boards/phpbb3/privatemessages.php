@@ -62,6 +62,7 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message_text'], $data['bbcode_uid']), "privmsgs", "privatemessages");
 		$insert_data['includesig'] = $data['enable_sig'];
 		$insert_data['smilieoff'] = int_to_01($data['enable_smilies']);
+		$insert_data['ipaddress'] = my_inet_pton($data['author_ip']);
 
 		return $insert_data;
 	}
