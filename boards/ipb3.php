@@ -57,6 +57,21 @@ class IPB3_Converter extends Converter {
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
+	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "forum_perms";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "";
+	
+	// TODO: Check why only IPB has this array - do we really need this?
 	var $supported_versions = array(
 			'name' => 'IPB 3.x series',
 			'3.0.2' => 'IPB 3.0.2',

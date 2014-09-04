@@ -58,6 +58,20 @@ class PHPBB3_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "user_group";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "phpbb_";
+	
+	/**
 	 * Convert a phpBB 3 group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
