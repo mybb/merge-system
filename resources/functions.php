@@ -997,6 +997,48 @@ function my_friendly_time($timestamp)
 	return $string;
 }
 
+// Converts a string format to MyBB's date format
+function get_date_format($format, $add='')
+{
+	if(strpos($format, "{$add}d {$add}M {$add}Y") !== FALSE)
+	{
+		$dateformat = 11;
+	}
+	elseif(strpos($format, "{$add}D {$add}M {$add}d") !== FALSE)
+	{
+		$dateformat = 10;
+	}
+	elseif (strpos($format, "{$add}j{$add}S") !== FALSE)
+	{
+		$dateformat = 9;
+	}
+	else
+	{
+		$dateformat = 10;
+	}
+
+	return $dateformat;
+}
+
+// Converts a string format to MyBB's time format
+function get_time_format($format, $add='')
+{
+	if(strpos($format, "{$add}H:{$add}i") !== FALSE)
+	{
+		$timeformat = 3;
+	}
+	elseif (strpos($format, "{$add}g:{$add}i") !== FALSE)
+	{
+		$timeformat = 1;
+	}
+	else
+	{
+		$timeformat = 1;
+	}
+
+	return $timeformat;
+}
+
 // Used if a BBCode conversion parser isn't available for that bulletin board software
 class dummyParser
 {
