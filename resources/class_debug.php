@@ -39,11 +39,6 @@ class Log {
 
 	private $table_exists = false;
 
-	function __construct()
-	{
-		$this->create_debug_table();
-	}
-
 	public function error($message)
 	{
 		$this->write(self::ERROR, $message);
@@ -175,26 +170,30 @@ class Log {
 	 */
 	function generate_plain_backtrace($shift=1)
 	{
-		$backtrace = "";
-		if(function_exists("debug_backtrace"))
+		if(!function_exists("debug_backtrace"))
 		{
-			$trace = debug_backtrace();
-
-			// Strip off n number of function from trace
-			for($i=0; $i < $shift; ++$i)
-			{
-				array_shift($trace);
-			}
-
-			foreach($trace as $call)
-			{
-				if(!$call['file']) $call['file'] = "[PHP]";
-				if(!$call['line']) $call['line'] = "&nbsp;";
-				if($call['class']) $call['function'] = $call['class'].$call['type'].$call['function'];
-				$call['file'] = str_replace(substr(MYBB_ROOT, 0, -1), "", $call['file']);
-				$backtrace .= "File: {$call['file']} Line: {$call['line']} Function: {$call['function']} -> \r\n";
-			}
+			return "";
 		}
+
+		$backtrace = "";
+
+		$trace = debug_backtrace();
+
+		// Strip off n number of function from trace
+		for($i=0; $i < $shift; ++$i)
+		{
+			array_shift($trace);
+		}
+
+		foreach($trace as $call)
+		{
+			if(!$call['file']) $call['file'] = "[PHP]";
+			if(!$call['line']) $call['line'] = "&nbsp;";
+			if($call['class']) $call['function'] = $call['class'].$call['type'].$call['function'];
+			$call['file'] = str_replace(substr(MYBB_ROOT, 0, -1), "", $call['file']);
+			$backtrace .= "File: {$call['file']} Line: {$call['line']} Function: {$call['function']} -> \r\n";
+		}
+
 		return $backtrace;
 	}
 
