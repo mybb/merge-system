@@ -18,15 +18,19 @@ $plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1
 global $valid_login_types;
 $valid_login_types = array(
 	"vb3"		=> "vb",	// Module isn't supported anymore, but old merges may require it
-//	"vb4"		=> "vb",	   TODO: check whether VB3 & 4 use the same hash function
+	"vb4"		=> "vb",
 	"ipb2"		=> "ipb",	// Module isn't supported anymore, but old merges may require it
-//	"ipb3"		=> "ipb",	   TODO: check whether IPB2 & 3 use the same hash function
+	"ipb3"		=> "ipb",
 	"smf"		=> "smf",	// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
 	"smf11"		=> "smf11",
 	"smf2"		=> "smf2",
 	"punbb"		=> "punbb",
 	"phpbb3"	=> "phpbb3",
 	"bbpress"	=> "bbpress",
+	"xf"		=> "xf11",	// XenForo can have two different authentications
+	"xf12"		=> "xf12",	// 1.2+ use PHP's crypt function by default
+	"wbblite"	=> "wcf1",	// WBB Lite uses WoltLab Community Framework 1.x with some special parameters
+	"wbb4"		=> "wcf2",	// WBB 4 uses WoltLab Community Framework 2.x
 );
 
 function loginconvert_info()
@@ -135,7 +139,21 @@ function check_vb($password, $user)
 
 function check_ipb($password, $user)
 {
-	if($user['passwordconvert'] == md5(md5($user['salt']).md5($password)))
+	// The salt was saved in the "salt" column on IPB 2 but we changed it in IPB 3 to use the correct "passwordconvertsalt" column
+	if(!empty($user['passwordconvertsalt']))
+	{
+		$salt = $user['passwordconvertsalt'];
+	}
+	else if(!empty($user['salt']))
+	{
+		$salt = $user['salt'];
+	}
+	else
+	{
+		return false;
+	}
+
+	if($user['passwordconvert'] == md5(md5($salt).md5($password)))
 	{
 		return true;
 	}
@@ -258,9 +276,100 @@ function check_bbpress($password, $user)
 	}
 }
 
+function check_xf11($password, $user)
+{
+	$hash = xf_hash(xf_hash($password));
+	return ($hash === $user['passwordconvert']);
+}
+
+function check_xf12($password, $user)
+{
+	if ($user['passwordconvert'] == crypt($password, $user['passwordconvert']))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function check_wcf1($password, $user)
+{
+	// WCF 1 has some special parameters, which are saved in the passwordconvert field
+	$settings = my_unserialize($user['passwordconvert']);
+	$user['passwordconvert'] = $settings['password'];
+
+	if(wcf1_encrypt($user['passwordconvertsalt'].wcf1_hash($password, $user['passwordconvertsalt'], $settings), $settings['method']) == $user['passwordconvert'])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function check_wcf2($password, $user)
+{
+	// WCF 2 doesn't save the salt in a seperate column and it's easier to fetch it when it's needed than doing it while merging
+	$salt = mb_substr($user['passwordconvert'], 0, 29);
+
+	return (crypt(crypt($password, $salt), $salt) == $user['passwordconvert']);
+}
+
 /************************************
  * Helpers used by different boards *
  ************************************/
+
+// Used by WCF1
+function wcf1_encrypt($value, $method) {
+	switch ($method) {
+		case 'sha1': return sha1($value);
+		case 'md5': return md5($value);
+		case 'crc32': return crc32($value);
+		case 'crypt': return crypt($value);
+	}
+}
+
+function wcf1_hash($value, $salt, $settings) {
+	if ($settings['enable_salt']) {
+		$hash = '';
+		// salt
+		if ($settings['salt_position'] == 'before') {
+			$hash .= $salt;
+		}
+
+		// value
+		if ($settings['encrypt_before_salt']) {
+			$hash .= wcf1_encrypt($value, $settings['method']);
+		}
+		else {
+			$hash .= $value;
+		}
+
+		// salt
+		if ($settings['salt_position'] == 'after') {
+			$hash .= $salt;
+		}
+
+		return wcf1_encrypt($hash, $settings['method']);
+	}
+	else {
+		return wcf1_encrypt($value, $settings['method']);
+	}
+}
+
+
+// Used by XenForo 1.0 and 1.1
+function xf_hash($data)
+{
+	if (extension_loaded('hash'))
+	{
+		return hash('sha256', $data);
+	}
+	else
+	{
+		return sha1($data);
+	}
+
+}
 
 // Used by SMF 1.0
 function md5_hmac($username, $password)
