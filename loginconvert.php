@@ -298,7 +298,7 @@ function check_wcf1($password, $user)
 	$settings = my_unserialize($user['passwordconvert']);
 	$user['passwordconvert'] = $settings['password'];
 
-	if(wcf1_encrypt($user['passwordconvertsalt'].wcf1_hash($password, $user['passwordconvertsalt'], $settings), $settings['method']) == $user['passwordconvert'])
+	if(wcf1_encrypt($user['passwordconvertsalt'].wcf1_hash($password, $user['passwordconvertsalt'], $settings), $settings['encryption_method']) == $user['passwordconvert'])
 	{
 		return true;
 	}
@@ -329,30 +329,30 @@ function wcf1_encrypt($value, $method) {
 }
 
 function wcf1_hash($value, $salt, $settings) {
-	if ($settings['enable_salt']) {
+	if ($settings['encryption_enable_salting']) {
 		$hash = '';
 		// salt
-		if ($settings['salt_position'] == 'before') {
+		if ($settings['encryption_salt_position'] == 'before') {
 			$hash .= $salt;
 		}
 
 		// value
-		if ($settings['encrypt_before_salt']) {
-			$hash .= wcf1_encrypt($value, $settings['method']);
+		if ($settings['encryption_encrypt_before_salting']) {
+			$hash .= wcf1_encrypt($value, $settings['encryption_method']);
 		}
 		else {
 			$hash .= $value;
 		}
 
 		// salt
-		if ($settings['salt_position'] == 'after') {
+		if ($settings['encryption_salt_position'] == 'after') {
 			$hash .= $salt;
 		}
 
-		return wcf1_encrypt($hash, $settings['method']);
+		return wcf1_encrypt($hash, $settings['encryption_method']);
 	}
 	else {
-		return wcf1_encrypt($value, $settings['method']);
+		return wcf1_encrypt($value, $settings['encryption_method']);
 	}
 }
 
