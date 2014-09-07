@@ -100,7 +100,6 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		}
 
 		$insert_data['passwordconverttype'] = 'smf2';
-		$insert_data['salt'] = $data['password_salt'];
 
 		return $insert_data;
 	}

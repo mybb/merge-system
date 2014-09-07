@@ -90,8 +90,8 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['totalpms'] = $data['pmtotal'];
 		$insert_data['unreadpms'] = $data['pmunread'];
 		$insert_data['passwordconvert'] = $data['password'];
-		$insert_data['passwordconverttype'] = 'vb3';
-		$insert_data['salt'] = $data['salt'];
+		$insert_data['passwordconverttype'] = 'vb4';
+		$insert_data['passwordconvertsalt'] = $data['salt'];
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($this->get_signature($data['userid'])), "user", "users");
 
 		return $insert_data;
