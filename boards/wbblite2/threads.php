@@ -41,6 +41,7 @@ class WBBLITE2_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['sticky'] = $data['isSticky'];
 		$insert_data['fid'] = $this->get_import->fid($data['boardID']);
 		$insert_data['firstpost'] = $data['firstPostID'];
+		$insert_data['import_firstpost'] = $data['firstPostID']; // This is saved twice to make the poll things possible
 		$insert_data['dateline'] = $data['time'];
 		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert_title($data['topic']), WBB_PREFIX."thread", "threads");
 		$insert_data['uid'] = $this->get_import->uid($data['userID']);

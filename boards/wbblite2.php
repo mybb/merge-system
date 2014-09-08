@@ -168,7 +168,7 @@ class WBBLITE2_Converter extends Converter
 				<th colspan=\"2\" class=\"first last\">Installationnumber</th>
 			</tr>
 			<tr class=\"last\">
-				<td class=\"first\"><label for=\"installationnumber\">Which was the installationnumber you selected when installing?:<br /><small>Note: the Table Prefix setting above will be set automatically</small></label></td>
+				<td class=\"first\"><label for=\"installationnumber\">Which was the installationnumber you selected when installing?</label></td>
 				<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"installationnumber\" id=\"installationnumber\" value=\"".htmlspecialchars_uni($mybb->input['installationnumber'])."\" /></td>
 			</td>
 		</tr>
