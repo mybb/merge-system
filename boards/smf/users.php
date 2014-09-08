@@ -79,7 +79,8 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['hideemail'] = $data['hideEmail'];
 		$insert_data['invisible'] = int_to_01($data['showOnline']);
 		$insert_data['pmnotify'] = $data['pm_email_notify'];
-		$insert_data['timeformat'] = $data['timeFormat'];
+		$insert_data['dateformat'] = get_date_format($data['timeFormat'], "%");
+		$insert_data['timeformat'] = get_time_format($data['timeFormat'], "%");
 		$insert_data['timezone'] = $data['timeOffset'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['buddylist'] = $data['buddy_list'];
@@ -112,7 +113,7 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 			'additionalGroups' => 2,
 			'displaygroup' => 1,
 			'ID_MEMBER' => 3,
-			'memberName' => 'Test�fdfs�� username',
+			'memberName' => 'Test?fdfs?? username',
 			'emailAddress' => 'test@test.com',
 			'dateRegistered' => 12345678,
 			'lastLogin' => 23456789,
@@ -133,7 +134,7 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 			'totalTimeLoggedIn' => 1234567,
 			'instantMessages' => 15,
 			'unreadMessages' => 5,
-			'signature' => 'Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��',
+			'signature' => 'Test, test, fdsfdsf ds dsf  est?fdf fdsfds s??',
 			'password' => 'dsfdssw132rdstr13112rwedsxc',
 		);
 
@@ -145,7 +146,7 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 			'import_additionalgroups' => '2',
 			'import_displaygroup' => 1,
 			'import_uid' => 3,
-			'username' => utf8_encode('Test�fdfs�� username'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
+			'username' => utf8_encode('Test?fdfs?? username'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
 			'email' => 'test@test.com',
 			'regdate' => 12345678,
 			'lastactive' => 23456789,
@@ -169,7 +170,7 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 			'timeonline' => 1234567,
 			'totalpms' => 15,
 			'unreadpms' => 5,
-			'signature' => utf8_encode('Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��'),
+			'signature' => utf8_encode('Test, test, fdsfdsf ds dsf  est?fdf fdsfds s??'),
 			'passwordconvert' => 'dsfdssw132rdstr13112rwedsxc',
 			'passwordconverttype' => 'smf11',
 		);
