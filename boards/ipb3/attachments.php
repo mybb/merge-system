@@ -46,8 +46,6 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			// Test our ability to read attachment files from the forum software
 			$this->test_readability("attachments", "attach_location");
 		}
-
-		$output->print_inline_errors();
 	}
 
 	function import()

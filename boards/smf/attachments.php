@@ -27,7 +27,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $output;
+		global $import_session, $output, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -58,8 +58,6 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$this->test_readability("attachments", "ID_ATTACH,filename");
 			}
 		}
-
-		$output->print_inline_errors();
 	}
 
 	function import()
@@ -296,17 +294,17 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 
 		// Welp, this is the way SMF does it, looks like - Legacy Method
-		$attachment['filename'] = str_replace(array('������������������������������������������������������������',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�',
-				'�'),
+		$attachment['filename'] = str_replace(array('????????????????????????????????????????????????????????????',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?',
+				'?'),
 			array('SZszYAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy',
 				'TH',
 				'th',

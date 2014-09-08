@@ -637,7 +637,7 @@ function check_url_exists($url)
 		return false;
 	}
 
-	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]");
+	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]{$url_parsed['path']}");
 
 	if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
 	{
