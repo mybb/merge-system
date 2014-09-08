@@ -10,17 +10,17 @@
 class Converter_Module_Users extends Converter_Module
 {
 	public $default_values = array(
-		'usergroup' => '',
+		'usergroup' => 0,
 		'additionalgroups' => '',
-		'displaygroup' => '',
-		'import_usergroup' => '',
+		'displaygroup' => 0,
+		'import_usergroup' => 0,
 		'import_additionalgroups' => '',
-		'import_displaygroup' => '',
+		'import_displaygroup' => 0,
 		'import_uid' => 0,
 		'username' => '',
 		'password' => '',
 		'salt' => '',
-		'loginkey' => 0,
+		'loginkey' => '',
 		'email' => '',
 		'regdate' => 0,
 		'lastactive' => 0,
@@ -29,7 +29,7 @@ class Converter_Module_Users extends Converter_Module
 		'showsigs' => 1,
 		'signature' => '',
 		'showavatars' => 1,
-		'timezone' => 0,
+		'timezone' => '',
 		'avatardimensions' => '',
 		'avatartype' => '',
 		'avatar' => '',
@@ -59,14 +59,14 @@ class Converter_Module_Users extends Converter_Module
 		'ppp' => 0,
 		'tpp' => 0,
 		'daysprune' => 0,
-		'timeformat' => 0,
+		'timeformat' => '',
 		'dst' => 0,
 		'buddylist' => '',
 		'ignorelist' => '',
 		'style' => 0,
 		'away' => 0,
 		'awaydate' => 0,
-		'returndate' => 0,
+		'returndate' => '',
 		'referrer' => 0,
 		'referrals' => 0,
 		'reputation' => 0,
@@ -77,12 +77,9 @@ class Converter_Module_Users extends Converter_Module
 		'pmfolders' => '1**Inbox$%%$2**Sent Items$%%$3**Drafts$%%$4**Trash Can',
 		'notepad' => '',
 		'threadmode' => '',
-		'showavatars' => 1,
-		'showquickreply' => 1,
 		'showredirect' => 1,
-		'dateformat' => 0,
+		'dateformat' => '',
 		'dstcorrection' => 1,
-		'reputation' => 0,
 		'warningpoints' => 0,
 		'moderateposts' => 0,
 		'moderationtime' => 0,
@@ -95,7 +92,62 @@ class Converter_Module_Users extends Converter_Module
 		'loginattempts' => 0,
 		'usernotes' => '',
 	);
+	
+	public $binary_fields = array(
+		'regip',
+		'lastip',
+	);
 
+	public $integer_fields = array(
+		'usergroup',
+		'displaygroup',
+		'import_usergroup',
+		'import_displaygroup',
+		'import_uid',
+		'regdate',
+		'lastactive',
+		'lastvisit',
+		'showsigs',
+		'showavatars',
+		'lastpost',
+		'hideemail',
+		'allownotices',
+		'postnum',
+		'invisible',
+		'subscriptionmethod',
+		'receivepms',
+		'receivefrombuddy',
+		'pmnotice',
+		'pmnotify',
+		'showquickreply',
+		'ppp',
+		'tpp',
+		'daysprune',
+		'dst',
+		'style',
+		'away',
+		'awaydate',
+		'referrer',
+		'referrals',
+		'reputation',
+		'timeonline',
+		'showcodebuttons',
+		'totalpms',
+		'unreadpms',
+		'showredirect',
+		'dstcorrection',
+		'warningpoints',
+		'moderateposts',
+		'moderationtime',
+		'suspendposting',
+		'suspensiontime',
+		'suspendsignature',
+		'suspendsigtime',
+		'coppauser',
+		'classicpostbit',
+		'loginattempts',
+	);
+	
 	/**
 	 * Total users queried from the MyBB Database used in the users module
 	 */
@@ -125,20 +177,8 @@ class Converter_Module_Users extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			if($key == 'regip' || $key == 'lastip')
-			{
-				$insert_array[$key] = $db->escape_binary($value);
-			}
-			else
-			{
-				$insert_array[$key] = $db->escape_string($value);
-			}
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 

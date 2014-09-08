@@ -124,40 +124,7 @@ class Converter
 					// Need to check if it is actually installed here
 					$this->old_db->set_table_prefix($config_data['tableprefix']);
 
-					$check_table = "";
-					switch($import_session['board'])
-					{
-						case "ipb2":
-							$check_table = "forum_perms";
-							break;
-						case "mybb":
-							$check_table = "usergroups";
-							break;
-						case "phpbb2":
-							$check_table = "topics";
-							break;
-						case "phpbb3":
-							$check_table = "user_group";
-							break;
-						case "punbb":
-							$check_table = "groups";
-							break;
-						case "smf":
-						case "smf2":
-							$check_table = "boards";
-							break;
-						case "vbulletin3":
-							$check_table = "forumpermission";
-							break;
-						case "xmb":
-							$check_table = "vote_desc";
-							break;
-						case "bbpress":
-							$check_table = "usermeta";
-							break;
-					}
-
-					if($check_table && !$this->old_db->table_exists($check_table))
+					if(isset($this->check_table) && !empty($this->check_table) && !$this->old_db->table_exists($this->check_table))
 					{
 						$errors[] = "The {$this->plain_bbname} database could not be found in '{$config_data['dbname']}'.  Please ensure {$this->plain_bbname} exists at this database and with this table prefix.";
 					}
@@ -232,39 +199,7 @@ class Converter
 			}
 			else
 			{
-				$prefix_suggestion = "";
-				switch($import_session['board'])
-				{
-					case "ipb2":
-						$prefix_suggestion = "ibf_";
-						break;
-					case "mybb":
-						$prefix_suggestion = "mybb_";
-						break;
-					case "phpbb2":
-						$prefix_suggestion = "phpbb_";
-						break;
-					case "phpbb3":
-						$prefix_suggestion = "phpbb_";
-						break;
-					case "punbb":
-						$prefix_suggestion = "punbb_";
-						break;
-					case "smf":
-					case "smf2":
-						$prefix_suggestion = "smf_";
-						break;
-					case "vbulletin3":
-						$prefix_suggestion = "";
-						break;
-					case "xmb":
-						$prefix_suggestion = "xmb_";
-						break;
-					case "bbpress":
-						$prefix_suggestion = "bb_";
-						break;
-				}
-				$mybb->input['config'][$mybb->input['dbengine']]['tableprefix'] = $prefix_suggestion;
+				$mybb->input['config'][$mybb->input['dbengine']]['tableprefix'] = $this->prefix_suggestion;
 			}
 
 			if($import_session['old_db_user'])
@@ -331,6 +266,29 @@ class Converter
 
 		$output->set_error_notice_in_progress($error_message);
 	}
-}
 
+	public function get_gid($gid)
+	{
+		// A default group, return the correct MyBB group
+		if(isset($this->groups) && isset($this->groups[$gid]))
+		{
+			return $this->groups[$gid];
+		}
+		// Custom group
+		else
+		{
+			$gid = $this->get_import->gid($gid);
+			// we found the correct group
+			if($gid > 0)
+			{
+				return $gid;
+			}
+			// Something went wrong
+			else
+			{
+				return MYBB_REGISTERED;
+			}
+		}
+	}
+}
 ?>

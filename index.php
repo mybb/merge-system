@@ -10,20 +10,6 @@
 $load_timer = microtime(true);
 
 header('Content-type: text/html; charset=utf-8');
-if(function_exists("unicode_decode"))
-{
-    // Unicode extension introduced in 6.0
-    error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE ^ E_STRICT);
-}
-elseif(defined("E_DEPRECATED"))
-{
-    // E_DEPRECATED introduced in 5.3
-    error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE);
-}
-else
-{
-    error_reporting(E_ALL & ~E_NOTICE);
-}
 @set_time_limit(0);
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
@@ -549,6 +535,16 @@ if($import_session['finished_convert'] == '1')
 	update_import_session();
 }
 
+// MyBB Group constants. Used for better readability
+// We need them here to make 100% sure they're defined when creating our classes
+define("MYBB_GUESTS",		1);
+define("MYBB_REGISTERED",	2);
+define("MYBB_SMODS",		3);
+define("MYBB_ADMINS",		4);
+define("MYBB_AWAITING",		5);
+define("MYBB_MODS",			6);
+define("MYBB_BANNED",		7);
+
 if($mybb->input['board'])
 {
 	$debug->log->event("Setting up board merge classes: {$mybb->input['board']}");
@@ -569,46 +565,20 @@ if($mybb->input['board'])
 
 	$board = new $class_name;
 
-	if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
-	{
-		$plugins_cache = $cache->read("plugins");
-		$active_plugins = $plugins_cache['active'];
-
-		$active_plugins['loginconvert'] = "loginconvert";
-
-		$plugins_cache['active'] = $active_plugins;
-		$cache->update("plugins", $plugins_cache);
-
-		$debug->log->trace1("Login convert already exists, automatically activating loginconvert plugin");
-	}
-
 	if($board->requires_loginconvert == true)
 	{
 		$debug->log->trace1("loginconvert plugin required for this board module");
 
-		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php") && file_exists(MYBB_ROOT."convert/loginconvert.php"))
+		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php") && file_exists(MERGE_ROOT."loginconvert.php"))
 		{
-			$debug->log->trace2("Attempting to move convert/loginconvert.php to inc/plugins/loginconvert.php");
+			$debug->log->trace2("Attempting to move loginconvert.php to inc/plugins/loginconvert.php");
 			$writable = @fopen(MYBB_ROOT.'inc/plugins/loginconvert.php', 'wb');
 			if($writable)
 			{
-				@fwrite($writable, file_get_contents(MYBB_ROOT."convert/loginconvert.php"));
+				@fwrite($writable, file_get_contents(MERGE_ROOT."loginconvert.php"));
 				@fclose($writable);
 				@my_chmod(MYBB_ROOT.'inc/plugins/loginconvert.php', '0555');
 				$debug->log->trace2("Successfully moved loginconvert.php to inc/plugins/ automatically");
-			}
-
-			$debug->log->trace2("Attempting to automatically activate inc/plugins/loginconvert.php");
-			if(file_exists(MYBB_ROOT."inc/plugins/loginconvert.php"))
-			{
-				$plugins_cache = $cache->read("plugins");
-				$active_plugins = $plugins_cache['active'];
-
-				$active_plugins['loginconvert'] = "loginconvert";
-
-				$plugins_cache['active'] = $active_plugins;
-				$cache->update("plugins", $plugins_cache);
-				$debug->log->trace2("Succesfully activated inc/plugins/loginconvert.php automatically");
 			}
 		}
 
@@ -628,6 +598,16 @@ if($mybb->input['board'])
 				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
 		}
+
+		$plugins_cache = $cache->read("plugins");
+		$active_plugins = $plugins_cache['active'];
+
+		$active_plugins['loginconvert'] = "loginconvert";
+
+		$plugins_cache['active'] = $active_plugins;
+		$cache->update("plugins", $plugins_cache);
+
+		$debug->log->trace1("Activated loginconvert plugin");
 	}
 
 	// Save it to the import session so we don't have to carry it around in the url/source.

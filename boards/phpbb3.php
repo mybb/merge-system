@@ -58,6 +58,35 @@ class PHPBB3_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "user_group";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "phpbb_";
+	
+	/**
+	 * An array of phpbb -> mybb groups
+	 * 
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_GUESTS, // Guests
+		2 => MYBB_REGISTERED, // Registered
+		3 => MYBB_REGISTERED, // Newly registered
+		4 => MYBB_SMODS, // Super Moderators
+		5 => MYBB_ADMINS, // Administrators
+		6 => MYBB_GUESTS, // Bots
+		7 => MYBB_REGISTERED, // Newly registered
+	);
+
+	/**
 	 * Convert a phpBB 3 group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
@@ -75,61 +104,32 @@ class PHPBB3_Converter extends Converter
 		}
 
 		$query = $this->old_db->simple_select("user_group", "*", "user_id = '{$uid}'", $settings);
+		if(!$query)
+		{
+			return MYBB_REGISTERED;
+		}
 
-		$group = array();
+		$groups = array();
 		while($phpbbgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group[$phpbbgroup['group_id']] = 1;
+				$groups[] = $phpbbgroup['group_id'];
 			}
 			else
 			{
 				// Deal with non-activated people
 				if($phpbbgroup['user_pending'] != '0')
 				{
-					return 5;
+					return MYBB_AWAITING;
 				}
 
-				switch($phpbbgroup['group_id'])
-				{
-					case 1: // Guests
-					case 6: // Bots
-						$group[1] = 1;
-						break;
-					case 2: // Register
-					case 3: // Registered coppa
-					case 7: // Newly Registered
-						$group[2] = 1;
-						break;
-					case 4: // Super Moderator
-						$group[3] = 1;
-						break;
-					case 5: // Administrator
-						$group[4] = 1;
-						break;
-					default:
-						$gid = $this->get_import->gid($phpbbgroup['group_id']);
-						if($gid > 0)
-						{
-							// If there is an associated custom group...
-							$group[$gid] = 1;
-						}
-						else
-						{
-							// The lot
-							$group[2] = 1;
-						}
-				}
+				$groups[] = $this->get_gid($phpbbgroup['group_id']);
 			}
-		}
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
 		}
 
 		$this->old_db->free_result($query);
-		return implode(',', array_keys($group));
+		return implode(',', array_unique($groups));
 	}
 }
 

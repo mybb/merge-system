@@ -51,7 +51,7 @@ class MYBB_Converter_Module_Threads extends Converter_Module_Threads {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

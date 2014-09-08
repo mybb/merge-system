@@ -131,13 +131,8 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 			$data['toid'] = $this->get_import->uid($val);
 
-			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-			$data = $this->process_default_values($data);
-
-			foreach($data as $key => $value)
-			{
-				$insert_array[$key] = $db->escape_string($value);
-			}
+			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+			$insert_array = $this->prepare_insert_array($data);
 
 			$this->debug->log->datatrace('$insert_array', $insert_array);
 
