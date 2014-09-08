@@ -55,7 +55,7 @@ class MYBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

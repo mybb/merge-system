@@ -56,7 +56,7 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		// SMF values
 		$insert_data['fid'] = $this->get_import->fid($data['ID_BOARD']);
-		$insert_data['gid'] = $this->get_import->gid($data['ID_GROUP']);
+		$insert_data['gid'] = $this->board->get_gid($data['ID_GROUP']);
 
 		$permissions = explode(',', $data['permissions']);
 		foreach($permissions as $name)

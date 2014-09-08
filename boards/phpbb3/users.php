@@ -115,38 +115,9 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['receivepms'] = $data['user_allow_pm'];
 		$insert_data['pmnotice'] = $data['user_notify_pm'];
 		$insert_data['pmnotify'] = $data['user_notify_pm'];
-		$date = $data['user_dateformat'];
-		if(strpos($date, 'd M Y') !== FALSE)
-		{
-			$dateformat = 11;
-		}
-		elseif(strpos($date, 'D M d') !== FALSE)
-		{
-			$dateformat = 10;
-		}
-		elseif (strpos($date, 'jS') !== FALSE)
-		{
-			$dateformat = 9;
-		}
-		else
-		{
-			$dateformat = 10;
-		}
 
-		if(strpos($date, 'H:i') !== FALSE)
-		{
-			$timeformat = 3;
-		}
-		elseif (strpos($date, 'g:i') !== FALSE)
-		{
-			$timeformat = 1;
-		}
-		else
-		{
-			$timeformat = 1;
-		}
-		$insert_data['dateformat'] = $dateformat;
-		$insert_data['timeformat'] = $timeformat;
+		$insert_data['dateformat'] = get_date_format($data['user_dateformat']);
+		$insert_data['timeformat'] = get_time_format($data['user_dateformat']);
 		$insert_data['timezone'] = $data['user_timezone'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['dst'] = $data['user_dst'];
@@ -155,7 +126,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastip'] = my_inet_pton($data['user_ip']);
 		$insert_data['totalpms'] = $this->get_private_messages($data['user_id']);
 		$insert_data['unreadpms'] = $data['user_unread_privmsg'];
-		$insert_data['salt'] = $data['user_form_salt'];
 		$insert_data['passwordconvert'] = $data['user_password'];
 		$insert_data['passwordconverttype'] = 'phpbb3';
 		$insert_data['loginkey'] = generate_loginkey();

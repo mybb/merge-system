@@ -50,6 +50,34 @@ class BBPRESS_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 * 
+	 * @var String
+	 */
+	var $check_table = "usermeta";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "wp_";
+	
+	/**
+	 * An array of bbpress -> mybb groups
+	 * bbpress doesn't use id's but names
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		"blocked" => MYBB_BANNED, // Banned
+		"member" => MYBB_REGISTERED, // Registered
+		"moderator" => MYBB_SMODS, // Super Moderators
+		"keymaster" => MYBB_ADMINS, // Administrators
+		"administrator" => MYBB_REGISTERED, // Administrators
+	);
+
+	/**
 	 * Convert a bbPress group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
@@ -68,49 +96,21 @@ class BBPRESS_Converter extends Converter
 		}
 
 		$query = $this->old_db->simple_select("usermeta", "*", "user_id = '{$uid}' AND meta_key = '".$this->old_db->table_prefix."capabilities'", $settings);
+		if(!$query)
+		{
+			return MYBB_REGISTERED;
+		}
 
-		$comma = $group = '';
+		$groups = array();
 		while($bbpress = $this->old_db->fetch_array($query))
 		{
 			$bbpress['group_id'] = preg_replace('#\w+:\d+:{\w+:\d+:\"(.*?)\";\w+:\d+;}#', '$1', $bbpress['meta_value']);
-			$group .= $comma;
-			switch($bbpress['group_id'])
-			{
-				case "member": // Register
-					$group .= 1;
-					break;
-				case "moderator": // Super Moderator
-					$group .= 3;
-					break;
-				case "keymaster": // Administrator
-				case "administrator":
-					$group .= 4;
-					break;
-				case "blocked": // Banned...
-					$group .= 7;
-					break;
-				default:
-					$gid = $this->get_import->gid($bbpress['group_id']);
-					if($gid > 0)
-					{
-						// If there is an associated custom group...
-						$group .= $gid;
-					}
-					else
-					{
-						// The lot
-						$group .= 2;
-					}
-			}
-			$comma = ',';
-		}
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
+
+			$groups[] = $this->get_gid($bbpress['group_id']);
 		}
 
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_unique($groups));
 	}
 }
 

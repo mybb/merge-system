@@ -17,7 +17,6 @@ class Converter_Module_Posts extends Converter_Module
 		'fid' => 0,
 		'uid' => 0,
 		'import_uid' => 0,
-		'username' => 0,
 		'dateline' => 0,
 		'message' => '',
 		'ipaddress' => '',
@@ -27,6 +26,25 @@ class Converter_Module_Posts extends Converter_Module
 		'edittime' => 0,
 		'icon' => 0,
 		'visible' => 1,
+	);
+	
+	public $binary_fields = array(
+		'ipaddress',
+	);
+
+	public $integer_fields = array(
+		'tid',
+		'replyto',
+		'fid',
+		'uid',
+		'import_uid',
+		'dateline',
+		'includesig',
+		'smilieoff',
+		'edituid',
+		'edittime',
+		'icon',
+		'visible',
 	);
 
 	/**
@@ -47,20 +65,8 @@ class Converter_Module_Posts extends Converter_Module
 		// Call our currently module's process function
 		$data = $converted_values = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			if($key == 'ipaddress')
-			{
-				$insert_array[$key] = $db->escape_binary($value);
-			}
-			else
-			{
-				$insert_array[$key] = $db->escape_string($value);
-			}
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		unset($insert_array['import_pid']);
 		unset($insert_array['import_uid']);

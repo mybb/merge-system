@@ -75,6 +75,7 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['dateline'] = $data['mt_date'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['msg_post'])), "message_posts", "privatemessages");
 		$insert_data['readtime'] = $data['map_read_time'];
+		$insert_data['ipaddress'] = my_inet_pton($data['msg_ip_address']);
 
 		return $insert_data;
 	}
