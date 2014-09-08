@@ -101,7 +101,8 @@ class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
 			FROM ".WCF_PREFIX."user u
 			LEFT JOIN ".WBB_PREFIX."user w ON (w.userID=u.userID)
 			LEFT JOIN ".WCF_PREFIX."user_option_value o ON (o.userID=u.userID)
-			LEFT JOIN ".WCF_PREFIX."user_rank r ON (r.rankID=u.rankID)");
+			LEFT JOIN ".WCF_PREFIX."user_rank r ON (r.rankID=u.rankID)
+			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}");
 
     	while($user = $this->old_db->fetch_array($query))
 		{
@@ -121,10 +122,6 @@ class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// WBB Lite 2 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['userID']));
-		$insert_data['displaygroup'] = $insert_data['usergroup'];
-
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true, "original" => true));
 		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['userID'], array("original" => true));
 		$insert_data['import_displaygroup'] = $data['displaygroup'];
