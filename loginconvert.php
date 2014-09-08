@@ -13,11 +13,35 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-$plugins->add_hook("member_do_login_start", "loginconvert_convert", 1);
+$plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1);
+
+global $valid_login_types;
+$valid_login_types = array(
+	"vb3"		=> "vb",		// Module isn't supported anymore, but old merges may require it
+	"vb4"		=> "vb",
+	"vb5"		=> "vb",		// Not yet supported but as vb doesn't change their hashing...
+	"ipb2"		=> "ipb",		// Module isn't supported anymore, but old merges may require it
+	"ipb3"		=> "ipb",
+	"smf"		=> "smf",		// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
+	"smf11"		=> "smf11",
+	"smf2"		=> "smf2",
+	"punbb"		=> "punbb",
+	"phpbb3"	=> "phpbb3",
+	"bbpress"	=> "bbpress",
+	"xf"		=> "xf11",		// XenForo can have two different authentications
+	"xf12"		=> "xf12",		// 1.2+ use PHP's crypt function by default
+	"wbblite"	=> "wcf1",		// WBB Lite uses WoltLab Community Framework 1.x with some special parameters
+	"wbb3"		=> "wcf1",		// WBB 3 uses the same
+	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
+	"vanilla"	=> "vanilla",
+	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
+);
 
 function loginconvert_info()
 {
-	return array(
+	global $db;
+
+	$info = array(
 		"name"				=> "Login Password Conversion",
 		"description"		=> "Converts passwords to the correct type when logging in. To be used in conjunction with the MyBB Merge System.",
 		"website"			=> "http://www.mybb.com",
@@ -25,452 +49,247 @@ function loginconvert_info()
 		"authorsite"		=> "http://www.mybb.com",
 		"version"			=> "1.4",
 		"guid"				=> "",
-		"compatibility"	=> "18*",
+		"compatibility"		=> "18*",
 	);
+
+	if($db->field_exists("passwordconvert", "users"))
+	{
+		// Checks whether the plugin is really needed
+		$query = $db->simple_select("users", "uid", "passwordconvert IS NOT NULL AND passwordconvert!=''", array("limit" => 1));
+		if($db->num_rows($query) > 0)
+		{
+			$info['description'] .= "<br />This plugin should be activated as there are users with unconverted password.";
+		}
+		else
+		{
+			$info['description'] .= "<br />This plugin can be deactivated and deleted as all passwords are converted.";
+		}
+	}
+	else
+	{
+		$info['description'] .= "<br />Please delete the file \"inc/plugins/loginconvert.php\"";
+	}
+
+	return $info;
 }
 
 function loginconvert_activate()
 {
+	global $db;
+
+	// Don't activate the plugin if it isn't needed
+	if(!$db->field_exists("passwordconvert", "users"))
+	{
+		flash_message("There's no need to activate this plugin as there aren't any passwords which need to be converted", "error");
+		admin_redirect("index.php?module=config-plugins");
+	}
 }
 
 function loginconvert_deactivate()
 {
+	global $db;
+
+	// Remove the columns if all passwords have been converted
+	$query = $db->simple_select("users", "uid", "passwordconvert IS NOT NULL AND passwordconvert!=''", array("limit" => 1));
+	if($db->num_rows($query) == 0)
+	{
+		$db->drop_column("users", "passwordconvert");
+		$db->drop_column("users", "passwordconverttype");
+		$db->drop_column("users", "passwordconvertsalt");
+	}
 }
 
-function loginconvert_convert()
+function loginconvert_convert(&$login)
 {
-	global $mybb, $db, $lang, $session, $plugins, $inline_errors, $errors;
+	global $mybb, $valid_login_types, $db;
 
-	if($mybb->input['action'] != "do_login" || $mybb->request_method != "post")
+	$options = array(
+		"fields" => array('username', "password", "salt", 'loginkey', 'coppauser', 'usergroup', "passwordconvert", "passwordconverttype", "passwordconvertsalt")
+	);
+
+	$user = get_user_by_username($login->data['username'], $options);
+	
+	// There's nothing to check for, let MyBB do everything
+	// This fails also when no user was found above, so no need for an extra check
+	if(!isset($user['passwordconvert']) || $user['passwordconvert'] == '')
 	{
 		return;
 	}
-
-	// Checks to make sure the user can login; they haven't had too many tries at logging in.
-	// Is a fatal call if user has had too many tries
-	$logins = login_attempt_check();
-	$login_text = '';
-
-	// Did we come from the quick login form?
-	if($mybb->input['quick_login'] == "1" && $mybb->input['quick_password'] && $mybb->input['quick_username'])
+	
+	if(!array_key_exists($user['passwordconverttype'], $valid_login_types))
 	{
-		$mybb->input['password'] = $mybb->input['quick_password'];
-		$mybb->input['username'] = $mybb->input['quick_username'];
-	}
-
-	if(!username_exists($mybb->input['username']))
-	{
-		my_setcookie('loginattempts', $logins + 1);
-		error($lang->error_invalidpworusername.$login_text);
-	}
-
-	$query = $db->simple_select("users", "loginattempts", "LOWER(username)='".$db->escape_string(my_strtolower($mybb->input['username']))."'", array('limit' => 1));
-	$loginattempts = $db->fetch_field($query, "loginattempts");
-
-	$errors = array();
-
-	$user = loginconvert_validate_password_from_username($mybb->input['username'], $mybb->input['password']);
-	if(!$user['uid'])
-	{
-		my_setcookie('loginattempts', $logins + 1);
-		$db->write_query("UPDATE ".TABLE_PREFIX."users SET loginattempts=loginattempts+1 WHERE LOWER(username) = '".$db->escape_string(my_strtolower($mybb->input['username']))."'");
-
-		$mybb->input['action'] = "login";
-		$mybb->input['request_method'] = "get";
-
-		if($mybb->settings['failedlogintext'] == 1)
-		{
-			$login_text = $lang->sprintf($lang->failed_login_again, $mybb->settings['failedlogincount'] - $logins);
-		}
-
-		$errors[] = $lang->error_invalidpworusername.$login_text;
+		// TODO: Is there an easy way to make the error translatable without adding a new language file?
+		redirect($mybb->settings['bburl']."/member.php?action=lostpw", "We're sorry but we couldn't convert your old password. Please select a new one", "", true);
 	}
 	else
 	{
-		$correct = true;
-	}
-
-	if($loginattempts > 3 || intval($mybb->cookies['loginattempts']) > 3)
-	{
-		// Show captcha image for guests if enabled
-		if($mybb->settings['captchaimage'] == 1 && function_exists("imagepng") && !$mybb->user['uid'])
+		$function = "check_".$valid_login_types[$user['passwordconverttype']];
+		$check = $function($login->data['password'], $user);
+		
+		if(!$check)
 		{
-			// If previewing a post - check their current captcha input - if correct, hide the captcha input area
-			if($mybb->input['imagestring'])
-			{
-				$imagehash = $db->escape_string($mybb->input['imagehash']);
-				$imagestring = $db->escape_string($mybb->input['imagestring']);
-				$query = $db->simple_select("captcha", "*", "imagehash='{$imagehash}' AND imagestring='{$imagestring}'");
-				$imgcheck = $db->fetch_array($query);
-				if($imgcheck['dateline'] > 0)
-				{
-					$correct = true;
-				}
-				else
-				{
-					$db->delete_query("captcha", "imagehash='{$imagehash}'");
-					$errors[] = $lang->error_regimageinvalid;
-				}
-			}
-			else if($mybb->input['quick_login'] == 1 && $mybb->input['quick_password'] && $mybb->input['quick_username'])
-			{
-				$errors[] = $lang->error_regimagerequired;
-			}
-			else
-			{
-				$errors[] = $lang->error_regimagerequired;
-			}
-		}
+			// Yeah, that function is called later too, but we need to know whether the captcha is right
+			// If we wouldn't call that function the error would always be shown
+			$login->verify_attempts($mybb->settings['captchaimage']);
 
-		$do_captcha = true;
-	}
-
-	if(!empty($errors))
-	{
-		$mybb->input['action'] = "login";
-		$mybb->input['request_method'] = "get";
-
-		$inline_errors = inline_error($errors);
-	}
-	else if($correct)
-	{
-		if($user['coppauser'])
-		{
-			error($lang->error_awaitingcoppa);
-		}
-
-		my_setcookie('loginattempts', 1);
-		$ip_address = $db->escape_binary($session->packedip);
-		$db->delete_query("sessions", "ip = {$ip_address} AND sid != '{$session->sid}'");
-		$newsession = array(
-			"uid" => $user['uid'],
-		);
-		$db->update_query("sessions", $newsession, "sid='".$session->sid."'");
-
-		$db->update_query("users", array("loginattempts" => 1), "uid='{$user['uid']}'");
-
-		my_setcookie("mybbuser", $user['uid']."_".$user['loginkey'], null, true);
-		my_setcookie("sid", $session->sid, -1, true);
-
-		$plugins->run_hooks("member_do_login_end");
-
-		if($mybb->input['url'] != "" && my_strpos(basename($mybb->input['url']), 'member.php') === false)
-		{
-			if((my_strpos(basename($mybb->input['url']), 'newthread.php') !== false || my_strpos(basename($mybb->input['url']), 'newreply.php') !== false) && my_strpos($mybb->input['url'], '&processed=1') !== false)
-			{
-				$mybb->input['url'] = str_replace('&processed=1', '', $mybb->input['url']);
-			}
-
-			$mybb->input['url'] = str_replace('&amp;', '&', $mybb->input['url']);
-
-			// Redirect to the URL if it is not member.php
-			redirect(htmlentities($mybb->input['url']), $lang->redirect_loggedin);
+			$login->invalid_combination(true);
 		}
 		else
 		{
-			redirect("index.php", $lang->redirect_loggedin);
+			// The password was correct, so use MyBB's method the next time (even if the captcha was wrong we can update the password)
+			$salt = generate_salt();
+			$update = array(
+				"salt"					=> $salt,
+				"password"				=> salt_password(md5($login->data['password']), $salt),
+				"loginkey"				=> generate_loginkey(),
+				"passwordconverttype"	=> "",
+				"passwordconvert"		=> "",
+				"passwordconvertsalt"	=> "",
+			);
+			
+			$db->update_query("users", $update, "uid='{$user['uid']}'");
+
+			// Make sure the password isn't tested again
+			unset($login->data['password']);
+
+			// Also make sure all data is available when creating the session (otherwise SQL errors -.-)
+			$login->login_data = array_merge($user, $update);
 		}
-	}
-	else
-	{
-		$mybb->input['action'] = "login";
-		$mybb->input['request_method'] = "get";
 	}
 }
 
-/**
- * Checks a password with a supplied username.
- *
- * @param string The username of the user.
- * @param string The md5()'ed password.
- * @return boolean|array False when no match, array with user info when match.
- */
-function loginconvert_validate_password_from_username($username, $password)
+// Password functions
+
+function check_vb($password, $user)
 {
-	global $db;
+	if(md5(md5($password).$user['passwordconvertsalt']) == $user['passwordconvert'] || md5($password.$user['passwordconvertsalt']) == $user['passwordconvert'])
+	{
+		return true;
+	}
 
-	if($db->field_exists("passwordconvert", "users") && $db->field_exists("passwordconverttype", "users"))
-	{
-		$query = $db->simple_select("users", "uid,username,password,salt,loginkey,passwordconvert,passwordconvertsalt,passwordconverttype", "username='".$db->escape_string($username)."'", array('limit' => 1));
-		$convert = true;
-	}
-	else
-	{
-		$query = $db->simple_select("users", "uid,username,password,salt,loginkey", "username='".$db->escape_string($username)."'", array('limit' => 1));
-		$convert = false;
-	}
-	$user = $db->fetch_array($query);
-	if(!$user['uid'])
-	{
-		return false;
-	}
-	else
-	{
-		return loginconvert_validate_password_from_uid($user['uid'], $password, $user, $convert);
-	}
+	return false;
 }
 
-/**
- * Checks a password with a supplied uid.
- *
- * @param int The user id.
- * @param string The md5()'ed password.
- * @param string An optional user data array.
- * @param boolean Weather the password is converted from another forum system
- * @return boolean|array False when not valid, user data array when valid.
- */
-function loginconvert_validate_password_from_uid($uid, $password, $user = array(), $converted=false)
+function check_ipb($password, $user)
 {
-	global $db, $mybb;
-
-	if($mybb->user['uid'] == $uid)
+	// The salt was saved in the "salt" column on IPB 2 but we changed it in IPB 3 to use the correct "passwordconvertsalt" column
+	if(!empty($user['passwordconvertsalt']))
 	{
-		$user = $mybb->user;
+		$salt = $user['passwordconvertsalt'];
 	}
-
-	if(!isset($user['password']))
+	else if(!empty($user['salt']))
 	{
-		if($converted == true)
-		{
-			$query = $db->simple_select("users", "uid,username,password,salt,loginkey,passwordconvert,passwordconvertsalt,passwordconverttype", "uid='".intval($uid)."'", array('limit' => 1));
-			$user = $db->fetch_array($query);
-		}
-		else
-		{
-			$query = $db->simple_select("users", "uid,username,password,salt,loginkey", "uid='".intval($uid)."'", array('limit' => 1));
-			$user = $db->fetch_array($query);
-		}
-	}
-
-	if(isset($user['passwordconvert']) && trim($user['passwordconvert']) != '' && trim($user['passwordconverttype']) != '' && trim($user['password']) == '')
-	{
-		$convert = new loginConvert($user);
-
-		return $convert->login($user['passwordconverttype'], $uid, $password);
-	}
-
-	if(!$user['salt'] && trim($user['password']) != '')
-	{
-		// Generate a salt for this user and assume the password stored in db is a plain md5 password
-		$user['salt'] = generate_salt();
-		$user['password'] = salt_password($user['password'], $user['salt']);
-		$sql_array = array(
-			"salt" => $user['salt'],
-			"password" => $user['password']
-		);
-		$db->update_query("users", $sql_array, "uid='".$user['uid']."'", 1);
-	}
-
-	if(!$user['loginkey'])
-	{
-		$user['loginkey'] = generate_loginkey();
-		$sql_array = array(
-			"loginkey" => $user['loginkey']
-		);
-		$db->update_query("users", $sql_array, "uid = ".$user['uid'], 1);
-	}
-
-	if(salt_password(md5($password), $user['salt']) == $user['password'])
-	{
-		return $user;
+		$salt = $user['salt'];
 	}
 	else
 	{
 		return false;
 	}
+
+	if($user['passwordconvert'] == md5(md5($salt).md5($password)))
+	{
+		return true;
+	}
+
+	return false;
 }
 
-/*
- * This class allows us to take the encryption algorithm used by the convertee bulletin board with the plain text password
- * the user just logged in with, and match it against the encrypted password stored in the passwordconvert column added by
- * the Merge System. If we have success then apply MyBB's encryption to the plain-text password.
- */
-class loginConvert
+function check_smf($password, $user)
 {
-	var $user;
-
-	function loginConvert($user)
+	if(crypt($password, substr($password, 0, 2)) == $user['passwordconvert'])
 	{
-		$user['passwordconvert'] = trim($user['passwordconvert']);
-		$user['passwordconvertsalt'] = trim($user['passwordconvertsalt']);
-		$user['passwordconverttype'] = trim($user['passwordconverttype']);
-		$this->user = $user;
+		return true;
+	}
+	else if(my_strlen($user['passwordconvert']) == 32 && md5_hmac(preg_replace("#\_smf1\.1\_import(\d+)$#i", '', $user['username']), $password) == $user['passwordconvert'])
+	{
+		return true;
+	}
+	else if(my_strlen($user['passwordconvert']) == 32 && md5($password) == $user['passwordconvert'])
+	{
+		return true;
 	}
 
-    function login($type, $uid, $password)
-    {
-		global $db;
+	return false;	
+}
 
-		$password = trim($password);
-		$return = false;
-
-        switch($type)
-        {
-            case 'vb3':
-                $return = $this->authenticate_vb3($password);
-                break;
-            case 'ipb2':
-                $return = $this->authenticate_ipb2($password);
-                break;
-            case 'smf11':
-                $return = $this->authenticate_smf11($password);
-                break;
-			  case 'smf2':
-                $return = $this->authenticate_smf2($password);
-                break;
-            case 'smf':
-                $return = $this->authenticate_smf($password);
-                break;
-			case 'punbb':
-				$return = $this->authenticate_punbb($password);
-				break;
-			case 'phpbb3':
-				$return = $this->authenticate_phpbb3($password);
-				break;
-			case 'bbpress':
-				$return = $this->authenticate_bbpress($password);
-				break;
-			case 'mingle':
-				$return = $this->authenticate_bbpress($password);
-				break;
-            default:
-                return false;
-        }
-
-		if($return == true)
-		{
-			// Generate a salt for this user and assume the password stored in db is empty
-			$user['salt'] = generate_salt();
-			$this->user['salt'] = $user['salt'];
-			$user['password'] = salt_password(md5($password), $user['salt']);
-			$this->user['password'] = $user['password'];
-			$user['loginkey'] = generate_loginkey();
-			$this->user['loginkey'] = $user['loginkey'];
-			$user['passwordconverttype'] = '';
-			$this->user['passwordconverttype'] = '';
-			$user['passwordconvert'] = '';
-			$this->user['passwordconvert'] = '';
-			$user['passwordconvertsalt'] = '';
-			$this->user['passwordconvertsalt'] = '';
-
-			$db->update_query("users", $user, "uid='{$uid}'", 1);
-
-			return $this->user;
-		}
-
-		return false;
-    }
-
-	// Authentication for punBB
-	function authenticate_punbb($password)
+function check_smf11($password, $user)
+{
+	if(my_strlen($user['passwordconvert']) == 40)
 	{
-		if(my_strlen($this->user['passwordconvert']) == 40)
-		{
-			$is_sha1 = true;
-		}
-		else
-		{
-			$is_sha1 = false;
-		}
-
-		if(function_exists('sha1') && $is_sha1 && (sha1($password) == $this->user['passwordconvert'] || sha1($this->user['passwordconvertsalt'].sha1($password)) == $this->user['passwordconvert']))
-		{
-			return true;
-		}
-		elseif(function_exists('mhash') && $is_sha1 && (bin2hex(mhash(MHASH_SHA1, $password)) == $this->user['passwordconvert'] || bin2hex(mhash(MHASH_SHA1, $this->user['passwordconvertsalt'].bin2hex(mhash(MHASH_SHA1, $password)))) == $this->user['passwordconvert']))
-		{
-			return true;
-		}
-		else if(md5($password) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-
-		return false;
+		$is_sha1 = true;
+	}
+	else
+	{
+		$is_sha1 = false;
 	}
 
-    // Authentication for vB3
-    function authenticate_vb3($password)
-    {
-		if(md5(md5($password).$this->user['passwordconvertsalt']) == $this->user['passwordconvert'] || md5($password.$this->user['passwordconvertsalt']) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-
-		return false;
-    }
-
-
-    // Authentication for SMF 1.1
-    function authenticate_smf11($password)
-    {
-		if(my_strlen($this->user['passwordconvert']) == 40)
-		{
-			$is_sha1 = true;
-		}
-		else
-		{
-			$is_sha1 = false;
-		}
-
-		if($is_sha1 && sha1(strtolower(preg_replace("#\_smf1\.1\_import(\d+)$#i", '', $this->user['username'])).$password) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-		else
-		{
-		   return $this->authenticate_smf($password);
-		}
-
-		return false;
-    }
-
-	// Authentication for SMF 2
-    function authenticate_smf2($password)
-    {
-		if(my_strlen($this->user['passwordconvert']) == 40)
-		{
-			$is_sha1 = true;
-		}
-		else
-		{
-			$is_sha1 = false;
-		}
-
-		if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $this->user['username'])).$password) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-		else
-		{
-		   return $this->authenticate_smf($password);
-		}
-
-		return false;
-    }
-
-    // Authentication for SMF
-    function authenticate_smf($password)
-    {
-		if(crypt($password, substr($password, 0, 2)) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-		else if(my_strlen($this->user['passwordconvert']) == 32 && $this->md5_hmac(preg_replace("#\_smf1\.1\_import(\d+)$#i", '', $this->user['username']), $password) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-		else if(my_strlen($this->user['passwordconvert']) == 32 && md5($password) == $this->user['passwordconvert'])
-		{
-			return true;
-		}
-
-        return false;
-    }
-
-	function authenticate_phpbb3($password)
+	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf1\.1\_import(\d+)$#i", '', $user['username'])).$password) == $user['passwordconvert'])
 	{
-		if(phpbb_check_hash($password, $this->user['passwordconvert']))
+		return true;
+	}
+	else
+	{
+		return check_smf($password, $user);
+	}
+	
+	return false;
+}
+
+function check_smf2($password, $user)
+{
+	if(my_strlen($user['passwordconvert']) == 40)
+	{
+		$is_sha1 = true;
+	}
+	else
+	{
+		$is_sha1 = false;
+	}
+
+	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $user['username'])).$password) == $user['passwordconvert'])
+	{
+		return true;
+	}
+	else
+	{
+		return check_smf($password, $user);
+	}
+	
+	return false;
+}
+
+function check_punbb($password, $user)
+{
+	if(my_strlen($user['passwordconvert']) == 40)
+	{
+		$is_sha1 = true;
+	}
+	else
+	{
+		$is_sha1 = false;
+	}
+
+	if(function_exists('sha1') && $is_sha1 && (sha1($password) == $user['passwordconvert'] || sha1($user['passwordconvertsalt'].sha1($password)) == $user['passwordconvert']))
+	{
+		return true;
+	}
+	elseif(function_exists('mhash') && $is_sha1 && (bin2hex(mhash(MHASH_SHA1, $password)) == $user['passwordconvert'] || bin2hex(mhash(MHASH_SHA1, $user['passwordconvertsalt'].bin2hex(mhash(MHASH_SHA1, $password)))) == $user['passwordconvert']))
+	{
+		return true;
+	}
+	else if(md5($password) == $user['passwordconvert'])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function check_phpbb3($password, $user)
+{
+	if (my_strlen($user['passwordconvert']) == 34)
+	{
+		if(phpbb3_crypt_private($password, $user['passwordconvert']) === $user['passwordconvert'])
 		{
 			return true;
 		}
@@ -478,138 +297,217 @@ class loginConvert
 		return false;
 	}
 
-	// TODO: Finish this!
-	function authenticate_bbpress($password)
+	if(md5($user['passwordconvert']) === $hash)
 	{
-		if(bbpress_crypt_private($password, $this->user['passwordconvert']))
-		{
-			return true;
-		}
-		return false;
+		return true;
 	}
+	return false;
+}
 
-	// Authentication for IPB 2
-	function authenticate_ipb2($password)
+function check_bbpress($password, $user)
+{
+	// WordPress (and so bbPress) used simple md5 hashing some time ago
+	if ( strlen($user['passwordconvert']) <= 32 )
 	{
-		if($this->user['passwordconvert'] == md5(md5($this->user['salt']).md5($password)))
-		{
-			return true;
-		}
-
-		return false;
+		return ($hash == md5($password));
 	}
-
-   	function md5_hmac($username, $password)
+	else
 	{
-		if(my_strlen($username) > 64)
+		$hash = bbpress_crypt_private($password, $user['passwordconvert']);
+		if ($hash[0] == '*')
 		{
-			$username = pack('H*', md5($username));
+			$hash = crypt($password, $user['passwordconvert']);
 		}
-		$username = str_pad($username, 64, chr(0x00));
 
-		$k_ipad = $username ^ str_repeat(chr(0x36), 64);
-		$k_opad = $username ^ str_repeat(chr(0x5c), 64);
-
-		return md5($k_opad.pack('H*', md5($k_ipad.$password)));
+		return $hash === $user['passwordconvert'];
 	}
 }
 
-/**
-* The BELOW code falls under public domain, allowing its use in MyBB for this script
-* and can be redistributed under the GNU General Public License.
-*/
+function check_xf11($password, $user)
+{
+	$hash = xf_hash(xf_hash($password));
+	return ($hash === $user['passwordconvert']);
+}
 
-/**
-*
-* @version Version 0.1
-*
-* Portable PHP password hashing framework.
-*
-* Written by Solar Designer <solar at openwall.com> in 2004-2006 and placed in
-* the public domain.
-*
-* There's absolutely no warranty.
-*
-* The homepage URL for this framework is:
-*
-*	http://www.openwall.com/phpass/
-*
-* Please be sure to update the Version line if you edit this file in any way.
-* It is suggested that you leave the main version number intact, but indicate
-* your project name (after the slash) and add your own revision information.
-*
-* Please do not change the "private" password hashing method implemented in
-* here, thereby making your hashes incompatible.  However, if you must, please
-* change the hash type identifier (the "$P$") to something different.
-*
-* Obviously, since this code is in the public domain, the above are not
-* requirements (there can be none), but merely suggestions.
-*
-*/
+function check_xf12($password, $user)
+{
+	if ($user['passwordconvert'] == crypt($password, $user['passwordconvert']))
+	{
+		return true;
+	}
 
-/**
-* Check for correct password
-*/
-function phpbb_check_hash($password, $hash)
+	return false;
+}
+
+function check_wcf1($password, $user)
+{
+	// WCF 1 has some special parameters, which are saved in the passwordconvert field
+	$settings = my_unserialize($user['passwordconvert']);
+	$user['passwordconvert'] = $settings['password'];
+
+	if(wcf1_encrypt($user['passwordconvertsalt'].wcf1_hash($password, $user['passwordconvertsalt'], $settings), $settings['encryption_method']) == $user['passwordconvert'])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function check_wcf2($password, $user)
+{
+	// WCF 2 doesn't save the salt in a seperate column and it's easier to fetch it when it's needed than doing it while merging
+	$salt = mb_substr($user['passwordconvert'], 0, 29);
+
+	return (crypt(crypt($password, $salt), $salt) == $user['passwordconvert']);
+}
+
+function check_vanilla($password, $user)
+{
+	if($user['passwordconvert'][0] === '_' || $user['passwordconvert'][0] === '$')
+	{
+		$hash = vanilla_crypt_private($password, $user['passwordconvert']);
+		if ($hash[0] == '*')
+		{
+			$hash = crypt($password, $user['passwordconvert']);
+		}
+
+		return $hash == $user['passwordconvert'];
+	}
+	else if($password && $user['passwordconvert'] !== '*' && ($password === $user['passwordconvert'] || md5($password) === $user['passwordconvert']))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/************************************
+ * Helpers used by different boards *
+ ************************************/
+
+// Used by WCF1
+function wcf1_encrypt($value, $method) {
+	switch ($method) {
+		case 'sha1': return sha1($value);
+		case 'md5': return md5($value);
+		case 'crc32': return crc32($value);
+		case 'crypt': return crypt($value);
+	}
+}
+
+function wcf1_hash($value, $salt, $settings) {
+	if ($settings['encryption_enable_salting']) {
+		$hash = '';
+		// salt
+		if ($settings['encryption_salt_position'] == 'before') {
+			$hash .= $salt;
+		}
+
+		// value
+		if ($settings['encryption_encrypt_before_salting']) {
+			$hash .= wcf1_encrypt($value, $settings['encryption_method']);
+		}
+		else {
+			$hash .= $value;
+		}
+
+		// salt
+		if ($settings['encryption_salt_position'] == 'after') {
+			$hash .= $salt;
+		}
+
+		return wcf1_encrypt($hash, $settings['encryption_method']);
+	}
+	else {
+		return wcf1_encrypt($value, $settings['encryption_method']);
+	}
+}
+
+
+// Used by XenForo 1.0 and 1.1
+function xf_hash($data)
+{
+	if (extension_loaded('hash'))
+	{
+		return hash('sha256', $data);
+	}
+	else
+	{
+		return sha1($data);
+	}
+
+}
+
+// Used by SMF 1.0
+function md5_hmac($username, $password)
+{
+	if(my_strlen($username) > 64)
+	{
+		$username = pack('H*', md5($username));
+	}
+	$username = str_pad($username, 64, chr(0x00));
+
+	$k_ipad = $username ^ str_repeat(chr(0x36), 64);
+	$k_opad = $username ^ str_repeat(chr(0x5c), 64);
+
+	return md5($k_opad.pack('H*', md5($k_ipad.$password)));
+}
+
+/********************************************************
+ * phpass functions - first the crypt_private functions *
+ * then the encoding function used by all boards        *
+ ********************************************************/
+
+// Used by bbPress
+function bbpress_crypt_private($password, $setting)
 {
 	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	if (my_strlen($hash) == 34)
-	{
-		return (_hash_crypt_private($password, $hash, $itoa64) === $hash) ? true : false;
+
+	$output = '*0';
+	if (substr($setting, 0, 2) == $output)
+		$output = '*1';
+
+	if (substr($setting, 0, 3) != '$P$')
+		return $output;
+	$count_log2 = strpos($itoa64, $setting[3]);
+	if ($count_log2 < 7 || $count_log2 > 30)
+		return $output;
+
+	$count = 1 << $count_log2;
+
+	$salt = substr($setting, 4, 8);
+	if (strlen($salt) != 8)
+		return $output;
+
+	# We're kind of forced to use MD5 here since it's the only
+	# cryptographic primitive available in all versions of PHP
+	# currently in use.  To implement our own low-level crypto
+	# in PHP would result in much worse performance and
+	# consequently in lower iteration counts and hashes that are
+	# quicker to crack (by non-PHP code).
+	if (PHP_VERSION >= '5') {
+		$hash = md5($salt . $password, TRUE);
+		do {
+			$hash = md5($hash . $password, TRUE);
+		} while (--$count);
+	} else {
+		$hash = pack('H*', md5($salt . $password));
+		do {
+			$hash = pack('H*', md5($hash . $password));
+		} while (--$count);
 	}
 
-	return (md5($password) === $hash) ? true : false;
-}
-
-/**
-* Encode hash
-*/
-function _hash_encode64($input, $count, &$itoa64)
-{
-	$output = '';
-	$i = 0;
-
-	do
-	{
-		$value = ord($input[$i++]);
-		$output .= $itoa64[$value & 0x3f];
-
-		if ($i < $count)
-		{
-			$value |= ord($input[$i]) << 8;
-		}
-
-		$output .= $itoa64[($value >> 6) & 0x3f];
-
-		if ($i++ >= $count)
-		{
-			break;
-		}
-
-		if ($i < $count)
-		{
-			$value |= ord($input[$i]) << 16;
-		}
-
-		$output .= $itoa64[($value >> 12) & 0x3f];
-
-		if ($i++ >= $count)
-		{
-			break;
-		}
-
-		$output .= $itoa64[($value >> 18) & 0x3f];
-	}
-	while ($i < $count);
+	$output = substr($setting, 0, 12);
+	$output .= _hash_encode64($hash, 16, $itoa64);
 
 	return $output;
 }
 
-/**
-* The crypt function/replacement
-*/
-function _hash_crypt_private($password, $setting, &$itoa64)
+// Used by phpBB 3
+function phpbb3_crypt_private($password, $setting)
 {
+	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
 	$output = '*';
 
 	// Check for correct hash
@@ -666,15 +564,19 @@ function _hash_crypt_private($password, $setting, &$itoa64)
 	return $output;
 }
 
-function bbpress_crypt_private($password, $setting)
+// Used by Vanilla
+function vanilla_crypt_private($password, $setting)
 {
+	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
 	$output = '*0';
 	if (substr($setting, 0, 2) == $output)
 		$output = '*1';
 
 	if (substr($setting, 0, 3) != '$P$')
 		return $output;
-	$count_log2 = strpos($this->itoa64, $setting[3]);
+
+	$count_log2 = strpos($itoa64, $setting[3]);
 	if ($count_log2 < 7 || $count_log2 > 30)
 		return $output;
 
@@ -702,11 +604,85 @@ function bbpress_crypt_private($password, $setting)
 		} while (--$count);
 	}
 
-	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	$output = substr($setting, 0, 12);
 	$output .= _hash_encode64($hash, 16, $itoa64);
 
 	return $output;
 }
 
-?>
+/**
+* The BELOW code falls under public domain, allowing its use in MyBB for this script
+* and can be redistributed under the GNU General Public License.
+*/
+
+/**
+*
+* @version Version 0.1
+*
+* Portable PHP password hashing framework.
+*
+* Written by Solar Designer <solar at openwall.com> in 2004-2006 and placed in
+* the public domain.
+*
+* There's absolutely no warranty.
+*
+* The homepage URL for this framework is:
+*
+*	http://www.openwall.com/phpass/
+*
+* Please be sure to update the Version line if you edit this file in any way.
+* It is suggested that you leave the main version number intact, but indicate
+* your project name (after the slash) and add your own revision information.
+*
+* Please do not change the "private" password hashing method implemented in
+* here, thereby making your hashes incompatible.  However, if you must, please
+* change the hash type identifier (the "$P$") to something different.
+*
+* Obviously, since this code is in the public domain, the above are not
+* requirements (there can be none), but merely suggestions.
+*
+*/
+
+/**
+* Encode hash
+*/
+function _hash_encode64($input, $count, &$itoa64)
+{
+	$output = '';
+	$i = 0;
+
+	do
+	{
+		$value = ord($input[$i++]);
+		$output .= $itoa64[$value & 0x3f];
+
+		if ($i < $count)
+		{
+			$value |= ord($input[$i]) << 8;
+		}
+
+		$output .= $itoa64[($value >> 6) & 0x3f];
+
+		if ($i++ >= $count)
+		{
+			break;
+		}
+
+		if ($i < $count)
+		{
+			$value |= ord($input[$i]) << 16;
+		}
+
+		$output .= $itoa64[($value >> 12) & 0x3f];
+
+		if ($i++ >= $count)
+		{
+			break;
+		}
+
+		$output .= $itoa64[($value >> 18) & 0x3f];
+	}
+	while ($i < $count);
+
+	return $output;
+}
