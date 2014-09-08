@@ -42,7 +42,7 @@ class SMF2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			$query2 = $db->simple_select("users", "uid, import_additionalgroups AS additional_groups", "CONCAT(',', import_additionalgroups, ',') LIKE '%,{$group['id_group']},%'");
 			while($user = $db->fetch_array($query2))
 			{
-				$db->update_array("users", array('additionalgroups' => $this->board->get_group_id($user['additional_groups'])), "uid = '{$user['uid']}'");
+				$db->update_query("users", array('additionalgroups' => $this->board->get_group_id($user['additional_groups'])), "uid = '{$user['uid']}'");
 			}
 			$db->free_result($query2);
 		}

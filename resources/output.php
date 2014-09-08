@@ -879,6 +879,11 @@ END;
 
 		$this->calculate_stats(false);
 
+		if(!empty($module->errors))
+		{
+		$this->print_inline_errors();
+		}
+
 		echo '
 <div class="border_wrapper">
 <div class="title">Options Configuration</div>
