@@ -77,6 +77,7 @@ class WBBLITE2_Converter extends Converter
 	 * @var String
 	 */
 	var $prefix_suggestion = "";
+	var $hide_table_prefix = true;
 	
 	/**
 	 * An array of phpbb -> mybb groups

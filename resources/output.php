@@ -589,11 +589,24 @@ END;
 				<tr>
 					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Table Settings</th>
 				</tr>
-				<tr class=\"first\">
-					<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
-					<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
-				</tr>
 				";
+
+			// Only show the table prefix if supported, however keep it as hidden field to avoid errors
+			if(!isset($board->hide_table_prefix) || $board->hide_table_prefix !== true)
+			{
+				$db_info[$dbfile] .= "
+					<tr class=\"first\">
+						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
+					</tr>
+					";
+			}
+			else
+			{
+				$db_info[$dbfile] .= "
+					<input type=\"hidden\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" />
+				";
+			}
 
 			// Encoding selection only if supported
 			if(is_array($encodings))
