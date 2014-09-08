@@ -75,6 +75,18 @@ class SMF2_Converter extends Converter
 	 */
 	var $prefix_suggestion = "smf_";
 
+	/**
+	 * An array of smf -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_ADMINS, // Administrators
+		2 => MYBB_SMODS, // Super Moderators
+		3 => MYBB_MODS, // Moderators
+		// 0 => MYBB_REGISTERED, // Registered
+	);
+
 	var $get_post_cache = array();
 
 	/**
@@ -112,7 +124,7 @@ class SMF2_Converter extends Converter
 	{
 		if(empty($group_id))
 		{
-			return 2; // Return regular registered user.
+			return MYBB_REGISTERED;
 		}
 
 		if(!is_numeric($group_id))
@@ -125,46 +137,19 @@ class SMF2_Converter extends Converter
 		}
 
 
-		$comma = $group = '';
+		$ngroups = array();
 		foreach($groups as $key => $smfgroup)
 		{
 			// Deal with non-activated people
 			if($is_activated != 1 && $is_group_row == true)
 			{
-				return 5;
+				return MYBB_AWAITING;
 			}
 
-			$group .= $comma;
-			switch($smfgroup)
-			{
-				case 1: // Administrator
-					$group .= 4;
-					break;
-				case 2: // Super moderator
-					$group .= 3;
-					break;
-				case 3: // Moderator
-					$group .= 6;
-					break;
-				// case 0 group = 2 // Member
-				default:
-					$gid = $this->get_import->gid($smfgroup);
-					if($gid > 0)
-					{
-						// If there is an associated custom group...
-						$group .= $gid;
-					}
-					else
-					{
-						// The lot
-						$group .= 2;
-					}
-
-			}
-			$comma = ',';
+			$ngroups[] = $this->get_gid($punbbgroup['g_id']);
 		}
 
-		return $group;
+		return implode(',', array_unique($ngroups));
 	}
 }
 

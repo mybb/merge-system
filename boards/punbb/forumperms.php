@@ -38,7 +38,7 @@ class PUNBB_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		// punBB values
 		$insert_data['fid'] = $this->get_import->fid_f($data['forum_id']);
-		$insert_data['gid'] = $this->board->get_group_id($data['group_id']);
+		$insert_data['gid'] = $this->board->get_gid($data['group_id']);
 		$insert_data['canpostthreads'] = $data['post_topics'];
 		$insert_data['canpostreplys'] = $data['post_replies'];
 		$insert_data['canview'] = $data['read_forum'];

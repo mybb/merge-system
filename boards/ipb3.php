@@ -78,6 +78,20 @@ class IPB3_Converter extends Converter {
 		);
 
 	/**
+	 * An array of ipb3 -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_AWAITING, // Awaiting Activation
+		2 => MYBB_GUESTS, // Guests
+		3 => MYBB_REGISTERED, // Registered
+		4 => MYBB_ADMINS, // Root Admin
+		5 => MYBB_BANNED, // Banned
+		6 => MYBB_ADMINS, // Administrators
+	);
+
+	/**
 	 * Convert a IPB group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
@@ -96,60 +110,26 @@ class IPB3_Converter extends Converter {
 			$query = $this->old_db->simple_select("groups", "*", "g_id='{$gid}'");
 		}
 
-		$comma = $group = '';
+		if(!$query)
+		{
+			return MYBB_REGISTERED;
+		}
+
+		$groups = array();
 		while($ipbgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group .= $ipbgroup['g_id'].$comma;
+				$groups[] = $ipbgroup['g_id'];
 			}
 			else
 			{
-				$group .= $comma;
-				switch($ipbgroup['g_id'])
-				{
-					case 1: // Awaiting activation
-						$group .= 5;
-						break;
-					case 2: // Guests
-						$group .= 1;
-						break;
-					case 3: // Registered
-						$group .= 2;
-						break;
-					case 5: // Banned
-						$group .= 7;
-						break;
-					case 4: // Root Admin
-						$group .= 4;
-						break;
-					case 6: // Administrator
-						$group .= 6;
-						break;
-					default:
-						$gid = $this->get_import->gid($ipbgroup['g_id']);
-						if($gid > 0)
-						{
-							// If there is an associated custom group...
-							$group .= $gid;
-						}
-						else
-						{
-							// The lot
-							$group .= 2;
-						}
-				}
+				$groups[] = $this->get_gid($ipbgroup['g_id']);
 			}
-			$comma = ',';
-		}
-
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
 		}
 
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_unique($groups));
 	}
 }
 

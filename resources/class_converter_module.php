@@ -116,11 +116,11 @@ class Converter_Module
 		}
 	}
 
-	function increment_tracker($type)
+	function increment_tracker($type, $amount=1)
 	{
 		global $db;
 
-		++$this->trackers['start_'.$type];
+		$this->trackers['start_'.$type] += $amount;
 
 		$db->write_query("REPLACE INTO ".TABLE_PREFIX."trackers SET count=".intval($this->trackers['start_'.$type]).", type='".$db->escape_string($type)."'");
 	}
