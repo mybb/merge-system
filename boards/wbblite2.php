@@ -58,7 +58,6 @@ class WBBLITE2_Converter extends Converter
 						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
-						 "import_moderators" => array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
@@ -150,6 +149,11 @@ class WBBLITE2_Converter extends Converter
 		if(!empty($this->installationnumber))
 		{
 		    return;
+		}
+
+		if(!isset($mybb->input['installationnumber']))
+		{
+			$mybb->input['installationnumber'] = 1;
 		}
 
 		// This is a hack to fix the table prefix. It's always wbb{num}_1.
