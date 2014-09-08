@@ -17,20 +17,24 @@ $plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1
 
 global $valid_login_types;
 $valid_login_types = array(
-	"vb3"		=> "vb",	// Module isn't supported anymore, but old merges may require it
+	"vb3"		=> "vb",		// Module isn't supported anymore, but old merges may require it
 	"vb4"		=> "vb",
-	"ipb2"		=> "ipb",	// Module isn't supported anymore, but old merges may require it
+	"vb5"		=> "vb",		// Not yet supported but as vb doesn't change their hashing...
+	"ipb2"		=> "ipb",		// Module isn't supported anymore, but old merges may require it
 	"ipb3"		=> "ipb",
-	"smf"		=> "smf",	// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
+	"smf"		=> "smf",		// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
 	"smf11"		=> "smf11",
 	"smf2"		=> "smf2",
 	"punbb"		=> "punbb",
 	"phpbb3"	=> "phpbb3",
 	"bbpress"	=> "bbpress",
-	"xf"		=> "xf11",	// XenForo can have two different authentications
-	"xf12"		=> "xf12",	// 1.2+ use PHP's crypt function by default
-	"wbblite"	=> "wcf1",	// WBB Lite uses WoltLab Community Framework 1.x with some special parameters
-	"wbb4"		=> "wcf2",	// WBB 4 uses WoltLab Community Framework 2.x
+	"xf"		=> "xf11",		// XenForo can have two different authentications
+	"xf12"		=> "xf12",		// 1.2+ use PHP's crypt function by default
+	"wbblite"	=> "wcf1",		// WBB Lite uses WoltLab Community Framework 1.x with some special parameters
+	"wbb3"		=> "wcf1",		// WBB 3 uses the same
+	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
+	"vanilla"	=> "vanilla",
+	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
 );
 
 function loginconvert_info()
@@ -48,23 +52,52 @@ function loginconvert_info()
 		"compatibility"		=> "18*",
 	);
 
-	// Checks whether the plugin is really needed
-	$query = $db->simple_select("users", "uid", "passwordconvert IS NOT NULL AND passwordconvert!=''", array("limit" => 1));
-	if($db->num_rows($query) > 0)
+	if($db->field_exists("passwordconvert", "users"))
 	{
-		$info['description'] .= "<br />This plugin should be activated as there are users with unconverted password.";
+		// Checks whether the plugin is really needed
+		$query = $db->simple_select("users", "uid", "passwordconvert IS NOT NULL AND passwordconvert!=''", array("limit" => 1));
+		if($db->num_rows($query) > 0)
+		{
+			$info['description'] .= "<br />This plugin should be activated as there are users with unconverted password.";
+		}
+		else
+		{
+			$info['description'] .= "<br />This plugin can be deactivated and deleted as all passwords are converted.";
+		}
 	}
 	else
 	{
-		$info['description'] .= "<br />This plugin can be deactivated and deleted as all passwords are converted.";
+		$info['description'] .= "<br />Please delete the file \"inc/plugins/loginconvert.php\"";
 	}
 
 	return $info;
 }
 
-function loginconvert_activate() {}
+function loginconvert_activate()
+{
+	global $db;
 
-function loginconvert_deactivate() {}
+	// Don't activate the plugin if it isn't needed
+	if(!$db->field_exists("passwordconvert", "users"))
+	{
+		flash_message("There's no need to activate this plugin as there aren't any passwords which need to be converted", "error");
+		admin_redirect("index.php?module=config-plugins");
+	}
+}
+
+function loginconvert_deactivate()
+{
+	global $db;
+
+	// Remove the columns if all passwords have been converted
+	$query = $db->simple_select("users", "uid", "passwordconvert IS NOT NULL AND passwordconvert!=''", array("limit" => 1));
+	if($db->num_rows($query) == 0)
+	{
+		$db->drop_column("users", "passwordconvert");
+		$db->drop_column("users", "passwordconverttype");
+		$db->drop_column("users", "passwordconvertsalt");
+	}
+}
 
 function loginconvert_convert(&$login)
 {
@@ -254,7 +287,21 @@ function check_punbb($password, $user)
 
 function check_phpbb3($password, $user)
 {
-	return phpbb_check_hash($password, $user['passwordconvert']);
+	if (my_strlen($user['passwordconvert']) == 34)
+	{
+		if(phpbb3_crypt_private($password, $user['passwordconvert']) === $user['passwordconvert'])
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	if(md5($user['passwordconvert']) === $hash)
+	{
+		return true;
+	}
+	return false;
 }
 
 function check_bbpress($password, $user)
@@ -312,6 +359,26 @@ function check_wcf2($password, $user)
 	$salt = mb_substr($user['passwordconvert'], 0, 29);
 
 	return (crypt(crypt($password, $salt), $salt) == $user['passwordconvert']);
+}
+
+function check_vanilla($password, $user)
+{
+	if($user['passwordconvert'][0] === '_' || $user['passwordconvert'][0] === '$')
+	{
+		$hash = vanilla_crypt_private($password, $user['passwordconvert']);
+		if ($hash[0] == '*')
+		{
+			$hash = crypt($password, $user['passwordconvert']);
+		}
+
+		return $hash == $user['passwordconvert'];
+	}
+	else if($password && $user['passwordconvert'] !== '*' && ($password === $user['passwordconvert'] || md5($password) === $user['passwordconvert']))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 /************************************
@@ -386,6 +453,11 @@ function md5_hmac($username, $password)
 	return md5($k_opad.pack('H*', md5($k_ipad.$password)));
 }
 
+/********************************************************
+ * phpass functions - first the crypt_private functions *
+ * then the encoding function used by all boards        *
+ ********************************************************/
+
 // Used by bbPress
 function bbpress_crypt_private($password, $setting)
 {
@@ -432,103 +504,10 @@ function bbpress_crypt_private($password, $setting)
 }
 
 // Used by phpBB 3
-
-/**
-* The BELOW code falls under public domain, allowing its use in MyBB for this script
-* and can be redistributed under the GNU General Public License.
-*/
-
-/**
-*
-* @version Version 0.1
-*
-* Portable PHP password hashing framework.
-*
-* Written by Solar Designer <solar at openwall.com> in 2004-2006 and placed in
-* the public domain.
-*
-* There's absolutely no warranty.
-*
-* The homepage URL for this framework is:
-*
-*	http://www.openwall.com/phpass/
-*
-* Please be sure to update the Version line if you edit this file in any way.
-* It is suggested that you leave the main version number intact, but indicate
-* your project name (after the slash) and add your own revision information.
-*
-* Please do not change the "private" password hashing method implemented in
-* here, thereby making your hashes incompatible.  However, if you must, please
-* change the hash type identifier (the "$P$") to something different.
-*
-* Obviously, since this code is in the public domain, the above are not
-* requirements (there can be none), but merely suggestions.
-*
-*/
-
-/**
-* Check for correct password
-*/
-function phpbb_check_hash($password, $hash)
+function phpbb3_crypt_private($password, $setting)
 {
 	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	if (my_strlen($hash) == 34)
-	{
-		return (_hash_crypt_private($password, $hash, $itoa64) === $hash) ? true : false;
-	}
 
-	return (md5($password) === $hash) ? true : false;
-}
-
-/**
-* Encode hash
-*/
-function _hash_encode64($input, $count, &$itoa64)
-{
-	$output = '';
-	$i = 0;
-
-	do
-	{
-		$value = ord($input[$i++]);
-		$output .= $itoa64[$value & 0x3f];
-
-		if ($i < $count)
-		{
-			$value |= ord($input[$i]) << 8;
-		}
-
-		$output .= $itoa64[($value >> 6) & 0x3f];
-
-		if ($i++ >= $count)
-		{
-			break;
-		}
-
-		if ($i < $count)
-		{
-			$value |= ord($input[$i]) << 16;
-		}
-
-		$output .= $itoa64[($value >> 12) & 0x3f];
-
-		if ($i++ >= $count)
-		{
-			break;
-		}
-
-		$output .= $itoa64[($value >> 18) & 0x3f];
-	}
-	while ($i < $count);
-
-	return $output;
-}
-
-/**
-* The crypt function/replacement
-*/
-function _hash_crypt_private($password, $setting, &$itoa64)
-{
 	$output = '*';
 
 	// Check for correct hash
@@ -581,6 +560,129 @@ function _hash_crypt_private($password, $setting, &$itoa64)
 
 	$output = substr($setting, 0, 12);
 	$output .= _hash_encode64($hash, 16, $itoa64);
+
+	return $output;
+}
+
+// Used by Vanilla
+function vanilla_crypt_private($password, $setting)
+{
+	$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+	$output = '*0';
+	if (substr($setting, 0, 2) == $output)
+		$output = '*1';
+
+	if (substr($setting, 0, 3) != '$P$')
+		return $output;
+
+	$count_log2 = strpos($itoa64, $setting[3]);
+	if ($count_log2 < 7 || $count_log2 > 30)
+		return $output;
+
+	$count = 1 << $count_log2;
+
+	$salt = substr($setting, 4, 8);
+	if (strlen($salt) != 8)
+		return $output;
+
+	# We're kind of forced to use MD5 here since it's the only
+	# cryptographic primitive available in all versions of PHP
+	# currently in use.  To implement our own low-level crypto
+	# in PHP would result in much worse performance and
+	# consequently in lower iteration counts and hashes that are
+	# quicker to crack (by non-PHP code).
+	if (PHP_VERSION >= '5') {
+		$hash = md5($salt . $password, TRUE);
+		do {
+			$hash = md5($hash . $password, TRUE);
+		} while (--$count);
+	} else {
+		$hash = pack('H*', md5($salt . $password));
+		do {
+			$hash = pack('H*', md5($hash . $password));
+		} while (--$count);
+	}
+
+	$output = substr($setting, 0, 12);
+	$output .= _hash_encode64($hash, 16, $itoa64);
+
+	return $output;
+}
+
+/**
+* The BELOW code falls under public domain, allowing its use in MyBB for this script
+* and can be redistributed under the GNU General Public License.
+*/
+
+/**
+*
+* @version Version 0.1
+*
+* Portable PHP password hashing framework.
+*
+* Written by Solar Designer <solar at openwall.com> in 2004-2006 and placed in
+* the public domain.
+*
+* There's absolutely no warranty.
+*
+* The homepage URL for this framework is:
+*
+*	http://www.openwall.com/phpass/
+*
+* Please be sure to update the Version line if you edit this file in any way.
+* It is suggested that you leave the main version number intact, but indicate
+* your project name (after the slash) and add your own revision information.
+*
+* Please do not change the "private" password hashing method implemented in
+* here, thereby making your hashes incompatible.  However, if you must, please
+* change the hash type identifier (the "$P$") to something different.
+*
+* Obviously, since this code is in the public domain, the above are not
+* requirements (there can be none), but merely suggestions.
+*
+*/
+
+/**
+* Encode hash
+*/
+function _hash_encode64($input, $count, &$itoa64)
+{
+	$output = '';
+	$i = 0;
+
+	do
+	{
+		$value = ord($input[$i++]);
+		$output .= $itoa64[$value & 0x3f];
+
+		if ($i < $count)
+		{
+			$value |= ord($input[$i]) << 8;
+		}
+
+		$output .= $itoa64[($value >> 6) & 0x3f];
+
+		if ($i++ >= $count)
+		{
+			break;
+		}
+
+		if ($i < $count)
+		{
+			$value |= ord($input[$i]) << 16;
+		}
+
+		$output .= $itoa64[($value >> 12) & 0x3f];
+
+		if ($i++ >= $count)
+		{
+			break;
+		}
+
+		$output .= $itoa64[($value >> 18) & 0x3f];
+	}
+	while ($i < $count);
 
 	return $output;
 }
