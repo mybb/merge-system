@@ -77,7 +77,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				$query = $this->old_db->simple_select("groups", "g_id");
 				while($group = $this->old_db->fetch_array($query))
 				{
-					$new_perms[$this->board->get_group_id($group['g_id'], array("not_multiple" => true))][$key] = 1;
+					$new_perms[$this->board->get_gid($group['g_id'])][$key] = 1;
 				}
 			}
 			else
@@ -85,7 +85,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				$perm_split = explode(',', $permission);
 				foreach($perm_split as $key2 => $gid)
 				{
-					$new_perms[$this->board->get_group_id($gid, array("not_multiple" => true))][$key] = 1;
+					$new_perms[$this->board->get_gid($gid, array("not_multiple" => true))][$key] = 1;
 				}
 			}
 		}

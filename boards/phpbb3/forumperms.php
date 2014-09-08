@@ -41,7 +41,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		global $import_session;
 
 		$query = $this->old_db->query("
-			SELECT g.group_id, g.forum_id, g.auth_option_id, g.auth_setting, o.auth_option
+			SELECT g.*, o.auth_option
 			FROM ".OLD_TABLE_PREFIX."acl_groups g
 			LEFT JOIN ".OLD_TABLE_PREFIX."acl_options o ON (g.auth_option_id=o.auth_option_id)
 			WHERE g.auth_option_id > 0 AND o.auth_option IN ('".implode("','", $this->convert_val)."')
@@ -75,6 +75,13 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 					$this->debug->log->datatrace('$perm', $perm);
 
+					// Yeah, this looks very very dirty and yeah it is
+					// But we need to modify our trackers to avoid useless redirects
+					// we increment our tracker about the number of inserted permissions
+					// -1 as it get's incremented by one in the insert function called below
+					$increment = count($columns)-1;
+					$this->increment_tracker("forumperms", $increment);
+
 					$this->insert($perm);
 				}
 			}
@@ -87,7 +94,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		// phpBB 3 values
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['gid'] = $this->get_import->gid($data['gid']);
+		$insert_data['gid'] = $this->board->get_gid($data['gid']);
 
 		foreach($this->convert_val as $mybb_column => $phpbb_column)
 		{
@@ -164,7 +171,7 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				SELECT COUNT(*) as count
 				FROM ".OLD_TABLE_PREFIX."acl_groups g
 				LEFT JOIN ".OLD_TABLE_PREFIX."acl_options o ON (g.auth_option_id=o.auth_option_id)
-				WHERE o.is_local=1 AND o.auth_option IN ('".implode("','", $this->convert_val)."')
+				WHERE g.auth_option_id > 0 AND o.auth_option IN ('".implode("','", $this->convert_val)."')
 			");
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);

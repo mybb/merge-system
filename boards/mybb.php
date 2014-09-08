@@ -69,7 +69,21 @@ class MYBB_Converter extends Converter
 	 * @var String
 	 */
 	var $prefix_suggestion = "mybb_";
-	
+
+	/**
+	 * An array of mybb -> mybb groups
+	 * This seems kind of useless but otherwise the get_gid function wouldn't work
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_GUESTS, // Guests
+		2 => MYBB_REGISTERED, // Registered
+		4 => MYBB_ADMINS, // Administrators
+		5 => MYBB_AWAITING, // Awaiting Activation
+		7 => MYBB_BANNED, // Banned
+	);
+
 	/**
 	 * Convert a MyBB group ID into a MyBB group ID (merge)
 	 *
@@ -89,56 +103,26 @@ class MYBB_Converter extends Converter
 
 		$query = $this->old_db->simple_select("usergroups", "*", "gid='{$gid}'", $settings);
 
-		$comma = $group = '';
+    	if(!$query)
+		{
+			return MYBB_REGISTERED;
+		}
+
+		$groups = array();
 		while($mybbgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group .= $mybbgroup['gid'].$comma;
+				$groups[] = $mybbgroup['gid'];
 			}
 			else
 			{
-				$group .= $comma;
-				switch($mybbgroup['gid'])
-				{
-					case 5: // Awaiting activation
-						$group .= 5;
-						break;
-					case 1: // Guests
-						$group .= 1;
-					case 2: // Registered
-						$group .= 2;
-						break;
-					case 7: // Banned
-						$group .= 7;
-						break;
-					case 4: // Administrator
-						$group .= 4;
-						break;
-					default:
-						$gid = $this->get_import->gid($mybbgroup['gid']);
-						if($gid > 0)
-						{
-							// If there is an associated custom group...
-							$group .= $gid;
-						}
-						else
-						{
-							// The lot
-							$group .= 2;
-						}
-				}
+				$groups[] = $this->get_gid($mybbgroup['gid']);
 			}
-			$comma = ',';
-		}
-
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
 		}
 
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_unique($groups));
 	}
 }
 

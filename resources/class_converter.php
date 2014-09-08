@@ -272,6 +272,29 @@ class Converter
 
 		$output->set_error_notice_in_progress($error_message);
 	}
-}
 
+	public function get_gid($gid)
+	{
+		// A default group, return the correct MyBB group
+		if(isset($this->groups) && isset($this->groups[$gid]))
+		{
+			return $this->groups[$gid];
+		}
+		// Custom group
+		else
+		{
+			$gid = $this->get_import->gid($gid);
+			// we found the correct group
+			if($gid > 0)
+			{
+				return $gid;
+			}
+			// Something went wrong
+			else
+			{
+				return MYBB_REGISTERED;
+			}
+		}
+	}
+}
 ?>

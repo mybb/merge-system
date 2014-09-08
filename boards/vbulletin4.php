@@ -71,7 +71,21 @@ class VBULLETIN4_Converter extends Converter
 	 * @var String
 	 */
 	var $prefix_suggestion = "";
-	
+
+	/**
+	 * An array of vb4 -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_GUESTS, // Guests
+		2 => MYBB_REGISTERED, // Registered
+		3 => MYBB_AWAITING, // Awaiting activation
+		4 => MYBB_REGISTERED, // Registered coppa
+		5 => MYBB_SMODS, // Super Moderators
+		6 => MYBB_ADMINS, // Administrators
+	);
+
 	/**
 	 * Convert a vB group ID into a MyBB group ID
 	 *
@@ -90,59 +104,26 @@ class VBULLETIN4_Converter extends Converter
 		}
 
 		$query = $this->old_db->simple_select("usergroup", "*", "usergroupid='{$gid}'", $settings);
+		if(!$query)
+		{
+			return MYBB_REGISTERED;
+		}
 
-		$comma = $group = '';
+		$groups = array();
 		while($vbgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group .= $vbgroup['usergroupid'].$comma;
+				$groups[] = $vbgroup['usergroupid'];
 			}
 			else
 			{
-				$group .= $comma;
-				switch($vbgroup['usergroupid'])
-				{
-					case 1: // Guests
-						$group .= 1;
-						break;
-					case 2: // Register
-					case 4: // Registered coppa
-						$group .= 2;
-						break;
-					case 3: // Awaiting activation
-						$group .= 5;
-						break;
-					case 5: // Super moderator
-						$group .= 3;
-						break;
-					case 6: // Administrator
-						$group .= 4;
-						break;
-					default:
-						$gid = $this->get_import->gid($vbgroup['usergroupid']);
-						if($gid > 0)
-						{
-							// If there is an associated custom group...
-							$group .= $gid;
-						}
-						else
-						{
-							// The lot
-							$group .= 2;
-						}
-				}
+				$groups[] = $this->get_gid($vbgroup['usergroupid']);
 			}
-			$comma = ',';
-		}
-
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
 		}
 
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_unique($groups));
 	}
 }
 
