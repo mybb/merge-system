@@ -50,6 +50,20 @@ class BBPRESS_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 * 
+	 * @var String
+	 */
+	var $check_table = "usermeta";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "wp_";
+	
+	/**
 	 * Convert a bbPress group ID into a MyBB group ID
 	 *
 	 * @param int Group ID

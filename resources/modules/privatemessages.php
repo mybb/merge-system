@@ -10,7 +10,7 @@
 class Converter_Module_Privatemessages extends Converter_Module
 {
 	public $default_values = array(
-		'import_pmid' => '',
+		'import_pmid' => 0,
 		'uid' => 0,
 		'toid' => 0,
 		'fromid' => 0,
@@ -26,7 +26,29 @@ class Converter_Module_Privatemessages extends Converter_Module
 		'includesig' => 0,
 		'smilieoff' => 0,
 		'receipt' => 2,
-		'readtime' => 0
+		'readtime' => 0,
+		'ipaddress' => '',
+	);
+
+	public $integer_fields = array(
+		'import_pmid',
+		'uid',
+		'toid',
+		'fromid',
+		'folder',
+		'icon',
+		'dateline',
+		'deletetime',
+		'status',
+		'statustime',
+		'includesig',
+		'smielieoff',
+		'receipt',
+		'readtime',
+	);
+
+	public $binary_fields = array(
+		'ipaddress'
 	);
 
 	/**
@@ -45,13 +67,8 @@ class Converter_Module_Privatemessages extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			$insert_array[$key] = $db->escape_string($value);
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		unset($insert_array['import_pmid']);
 

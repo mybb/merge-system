@@ -54,7 +54,7 @@ class MYBB_Converter_Module_Polls extends Converter_Module_Polls {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

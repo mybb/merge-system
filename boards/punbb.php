@@ -54,6 +54,20 @@ class PUNBB_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "groups";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "punbb_";
+	
+	/**
 	 * Get a user from the punBB database
 	 *
 	 * @param string Username

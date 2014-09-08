@@ -59,6 +59,20 @@ class VBULLETIN4_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "forumpermission";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "";
+	
+	/**
 	 * Convert a vB group ID into a MyBB group ID
 	 *
 	 * @param int Group ID

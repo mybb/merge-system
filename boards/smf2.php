@@ -61,6 +61,20 @@ class SMF2_Converter extends Converter
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
+	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "boards";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "smf_";
+
 	var $get_post_cache = array();
 
 	/**

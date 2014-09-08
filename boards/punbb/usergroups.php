@@ -26,14 +26,9 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		global $import_session, $db;
 
 		// Get only non-staff groups.
-		$query = $this->old_db->simple_select("groups", "*", "g_id > 3", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
+		$query = $this->old_db->simple_select("groups", "*", "g_id > 4", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
-			if($group['g_title'] == 'Administrators' || $group['g_title'] == 'Moderators' || $group['g_title'] == 'Guest' || $group['g_title'] == 'Members')
-			{
-				continue;
-			}
-
 			$gid = $this->insert($group);
 		}
 	}
@@ -64,7 +59,7 @@ class PUNBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		// Get number of usergroups
 		if(!isset($import_session['total_usergroups']))
 		{
-			$query = $this->old_db->simple_select("groups", "COUNT(*) as count", "g_id > 3");
+			$query = $this->old_db->simple_select("groups", "COUNT(*) as count", "g_id > 4");
 			$import_session['total_usergroups'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

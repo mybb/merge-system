@@ -57,6 +57,20 @@ class MYBB_Converter extends Converter
 						);
 
 	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "usergroups";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "mybb_";
+	
+	/**
 	 * Convert a MyBB group ID into a MyBB group ID (merge)
 	 *
 	 * @param int Group ID

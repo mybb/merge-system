@@ -24,6 +24,18 @@ class Converter_Module_Polls extends Converter_Module
 		'public' => 0
 	);
 
+	public $integer_fields = array(
+		'import_pid',
+		'tid',
+		'dateline',
+		'numoptions',
+		'numvotes',
+		'timeout',
+		'closed',
+		'multiple',
+		'public',
+	);
+
 	/**
 	 * Insert poll into database
 	 *
@@ -40,13 +52,8 @@ class Converter_Module_Polls extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			$insert_array[$key] = $db->escape_string($value);
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 

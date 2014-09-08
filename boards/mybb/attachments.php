@@ -78,7 +78,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 			{
 				if($db->type != "sqlite")
 				{
-					$insert_data[$field['Field']] = '';
+					unset($insert_data[$field['Field']]);
 				}
 				continue;
 			}

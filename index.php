@@ -559,13 +559,13 @@ if($mybb->input['board'])
 	{
 		$debug->log->trace1("loginconvert plugin required for this board module");
 
-		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php") && file_exists(MYBB_ROOT."convert/loginconvert.php"))
+		if(!file_exists(MYBB_ROOT."inc/plugins/loginconvert.php") && file_exists(MERGE_ROOT."loginconvert.php"))
 		{
-			$debug->log->trace2("Attempting to move convert/loginconvert.php to inc/plugins/loginconvert.php");
+			$debug->log->trace2("Attempting to move loginconvert.php to inc/plugins/loginconvert.php");
 			$writable = @fopen(MYBB_ROOT.'inc/plugins/loginconvert.php', 'wb');
 			if($writable)
 			{
-				@fwrite($writable, file_get_contents(MYBB_ROOT."convert/loginconvert.php"));
+				@fwrite($writable, file_get_contents(MERGE_ROOT."loginconvert.php"));
 				@fclose($writable);
 				@my_chmod(MYBB_ROOT.'inc/plugins/loginconvert.php', '0555');
 				$debug->log->trace2("Successfully moved loginconvert.php to inc/plugins/ automatically");

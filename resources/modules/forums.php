@@ -18,8 +18,7 @@ class Converter_Module_Forums extends Converter_Module
 		'linkto' => '',
 		'lastpost' => 0,
 		'parentlist' => '',
-		'defaultsortby' => '',
-		'lastposter' => 0,
+		'lastposter' => '',
 		'lastposttid' => 0,
 		'lastposteruid' => 0,
 		'lastpostsubject' => '',
@@ -44,8 +43,34 @@ class Converter_Module_Forums extends Converter_Module
 		'unapprovedthreads' => 0,
 		'unapprovedposts' => 0,
 		'defaultdatecut' => 0,
-		'defaultsortby' => 0,
+		'defaultsortby' => '',
 		'defaultsortorder' => '',
+	);
+
+	public $integer_fields = array(
+		'import_fid',
+		'import_pid',
+		'disporder',
+		'lastpost',
+		'lastposttid',
+		'lastposteruid',
+		'threads',
+		'posts',
+		'active',
+		'open',
+		'allowhtml',
+		'allowmycode',
+		'allowsmilies',
+		'allowimgcode',
+		'allowpicons',
+		'allowtratings',
+		'showinjump',
+		'style',
+		'overridestyle',
+		'rulestype',
+		'unapprovedthreads',
+		'unapprovedposts',
+		'defaultdatecut',
 	);
 
 	/**
@@ -64,13 +89,8 @@ class Converter_Module_Forums extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			$insert_array[$key] = $db->escape_string($value);
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 

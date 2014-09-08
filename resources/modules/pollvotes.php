@@ -12,9 +12,17 @@ class Converter_Module_Pollvotes extends Converter_Module
 	public $default_values = array(
 		'vid' => 0,
 		'uid' => 0,
-		'voteoption' => '',
+		'voteoption' => 0,
 		'dateline' => 0
 	);
+
+	// The pollvotes table has ONLY integer fields - use the array above
+	// As we can't call array_keys here we need the constructor
+	public $integer_fields;
+	public function __construct($converter_class) {
+		parent::__construct($converter_class);
+		$this->integer_fields = array_keys($this->default_values);
+	}
 
 	/**
 	 * Insert poll vote into database
@@ -32,13 +40,8 @@ class Converter_Module_Pollvotes extends Converter_Module
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
 
-		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values
-		$data = $this->process_default_values($data);
-
-		foreach($data as $key => $value)
-		{
-			$insert_array[$key] = $db->escape_string($value);
-		}
+		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
+		$insert_array = $this->prepare_insert_array($data);
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
