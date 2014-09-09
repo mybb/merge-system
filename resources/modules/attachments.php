@@ -175,6 +175,7 @@ class Converter_Module_Attachments extends Converter_Module
 		{
 			$this->debug->log->error("Not enough attachments could be read: ".(($readable/$total)*100)."%");
 			$this->errors[] = 'The attachments could not be read. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file';
+			$this->is_errors = true;
 			$import_session['uploads_test'] = 0;
 		}
 	}

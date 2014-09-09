@@ -637,7 +637,7 @@ function check_url_exists($url)
 		return false;
 	}
 
-	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]");
+	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]{$url_parsed['path']}");
 
 	if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
 	{
@@ -859,7 +859,7 @@ function check_encoding($string, $encoding)
 	}
 
 	// These functions can have significant load or crash if the string passed is too long.
-	if(strlen($string) < 1024*5)
+	if(SKIP_ENCODING_DETECTION != 1 && strlen($string) < 1024*5)
 	{
 		return (preg_match('#^(?:
               [\x09\x0A\x0D\x20-\x7E]
