@@ -146,6 +146,8 @@ class WBB3_Converter extends Converter
 	
 	function db_extra()
 	{
+		global $mybb;
+
 		if(!empty($this->installationnumber))
 		{
 		    return;
