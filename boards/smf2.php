@@ -127,15 +127,14 @@ class SMF2_Converter extends Converter
 			return MYBB_REGISTERED;
 		}
 
-		if(!is_numeric($group_id))
+		if(is_array($group_id))
 		{
 			$groups = $group_id;
 		}
 		else
 		{
-			$groups = array($group_id);
+			$groups = array((int)$group_id);
 		}
-
 
 		$ngroups = array();
 		foreach($groups as $key => $smfgroup)

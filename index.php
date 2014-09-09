@@ -23,6 +23,9 @@ define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
 define("WRITE_LOGS", 1);
 define("TIME_NOW", time());
+// The encoding detection can cause timeout errors and is automatically skipped for larger strings
+// However this may also happen on smaller strings - set this to 1 if you have that problem
+define("SKIP_ENCODING_DETECTION", 0);
 
 if(function_exists('date_default_timezone_set') && !ini_get('date.timezone'))
 {
@@ -646,7 +649,8 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.8. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/Merge_System.html\" target=\"_blank\">Merge System</a></p>
 		<input type=\"hidden\" name=\"first_page\" value=\"1\" />";
 
-	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/Running_the_Merge_System.html#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)';
+	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/Running_the_Merge_System.html#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)<br />';
+	echo '<input type="checkbox" name="close_board" value="1" id="close_board" checked="checked" /> <label for="close_board"> Close the board during the merge</label>';
 
 	$output->print_warning("The MyBB Merge system is <u><strong>not</strong></u> used for upgrading or linking MyBB forums. In addition, please make sure all modifications or plugins that may interefere with the conversion process are <strong>deactivated</strong> on both forums (your old forum and your new forum), before you run the MyBB Merge System. It is also <strong>strongly</strong> recommended to make a backup of both forums before you continue.", "Please Note");
 
@@ -675,6 +679,13 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 
 	$import_session['allow_anonymous_info'] = intval($mybb->input['allow_anonymous_info']);
 	$import_session['first_page'] = 1;
+
+	// We should close the board - which shouldn't be necessary if they would do the merge locally...
+	if((int)$mybb->input['close_board'] == 1)
+	{
+		$db->update_query("settings", array("value" => 1), "name='boardclosed'");
+		rebuild_settings();
+	}
 
 	define("BACK_BUTTON", false);
 

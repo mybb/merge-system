@@ -38,6 +38,7 @@ class Log {
 	const DATATRACE = 8;
 
 	private $table_exists = false;
+	private $caused_error = false;
 
 	public function error($message)
 	{
@@ -91,7 +92,7 @@ class Log {
 		$log_insert = array(
 			'type' => intval($type),
 			'message' => $this->generate_plain_backtrace(2).$message,
-			'timestamp' => time(),
+			'timestamp' => TIME_NOW,
 		);
 		$this->log_inserts[] = $log_insert;
 
@@ -106,7 +107,15 @@ class Log {
 			{
 				$log_insert['message'] = $db->escape_string($log_insert['message']);
 
+				// If we caused an error and the message we're trying to insert isn't the SQL error we'll skip the message
+				if($this->caused_error && substr($log_insert['message'], 0, 9) != "$type: 20")
+				{
+					continue;
+				}
+
+				$this->caused_error = true;
 				$db->insert_query("debuglogs", $log_insert);
+				$this->caused_error = false;
 			}
 
 			// Clear out our log queue now that they're all inserted
@@ -150,13 +159,14 @@ class Log {
 					);");
 					break;
 				default:
+					// The collation is hardcoded to avoid issues - probably there's a better fix?
 					$db->write_query("CREATE TABLE ".TABLE_PREFIX."debuglogs (
 						dlid int unsigned NOT NULL auto_increment,
 						type int(2) NOT NULL default '0',
 						message text NOT NULL,
 						timestamp bigint(30) NOT NULL default '0',
 						PRIMARY KEY(dlid)
-					) ENGINE=MyISAM;");
+					) ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci;");
 			}
 		}
 

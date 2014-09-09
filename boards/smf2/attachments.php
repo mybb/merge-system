@@ -27,7 +27,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $output;
+		global $import_session, $output, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -51,8 +51,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 			// Test our ability to read attachment files from the forum software
 			$this->test_readability("attachments", "id_attach,file_hash");
 		}
-
-		$output->print_inline_errors();
 	}
 
 	function import()
