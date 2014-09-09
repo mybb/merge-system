@@ -52,7 +52,7 @@ class WBBLITE2_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['tid'] = $this->get_import->tid($data['threadID']);
 
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert_title($data['subject']), WBB_PREFIX."post", "posts");
+		$insert_data['subject'] = encode_to_utf8($data['subject'], WBB_PREFIX."post", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['userID']);
 		$insert_data['import_uid'] = $data['userID'];
 		$insert_data['username'] = $this->get_import->username($data['userID'], $data['username']);
