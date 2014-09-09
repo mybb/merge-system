@@ -43,18 +43,15 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 		$insert_data = array();
 
-		$query = $this->old_db->simple_select("pm_recipients", "*", "id_pm = '{$data['id_pm']}'");
-		$sep = '';
+		$query = $this->old_db->simple_select("pm_recipients", "id_member", "id_pm = '{$data['id_pm']}'");
+		$recip_list = array();
 		while($recip = $this->old_db->fetch_field($query, 'id_member'))
 		{
-			$recip_list .= $sep.$recip;
-			$sep = ',';
+			$recip_list[] = $recip;
 		}
 		$this->old_db->free_result($query);
-		$recip_list = explode(",", $recip_list);
 
 		// SMF values
-		$insert_data['pmid'] = null;
 		$insert_data['import_pmid'] = $data['id_pm'];
 		$insert_data['uid'] = $this->get_import->uid($data['id_member']);
 		$insert_data['fromid'] = $this->get_import->uid($data['id_member_from']);
@@ -133,6 +130,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
 			$insert_array = $this->prepare_insert_array($data);
+			unset($insert_array['import_pmid']);
 
 			$this->debug->log->datatrace('$insert_array', $insert_array);
 
