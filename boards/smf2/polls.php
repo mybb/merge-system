@@ -55,6 +55,13 @@ class SMF2_Converter_Module_Polls extends Converter_Module_Polls {
 		$poll_choices = $this->get_poll_choices($data['id_poll']);
 
 		$insert_data['question'] = $data['question'];
+
+		// Make sure we don't exceed our question limit
+		if(strlen($insert_data['question']) > 200)
+		{
+			$insert_data['question'] = substr($insert_data['question'], 0, 197)."...";
+		}
+
 		$insert_data['options'] = $poll_choices['options'];
 		$insert_data['votes'] = $poll_choices['votes'];
 		$insert_data['numoptions'] = $poll_choices['options_count'];
