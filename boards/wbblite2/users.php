@@ -122,6 +122,8 @@ class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// WBB Lite 2 values
+		$insert_data['usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true));
+
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true, "original" => true));
 		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['userID'], array("original" => true));
 		$insert_data['import_displaygroup'] = $data['displaygroup'];
