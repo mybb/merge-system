@@ -23,6 +23,9 @@ define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
 define("WRITE_LOGS", 1);
 define("TIME_NOW", time());
+// The encoding detection can cause timeout errors and is automatically skipped for larger strings
+// However this may also happen on smaller strings - set this to 1 if you have that problem
+define("SKIP_ENCODING_DETECTION", 0);
 
 if(function_exists('date_default_timezone_set') && !ini_get('date.timezone'))
 {

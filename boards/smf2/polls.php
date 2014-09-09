@@ -49,12 +49,20 @@ class SMF2_Converter_Module_Polls extends Converter_Module_Polls {
 		$thread = $this->get_poll_thread($data['id_poll']);
 
 		$insert_data['import_tid'] = $thread['import_tid'];
+		$insert_data['import_pid'] = $data['id_poll'];
 		$insert_data['tid'] = $thread['tid'];
 		$insert_data['dateline'] = $thread['dateline'];
 
 		$poll_choices = $this->get_poll_choices($data['id_poll']);
 
 		$insert_data['question'] = $data['question'];
+
+		// Make sure we don't exceed our question limit
+		if(strlen($insert_data['question']) > 200)
+		{
+			$insert_data['question'] = substr($insert_data['question'], 0, 197)."...";
+		}
+
 		$insert_data['options'] = $poll_choices['options'];
 		$insert_data['votes'] = $poll_choices['votes'];
 		$insert_data['numoptions'] = $poll_choices['options_count'];
