@@ -859,7 +859,7 @@ function check_encoding($string, $encoding)
 	}
 
 	// These functions can have significant load or crash if the string passed is too long.
-	if(strlen($string) < 1024*5)
+	if(SKIP_ENCODING_DETECTION != 1 && strlen($string) < 1024*5)
 	{
 		return (preg_match('#^(?:
               [\x09\x0A\x0D\x20-\x7E]
