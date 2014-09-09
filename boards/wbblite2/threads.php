@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Threads extends Converter_Module_Threads {
+class WBB3_Converter_Module_Threads extends Converter_Module_Threads {
 
 	var $settings = array(
 		'friendly_name' => 'threads',
@@ -36,7 +36,7 @@ class WBBLITE2_Converter_Module_Threads extends Converter_Module_Threads {
 	{
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['import_tid'] = $data['threadID'];
 		$insert_data['sticky'] = $data['isSticky'];
 		$insert_data['fid'] = $this->get_import->fid($data['boardID']);

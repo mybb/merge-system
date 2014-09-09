@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
+class WBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	var $settings = array(
 		'friendly_name' => 'usergroups',
@@ -117,7 +117,7 @@ class WBBLITE2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 	{
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['import_gid'] = $data['groupId'];
 		$insert_data['type'] = 2; // Custom usergroup
 		$insert_data['title'] = $data['groupName'];
@@ -138,6 +138,18 @@ class WBBLITE2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data['canvotepolls'] = $data['canVotePoll'];
 		$insert_data['canpostpolls'] = $data['canStartPoll'];
 		$insert_data['issupermod'] = $data['isSuperMod'];
+
+		// These values are only available on WBB 3
+		if(isset($data['showOnTeamPage']))
+		{
+			$insert_data['showforumteam'] = $data['showOnTeamPage'];
+			$insert_data['namestyle'] = str_replace("%s", "{username}", $data['userOnlineMarking']);
+			
+			if(!empty($data['groupDescription']))
+			{
+				$insert_data['description'] = $data['groupDescription'];
+			}
+		}
 
 		return $insert_data;
 	}

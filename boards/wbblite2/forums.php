@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Forums extends Converter_Module_Forums {
+class WBB3_Converter_Module_Forums extends Converter_Module_Forums {
 
 	var $settings = array(
 		'friendly_name' => 'forums',
@@ -39,7 +39,7 @@ class WBBLITE2_Converter_Module_Forums extends Converter_Module_Forums {
 	{
 		$insert_data = array();
 
-		// WBB Lite 2 Values
+		// WBB 3 Values
 		$insert_data['import_fid'] = $data['boardID'];
 		$insert_data['name'] = encode_to_utf8($this->fix_ampersand($data['title']), WBB_PREFIX."board", "forums");
 		$insert_data['description'] = encode_to_utf8($this->bbcode_parser->convert($data['description']), WBB_PREFIX."board", "forums");

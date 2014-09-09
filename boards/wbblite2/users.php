@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
+class WBB3_Converter_Module_Users extends Converter_Module_Users {
 
 	var $settings = array(
 		'friendly_name' => 'users',
@@ -121,7 +121,7 @@ class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
 	{
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true));
 
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true, "original" => true));
@@ -176,7 +176,7 @@ class WBBLITE2_Converter_Module_Users extends Converter_Module_Users {
 
 		$this->enc_options['password'] = $data['password'];
 		$insert_data['passwordconvert'] = serialize($this->enc_options);
-		$insert_data['passwordconverttype'] = 'wbblite';
+		$insert_data['passwordconverttype'] = 'wbb3';
 		$insert_data['passwordconvertsalt'] = $data['salt'];
 		$insert_data['loginkey'] = generate_loginkey();
 

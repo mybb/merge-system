@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
+class WBB3_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
 
 	var $settings = array(
 		'friendly_name' => 'private messages',
@@ -38,7 +38,7 @@ class WBBLITE2_Converter_Module_Privatemessages extends Converter_Module_Private
 
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['fromid'] = $this->get_import->uid($data['userID']);
 		$insert_data['subject'] = encode_to_utf8($data['subject'], WCF_PREFIX."pm", "privatemessages");
 		$insert_data['dateline'] = $data['time'];

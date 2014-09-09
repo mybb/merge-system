@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
+class WBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 	var $settings = array(
 		'friendly_name' => 'poll votes',
@@ -57,7 +57,7 @@ class WBBLITE2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['pid'] = $this->pid_cache[$data['pollID']]['pid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userID']);
 		$insert_data['dateline'] = $this->pid_cache[$data['pollID']]['dateline'];

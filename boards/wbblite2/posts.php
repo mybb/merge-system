@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter_Module_Posts extends Converter_Module_Posts {
+class WBB3_Converter_Module_Posts extends Converter_Module_Posts {
 
 	var $settings = array(
 		'friendly_name' => 'posts',
@@ -47,7 +47,7 @@ class WBBLITE2_Converter_Module_Posts extends Converter_Module_Posts {
 	{
 		$insert_data = array();
 
-		// WBB Lite 2 values
+		// WBB 3 values
 		$insert_data['import_pid'] = $data['postID'];
 		$insert_data['tid'] = $this->get_import->tid($data['threadID']);
 

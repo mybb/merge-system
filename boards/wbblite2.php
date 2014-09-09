@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBBLITE2_Converter extends Converter
+class WBB3_Converter extends Converter
 {
 	/**
 	 * The installationnumber which can be set during configuration
@@ -28,14 +28,14 @@ class WBBLITE2_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "WoltLab Burning Board Lite 2";
+	var $bbname = "WoltLab Burning Board 3 or Lite 2";
 
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "WBB Lite 2";
+	var $plain_bbname = "WBB 3 / Lite 2";
 
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
@@ -77,7 +77,7 @@ class WBBLITE2_Converter extends Converter
 	var $hide_table_prefix = true;
 	
 	/**
-	 * An array of wbblite -> mybb groups
+	 * An array of wbb -> mybb groups
 	 * 
 	 * @var array
 	 */
@@ -113,7 +113,7 @@ class WBBLITE2_Converter extends Converter
 	}
 
 	/**
-	 * Convert a WBB Lite group ID into a MyBB group ID
+	 * Convert a WBB group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
 	 * @param array Options for retreiving the group ids
