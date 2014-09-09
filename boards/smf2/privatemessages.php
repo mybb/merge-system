@@ -44,6 +44,7 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data = array();
 
 		$query = $this->old_db->simple_select("pm_recipients", "id_member", "id_pm = '{$data['id_pm']}'");
+		$recip_list = array();
 		while($recip = $this->old_db->fetch_field($query, 'id_member'))
 		{
 			$recip_list[] = $recip;
