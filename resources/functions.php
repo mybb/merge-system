@@ -1039,6 +1039,31 @@ function get_time_format($format, $add='')
 	return $timeformat;
 }
 
+// Converts a String timezone (Europe/Berlin) to a MyBB number
+function get_timezone($zone)
+{
+	$time = new \DateTime('now', new DateTimeZone($zone));
+	$off = $time->format('P');
+	
+	list($h, $m) = explode(":", $off);
+	
+	$v = substr($h, 0, 1);
+	$h = substr($h, 1);
+	
+	if(substr($h, 0, 1) == 0)
+	    $h = substr($h, 1);
+	
+	if($m == 30)
+	    $h .= ".5";
+	else if($m == 45)
+	    $h .= ".75";
+	
+	if($v == "-")
+	    $h = "-{$h}";
+	
+	return $h;
+}
+
 // Used if a BBCode conversion parser isn't available for that bulletin board software
 class dummyParser
 {
