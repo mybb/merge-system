@@ -59,6 +59,32 @@ class XENFORO_Converter extends Converter
 						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
+
+	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "ip";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "xf_";
+
+	/**
+	 * An array of punbb -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_GUESTS, // Guests
+		2 => MYBB_REGISTERED, // Registered
+		3 => MYBB_ADMINS, // Administrators
+		4 => MYBB_MODS, // Moderators
+	);
 	
 	/**
 	 * Convert a XF group ID into a MyBB group ID
@@ -69,68 +95,27 @@ class XENFORO_Converter extends Converter
 	 */
 	function get_group_id($gid, $options=array())
 	{
-		$settings = array();
-		if($options['not_multiple'] == false)
+		$query = $this->old_db->simple_select("user_group", "*", "user_group_id='{$gid}'");
+		if(!$query)
 		{
-			$query = $this->old_db->simple_select("usergroup", "COUNT(*) as rows", "usergroupid='{$gid}'");
-			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
-			$this->old_db->free_result($query);
+			return MYBB_REGISTERED;
 		}
-		
-		$query = $this->old_db->simple_select("usergroup", "*", "usergroupid='{$gid}'", $settings);
-		
-		$comma = $group = '';
-		while($vbgroup = $this->old_db->fetch_array($query))
+
+		$groups = array();
+		while($xfgroup = $this->old_db->fetch_array($query))
 		{
 			if($options['original'] == true)
 			{
-				$group .= $vbgroup['usergroupid'].$comma;
+				$groups[] = $xfgroup['user_group_id'];
 			}
 			else
 			{
-				$group .= $comma;
-				switch($vbgroup['usergroupid'])
-				{
-					case 1: // Guests
-						$group .= 1;
-						break;
-					case 2: // Register
-					case 4: // Registered coppa
-						$group .= 2;
-						break;
-					case 3: // Awaiting activation
-						$group .= 5;
-						break;
-					case 5: // Super moderator
-						$group .= 3;
-						break;
-					case 6: // Administrator
-						$group .= 4;
-						break;
-					default:
-						$gid = $this->get_import->gid($vbgroup['usergroupid']);
-						if($gid > 0)
-						{
-							// If there is an associated custom group...
-							$group .= $gid;
-						}
-						else
-						{
-							// The lot
-							$group .= 2;
-						}
-				}			
+				$groups[] = $this->get_gid($xfgroup['user_group_id']);
 			}
-			$comma = ',';
 		}
-		
-		if(!$query)
-		{
-			return 2; // Return regular registered user.
-		}			
-		
+
 		$this->old_db->free_result($query);
-		return $group;
+		return implode(',', array_unique($groups));
 	}
 }
 
