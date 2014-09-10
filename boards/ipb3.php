@@ -20,7 +20,7 @@ class IPB3_Converter extends Converter {
 	 *
 	 * @var string
 	 */
-	var $bbname = "Invision Power Board 3 (Beta)";
+	var $bbname = "Invision Power Board 3";
 
 	/**
 	 * String of the plain bulletin board name
@@ -70,12 +70,6 @@ class IPB3_Converter extends Converter {
 	 * @var String
 	 */
 	var $prefix_suggestion = "";
-	
-	// TODO: Check why only IPB has this array - do we really need this?
-	var $supported_versions = array(
-			'name' => 'IPB 3.x series',
-			'3.0.2' => 'IPB 3.0.2',
-		);
 
 	/**
 	 * An array of ipb3 -> mybb groups
