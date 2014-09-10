@@ -23,14 +23,14 @@ class XENFORO_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "Xenforo 1.1, 1.2, or 1.3";
+	var $bbname = "Xenforo 1";
 	
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "Xenforo 1.1, 1.2 and 1.3";
+	var $plain_bbname = "Xenforo 1";
 	
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
@@ -75,7 +75,7 @@ class XENFORO_Converter extends Converter
 	var $prefix_suggestion = "xf_";
 
 	/**
-	 * An array of punbb -> mybb groups
+	 * An array of xenforo -> mybb groups
 	 *
 	 * @var array
 	 */

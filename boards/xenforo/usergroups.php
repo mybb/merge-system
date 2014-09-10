@@ -19,7 +19,7 @@ class XENFORO_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	var $settings = array(
 		'friendly_name' => 'usergroups',
-		'progress_column' => 'usergroupid',
+		'progress_column' => 'user_group_id',
 		'default_per_screen' => 1000,
 	);
 
@@ -28,13 +28,13 @@ class XENFORO_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		global $import_session, $db;
 			
 		// Get only non-staff groups.
-		$query = $this->old_db->simple_select("user_group", "*", "user_group_id", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
+		$query = $this->old_db->simple_select("user_group", "*", "user_group_id > 4", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
 			$gid = $this->insert($group);
 			
 			// Restore connections
-			$db->update_query("users", array('user_group' => $gid), "import_usergroup = '2".intval($group['user_group_id'])."' OR import_displaygroup = '2".intval($group['user_group_id'])."'");
+			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '".intval($group['user_group_id'])."' OR import_displaygroup = '".intval($group['user_group_id'])."'");
 		}
 	}
 	
@@ -43,12 +43,9 @@ class XENFORO_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data = array();
 		
 		// Xenforo 1 values
-		$insert_data['import_gid'] = $data['usergroupid'];
+		$insert_data['import_gid'] = $data['user_group_id'];
 		$insert_data['title'] = $data['title'];
-		$insert_data['description'] = $data['description'];
-		$insert_data['pmquota'] = $data['pmquota'];
-		$insert_data['maxpmrecipients'] = $data['pmsendmax'];
-		$insert_data['attachquota'] = $data['attachlimit'];
+		$insert_data['description'] = "XenForo imported usergroup";
 		
 		return $insert_data;
 	}
@@ -60,7 +57,7 @@ class XENFORO_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		// Get number of usergroups
 		if(!isset($import_session['total_usergroups']))
 		{
-			$query = $this->old_db->simple_select("user_group", "COUNT(*) as count", "user_group_id`='2");
+			$query = $this->old_db->simple_select("user_group", "COUNT(*) as count", "user_group_id > 4");
 			$import_session['total_usergroups'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

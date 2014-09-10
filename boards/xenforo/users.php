@@ -1,7 +1,7 @@
 ﻿<?php
 /**
  * MyBB 1.6
- * Copyright � 2009 MyBB Group, All Rights Reserved
+ * Copyright ? 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -19,9 +19,9 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 
 	var $settings = array(
 		'friendly_name' => 'users',
-		'progress_column' => 'userid',
+		'progress_column' => 'user_id',
 		'encode_table' => 'user',
-		'postnum_column' => 'posts',
+		'postnum_column' => 'posts', // TODO: Search it!
 		'username_column' => 'username',
 		'email_column' => 'email',
 		'default_per_screen' => 1000,
@@ -32,15 +32,14 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session;
 		
 		// Get members
-		$query = $this->old_db->simple_select("user", "*", "", array('order_by' => 'user_id', 'order_dir' => 'asc', 'limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
+		$query = $this->old_db->query("SELECT *
+				FROM ".OLD_TABLE_PREFIX."user u
+				LEFT JOIN ".OLD_TABLE_PREFIX."user_profile p ON(p.user_id=u.user_id)
+				LEFT JOIN ".OLD_TABLE_PREFIX."user_authenticate a ON(a.user_id=u.user_id)
+				LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}");
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
-		}
-		
-		if($this->old_db->num_rows($query) == 0)
-		{
-			$output->print_none_left_message();
 		}
 	}
 	
@@ -49,20 +48,20 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 		
 		// Xenforo 1 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroupid']));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['usergroupid'], array("original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['usergroupid'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['displaygroupid'];
-		$insert_data['import_uid'] = $data['userid'];
+		$insert_data['usergroup'] = $this->board->get_group_id($data['user_group_id'], array("not_multiple" => true));
+		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['user_group_id']));
+		$insert_data['displaygroup'] = $this->board->get_group_id($data['user_group_id'], array("not_multiple" => true));
+		$insert_data['import_usergroup'] = $this->board->get_group_id($data['user_group_id'], array("original" => true));
+		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['user_group_id'], array("original" => true));
+		$insert_data['import_displaygroup'] = $data['display_style_group_id'];
+		$insert_data['import_uid'] = $data['user_id'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "user", "users");
 		$insert_data['email'] = $data['email'];
-		$insert_data['regdate'] = $data['joindate'];
-		$insert_data['lastactive'] = $data['lastactivity'];
-		$insert_data['lastvisit'] = $data['lastvisit'];
-		$insert_data['website'] = $data['homepage'];
-		$avatar = $this->get_avatar($data['avatarid']);
+		$insert_data['regdate'] = $data['register_date'];
+		$insert_data['lastactive'] = $data['last_activity'];
+		$insert_data['lastvisit'] = $data['last_activity'];
+		// TODO!
+/*		$avatar = $this->get_avatar($data['avatarid']);
 		if(!$avatar)
 		{
 			$customavatar = $this->get_custom_avatar($data['userid']);
@@ -79,71 +78,29 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['avatardimensions'] = $width.'|'.$height;			
 			$insert_data['avatar'] = $avatar['avatarpath'];
 			$insert_data['avatartype'] = 'remote';
-		}
-		$insert_data['lastpost'] = $data['lastpost'];
-		$data['birthday'] = trim($data['birthday']);
-		if(!empty($data['birthday']))
+		}*/
+		$insert_data['website'] = $data['homepage'];
+		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "user", "users");
+		if($data['dob_day'] != 0 && $data['dob_month'] != 0)
 		{
-			$insert_data['birthday'] = $data['birthday'];
+			$insert_data['birthday'] = $data['dob_day']."-".$data['dob_month']."-".$data['dob_year'];
 		}
-		$insert_data['icq'] = $data['icq'];
-		$insert_data['aim'] = $data['aim'];
-		$insert_data['yahoo'] = $data['yahoo'];
-		$insert_data['msn'] = $data['msn'];				
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);						
-		$insert_data['style'] = 0;				
-		$insert_data['referrer'] = $data['referrerid'];				
-		$insert_data['regip'] = $data['ipaddress'];				
-		$insert_data['totalpms'] = $data['pmtotal'];
-		$insert_data['unreadpms'] = $data['pmunread'];
-		$insert_data['passwordconvert'] = $data['password'];
-		$insert_data['passwordconverttype'] = 'sha1';
-		$insert_data['passwordconvertsalt'] = $data['salt'];
-		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($this->get_signature($data['userid'])), "user", "users");
-		
+		$insert_data['timezone'] = get_timezone($data['timezone']);
+		// TODO: Research
+		$insert_data['regip'] = $data['ipaddress'];
+
+		if($data['scheme_class'] == "XenForo_Authentication_Core")
+		{
+			$insert_data['passwordconverttype'] = "xf";
+		}
+		else if($data['scheme_class'] == "XenForo_Authentication_Core12")
+		{
+			$insert_data['passwordconverttype'] = "xf12"; // Yeah, they changed their password hashing method in a minor release...
+		}
+		$password_data = unserialize($data['data']);
+		$insert_data['passwordconvert'] = $password_data['hash'];
+
 		return $insert_data;
-	}
-	
-	/**
-	 * Get a avatar from the xF database
-	 *
-	 * @param int Avatar ID
-	 * @return array The avatar
-	 */
-	function get_avatar($aid)
-	{
-		$aid = intval($aid);
-		$query = $this->old_db->simple_select("avatar", "*", "avatarid = '{$aid}'");		
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-		
-		return $results;
-	}
-	
-	/**
-	 * Get a avatar from the xF database
-	 *
-	 * @param int Avatar ID
-	 * @return array The avatar
-	 */
-	function get_custom_avatar($uid)
-	{
-		$uid = intval($uid);
-		$query = $this->old_db->simple_select("customavatar", "*", "userid = '{$uid}'");		
-		return $this->old_db->fetch_array($query);
-	}
-	
-	/**
-	 * Get a signature from a user in the xF database
-	 *
-	 * @param int User ID
-	 * @return array The signature
-	 */
-	function get_signature($userid)
-	{
-		$userid = intval($userid);
-		$query = $this->old_db->simple_select("usertextfield", "signature", "userid = '{$userid}'", array('limit' => 1));
-		return $this->old_db->fetch_field($query, "signature");
 	}
 	
 	function fetch_total()
