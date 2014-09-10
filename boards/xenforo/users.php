@@ -1,12 +1,10 @@
 ﻿<?php
 /**
- * MyBB 1.6
- * Copyright ? 2009 MyBB Group, All Rights Reserved
+ * MyBB 1.8 Merge System
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
-  * License: http://www.mybb.com/about/license
- *
- * $Id: users.php 4397 2011-01-01 15:49:46Z ralgith $
+ * License: http://www.mybb.com/download/merge-system/license/
  */
 
 // Disallow direct access to this file for security reasons
