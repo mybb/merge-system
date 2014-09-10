@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
+class VBULLETIN4_Converter_Module_Settings extends Converter_Module_Settings {
 
 	var $settings = array(
 		'friendly_name' => 'settings',
@@ -114,7 +114,7 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 		$query = $this->old_db->simple_select("setting", "varname, value", "varname IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
-			// vBulletin 3.6 values
+			// vBulletin 4 values
 			$name = $this->convert_settings[$setting['varname']];
 			$value = $setting['value'];
 
