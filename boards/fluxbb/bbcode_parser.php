@@ -25,8 +25,11 @@ class BBCode_Parser {
 	 */
 	 function convert($text)
 	 {
-	 	$text = preg_replace("#\[center](.*?)\[/center\]#i", "[align=center]$1[/align]", $text);
-		$text = preg_replace("#\[large\](.*?)\[/large\]#i", "[size=large]$1[/size]", $text);
+	 	// BBPress uses a closing tag for list items which we need to remove
+		$text = preg_replace("#\[list=\*\]#i", "[list]", $text);
+		$text = preg_replace("#\[\*\](.*?)\[/\*\]#i", "[*]$1", $text);
+	 	// Img tags can have an alt attribute: [img=alt]link[/img]
+		$text = preg_replace("#\[img=(.*?)\](.*?)\[/img\]#i", "[img]$2[/img]", $text);
 		
 		return $text;
 	 }

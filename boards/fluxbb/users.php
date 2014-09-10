@@ -98,10 +98,9 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
-		$insert_data['msn'] = $data['msn'];
 		$insert_data['hideemail'] = $data['email_setting'];
 		$insert_data['allownotices'] = $data['notify_with_post'];
-		$insert_data['regip'] = $data['registration_ip'];
+		$insert_data['regip'] = my_inet_pton($data['registration_ip']);
 		$insert_data['passwordconvertsalt'] = $data['salt'];
 		$insert_data['passwordconvert'] = $data['password'];
 		$insert_data['passwordconverttype'] = 'fluxbb';

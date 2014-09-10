@@ -58,7 +58,7 @@ class PUNBB_Converter extends Converter
 	 *
 	 * @var String
 	 */
-	var $check_table = "groups";
+	var $check_table = "extensions";
 
 	/**
 	 * The table prefix we suggest to use
