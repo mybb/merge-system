@@ -118,7 +118,7 @@ class PUNBB_Converter extends Converter
 		}
 		else
 		{
-			return $this->get_gid($punbbgroup['g_id']);
+			return $this->get_gid($gid);
 		}
 	}
 }
