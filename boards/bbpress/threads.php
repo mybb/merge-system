@@ -17,20 +17,36 @@ class BBPRESS_Converter_Module_Threads extends Converter_Module_Threads {
 
 	var $settings = array(
 		'friendly_name' => 'threads',
-		'progress_column' => 'topic_id',
+		'progress_column' => 'ID',
 		'default_per_screen' => 1000,
 	);
 
-	var $get_poll_pid_cache = array();
-
 	function import()
 	{
-		global $import_session;
+		global $import_session, $db;
 
-		$query = $this->old_db->simple_select("topics", "*", "topic_status != '1'", array('order_by' => 'topic_id', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
+		$query = $this->old_db->simple_select("posts", "*", "post_type='topic'", array('order_by' => 'ID', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
-			$this->insert($thread);
+			$ipquery = $this->old_db->simple_select("postmeta", "meta_value", "meta_key='_bbp_author_ip' AND post_id='{$thread['ID']}'");
+			$thread['ip'] = $this->old_db->fetch_field($ipquery, "meta_value");
+			$tid = $this->insert($thread);
+
+			// The thread is the firstpost and isn't saved as extra post - but we do that so create it here
+			$post = array(
+				"tid"			=> (int)$tid,
+				"fid"			=> (int)$this->get_import->fid($thread['post_parent']),
+				"subject"		=> $db->escape_string(encode_to_utf8($this->bbcode_parser->convert_title($thread['post_title']), "posts", "threads")),
+				"uid"			=> (int)$this->get_import->uid($thread['post_author']),
+				"username"		=> $db->escape_string($this->get_import->username($thread['post_author'])),
+				"dateline"		=> (int)strtotime($thread['post_date']),
+				"message"		=> $db->escape_string(encode_to_utf8($this->bbcode_parser->convert($thread['post_content']), "posts", "posts")),
+				"ipaddress"		=> $db->escape_binary(my_inet_pton($thread['ip'])),
+				"includesig"	=> 1,
+				"visible"		=> 1
+			);
+			$this->debug->log->datatrace('$post', $post);
+			$db->insert_query("posts", $post);
 		}
 	}
 
@@ -39,18 +55,12 @@ class BBPRESS_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data = array();
 
 		// bbPress values
-		$insert_data['import_tid'] = $data['topic_id'];
-		$insert_data['sticky'] = $data['topic_sticky'];
-		$insert_data['fid'] = $this->get_import->fid($data['forum_id']);
-		$insert_data['dateline'] = strtotime($data['topic_start_time']);
-		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert_title($data['topic_title']), "topics", "threads");
-		$insert_data['uid'] = $this->get_import->uid($data['topic_poster']);
-		$insert_data['import_uid'] = $data['topic_poster'];
-		$insert_data['closed'] = '0';
-		if ($data['topic_open'] = '0')
-		{
-			$insert_data['closed'] = '1';
-		}
+		$insert_data['import_tid'] = $data['ID'];
+		$insert_data['fid'] = $this->get_import->fid($data['post_parent']);
+		$insert_data['dateline'] = strtotime($data['post_date']);
+		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert_title($data['post_title']), "posts", "threads");
+		$insert_data['uid'] = $this->get_import->uid($data['post_author']);
+		$insert_data['import_uid'] = $data['post_author'];
 
 		return $insert_data;
 	}
@@ -62,7 +72,7 @@ class BBPRESS_Converter_Module_Threads extends Converter_Module_Threads {
 		// Get number of threads
 		if(!isset($import_session['total_threads']))
 		{
-			$query = $this->old_db->simple_select("topics", "COUNT(*) as count", "topic_status != '1'");
+			$query = $this->old_db->simple_select("posts", "COUNT(*) as count", "post_type='topic'");
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
