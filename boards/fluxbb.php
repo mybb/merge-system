@@ -30,7 +30,7 @@ class FLUXBB_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "fluxBB 1";
+	var $plain_bbname = "FluxBB 1";
 	
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
@@ -56,7 +56,33 @@ class FLUXBB_Converter extends Converter
 						);
 	
 	/**
-	 * Get a user from the fluxBB database
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var String
+	 */
+	var $check_table = "topic_subscriptions";
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var String
+	 */
+	var $prefix_suggestion = "fluxbb_";
+
+	/**
+	 * An array of punbb -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array(
+		1 => MYBB_ADMINS, // Administrators
+		2 => MYBB_MODS, // Moderators
+		3 => MYBB_GUESTS, // Guests
+		4 => MYBB_REGISTERED, // Registered
+	);
+
+	/**
+	 * Get a user from the FluxBB database
 	 *
 	 * @param string Username
 	 * @return array If the uid is 0, returns an array of username as Guest.  Otherwise returns the user
@@ -80,7 +106,7 @@ class FLUXBB_Converter extends Converter
 	}
 	
 	/**
-	 * Convert a fluxBB group ID into a MyBB group ID
+	 * Convert a FluxBB group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
 	 * @param array Options for retreiving the group ids
@@ -88,53 +114,13 @@ class FLUXBB_Converter extends Converter
 	 */
 	function get_group_id($gid, $options=array())
 	{
-		static $groupcache;
-		if(!isset($groupcache))
+		if($options['original'] == true)
 		{
-			$groupcache = array();
-			$query = $this->old_db->simple_select("groups", "g_id");
-			while($fluxbbgroup = $this->old_db->fetch_array($query))
-			{
-				switch($fluxbbgroup['g_id'])
-				{
-					case 1: // Administrator
-						$group = 4;
-						break;
-					case 2: // Moderator
-						$group = 6;
-						break;
-					case 3: // Guest
-						$group = 1;
-						break;
-					case 4: // Member
-						$group = 2;
-						break;
-					default:
-						$group = $this->get_import->gid($fluxbbgroup['g_id']);
-						if($group <= 0)
-						{
-							// The lot
-							$group = 2;
-						}
-				}
-				$groupcache[$fluxbbgroup['g_id']] = $group;
-			}
-		}
-		
-		if(isset($groupcache[$gid]))
-		{
-			if($options['original'] == true)
-			{
-				return $gid;
-			}
-			else
-			{
-				return $groupcache[$gid];
-			}
+			return $gid;
 		}
 		else
 		{
-			return 2; // Return regular registered user.
+			return $this->get_gid($gid);
 		}
 	}
 }
