@@ -46,16 +46,15 @@ class XENFORO_Converter extends Converter
 						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration"),
 						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration,import_users"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
-						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
-						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
-						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
+//						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
+//						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
-						 "import_moderators" => array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
-						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
-						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
-						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users"),
-						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
+//						 "import_moderators" => array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
+//						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
+//						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
+//						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users"),
+//						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
 	/**

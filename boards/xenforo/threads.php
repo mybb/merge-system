@@ -17,7 +17,7 @@ class XENFORO_Converter_Module_Threads extends Converter_Module_Threads {
 
 	var $settings = array(
 		'friendly_name' => 'threads',
-		'progress_column' => 'threadid',
+		'progress_column' => 'thread_id',
 		'default_per_screen' => 1000,
 	);
 
@@ -25,7 +25,7 @@ class XENFORO_Converter_Module_Threads extends Converter_Module_Threads {
 	{
 		global $import_session;
 		
-		$query = $this->old_db->simple_select("thread", "*", "", array('order_by' => 'firstpostid', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
+		$query = $this->old_db->simple_select("thread", "*", "", array('limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
 			$this->insert($thread);		
@@ -37,34 +37,17 @@ class XENFORO_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data = array();
 		
 		// Xenforo 1 values
-		$insert_data['import_tid'] = $data['threadid'];
+		$insert_data['import_tid'] = $data['thread_id'];
 		$insert_data['sticky'] = $data['sticky'];
-		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
-		$insert_data['import_firstpost'] = $data['firstpostid'];
-		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['subject'] = encode_to_utf8(str_replace('&quot;', '"', $data['title']), "thread", "threads");
-		$insert_data['import_poll'] = $data['pollid'];
-		$insert_data['uid'] = $this->get_import->uid($data['postuserid']);
-		$insert_data['import_uid'] = $data['postuserid'];
-		$insert_data['views'] = $data['views'];
-		$insert_data['closed'] = int_to_01($data['open']);
-						
-		if($insert_data['closed'] == 'no')
-		{
-			$insert_data['closed'] = '';
-		}
-		
-		if($data['open'] == '10')
-		{
-			$insert_data['closed'] = 'moved|'.$this->get_import->tid($data['pollid']);
-		}
-		
-		$insert_data['totalratings'] = $data['votetotal'];
-		$insert_data['notes'] = $data['notes'];
-		$insert_data['visible'] = $data['visible'];
-		$insert_data['numratings'] = $data['votenum'];
-		$insert_data['attachmentcount'] = $data['attach'];
-				
+		$insert_data['fid'] = $this->get_import->fid($data['node_id']);
+		$insert_data['import_firstpost'] = $data['first_post_id'];
+		$insert_data['dateline'] = $data['post_date'];
+		$insert_data['subject'] = encode_to_utf8($data['title'], "thread", "threads");
+		$insert_data['uid'] = $this->get_import->uid($data['user_id']);
+		$insert_data['import_uid'] = $data['user_id'];
+		$insert_data['views'] = $data['view_count'];
+		$insert_data['replies'] = $data['reply_count'];
+
 		return $insert_data;
 	}
 	

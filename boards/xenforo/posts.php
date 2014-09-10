@@ -17,7 +17,7 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 
 	var $settings = array(
 		'friendly_name' => 'posts',
-		'progress_column' => 'postid',
+		'progress_column' => 'post_id',
 		'default_per_screen' => 1000,
 		'check_table_type' => 'post',
 	);
@@ -38,23 +38,19 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 		global $db;
 		
 		// Xenforo 1 values
-		$insert_data['import_pid'] = $data['postid'];
-		$insert_data['tid'] = $this->get_import->tid($data['threadid']);
-		$thread = $this->get_thread($data['threadid']);				
-		$insert_data['fid'] = $this->get_import->fid($thread['forumid']);
-		$insert_data['subject'] = encode_to_utf8(str_replace('&quot;', '"', $thread['title']), "thread", "posts");
-		$insert_data['visible'] = $data['visible'];
-		$insert_data['uid'] = $this->get_import->uid($data['userid']);
-		$insert_data['import_uid'] = $data['userid'];
+		$insert_data['import_pid'] = $data['post_id'];
+		$insert_data['tid'] = $this->get_import->tid($data['thread_id']);
+		// TODO: LEFT JOIN above is nicer
+		$thread = $this->get_thread($data['thread_id']);
+		$insert_data['fid'] = $this->get_import->fid($thread['node_id']);
+		$insert_data['subject'] = encode_to_utf8($thread['title'], "thread", "posts");
+		$insert_data['uid'] = $this->get_import->uid($data['user_id']);
+		$insert_data['import_uid'] = $data['user_id'];
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
-		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['pagetext']), "post", "posts");
-		$insert_data['ipaddress'] = $data['ipaddress'];
-		$edit = $this->get_editlog($data['postid']);
-		$insert_data['edituid'] = $this->get_import->uid($edit['userid']);
-		$insert_data['edittime'] = $edit['dateline'];
-		$insert_data['includesig'] = $data['showsignature'];
-		$insert_data['smilieoff'] = int_to_01($data['allowsmilie']);
+		$insert_data['dateline'] = $data['post_date'];
+		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "post", "posts");
+		// TODO: ip's are handled in a seperate table, look how exactly
+		//$insert_data['ipaddress'] = $data['ipaddress'];
 		
 		return $insert_data;
 	}
@@ -83,23 +79,7 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 	function get_thread($tid)
 	{
 		$tid = intval($tid);
-		$query = $this->old_db->simple_select("thread", "forumid,title", "threadid = '{$tid}'", array('limit' => 1));
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-		
-		return $results;
-	}
-	
-	/**
-	 * Get a edit log from the vB database
-	 *
-	 * @param int Post ID
-	 * @return array The edit log
-	 */
-	function get_editlog($pid)
-	{
-		$pid = intval($pid);
-		$query = $this->old_db->simple_select("editlog", "userid,dateline", "postid = '{$pid}'", array('limit' => 1));
+		$query = $this->old_db->simple_select("thread", "forum_id,title", "threadid = '{$tid}'", array('limit' => 1));
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
 		
