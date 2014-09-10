@@ -28,7 +28,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
 		{
-			$query = $this->old_db->simple_select("conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
+			$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'conf_value');
 			$this->old_db->free_result($query);
 		}
@@ -67,10 +67,11 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data = array();
 
-		// Invision Power Board 2 values
-		$insert_data['import_aid'] = $data['attach_id'];
+		// Invision Power Board 3 values
+		// TODO: look whether attach_parent_id contains really the pid
+		$insert_data['import_aid'] = $data['attach_parent_id'];
 
-		$attach_details = $this->get_import->post_attachment_details($data['attach_pid']);
+		$attach_details = $this->get_import->post_attachment_details($data['attach_parent_id']);
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
@@ -104,7 +105,6 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$insert_data['thumbnail'] = '';
 		}
 
-		$insert_data['posthash'] = $data['attach_post_key'];
 		$insert_data['uid'] = $this->get_import->uid($data['attach_member_id']);
 		$insert_data['filename'] = $data['attach_file'];
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
