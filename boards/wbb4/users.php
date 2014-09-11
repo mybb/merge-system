@@ -99,6 +99,8 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 
 		// WBB 4 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true));
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['userID']);
+		$insert_data['displaygroup'] = $this->board->get_gid($data['userOnlineGroupID']);
 
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true, "original" => true));
 		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['userID'], array("original" => true));

@@ -121,7 +121,7 @@ class WBB4_Converter extends Converter
 	 */
 	function get_group_id($uid, $options=array())
 	{
-		$query = $this->old_db->simple_select(WCF_PREFIX."user_to_groups", "*", "userID = '{$uid}'");
+		$query = $this->old_db->simple_select(WCF_PREFIX."user_to_group", "*", "userID = '{$uid}'");
 		if(!$query)
 		{
 			return MYBB_REGISTERED;
