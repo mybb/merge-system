@@ -47,6 +47,20 @@ class IPB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		$insert_data['pid'] = $db->fetch_field($query, "pid");
 		$db->free_result($query);
 
+		$choices = unserialize($data['member_choices']);
+		$choices = $choices[1];
+		foreach($choices as $key => $choice)
+		{
+			$insert_data['voteoption'] = $choice;
+
+			// We're not going to insert the latest, the insert method will handle that one
+			if($key < count($choices)-1)
+			{
+				$insert_array = $this->prepare_insert_array($insert_data);
+				$db->insert_query("pollvotes", $insert_array);
+			}
+		}
+
 		return $insert_data;
 	}
 
