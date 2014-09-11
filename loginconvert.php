@@ -22,6 +22,7 @@ $valid_login_types = array(
 	"vb5"		=> "vb",		// Not yet supported but as vb doesn't change their hashing...
 	"ipb2"		=> "ipb",		// Module isn't supported anymore, but old merges may require it
 	"ipb3"		=> "ipb",
+	"ipb4"		=> "ipb4",
 	"smf"		=> "smf",		// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
 	"smf11"		=> "smf11",
 	"smf2"		=> "smf2",
@@ -108,14 +109,14 @@ function loginconvert_convert(&$login)
 	);
 
 	$user = get_user_by_username($login->data['username'], $options);
-	
+
 	// There's nothing to check for, let MyBB do everything
 	// This fails also when no user was found above, so no need for an extra check
 	if(!isset($user['passwordconvert']) || $user['passwordconvert'] == '')
 	{
 		return;
 	}
-	
+
 	if(!array_key_exists($user['passwordconverttype'], $valid_login_types))
 	{
 		// TODO: Is there an easy way to make the error translatable without adding a new language file?
@@ -125,7 +126,7 @@ function loginconvert_convert(&$login)
 	{
 		$function = "check_".$valid_login_types[$user['passwordconverttype']];
 		$check = $function($login->data['password'], $user);
-		
+
 		if(!$check)
 		{
 			// Yeah, that function is called later too, but we need to know whether the captcha is right
@@ -146,7 +147,7 @@ function loginconvert_convert(&$login)
 				"passwordconvert"		=> "",
 				"passwordconvertsalt"	=> "",
 			);
-			
+
 			$db->update_query("users", $update, "uid='{$user['uid']}'");
 
 			// Make sure the password isn't tested again
@@ -194,6 +195,16 @@ function check_ipb($password, $user)
 	return false;
 }
 
+function check_ipb4($password, $user)
+{
+	if($user['passwordconvert'] == crypt($password, '$2a$13$'.$user['passwordconvertsalt']))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 function check_smf($password, $user)
 {
 	if(crypt($password, substr($password, 0, 2)) == $user['passwordconvert'])
@@ -209,7 +220,7 @@ function check_smf($password, $user)
 		return true;
 	}
 
-	return false;	
+	return false;
 }
 
 function check_smf11($password, $user)
@@ -231,7 +242,7 @@ function check_smf11($password, $user)
 	{
 		return check_smf($password, $user);
 	}
-	
+
 	return false;
 }
 
@@ -254,7 +265,7 @@ function check_smf2($password, $user)
 	{
 		return check_smf($password, $user);
 	}
-	
+
 	return false;
 }
 
