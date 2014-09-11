@@ -843,30 +843,30 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	$board = new $class_name;
 
-	// List of statistics we'll be using
-	$import_stats = array(
-		'total_usergroups' => 'User Groups',
-		'total_users' => 'Users',
-		'total_cats' => 'Categories',
-		'total_forums' => 'Forums',
-		'total_forumperms' => 'Forum Permissions',
-		'total_mods' => 'Moderators',
-		'total_threads' => 'Threads',
-		'total_posts' => 'Posts',
-		'total_attachments' => 'Attachments',
-		'total_polls' => 'Polls',
-		'total_pollvotes' => 'Poll Votes',
-		'total_privatemessages' => 'Private Messages',
-		'total_events' => 'Events',
-		'total_settings' => 'Settings',
-	);
-
-	$post_data = array();
-
 	// Are we sending anonymous data from the conversion?
 	if($import_session['allow_anonymous_info'] == 1)
 	{
 		$debug->log->trace0("Sending anonymous data from the conversion");
+
+		// List of statistics we'll be using
+		$import_stats = array(
+			'total_usergroups' => 'User Groups',
+			'total_users' => 'Users',
+			'total_cats' => 'Categories',
+			'total_forums' => 'Forums',
+			'total_forumperms' => 'Forum Permissions',
+			'total_mods' => 'Moderators',
+			'total_threads' => 'Threads',
+			'total_posts' => 'Posts',
+			'total_attachments' => 'Attachments',
+			'total_polls' => 'Polls',
+			'total_pollvotes' => 'Poll Votes',
+			'total_privatemessages' => 'Private Messages',
+			'total_events' => 'Events',
+			'total_settings' => 'Settings',
+		);
+	
+		$post_data = array();
 
 		// Prepare data
 		$post_data['post'] = "1";
@@ -899,11 +899,11 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 		$post_data['end_date'] = $import_session['end_date'];
 		$post_data['board'] = $import_session['board'];
 		$post_data['return'] = "1";
-		$post_data['rev'] = $revision;
-	}
+		$post_data['rev'] = $version_code;
 
-	// Try and send statistics
-	merge_fetch_remote_file("http://www.mybb.com/stats/mergesystem.php", $post_data);
+		// Try and send statistics
+		merge_fetch_remote_file("http://community.mybb.com/merge_stats.php", $post_data);
+	}
 
 	$import_session['allow_anonymous_info'] = 0;
 
