@@ -602,7 +602,7 @@ if($mybb->input['board'])
 			$output->print_footer();
 		}
 
-		$plugins_cache = $cache->read("plugins");
+		$plugins_cache = $cache->read("plugins", true);
 		$active_plugins = $plugins_cache['active'];
 
 		$active_plugins['loginconvert'] = "loginconvert";
