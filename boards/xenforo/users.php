@@ -64,25 +64,6 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['regdate'] = $data['register_date'];
 		$insert_data['lastactive'] = $data['last_activity'];
 		$insert_data['lastvisit'] = $data['last_activity'];
-		// TODO!
-/*		$avatar = $this->get_avatar($data['avatarid']);
-		if(!$avatar)
-		{
-			$customavatar = $this->get_custom_avatar($data['userid']);
-			if(!$customavatar)
-			{	
-				$insert_data['avatardimensions'] = '';			
-				$insert_data['avatar'] = '';
-				$insert_data['avatartype'] = '';
-			}
-		}
-		else
-		{
-			list($width, $height) = @getimagesize($avatar['avatarpath']);
-			$insert_data['avatardimensions'] = $width.'|'.$height;			
-			$insert_data['avatar'] = $avatar['avatarpath'];
-			$insert_data['avatartype'] = 'remote';
-		}*/
 		$insert_data['website'] = $data['homepage'];
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "user", "users");
 		if($data['dob_day'] != 0 && $data['dob_month'] != 0)
@@ -90,8 +71,6 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['birthday'] = $data['dob_day']."-".$data['dob_month']."-".$data['dob_year'];
 		}
 		$insert_data['timezone'] = get_timezone($data['timezone']);
-		// TODO: Research
-//		$insert_data['regip'] = $data['ipaddress'];
 
 		if($data['scheme_class'] == "XenForo_Authentication_Core")
 		{

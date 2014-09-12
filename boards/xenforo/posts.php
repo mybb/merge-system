@@ -26,9 +26,10 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 	{
 		global $import_session;
 		
-		$query = $this->old_db->query("SELECT p.*, t.node_id, t.title
+		$query = $this->old_db->query("SELECT p.*, t.node_id, t.title, i.ip
 				FROM ".OLD_TABLE_PREFIX."post p
 				LEFT JOIN ".OLD_TABLE_PREFIX."thread t ON(t.thread_id=p.thread_id)
+				LEFT JOIN ".OLD_TABLE_PREFIX."ip i ON(i.ip_id=p.ip_id)
 				LIMIT {$this->trackers['start_posts']}, {$import_session['posts_per_screen']}");
 		while($post = $this->old_db->fetch_array($query))
 		{
@@ -50,9 +51,8 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
 		$insert_data['dateline'] = $data['post_date'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "post", "posts");
-		// TODO: ip's are handled in a seperate table, look how exactly
-		//$insert_data['ipaddress'] = $data['ipaddress'];
-		
+		$insert_data['ipaddress'] = $data['ip'];
+
 		return $insert_data;
 	}
 	

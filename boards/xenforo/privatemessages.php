@@ -29,6 +29,7 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			SELECT * 
 			FROM ".OLD_TABLE_PREFIX."conversation_message m
 			LEFT JOIN ".OLD_TABLE_PREFIX."conversation_master c ON(c.conversation_id=m.conversation_id)
+			LEFT JOIN ".OLD_TABLE_PREFIX."ip i ON(i.ip_id=m.ip_id)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
 		);			
 		while($pm = $this->old_db->fetch_array($query))
@@ -46,6 +47,7 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		$insert_data['subject'] = encode_to_utf8($data['title'], "conversation_master", "privatemessages");
 		$insert_data['dateline'] = $data['message_date'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "conversation_message", "privatemessages");
+		$insert_data['ipaddress'] = $data['ip'];
 
 		// Now build our recipients list
 		$rec_query = $this->old_db->simple_select("conversation_recipient", "*", "conversation_id='{$data['conversation_id']}' AND user_id!='{$data['user_id']}'");
