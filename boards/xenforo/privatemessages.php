@@ -17,7 +17,7 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 
 	var $settings = array(
 		'friendly_name' => 'private messages',
-		'progress_column' => 'pmid',
+		'progress_column' => 'message_id',
 		'default_per_screen' => 1000,
 	);
 
@@ -25,16 +25,16 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 	{
 		global $import_session;
 		
-			$query = $this->old_db->query("
-				SELECT * 
-				FROM ".OLD_TABLE_PREFIX."pm p
-				LEFT JOIN ".OLD_TABLE_PREFIX."pmtext pt ON(p.pmtextid=pt.pmtextid)
-				LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
-			);			
-			while($pm = $this->old_db->fetch_array($query))
-			{
-				$this->insert($pm);
-			}
+		$query = $this->old_db->query("
+			SELECT * 
+			FROM ".OLD_TABLE_PREFIX."conversation_message m
+			LEFT JOIN ".OLD_TABLE_PREFIX."conversation_master c ON(c.conversation_id=m.conversation_id)
+			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
+		);			
+		while($pm = $this->old_db->fetch_array($query))
+		{
+			$this->insert($pm);
+		}
 	}
 	
 	function convert_data($data)
@@ -42,72 +42,68 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		global $db;
 		
 		// Xenforo 1 values
-		$insert_data['import_pmid'] = $data['pmid'];
-		$insert_data['uid'] = $this->get_import->uid($data['userid']);
-		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
-		$insert_data['toid'] = $this->get_import->uid($data['touserid']);
-		$touserarray = unserialize($data['touserarray']);
+		$insert_data['fromid'] = $this->get_import->uid($data['user_id']);
+		$insert_data['subject'] = encode_to_utf8($data['title'], "conversation_master", "privatemessages");
+		$insert_data['dateline'] = $data['message_date'];
+		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "conversation_message", "privatemessages");
 
-		// Rebuild the recipients array
-		$recipients = array();
-		if(is_array($touserarray['cc']) && !empty($touserarray['cc']))
+		// Now build our recipients list
+		$rec_query = $this->old_db->simple_select("conversation_recipient", "*", "conversation_id='{$data['conversation_id']}' AND user_id!='{$data['user_id']}'");
+		$to_send = $recipients = array();
+		while($rec = $this->old_db->fetch_array($rec_query))
 		{
-			foreach($touserarray['cc'] as $key => $to)
-			{
-				$username = $this->get_username($to);					
-				$recipients['to'][] = $this->get_import->uid($username['userid']);
-			}
+			$rec['user_id'] = $this->get_import->uid($rec['user_id']);
+			$to_send[] = $rec;
+			$recipients['to'][] = $rec['user_id'];
 		}
+
 		$insert_data['recipients'] = serialize($recipients);
-		
-		if($data['folderid'] == -1)
+
+		// Now save a copy for every user involved in this pm
+		// First one for the sender
+		$insert_data['uid'] = $insert_data['fromid'];
+		if(count($recipients['to']) == 1)
 		{
-			$insert_data['folder'] = 2;
+			$insert_data['toid'] = $recipients['to'][0];
 		}
 		else
 		{
-			$insert_data['folder'] = 0;
+			$insert_data['toid'] = 0; // multiple recipients
 		}
-		
-		$insert_data['subject'] = encode_to_utf8($data['subject'], "pm", "privatemessages");
-		$insert_data['status'] = $data['messageread'];
-		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
-		$insert_data['includesig'] = $data['showsignature'];
-		$insert_data['smilieoff'] = int_to_01($data['allowsmilie']);
-		
-		if($data['messageread'] == 1)
+		$insert_data['status'] = 1; // Read - of course
+		$insert_data['readtime'] = 0;
+		$insert_data['folder'] = 2; // Outbox
+
+		$data = $this->prepare_insert_array($insert_data);
+		unset($data['import_pmid']);
+		$db->insert_query("privatemessages", $data);
+
+		foreach($to_send as $key => $rec)
 		{
-			$insert_data['readtime'] = time();
+			$insert_data['uid'] = $rec['user_id'];
+			$insert_data['toid'] = $rec['user_id'];
+			// 0 -> unread
+			// 1 -> read
+			$insert_data['status'] = 0;
+			if($rec['last_read_date'] > $insert_data['dateline'])
+			{
+				$insert_data['status'] = 1;
+			}
+			$insert_data['readtime'] = $rec['last_read_date'];
+			$insert_data['folder'] = 1; // Inbox
+
+			// The last pm will be inserted by the main method, so we only insert x-1 here
+			if($key < count($to_send)-1)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
 		}
-		
+
 		return $insert_data;
 	}
-	
-	/**
-	 * Get a user from the vB database
-	 *
-	 * @param int Username
-	 * @return array If the username is empty, returns an array of username as Guest.  Otherwise returns the user
-	 */
-	function get_username($username)
-	{
-		if(empty($username))
-		{
-			return array(
-				'username' => 'Guest',
-				'userid' => 0,
-			);
-		}
-				
-		$query = $this->old_db->simple_select("user", "*", "username = '".$this->old_db->escape_string($username)."'", array('limit' => 1));
-		
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-		
-		return $results;
-	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
@@ -119,3 +115,5 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			$import_session['total_privatemessages'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
+	}
+}

@@ -17,7 +17,7 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 
 	var $settings = array(
 		'friendly_name' => 'polls',
-		'progress_column' => 'pollid',
+		'progress_column' => 'poll_id',
 		'default_per_screen' => 1000,
 	);
 	
@@ -27,13 +27,13 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 	{
 		global $import_session, $db;
 		
-		$query = $this->old_db->simple_select("poll", "*", "", array('limit_start' => $this->trackers['start_polls'], 'limit' => $import_session['polls_per_screen']));
+		$query = $this->old_db->simple_select("poll", "*", "content_type='thread'", array('limit_start' => $this->trackers['start_polls'], 'limit' => $import_session['polls_per_screen']));
 		while($poll = $this->old_db->fetch_array($query))
 		{
 			$pid = $this->insert($poll);
 			
 			// Restore connections
-			$db->update_query("threads", array('poll' => $pid), "import_poll = '".$poll['pollid']."'");
+			$db->update_query("threads", array('poll' => $pid), "import_tid = '".$poll['content_id']."'");
 		}
 	}
 	
@@ -44,40 +44,50 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data = array();
 		
 		// Xenforo values
-		$thread = $this->get_import_tid_poll($data['pollid']);
-		$votes = @explode('|||', $data['votes']);
+		$responses = unserialize($data['responses']);
+
+		$seperator = '';
+		$options = '';
+		$votes = '';
+		$vote_count = 0;
+		$options_count = 0;
+
+		foreach($responses as $response)
+		{
+			$options .= $seperator.$response['response'];
+			$votes .= $seperator.$response['response_vote_count'];
+			++$options_count;
+			$vote_count += $response['response_vote_count'];
+			$seperator = '||~|~||';
+		}
+
+		$poll_choices = array(
+			'options' => $options,
+			'votes' => $votes,
+			'options_count' => $options_count,
+			'vote_count' => $vote_count
+		);
 		
-		$insert_data['import_pid'] = $data['pollid'];
-		$insert_data['import_tid'] = $thread['import_tid'];
-		$insert_data['tid'] = $thread['tid'];
+		$insert_data['import_pid'] = $data['poll_id'];
+		$insert_data['import_tid'] = $data['content_id'];
+		$insert_data['tid'] = $this->get_import->tid($data['content_id']);
 		$insert_data['question'] = $data['question'];
-		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['options'] = str_replace('|||', '||~|~||', $data['options']);
-		$insert_data['votes'] = str_replace('|||', '||~|~||', $data['votes']);
-		$insert_data['numoptions'] = $data['numberoptions'];
-		$insert_data['numvotes'] = count($votes);
+		$insert_data['dateline'] = TIME_NOW;
+		$insert_data['options'] = $options;
+		$insert_data['votes'] = $votes;
+		$insert_data['numoptions'] = $options_count;
+		$insert_data['numvotes'] = $vote_count;
 		$insert_data['timeout'] = $data['timeout'];
 		$insert_data['multiple'] = $data['multiple'];
-		$insert_data['closed'] = int_to_01($data['active']);
-				
-		return $insert_data;
-	}
-	
-	function get_import_tid_poll($import_pid)
-	{
-		global $db;
 		
-		if(!$this->cache_tid_polls)
+		// XenForo saves the end timestamp, time for some math
+		if($data['close_date'] != 0)
 		{
-			$query = $db->simple_select("threads", "tid,import_tid,import_poll", "import_poll != 0");
-			while($thread = $db->fetch_array($query))
-			{
-				$this->cache_tid_polls[$thread['import_poll']] = array('tid' => $thread['tid'], 'import_tid' => $thread['import_tid']);
-			}
-			$db->free_result($query);
+			$period = $data['close_date'] - TIME_NOW; // Timeout in seconds
+			$insert_data['timeout'] = (int)($period / (24*3600));
 		}
 		
-		return $this->cache_tid_polls[$import_pid];
+		return $insert_data;
 	}
 	
 	function fetch_total()
@@ -87,7 +97,7 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 		// Get number of polls
 		if(!isset($import_session['total_polls']))
 		{
-			$query = $this->old_db->simple_select("poll", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("poll", "COUNT(*) as count", "content_type='thread'");
 			$import_session['total_polls'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

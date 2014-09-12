@@ -47,10 +47,16 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		
 		// Xenforo 1 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['user_group_id'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['user_group_id']));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['user_group_id'], array("not_multiple" => true));
+		$sec = explode(",", $data['secondary_group_ids']);
+		$groups = array();
+		foreach($sec as $gid)
+		{
+		    $groups[] = $this->board->get_group_id($gid);
+		}
+		$insert_data['additionalgroups'] = implode(",", $groups);
+		$insert_data['displaygroup'] = $this->board->get_gid($data['display_style_group_id']);
 		$insert_data['import_usergroup'] = $this->board->get_group_id($data['user_group_id'], array("original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['user_group_id'], array("original" => true));
+		$insert_data['import_additionalgroups'] = $data['secondary_group_ids'];
 		$insert_data['import_displaygroup'] = $data['display_style_group_id'];
 		$insert_data['import_uid'] = $data['user_id'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "user", "users");
@@ -85,7 +91,7 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		}
 		$insert_data['timezone'] = get_timezone($data['timezone']);
 		// TODO: Research
-		$insert_data['regip'] = $data['ipaddress'];
+//		$insert_data['regip'] = $data['ipaddress'];
 
 		if($data['scheme_class'] == "XenForo_Authentication_Core")
 		{

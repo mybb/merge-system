@@ -26,7 +26,10 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 	{
 		global $import_session;
 		
-		$query = $this->old_db->simple_select("post", "*", "", array('limit_start' => $this->trackers['start_posts'], 'limit' => $import_session['posts_per_screen']));
+		$query = $this->old_db->query("SELECT p.*, t.node_id, t.title
+				FROM ".OLD_TABLE_PREFIX."post p
+				LEFT JOIN ".OLD_TABLE_PREFIX."thread t ON(t.thread_id=p.thread_id)
+				LIMIT {$this->trackers['start_posts']}, {$import_session['posts_per_screen']}");
 		while($post = $this->old_db->fetch_array($query))
 		{
 			$this->insert($post);
@@ -40,10 +43,8 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 		// Xenforo 1 values
 		$insert_data['import_pid'] = $data['post_id'];
 		$insert_data['tid'] = $this->get_import->tid($data['thread_id']);
-		// TODO: LEFT JOIN above is nicer
-		$thread = $this->get_thread($data['thread_id']);
-		$insert_data['fid'] = $this->get_import->fid($thread['node_id']);
-		$insert_data['subject'] = encode_to_utf8($thread['title'], "thread", "posts");
+		$insert_data['fid'] = $this->get_import->fid($data['node_id']);
+		$insert_data['subject'] = encode_to_utf8($data['title'], "thread", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['user_id']);
 		$insert_data['import_uid'] = $data['user_id'];
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
@@ -69,23 +70,7 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 			$db->update_query("posts", array('replyto' => $first_post), "pid = '{$pid}'");
 		}
 	}
-	
-	/**
-	 * Get a thread from the vB database
-	 *
-	 * @param int Thread ID
-	 * @return array The thread
-	 */
-	function get_thread($tid)
-	{
-		$tid = intval($tid);
-		$query = $this->old_db->simple_select("thread", "forum_id,title", "threadid = '{$tid}'", array('limit' => 1));
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-		
-		return $results;
-	}
-	
+
 	function fetch_total()
 	{
 		global $import_session;
