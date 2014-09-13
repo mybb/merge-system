@@ -596,7 +596,7 @@ if($mybb->input['board'])
 			echo "The MyBB Merge System cannot continue until you upload loginconvert.php (found in this directory via a file transfer application) to your MyBB Forums' inc/plugins folder.";
 			echo "\n			</div>";
 
-			echo "<p>More Information can be found <a href=\"http://docs.mybb.com/Running_the_Merge_System.html#loginconvert.php_plugin\" target=\"_blank\">here</a>.</p>
+			echo "<p>More Information can be found <a href=\"http://docs.mybb.com/1.8/merge/running/#loginconvert.php-plugin\" target=\"_blank\">here</a>.</p>
 				<p>Once you have uploaded the file, click next to continue.</p>
 				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
@@ -646,10 +646,10 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 
 	echo "<script type=\"text/javascript\">function button_undisable() { document.getElementById('main_submit_button').disabled = false; document.getElementById('main_submit_button').className = 'submit_button'; } window.onload = button_undisable; </script>";
 
-	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.8. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/Merge_System.html\" target=\"_blank\">Merge System</a></p>
+	echo "<p>Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.8. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br /> You can find a detailed guide to the MyBB Merge System on our docs site: <a href=\"http://docs.mybb.com/1.8/merge/\" target=\"_blank\">Merge System</a></p>
 		<input type=\"hidden\" name=\"first_page\" value=\"1\" />";
 
-	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/Running_the_Merge_System.html#Anonymous_Statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)<br />';
+	echo '<input type="checkbox" name="allow_anonymous_info" value="1" id="allow_anonymous" checked="checked" /> <label for="allow_anonymous"> Send anonymous statistics about my merge to the MyBB Group</label> (<a href="http://docs.mybb.com/1.8/merge/running#anonymous-statistics" style="color: #555;" target="_blank"><small>What information is sent?</small></a>)<br />';
 	echo '<input type="checkbox" name="close_board" value="1" id="close_board" checked="checked" /> <label for="close_board"> Close the board during the merge</label>';
 
 	$output->print_warning("The MyBB Merge system is <u><strong>not</strong></u> used for upgrading or linking MyBB forums. In addition, please make sure all modifications or plugins that may interefere with the conversion process are <strong>deactivated</strong> on both forums (your old forum and your new forum), before you run the MyBB Merge System. It is also <strong>strongly</strong> recommended to make a backup of both forums before you continue.", "Please Note");
@@ -725,7 +725,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	$attachmentswritable = @fopen(MYBB_ROOT.'uploads/test.write', 'w');
 	if(!$attachmentswritable)
 	{
-		$errors['attachments_check'] = 'The attachments directory (/uploads/) is not writable. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be written to.';
+		$errors['attachments_check'] = 'The attachments directory (/uploads/) is not writable. Please adjust the <a href="http://docs.mybb.com/1.8/install/#file-permissions" target="_blank">chmod</a> permissions to allow it to be written to.';
 		$checks['attachments_check_status'] = '<span class="fail"><strong>Not Writable</strong></span>';
 		@fclose($attachmentswritable);
 		$debug->log->trace0("Attachments directory not writable");
