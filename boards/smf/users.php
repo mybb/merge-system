@@ -71,7 +71,7 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 		$data['birthdate'] = trim($data['birthdate']);
 		if(!empty($data['birthdate']))
 		{
-			$insert_data['birthday'] = date("n-j-Y", strtotime($data['birthdate']));
+			$insert_data['birthday'] = date("j-n-Y", strtotime($data['birthdate']));
 		}
 		$insert_data['icq'] = $data['ICQ'];
 		$insert_data['aim'] = $data['AIM'];
