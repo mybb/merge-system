@@ -70,7 +70,7 @@ class FLUXBB_Converter extends Converter
 	var $prefix_suggestion = "fluxbb_";
 
 	/**
-	 * An array of punbb -> mybb groups
+	 * An array of fluxbb -> mybb groups
 	 *
 	 * @var array
 	 */
