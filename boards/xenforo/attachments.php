@@ -24,12 +24,13 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 	function pre_setup()
 	{
 		global $import_session, $output, $mybb;
+
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
 		{
 			$query = $this->old_db->simple_select("option", "option_value", "option_id='boardUrl'");
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, "option_value");
-			$import_session['uploadspath'] .= "/data/attachments";
+			$import_session['uploadspath'] .= "/internal_data/attachments";
 		}
 
 		$this->check_attachments_dir_perms();
@@ -65,7 +66,7 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		$insert_data['import_aid'] = $data['attachment_id'];
 		
 		$ext = get_extension($data['filename']);
-		$query = $db->simlpe_select("attachtypes", "mimetype", "extension='{$ext}'");
+		$query = $db->simple_select("attachtypes", "mimetype", "extension='{$ext}'");
 		$insert_data['filetype'] = $db->fetch_field($query, "mimetype");
 		$db->free_result($query);
 		
@@ -120,8 +121,8 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 	
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $db;
-		
+		global $mybb, $db, $import_session;
+
 		// Transfer attachment
 		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$this->generate_raw_filename($data));
 		if(!empty($attachment_file))
@@ -149,44 +150,32 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 
 	function generate_raw_filename($attach)
 	{
+		global $db;
+
 		if(!isset($attach['file_hash']))
 		{
 			$query = $this->old_db->simple_select("attachment_data", "file_hash,filename", "data_id='{$attach['data_id']}'");
-			$data = $this->old_db->fetch_field($query, "file_hash");
+			$data = $this->old_db->fetch_array($query);
 			$this->old_db->free_result($query);
 			$attach = array_merge($attach, $data);
 		}
-		
-		$ext = get_extension($data['filename']);
-		$query = $db->simlpe_select("attachtypes", "mimetype", "extension='{$ext}'");
-		$insert_data['filetype'] = $db->fetch_field($query, "mimetype");
-		$db->free_result($query);
+		$name = floor($attach['data_id']/1000)."/{$attach['data_id']}-{$attach['file_hash']}.data";
 
-		// Check if it is it an image
-		switch(strtolower($insert_data['filetype']))
-		{
-			case "image/gif":
-			case "image/jpeg":
-			case "image/x-jpg":
-			case "image/x-jpeg":
-			case "image/pjpeg":
-			case "image/jpg":
-			case "image/png":
-			case "image/x-png":
-				$is_image = 1;
-				break;
-			default:
-				$is_image = 0;
-				break;
-		}
-
-		$name = "0/{$attach['attachment_id']}-{$attach['file_hash']}";
-		if($is_image)
-		{
-			$name .= ".jpg";
-		}
-		
 		return $name;
+	}
+
+	function print_attachments_per_screen_page()
+	{
+		global $import_session;
+
+		echo '<tr>
+<th colspan="2" class="first last">Please type in the link to your '.$this->plain_bbname.' forum attachment directory:</th>
+</tr>
+<tr>
+<td><label for="uploadspath"> Link (URL) to your forum attachment directory:
+</label></td>
+<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
+</tr>';
 	}
 
 	function fetch_total()
