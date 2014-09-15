@@ -17,64 +17,64 @@ class BBPRESS_Converter_Module_Forums extends Converter_Module_Forums {
 
 	var $settings = array(
 		'friendly_name' => 'forums',
-		'progress_column' => 'forum_id',
+		'progress_column' => 'ID',
 		'default_per_screen' => 1000,
 	);
+
+	function pre_setup()
+	{
+		global $import_session, $db;
+
+		// BBPress has only "forums", so we need a parent category where we put everything to avoid loosing of threads
+		if(!isset($import_session['parent_fid']))
+		{
+			$cat = array(
+				"name"			=> "BBPress imported forums",
+				"type"			=> "c",
+				"description"	=> "This forums were imported from your BBPress installation",
+				"pid"			=> 0,
+				"parentlist"	=> "1",
+				"rules"			=> "",
+				"active"		=> 1,
+				"open"			=> 1,
+			);
+			// No "input", so no need to escape
+			$import_session['parent_fid'] = $db->insert_query("forums", $cat);
+		}
+	}
 
 	function import()
 	{
 		global $import_session, $db;
 
-		$query = $this->old_db->simple_select("forums", "*", "", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
+		$query = $this->old_db->simple_select("posts", "*", "post_type='forum'", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
 		while($forum = $this->old_db->fetch_array($query))
 		{
 			$fid = $this->insert($forum);
-
-			$forum['forum_type'] = '1';
-			$oldfid = $forum['forum_id'];
-			$query2 = $this->old_db->simple_select("meta", "*", "object_id = '{$oldfid}' AND meta_key = 'forum_is_category'");
-			$forum2 = $this->old_db->fetch_array($query2);
-			if($forum2['meta_value'] == '1')
-			{
-				$forum['forum_type'] = '0';
-			}
-
-			// Update parent list.
-			if($forum['forum_type'] == '0')
-			{
-				$db->update_query("forums", array('parentlist' => $fid), "fid = '{$fid}'");
-			}
 		}
 	}
 
 	function convert_data($data)
 	{
+		global $import_session;
+
 		$insert_data = array();
 
 		// bbPress Values
-		$insert_data['import_fid'] = intval($data['forum_id']);
-		$insert_data['name'] = encode_to_utf8($data['forum_name'], "forums", "forums");
-		$insert_data['description'] = encode_to_utf8($this->bbcode_parser->convert($data['forum_desc']), "forums", "forums");
-		$insert_data['disporder'] = $data['forum_order'];
-		$insert_data['linkto'] = '';
-		$insert_data['import_pid'] = $data['forum_parent'];
+		$insert_data['import_fid'] = intval($data['ID']);
+		$insert_data['name'] = encode_to_utf8($data['post_title'], "posts", "forums");
+		$insert_data['description'] = encode_to_utf8($this->bbcode_parser->convert($data['post_content']), "posts", "forums");
 
-		$oldfid =$data['forum_id'];
-		$query2 = $this->old_db->simple_select("meta", "*", "object_id = '{$oldfid}' AND meta_key = 'forum_is_category'");
-		$forum2 = $this->old_db->fetch_array($query2);
-
-		// We have a category
-		if($forum2['meta_value'] == '1')
+		// The forum has a direct parent
+		if($data['post_parent'] != 0)
 		{
-			$insert_data['type'] = 'c';
+			$insert_data['import_pid'] = $data['post_parent'];
 		}
-		// We have a forum
+		// Otherwise use the bbpress category
 		else
 		{
-			$insert_data['type'] = 'f';
+			$insert_data['pid'] = $import_session['parent_fid'];
 		}
-
-		// TODO: last post data?
 
 		return $insert_data;
 	}
@@ -86,7 +86,7 @@ class BBPRESS_Converter_Module_Forums extends Converter_Module_Forums {
 		// Get number of forums
 		if(!isset($import_session['total_forums']))
 		{
-			$query = $this->old_db->simple_select("forums", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("posts", "COUNT(*) as count", "post_type='forum'");
 			$import_session['total_forums'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

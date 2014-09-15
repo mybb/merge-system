@@ -21,14 +21,14 @@ class BBPRESS_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "BBPress 1.0";
+	var $bbname = "BBPress 2.5";
 
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "BBPress 1.0";
+	var $plain_bbname = "BBPress 2.5";
 
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
