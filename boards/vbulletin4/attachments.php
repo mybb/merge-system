@@ -23,6 +23,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 	function pre_setup()
 	{
+		// No need for an upload path, vb saves the complete file(!!!) in the database
 		$this->check_attachments_dir_perms();
 	}
 
@@ -30,7 +31,11 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("attachment", "*", "", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
+		$query = $this->old_db->query("SELECT *
+			FROM ".OLD_TABLE_PREFIX."attachment a
+			LEFT JOIN ".OLD_TABLE_PREFIX."filedata f ON(f.filedataid=a.filedataid)
+			WHERE a.contenttypeid='1'
+			LIMIT {$this->trackers['start_attachments']}, {$import_session['attachments_per_screen']}");
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			$this->insert($attachment);
@@ -73,7 +78,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 			$insert_data['thumbnail'] = '';
 		}
 
-		$attach_details = $this->get_import->post_attachment_details($data['postid']);
+		$attach_details = $this->get_import->post_attachment_details($data['contentid']);
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
@@ -82,7 +87,14 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['dateline'].".attach";
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['counter'];
-		$insert_data['visible'] = $data['visible'];
+		if($data['visible'] == "visible")
+		{
+			$insert_data['visible'] = 1;
+		}
+		else
+		{
+			$insert_data['visible'] = 0;
+		}
 
 		if($data['thumbnail'])
 		{
@@ -150,7 +162,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
-			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("attachment", "COUNT(*) as count", "contenttypeid='1'");
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
