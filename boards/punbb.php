@@ -74,9 +74,9 @@ class PUNBB_Converter extends Converter
 	 */
 	var $groups = array(
 		1 => MYBB_ADMINS, // Administrators
-		2 => MYBB_MODS, // Moderators
-		3 => MYBB_GUESTS, // Guests
-		4 => MYBB_REGISTERED, // Registered
+		2 => MYBB_GUESTS, // Guests
+		3 => MYBB_REGISTERED, // Registered
+		4 => MYBB_MODS, // Moderators
 	);
 
 	/**
