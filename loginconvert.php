@@ -101,11 +101,17 @@ function loginconvert_deactivate()
 
 function loginconvert_convert(&$login)
 {
-	global $mybb, $valid_login_types, $db;
+	global $mybb, $valid_login_types, $db, $settings;
 
 	$options = array(
-		"fields" => array('username', "password", "salt", 'loginkey', 'coppauser', 'usergroup', "passwordconvert", "passwordconverttype", "passwordconvertsalt")
+		"fields" => array('username', "password", "salt", 'loginkey', 'coppauser', 'usergroup', "passwordconvert", "passwordconverttype", "passwordconvertsalt"),
+		"username_method" => (int)$settings['username_method']
 	);
+
+	if($login->username_method !== null)
+	{
+		$options['username_method'] = (int)$login->username_method;
+	}
 
 	$user = get_user_by_username($login->data['username'], $options);
 
