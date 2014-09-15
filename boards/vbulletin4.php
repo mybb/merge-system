@@ -21,7 +21,7 @@ class VBULLETIN4_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "vBulletin 4 (Beta)";
+	var $bbname = "vBulletin 4";
 
 	/**
 	 * String of the plain bulletin board name

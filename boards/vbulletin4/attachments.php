@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachments {
+class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	var $settings = array(
 		'friendly_name' => 'attachments',
@@ -41,7 +41,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['import_aid'] = $data['attachmentid'];
 		$insert_data['filetype'] = $this->get_attach_type($data['extension']);
 

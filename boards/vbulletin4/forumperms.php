@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
+class VBULLETIN4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 	var $settings = array(
 		'friendly_name' => 'forum permissions',
@@ -36,7 +36,7 @@ class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
 		$insert_data['gid'] = $this->board->get_gid($data['usergroupid']);
 
@@ -79,7 +79,7 @@ class VBULLETIN3_Converter_Module_Forumperms extends Converter_Module_Forumperms
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
-			$query = $this->old_db->simple_select("forumpermissions", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("forumpermission", "COUNT(*) as count");
 			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

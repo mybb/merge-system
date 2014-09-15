@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
+class VBULLETIN4_Converter_Module_Threads extends Converter_Module_Threads {
 
 	var $settings = array(
 		'friendly_name' => 'threads',
@@ -36,7 +36,7 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['import_tid'] = $data['threadid'];
 		$insert_data['sticky'] = $data['sticky'];
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);

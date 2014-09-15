@@ -106,6 +106,11 @@ class Log {
 			foreach($this->log_inserts as $log_insert)
 			{
 				$log_insert['message'] = $db->escape_string($log_insert['message']);
+				// This looks ugly and it is, but otherwise we'll produce SQL errors...
+				if(strlen($log_insert['message']) > 65535)
+				{
+					$log_insert['message'] = substr($log_insert['message'], 0, 65531)."...";
+				}
 
 				// If we caused an error and the message we're trying to insert isn't the SQL error we'll skip the message
 				if($this->caused_error && substr($log_insert['message'], 0, 9) != "$type: 20")

@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Forums extends Converter_Module_Forums {
+class VBULLETIN4_Converter_Module_Forums extends Converter_Module_Forums {
 
 	var $settings = array(
 		'friendly_name' => 'forums',
@@ -42,7 +42,7 @@ class VBULLETIN3_Converter_Module_Forums extends Converter_Module_Forums {
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['import_fid'] = $data['forumid'];
 		$insert_data['name'] = encode_to_utf8($this->fix_ampersand($data['title']), "forum", "forums");
 		$insert_data['description'] = encode_to_utf8($this->fix_ampersand($data['description']), "forum", "forums");
@@ -72,9 +72,6 @@ class VBULLETIN3_Converter_Module_Forums extends Converter_Module_Forums {
 		$bitwise = array(
 			'active' => 1,
 			'open' => 2,
-			'modposts' => 8,
-			'modthreads' => 16,
-			'modattachments' => 32,
 			'allowmycode' => 64,
 			'allowimgcode' => 128,
 			'allowhtml' => 256,

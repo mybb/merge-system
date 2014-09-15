@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
+class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 
 	var $settings = array(
 		'friendly_name' => 'users',
@@ -41,7 +41,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
 		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroupid']));
 		$insert_data['displaygroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
@@ -77,9 +77,11 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$data['birthday'] = trim($data['birthday']);
 		if(!empty($data['birthday']))
 		{
-			$insert_data['birthday'] = $data['birthday'];
+			list($bmonth, $bday, $byear) = explode("-", $data['birthday']);
+			$insert_data['birthday'] = $bday."-".$bmonth."-".$byear;
 		}
-		$insert_data['icq'] = $data['icq'];
+		// Don't ask me why some guys insert an ICQ number with more than 9 characters, but we need to avoid sql errors...
+		$insert_data['icq'] = substr($data['icq'], 0, 10);
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['skype'] = $data['skype'];

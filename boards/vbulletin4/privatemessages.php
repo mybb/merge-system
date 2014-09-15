@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
+class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
 
 	var $settings = array(
 		'friendly_name' => 'private messages',
@@ -41,7 +41,7 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 	{
 		global $db;
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
@@ -62,14 +62,16 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 		if($data['folderid'] == -1)
 		{
+			// Outbox
 			$insert_data['folder'] = 2;
 		}
 		else
 		{
-			$insert_data['folder'] = 0;
+			// Inbox
+			$insert_data['folder'] = 1;
 		}
 
-		$insert_data['subject'] = encode_to_utf8($data['subject'], "pm", "privatemessages");
+		$insert_data['subject'] = encode_to_utf8($data['title'], "pm", "privatemessages");
 		$insert_data['status'] = $data['messageread'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
@@ -78,7 +80,7 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 		if($data['messageread'] == 1)
 		{
-			$insert_data['readtime'] = time();
+			$insert_data['readtime'] = TIME_NOW;
 		}
 
 		return $insert_data;

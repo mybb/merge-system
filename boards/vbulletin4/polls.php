@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Polls extends Converter_Module_Polls {
+class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 
 	var $settings = array(
 		'friendly_name' => 'polls',
@@ -43,7 +43,7 @@ class VBULLETIN3_Converter_Module_Polls extends Converter_Module_Polls {
 
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$thread = $this->get_import_tid_poll($data['pollid']);
 		$votes = @explode('|||', $data['votes']);
 

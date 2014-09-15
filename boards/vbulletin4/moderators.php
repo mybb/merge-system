@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Moderators extends Converter_Module_Moderators {
+class VBULLETIN4_Converter_Module_Moderators extends Converter_Module_Moderators {
 
 	var $settings = array(
 		'friendly_name' => 'moderators',
@@ -36,7 +36,7 @@ class VBULLETIN3_Converter_Module_Moderators extends Converter_Module_Moderators
 	{
 		$insert_data = array();
 
-		// vBulletin 3 values
+		// vBulletin 4 values
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
 		$insert_data['id'] = $this->get_import->uid($data['userid']);
 
