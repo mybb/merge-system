@@ -68,7 +68,7 @@ class IPB3_Converter_Module_Settings extends Converter_Module_Settings {
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("conf_settings", "conf_key, conf_value, conf_default", "conf_key IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
+		$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_key, conf_value, conf_default", "conf_key IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{
 			// Invision Power Board 3 values
@@ -118,7 +118,7 @@ class IPB3_Converter_Module_Settings extends Converter_Module_Settings {
 		// Get number of settings
 		if(!isset($import_session['total_settings']))
 		{
-			$query = $this->old_db->simple_select("conf_settings", "COUNT(*) as count", "conf_key IN('".implode("','", array_keys($this->convert_settings))."')");
+			$query = $this->old_db->simple_select("core_sys_conf_settings", "COUNT(*) as count", "conf_key IN('".implode("','", array_keys($this->convert_settings))."')");
 			$import_session['total_settings'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

@@ -18,6 +18,7 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 	var $settings = array(
 		'friendly_name' => 'private messages',
 		'progress_column' => 'msg_id',
+		'default_per_screen' => 1000,
 	);
 
 	function import()
@@ -43,7 +44,7 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 		// Invision Power Board 3 values
 		$insert_data['import_pmid'] = $data['msg_id'];
-		$insert_data['uid'] = $this->get_import->uid($data['msg_author_id']);
+		$insert_data['uid'] = $this->get_import->uid($data['map_user_id']);
 		$insert_data['fromid'] = $this->get_import->uid($data['mt_starter_id']);
 		$insert_data['toid'] = $this->get_import->uid($data['mt_to_member_id']);
 		/*$touserarray = explode('<br />', $data['msg_cc_users']);
@@ -59,7 +60,8 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 		if($data['map_folder_id'] == 'myconvo' && $data['map_is_starter'] == '0')
 		{
-			$insert_data['folder'] = 2;
+			// Inbox
+			$insert_data['folder'] = 1;
 		}
 		elseif($data['map_folder_id'] == 'drafts')
 		{
@@ -67,7 +69,8 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		}
 		else
 		{
-			$insert_data['folder'] = 1;
+			// Outbox
+			$insert_data['folder'] = 2;
 		}
 
 		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "message_posts", "privatemessages");

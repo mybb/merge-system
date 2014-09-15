@@ -68,7 +68,6 @@ class IPB3_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['smilieoff'] = int_to_01($data['use_emo']);
 		$insert_data['edituid'] = $this->get_import->uid($this->get_uid_from_username($data['edit_name']));
 		$insert_data['edittime'] = $data['edit_time'];
-		$insert_data['posthash'] = $data['post_key'];
 
 		return $insert_data;
 	}

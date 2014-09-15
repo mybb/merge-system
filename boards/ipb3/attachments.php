@@ -28,7 +28,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
 		{
-			$query = $this->old_db->simple_select("conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
+			$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'conf_value');
 			$this->old_db->free_result($query);
 		}
@@ -52,7 +52,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 	{
 		global $mybb, $output, $import_session;
 
-		$query = $this->old_db->simple_select("attachments", "*", "", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
+		$query = $this->old_db->simple_select("attachments", "*", "attach_rel_module='post'", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			$this->insert($attachment);
@@ -67,10 +67,10 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data = array();
 
-		// Invision Power Board 2 values
+		// Invision Power Board 3 values
 		$insert_data['import_aid'] = $data['attach_id'];
 
-		$attach_details = $this->get_import->post_attachment_details($data['attach_pid']);
+		$attach_details = $this->get_import->post_attachment_details($data['attach_parent_id']);
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
@@ -104,19 +104,11 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$insert_data['thumbnail'] = '';
 		}
 
-		$insert_data['posthash'] = $data['attach_post_key'];
 		$insert_data['uid'] = $this->get_import->uid($data['attach_member_id']);
 		$insert_data['filename'] = $data['attach_file'];
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
 		$insert_data['filesize'] = $data['attach_filesize'];
 		$insert_data['downloads'] = $data['attach_hits'];
-		$insert_data['visible'] = $data['attach_approved'];
-
-		if($data['attach_thumb_location'])
-		{
-			$ext = get_extension($data['attach_thumb_location']);
-			$insert_data['thumbnail'] = str_replace(".attach", "_thumb.$ext", basename($insert_data['attachname']));
-		}
 
 		return $insert_data;
 	}
@@ -124,33 +116,6 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 	function after_insert($data, $insert_data, $aid)
 	{
 		global $mybb, $import_session;
-
-		$thumb_not_exists = "";
-		if($data['attach_thumb_location'])
-		{
-			// Transfer attachment thumbnail
-			$data_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['attach_thumb_location']);
-
-			if(!empty($data_thumbnail_file))
-			{
-				$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], 'w');
-				if($attachrs)
-				{
-					@fwrite($attachrs, $data_thumbnail_file);
-				}
-				else
-				{
-					$this->board->set_error_notice_in_progress("Error transfering the attachment thumbnail (ID: {$aid})");
-				}
-				@fclose($attachrs);
-
-				@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], '0777');
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress("Error could not find the attachment thumbnail (ID: {$aid})");
-			}
-		}
 
 		// Transfer attachment
 		$data_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['attach_location']);
@@ -212,7 +177,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
-			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count", "attach_rel_module='post'");
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

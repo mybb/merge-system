@@ -398,7 +398,7 @@ END;
 	 */
 	function print_database_details_table($name, $extra="")
 	{
-		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $oldver, $mybb;
+		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb;
 
 		if(function_exists('mysql_connect'))
 		{
@@ -477,41 +477,6 @@ END;
 		});
 		</script>";
 
-		$versions = "";
-		if(count($board->supported_versions) >= 3)
-		{
-			foreach($board->supported_versions as $key => $nice_ver)
-			{
-				if($key == "name")
-				{
-					continue;
-				}
-
-				if($oldver == $key)
-				{
-					$versions .= "<option value=\"{$key}\" selected=\"selected\">{$nice_ver}</option>\n";
-				}
-				else
-				{
-					$versions .= "<option value=\"{$key}\">{$nice_ver}</option>\n";
-				}
-			}
-
-			$versions = "<tbody>
-			<tr>
-	<th colspan=\"2\" class=\"first last\">Version</th>
-</tr>
-<tr class=\"last\">
-	<td class=\"first\"><label for=\"old_board_version\">Version of Invision Power Board your running:</label></td>
-	<td class=\"last alt_col\"><select name=\"old_board_version\">
-<optgroup label=\"{$board->supported_versions['name']}\">
-	{$versions}
-</optgroup>
-</td>
-</tr>
-</tbody>";
-		}
-
 		foreach($dboptions as $dbfile => $dbtype)
 		{
 			require_once MYBB_ROOT."inc/db_{$dbfile}.php";
@@ -589,11 +554,24 @@ END;
 				<tr>
 					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Table Settings</th>
 				</tr>
-				<tr class=\"first\">
-					<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
-					<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
-				</tr>
 				";
+
+			// Only show the table prefix if supported, however keep it as hidden field to avoid errors
+			if(!isset($board->hide_table_prefix) || $board->hide_table_prefix !== true)
+			{
+				$db_info[$dbfile] .= "
+					<tr class=\"first\">
+						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
+					</tr>
+					";
+			}
+			else
+			{
+				$db_info[$dbfile] .= "
+					<input type=\"hidden\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" />
+				";
+			}
 
 			// Encoding selection only if supported
 			if(is_array($encodings))
@@ -657,7 +635,6 @@ END;
 </tr>
 
 $dbconfig
-$versions
 $encoding_utf8
 $extra
 </table>

@@ -20,7 +20,7 @@ class IPB3_Converter extends Converter {
 	 *
 	 * @var string
 	 */
-	var $bbname = "Invision Power Board 3 (Beta)";
+	var $bbname = "Invision Power Board 3";
 
 	/**
 	 * String of the plain bulletin board name
@@ -45,7 +45,7 @@ class IPB3_Converter extends Converter {
 						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
 						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
-						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
+//						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
@@ -53,7 +53,6 @@ class IPB3_Converter extends Converter {
 						 "import_moderators" => array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
 						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
 						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
-						 "import_events" => array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
@@ -70,12 +69,6 @@ class IPB3_Converter extends Converter {
 	 * @var String
 	 */
 	var $prefix_suggestion = "";
-	
-	// TODO: Check why only IPB has this array - do we really need this?
-	var $supported_versions = array(
-			'name' => 'IPB 3.x series',
-			'3.0.2' => 'IPB 3.0.2',
-		);
 
 	/**
 	 * An array of ipb3 -> mybb groups
@@ -90,6 +83,17 @@ class IPB3_Converter extends Converter {
 		5 => MYBB_BANNED, // Banned
 		6 => MYBB_ADMINS, // Administrators
 	);
+
+	function db_connect()
+	{
+		parent::db_connect();
+
+		// The calendar is optional so test it directly after the db is connected
+		if($this->old_db->table_exists("cal_events"))
+		{
+			$this->modules["import_events"] = array("name" => "Calendar Events", "dependencies" => "db_configuration,import_users");
+		}
+	}
 
 	/**
 	 * Convert a IPB group ID into a MyBB group ID

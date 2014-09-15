@@ -13,6 +13,9 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+// TODO: Research!!
+// Everything below is from IPB 2, the specific column in the forums table doesn't exist anymore but I wasn't able to find any new table which represents it
+
 class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 	var $settings = array(

@@ -36,16 +36,15 @@ class IPB3_Converter_Module_Events extends Converter_Module_Events {
 	{
 		$insert_data = array();
 
-		// Invision Power Board 2 values
+		// Invision Power Board 3 values
 		$insert_data['import_eid'] = $data['event_id'];
 		$insert_data['name'] = encode_to_utf8($data['event_title'], "cal_events", "events");
 		$insert_data['uid'] = $this->get_import->uid($data['event_member_id']);
-		$insert_data['dateline'] = $data['event_unixtimestamp'];
+		$insert_data['dateline'] = $data['event_lastupdated'];
 		$insert_data['description'] = $data['event_content'];
 		$insert_data['private'] = $data['event_private'];
-		$insert_data['dateline'] = $data['event_unix_from'];
-		$insert_data['starttime'] = $insert_data['dateline'];
-		$insert_data['endtime'] = $data['event_unix_to'];
+		$insert_data['starttime'] = strtotime($insert_data['event_start_date']);
+		$insert_data['endtime'] = strtotime($data['event_end_date']);
 		$insert_data['repeats'] = $data['event_recurring'];
 
 		return $insert_data;

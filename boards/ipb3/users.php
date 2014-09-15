@@ -30,7 +30,6 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session;
 
 		// Get members
-		//$query = $this->old_db->simple_select("members", "*", "", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
 		$query = $this->old_db->query("
 			SELECT *
 			FROM ".OLD_TABLE_PREFIX."members m
