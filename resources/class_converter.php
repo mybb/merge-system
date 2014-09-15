@@ -114,7 +114,9 @@ class Converter
 				$connect_config['encoding'] = $config_data['encoding'];
 
 				$connection = $this->old_db->connect($connect_config);
-				if(!$connection)
+
+				// -1 is returned if we can connect to the server but not to the database
+				if(!$connection || $connection == -1)
 				{
 					$errors[] = "Could not connect to the database server at '{$config_data['dbhost']}' with the supplied username and password. Are you sure the hostname and user details are correct?";
 				}
