@@ -60,7 +60,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Invision Power Board 4 values
 		$insert_data['import_aid'] = $data['attach_id'];
 
-		$attach_details = $this->get_import->post_attachment_details($data['id1']);
+		$attach_details = $this->get_import->post_attachment_details($data['id2']);
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
@@ -96,9 +96,15 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data['uid'] = $this->get_import->uid($data['attach_member_id']);
 		$insert_data['filename'] = $data['attach_file'];
-		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
 		$insert_data['filesize'] = $data['attach_filesize'];
 		$insert_data['downloads'] = $data['attach_hits'];
+
+		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
+		$query = $db->simple_select("attachments", "aid", "attachname='".$db->escape_string($insert_data['attachname'])."'");
+		if($db->num_rows($query) > 0)
+		{
+			$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date']."_".$data['attach_id'].".attach";
+		}
 
 		return $insert_data;
 	}
@@ -107,8 +113,8 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 	{
 		global $mybb, $import_session;
 
-		// Transfer attachment
-		$data_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['attach_location']);
+		// Transfer attachment - IPB 4 saves the full path
+		$data_file = merge_fetch_remote_file($data['attach_location']);
 		if(!empty($data_file))
 		{
 			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
@@ -131,20 +137,6 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 	}
 
-	function print_attachments_per_screen_page()
-	{
-		global $import_session;
-
-		echo '<tr>
-<th colspan="2" class="first last">Please type in the link to your '.$this->plain_bbname.' forum attachment directory:</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> Link (URL) to your forum attachment directory:
-</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
-	}
-
 	/**
 	 * Get a attachment mime type from the IPB database
 	 *
@@ -153,7 +145,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 	 */
 	function get_attach_type($ext)
 	{
-		$query = $this->old_db->simple_select("attachments_type", "atype_mimetype", "atype_extension = '{$ext}'");
+		$query = $this->old_db->simple_select("core_attachments_type", "atype_mimetype", "atype_extension = '{$ext}'");
 		$results = $this->old_db->fetch_field($query, "atype_mimetype");
 		$this->old_db->free_result($query);
 
