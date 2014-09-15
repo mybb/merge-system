@@ -70,7 +70,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Invision Power Board 3 values
 		$insert_data['import_aid'] = $data['attach_id'];
 
-		$attach_details = $this->get_import->post_attachment_details($data['attach_parent_id']);
+		$attach_details = $this->get_import->post_attachment_details($data['attach_rel_id']);
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
@@ -106,10 +106,16 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data['uid'] = $this->get_import->uid($data['attach_member_id']);
 		$insert_data['filename'] = $data['attach_file'];
-		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
 		$insert_data['filesize'] = $data['attach_filesize'];
 		$insert_data['downloads'] = $data['attach_hits'];
 
+		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date'].".attach";
+		$query = $db->simple_select("attachments", "aid", "attachname='".$db->escape_string($insert_data['attachname'])."'");
+		if($db->num_rows($query) > 0)
+		{
+			$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['attach_date']."_".$data['attach_id'].".attach";
+		}
+	
 		return $insert_data;
 	}
 
