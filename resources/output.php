@@ -93,7 +93,7 @@ class converterOutput
 	 */
 	function print_header($title="Welcome", $image="welcome", $form=1)
 	{
-		global $mybb, $merge_version, $import_session;
+		global $mybb, $merge_version, $import_session, $lang;
 
 		$this->doneheader = 1;
 
@@ -115,7 +115,7 @@ END;
 			<h1><span class="invisible">MyBB</span></h1>
 		</div>
 		<div id="inner_container">
-		<div id="header">{$this->title} - Version: {$merge_version}</div>
+		<div id="header">{$this->title} - {$lang->version}: {$merge_version}</div>
 		<div id="content">
 END;
 		if($form)
@@ -190,18 +190,20 @@ END;
 	 */
 	function board_list()
 	{
+		global $lang;
+
 		if(!$this->doneheader)
 		{
 			$this->print_header();
 		}
 
-		echo "<p>Thank you for choosing MyBB. This wizard will guide you through the process of converting from your existing community to MyBB.";
+		echo "<p>{$lang->boardspage_welcome}";
 
 		echo "<div class=\"border_wrapper\">\n";
-		echo "<div class=\"title\">Board Selection</div>\n";
+		echo "<div class=\"title\">{$lang->boardspage_boardselection}</div>\n";
 		echo "<table class=\"general\" cellspacing=\"0\">\n";
 		echo "<tr>\n";
-		echo "<th colspan=\"2\" class=\"first last\">Please select the board you wish to convert from.</th>\n";
+		echo "<th colspan=\"2\" class=\"first last\">{$lang->boardspage_boardselectiondesc}</th>\n";
 		echo "</tr>\n";
 
 		$dh = opendir(MERGE_ROOT."boards");
