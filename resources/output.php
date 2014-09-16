@@ -721,7 +721,7 @@ EOF;
 	 */
 	function print_footer($next_action="", $name="", $do_session=1, $override_form=false, $next=false, $button_extra="", $extra_class="")
 	{
-		global $import_session, $conf_global_not_found, $mybb;
+		global $import_session, $conf_global_not_found, $mybb, $lang;
 
 		if($next === false)
 		{
