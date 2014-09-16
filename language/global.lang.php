@@ -115,6 +115,15 @@ $l['progress_settings'] = "Inserting {1} {2} from your other {3} database";
 $l['progress_none_left'] = "There are no {1} to import. Please press next to continue.";
 $l['progress_none_left_settings'] = "There are no {1} to update. Please press next to continue.";
 
+$l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
+$l['attmodule_chmod'] = "chmod";
+$l['attmodule_notwritable2'] = " permissions to allow it to be written to.";
+$l['attmodule_ipadress'] = "You may not use \"localhost\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
+$l['attmodule_ipadress2'] = "You may not use \"127.0.0.1\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
+$l['attmodule_notread'] = "The attachments could not be read. Please adjust the ";
+$l['attmodule_notread2'] = " permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file
+.";
+
 $l['cleanup_header'] = "MyBB Merge System - Final Step: Cleanup";
 $l['cleanup_notice'] = "Performing final cleanup and maintenance (This may take a while)...";
 

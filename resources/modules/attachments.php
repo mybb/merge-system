@@ -73,7 +73,7 @@ class Converter_Module_Attachments extends Converter_Module
 
 	public function check_attachments_dir_perms()
 	{
-		global $import_session, $output;
+		global $import_session, $output, $lang;
 
 		if($import_session['total_attachments'] <= 0)
 		{
@@ -89,7 +89,7 @@ class Converter_Module_Attachments extends Converter_Module
 			if(!$uploadswritable)
 			{
 				$this->debug->log->error("Uploads directory is not writable");
-				$this->errors[] = 'The uploads directory (uploads/) is not writable. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be written to.';
+				$this->errors[] = $lang->attmodule_notwritable.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>';
 				@fclose($uploadswritable);
 				$output->print_error_page();
 			}
@@ -127,13 +127,13 @@ class Converter_Module_Attachments extends Converter_Module
 
 		if(strpos($mybb->input['uploadspath'], "localhost") !== false)
 		{
-			$this->errors[] = "<p>You may not use \"localhost\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).</p>";
+			$this->errors[] = "<p>{$lang->attmodule_ipadress}</p>";
 			$import_session['uploads_test'] = 0;
 		}
 
 		if(strpos($mybb->input['uploadspath'], "127.0.0.1") !== false)
 		{
-			$this->errors[] = "<p>You may not use \"127.0.0.1\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).</p>";
+			$this->errors[] = "<p>{$lang->attmodule_ipadress2}</p>";
 			$import_session['uploads_test'] = 0;
 		}
 
@@ -174,7 +174,7 @@ class Converter_Module_Attachments extends Converter_Module
 		if((($readable/$total)*100) < 5)
 		{
 			$this->debug->log->error("Not enough attachments could be read: ".(($readable/$total)*100)."%");
-			$this->errors[] = 'The attachments could not be read. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file';
+			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>';
 			$this->is_errors = true;
 			$import_session['uploads_test'] = 0;
 		}
