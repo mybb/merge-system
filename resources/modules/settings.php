@@ -22,7 +22,7 @@ class Converter_Module_Settings extends Converter_Module
 
 		$this->debug->log->trace0("Updating setting {$name}");
 
-		$output->print_progress("start", "Updating settings ".htmlspecialchars_uni($name));
+		$output->print_progress("start", $lang->sprintf($lang->module_settings_updating, htmlspecialchars_uni($name));
 
 		$modify = array(
 			'value' => $db->escape_string($value)

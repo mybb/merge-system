@@ -134,6 +134,8 @@ $l['module_post_forum_counter'] = "Rebuilding counters for forum #{1}";
 $l['module_post_rebuilding_user'] = "Rebuilding user counters...";
 $l['module_post_user_counter'] = "Rebuilding counters for user #{1}";
 
+$l['module_settings_updating'] = "Updating settings {1}";
+
 $l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
 $l['attmodule_chmod'] = "chmod";
 $l['attmodule_notwritable2'] = " permissions to allow it to be written to.";
