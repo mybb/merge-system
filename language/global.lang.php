@@ -24,25 +24,44 @@ $l['loading_data'] = "Loading data from database...";
 $l['done'] = "Done";
 
 // Modules, english names are hardcoded. Uncomment this for your language
+// Descriptions are added as "module_{key}_desc, however the current ones doesn't have a description
+// Singular versions are added as "module_{key}_singular
 /*
 $l['module_usergroups'] = 'User Groups';
+$l['module_usergroups_singular'] = 'User Group';
 $l['module_users'] = 'Users';
+$l['module_users_singular'] = 'User';
 $l['module_categories'] = 'Categories';
 $l['module_forums'] = 'Forums';
+$l['module_forums_singular'] = 'Forum';
 $l['module_forumperms'] = 'Forum Permissions';
+$l['module_forumperms_singular'] = 'Forum Permission';
 $l['module_moderators'] = 'Moderators';
+$l['module_moderators_singular'] = 'Moderator';
 $l['module_threads'] = 'Threads';
+$l['module_threads_singular'] = 'Thread';
 $l['module_posts'] = 'Posts';
+$l['module_posts_singular'] = 'Post';
 $l['module_attachments'] = 'Attachments';
+$l['module_attachments_singular'] = 'Attachment';
 $l['module_polls'] = 'Polls';
+$l['module_polls_singular'] = 'Poll';
 $l['module_pollvotes'] = 'Poll Votes';
+$l['module_pollvotes_singular'] = 'Poll Vote';
 $l['module_privatemessages'] = 'Private Messages';
+$l['module_privatemessages_singular'] = 'Private Message';
 $l['module_events'] = 'Events';
+$l['module_events_singular'] = 'Event';
 $l['module_icons'] = 'Icons';
+$l['module_icons_singular'] = 'Icon';
 $l['module_smilies'] = 'Smilies';
+$l['module_smilies_singular'] = 'Smilie';
 $l['module_settings'] = 'Settings';
+$l['module_settings_singular'] = 'Setting';
 $l['module_attachtypes'] = 'Attachment Types';
+$l['module_attachtypes_singular'] = 'Attachment Type';
 */
+$l['module_categories_singular'] = 'Category';
 
 $l['creating_fields'] = "Creating fields for tracking data during the Merge process (This may take a while)...";
 $l['creating_table'] = "Creating {1} table.";
@@ -138,6 +157,13 @@ $l['module_post_rebuilding_user'] = "Rebuilding user counters...";
 $l['module_post_user_counter'] = "Rebuilding counters for user #{1}";
 
 $l['module_settings_updating'] = "Updating settings {1}";
+
+$l['module_attachment_link'] = "Please type in the link to your {1} forum attachment directory";
+$l['module_attachment_label'] = "Link (URL) to your forum attachment directory";
+$l['module_attachment_error'] = "Error transfering the attachment (ID: {1})";
+$l['module_attachment_not_found'] = "Error could not find the attachment (ID: {$1})";
+$l['module_attachment_thumbnail_error'] = "Error transfering the attachment thumbnail (ID: {1})";
+$l['module_attachment_thumbnail_not_found'] = "Error could not find the attachment thumbnail (ID: {$1})";
 
 $l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
 $l['attmodule_chmod'] = "chmod";

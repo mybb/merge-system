@@ -18,7 +18,7 @@ if(!defined("IN_MYBB"))
 class FLUXBB_Converter_Module_Forums extends Converter_Module_Forums {
 
 	var $settings = array(
-		'friendly_name' => 'forum',
+		'friendly_name' => 'forums',
 		'progress_column' => 'id',
 		'default_per_screen' => 1000,
 	);

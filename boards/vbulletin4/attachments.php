@@ -118,7 +118,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 			}
 			else
 			{
-				$this->board->set_error_notice_in_progress("Error transfering the attachment thumbnail (ID: {$aid})");
+				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_thumbnail_error, $aid));
 			}
 			@fclose($file);
 			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], '0777');
@@ -132,7 +132,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 		}
 		else
 		{
-			$this->board->set_error_notice_in_progress("Error transfering the attachment (ID: {$aid})");
+			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
 		}
 		@fclose($file);
 		@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');

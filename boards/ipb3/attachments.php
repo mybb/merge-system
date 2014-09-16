@@ -134,7 +134,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			}
 			else
 			{
-				$this->board->set_error_notice_in_progress("Error transfering the attachment (ID: {$aid})");
+				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
 			}
 			@fclose($attachrs);
 
@@ -143,20 +143,19 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 		else
 		{
-			$this->board->set_error_notice_in_progress("Error could not find the attachment (ID: {$aid})");
+			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
 		}
 	}
 
 	function print_attachments_per_screen_page()
 	{
-		global $import_session;
+		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">Please type in the link to your '.$this->plain_bbname.' forum attachment directory:</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
 </tr>
 <tr>
-<td><label for="uploadspath"> Link (URL) to your forum attachment directory:
-</label></td>
+<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
 <td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
 </tr>';
 	}
