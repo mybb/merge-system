@@ -139,7 +139,7 @@ $l['per_screen_autorefresh'] = "Do you want to automatically continue to the nex
 $l['stats_in_progress'] = "{1} {2} are importing right now. There are {3} {2} left to import and {4} pages left.";
 $l['stats'] = "There are {1} {2} that will be imported.";
 
-$l['progress'] = "Inserting {1} #{2}"
+$l['progress'] = "Inserting {1} #{2}";
 $l['progress_merging_user'] = "Merging user #{1} with user #{2}";
 $l['progress_settings'] = "Inserting {1} {2} from your other {3} database";
 $l['progress_none_left'] = "There are no {1} to import. Please press next to continue.";
@@ -161,9 +161,9 @@ $l['module_settings_updating'] = "Updating settings {1}";
 $l['module_attachment_link'] = "Please type in the link to your {1} forum attachment directory";
 $l['module_attachment_label'] = "Link (URL) to your forum attachment directory";
 $l['module_attachment_error'] = "Error transfering the attachment (ID: {1})";
-$l['module_attachment_not_found'] = "Error could not find the attachment (ID: {$1})";
+$l['module_attachment_not_found'] = "Error could not find the attachment (ID: {1})";
 $l['module_attachment_thumbnail_error'] = "Error transfering the attachment thumbnail (ID: {1})";
-$l['module_attachment_thumbnail_not_found'] = "Error could not find the attachment thumbnail (ID: {$1})";
+$l['module_attachment_thumbnail_not_found'] = "Error could not find the attachment thumbnail (ID: {1})";
 
 $l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
 $l['attmodule_chmod'] = "chmod";
@@ -355,7 +355,7 @@ $l['report_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//
 			<dt>Queries on the MyBB database</dt>
 			<dd>{4}</dd>
 
-			<dt>Queries on the {$board->plain_bbname} database</dt>
+			<dt>Queries on the {8} database</dt>
 			<dd>{5}</dd>
 
 			<dt>Total query time</dt>
