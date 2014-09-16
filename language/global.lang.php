@@ -100,6 +100,9 @@ $l['database_utf8_thead'] = "Encode to UTF-8";
 $l['database_utf8_desc'] = "Automatically convert messages to UTF8?:<br /><small>Turn this off if the conversion creates<br />weird characters in your forum's messages.</small>";
 $l['database_click_next'] = "Once you have checked these details are correct, click next to continue.";
 $l['database_exit'] = "Exit Configuration";
+$l['database_check_success'] = "Checking database details... <span style=\"color: green\">success.</span>";
+$l['database_success'] = "Successfully configured and connected to the database.";
+$l['database_details'] = "Please enter the database details for your installation of {1} you want to merge from.";
 
 $l['per_screen_config'] = "Options Configuration";
 $l['per_screen'] = "Please select how many {1} to import at a time";
@@ -114,6 +117,8 @@ $l['progress_merging_user'] = "Merging user #{1} with user #{2}";
 $l['progress_settings'] = "Inserting {1} {2} from your other {3} database";
 $l['progress_none_left'] = "There are no {1} to import. Please press next to continue.";
 $l['progress_none_left_settings'] = "There are no {1} to update. Please press next to continue.";
+
+$l['import_successfully'] = "Successfully imported {1}.";
 
 $l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
 $l['attmodule_chmod'] = "chmod";
@@ -149,6 +154,13 @@ $l['error_invalid_board'] = "The board module you have selected does not exist."
 $l['error_js_off'] = 'It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.';
 $l['error_list'] = "The MyBB Merge System encountered the following problems";
 $l['error_click_next'] = "Once you have resolved the mentioned issues, you may continue by pressing \"Next\" below.";
+
+$l['error_database_relative'] = "You may not use relative URLs for SQLite databases. Please use a file system path (ex: /home/user/database.db) for your SQLite database.";
+$l['error_database_invalid_engine'] = "You have selected an invalid database engine. Please make your selection from the list below.";
+$l['error_database_cant_connect'] = "Could not connect to the database server at '{1}' with the supplied username and password. Are you sure the hostname and user details are correct?";
+$l['error_database_wrong_table'] = "The {1} database could not be found in '{2}'.  Please ensure {1} exists at this database and with this table prefix.";
+$l['error_database_list'] = "There seems to be one or more errors with the database configuration information that you supplied";
+$l['error_database_continue'] = "Once the above are corrected, continue with the conversion.";
 
 $l['loginconvert_title'] = "MyBB Merge System - Setup Password Conversion";
 $l['loginconvert_message'] = "			<div class=\"error\">\n

@@ -88,7 +88,7 @@ class Converter
 
 	function db_configuration()
 	{
-		global $mybb, $output, $import_session, $db, $dboptions, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix;
+		global $mybb, $output, $import_session, $db, $dboptions, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $lang;
 
 		// Just posted back to this form?
 		if($mybb->input['dbengine'])
@@ -97,11 +97,11 @@ class Converter
 
 			if(strstr($mybb->input['dbengine'], "sqlite") !== false && (strstr($config_data['dbname'], "./") !== false || strstr($config_data['dbname'], "../") !== false))
 			{
-				$errors[] = "You may not use relative URLs for SQLite databases. Please use a file system path (ex: /home/user/database.db) for your SQLite database.";
+				$errors[] = $lang->error_database_relative;
 			}
 			else if(!file_exists(MYBB_ROOT."inc/db_{$mybb->input['dbengine']}.php"))
 			{
-				$errors[] = 'You have selected an invalid database engine. Please make your selection from the list below.';
+				$errors[] = $lang->error_database_invalid_engine;
 			}
 			else
 			{
@@ -137,7 +137,7 @@ class Converter
 				// -1 is returned if we can connect to the server but not to the database
 				if(!$connection || $connection == -1)
 				{
-					$errors[] = "Could not connect to the database server at '{$config_data['dbhost']}' with the supplied username and password. Are you sure the hostname and user details are correct?";
+					$errors[] = $lang->sprintf($lang->error_database_cant_connect, $config_data['dbhost']);
 				}
 
 				if(empty($errors))
@@ -147,16 +147,16 @@ class Converter
 
 					if(isset($this->check_table) && !empty($this->check_table) && !$this->old_db->table_exists($this->check_table))
 					{
-						$errors[] = "The {$this->plain_bbname} database could not be found in '{$config_data['dbname']}'.  Please ensure {$this->plain_bbname} exists at this database and with this table prefix.";
+						$errors[] = $lang->sprintf($lang->error_database_wrong_table, $this->plain_bbname, $config_data['dbname']);
 					}
 				}
 
 				// No errors? Save import DB info and then return finished
 				if(!is_array($errors))
 				{
-					$output->print_header("{$this->plain_bbname} Database Configuration");
+					$output->print_header("{$this->plain_bbname} {$lang->database_configuration}");
 
-					echo "<br />\nChecking database details... <span style=\"color: green\">success.</span><br /><br />\n";
+					echo "<br />\n{$lang->database_check_success}<br /><br />\n";
 					flush();
 
 					$import_session['old_db_engine'] = $mybb->input['dbengine'];
@@ -173,13 +173,13 @@ class Converter
 
 					sleep(2);
 
-					$import_session['flash_message'] = "Successfully configured and connected to the database.";
+					$import_session['flash_message'] = $lang->database_success;
 					return "finished";
 				}
 			}
 		}
 
-		$output->print_header("{$this->plain_bbname} Database Configuration");
+		$output->print_header("{$this->plain_bbname} {$lang->database_configuration}");
 
 		// Check for errors
 		if(is_array($errors))
@@ -187,15 +187,15 @@ class Converter
 			$error_list = error_list($errors);
 			echo "<div class=\"error\">
 			      <h3>Error</h3>
-				  <p>There seems to be one or more errors with the database configuration information that you supplied:</p>
+				  <p>{$lang->error_database_list}:</p>
 				  {$error_list}
-				  <p>Once the above are corrected, continue with the conversion.</p>
+				  <p>{$lang->error_database_continue}</p>
 				  </div>";
 
 		}
 		else
 		{
-			echo "<p>Please enter the database details for your installation of {$this->plain_bbname} you want to merge from.</p>";
+			echo "<p>".$lang->sprintf($lang->database_details, $this->plain_bbname)."</p>";
 			if($import_session['old_db_engine'])
 			{
 				$mybb->input['dbengine'] = $import_session['old_db_engine'];
@@ -262,7 +262,7 @@ class Converter
 	 */
 	function check_if_done()
 	{
-		global $import_session;
+		global $import_session, $lang;
 
 		$this->debug->log->trace2("Checking to see if we have more importing to go: {$import_session['module']}");
 
@@ -274,7 +274,7 @@ class Converter
 		if($import_session['total_'.$module_name] - $this->trackers['start_'.$module_name] <= 0 || $import_session['total_'.$module_name] == 0)
 		{
 			$import_session['disabled'][] = 'import_'.$module_name;
-			$import_session['flash_message'] = "Successfully imported {$this->settings['friendly_name']}.";
+			$import_session['flash_message'] = $lang->sprintf($lang->import_successfully, $this->settings['friendly_name']);
 			return "finished";
 		}
 	}
