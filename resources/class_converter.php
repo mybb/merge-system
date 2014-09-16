@@ -38,7 +38,13 @@ class Converter
 				if(isset($lang->$lang_string))
 				{
 					$module['name'] = $lang->$lang_string;
-				}	
+				}
+
+				$desc_string = $lang_string."_desc";
+				if(!empty($module['description']) && isset($lang->$desc_string))
+				{
+					$module['description'] = $lang->$desc_string;
+				}
 			}
 		}
 

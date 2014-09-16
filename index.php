@@ -496,7 +496,7 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 
 	define("BACK_BUTTON", false);
 
-	$output->print_header($lang->welcomepage_welcome);
+	$output->print_header($lang->welcome);
 
 	echo "<script type=\"text/javascript\">function button_undisable() { document.getElementById('main_submit_button').disabled = false; document.getElementById('main_submit_button').className = 'submit_button'; } window.onload = button_undisable; </script>";
 

@@ -91,9 +91,14 @@ class converterOutput
 	 * @param int Open a form 1/0
 	 * @param int Error???
 	 */
-	function print_header($title="Welcome", $image="welcome", $form=1)
+	function print_header($title=false, $image="welcome", $form=1)
 	{
 		global $mybb, $merge_version, $import_session, $lang;
+
+		if($title === false)
+		{
+			$title = $lang->welcome;
+		}
 
 		$this->doneheader = 1;
 
@@ -129,7 +134,7 @@ END;
 		if(IN_MODULE == 1)
 		{
 			echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
-			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; Pause\" /></div>\n";
+			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; {$lang->pause}\" /></div>\n";
 
 			define("BACK_BUTTON", false);
 		}
@@ -159,12 +164,14 @@ END;
 	 */
 	function print_error($message)
 	{
+		global $lang;
+
 		if(!$this->doneheader)
 		{
-			$this->print_header('Error', "", 0);
+			$this->print_header($lang->error, "", 0);
 		}
 		echo "			<div class=\"error\">\n				";
-		echo "<h3>Error</h3>";
+		echo "<h3>{$lang->error}</h3>";
 		$this->print_contents($message);
 		echo "\n			</div>";
 
@@ -176,8 +183,15 @@ END;
 	 *
 	 * @param string Error string
 	 */
-	function print_warning($message, $title="Warning")
+	function print_warning($message, $title=false)
 	{
+		global $lang;
+
+		if($title === false)
+		{
+			$title = $lang->warning;
+		}
+
 		echo "			<div class=\"error\">\n				";
 		echo "<h3>{$title}</h3>";
 		$this->print_contents($message);
@@ -255,7 +269,7 @@ END;
 	 */
 	function module_list()
 	{
-		global $board, $import_session;
+		global $board, $import_session, $lang;
 
 		if(count($board->modules) == count($import_session['completed']))
 		{
@@ -263,7 +277,7 @@ END;
 			exit;
 		}
 
-		$this->print_header("Module Selection", "", 0);
+		$this->print_header($lang->module_selection, "", 0);
 
 		if($import_session['flash_message'])
 		{
@@ -272,10 +286,10 @@ END;
 		}
 
 		echo "<div class=\"border_wrapper\">\n";
-		echo "<div class=\"title\">Module Selection</div>\n";
+		echo "<div class=\"title\">{$lang->module_selection}</div>\n";
 		echo "<table class=\"general\" cellspacing=\"0\">\n";
 		echo "<tr>\n";
-		echo "<th colspan=\"2\" class=\"first last\">Please select a module to run.</th>\n";
+		echo "<th colspan=\"2\" class=\"first last\">{$lang->module_selection_select}</th>\n";
 		echo "</tr>\n";
 
 		$class = "first";
@@ -302,7 +316,7 @@ END;
 					$prefix = "";
 					if($dependency != 'db_configuration')
 					{
-						$prefix = "Import {$board->plain_bbname} ";
+						$prefix = $lang->sprintf($lang->module_selection_import, $board->plain_bbname);
 					}
 
 					if(!in_array($dependency, $import_session['completed']))
@@ -342,12 +356,12 @@ END;
 			if(in_array($key, $import_session['completed']))
 			{
 				// Module has been completed.  Thus show.
-				echo "<div class=\"pass module_description\">Completed</div>\n";
+				echo "<div class=\"pass module_description\">{$lang->completed}</div>\n";
 			}
 
 			if(count($dependency_list) > 0)
 			{
-				echo "<div class=\"module_description\"><small>Dependencies: ".implode(', ', $dependency_list)."</small></div>\n";
+				echo "<div class=\"module_description\"><small>{$lang->dependencies}: ".implode(', ', $dependency_list)."</small></div>\n";
 			}
 
 			echo "</td>\n";
@@ -356,15 +370,15 @@ END;
 
 			if($import_session['module'] == $key || in_array($key, $import_session['resume_module']))
 			{
-				echo "<input type=\"submit\" class=\"submit_button\" value=\"Resume &raquo;\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button\" value=\"{$lang->resume} &raquo;\" />\n";
 			}
 			elseif($awaiting_dependencies || in_array($key, $import_session['disabled']) || in_array($key, $import_session['completed']) && $key != "db_configuration")
 			{
-				echo "<input type=\"submit\" class=\"submit_button submit_button_disabled\" value=\"Run &raquo;\" disabled=\"disabled\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button submit_button_disabled\" value=\"{$lang->run} &raquo;\" disabled=\"disabled\" />\n";
 			}
 			else
 			{
-				echo "<input type=\"submit\" class=\"submit_button\" value=\"Run &raquo;\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button\" value=\"{$lang->run} &raquo;\" />\n";
 			}
 
 			echo "<input type=\"hidden\" name=\"module\" value=\"{$key}\" />\n";
@@ -384,10 +398,10 @@ END;
 
 		echo "</table>\n";
 		echo "</div><br />\n";
-		echo '<p>After you have run the modules you want, continue to the next step in the conversion process.  The cleanup step will remove any temporary data created during the conversion.</p>';
+		echo "<p>{$lang->module_selection_cleanup_desc}</p>";
 		echo "<form method=\"post\" action=\"{$this->script}\">\n";
 		echo '<input type="hidden" name="action" value="finish" />';
-		echo '<div style="text-align:right"><input type="submit" class="submit_button" value="Cleanup &raquo;" /></div></form>';
+		echo '<div style="text-align:right"><input type="submit" class="submit_button" value="'.$lang->cleanup.' &raquo;" /></div></form>';
 
 		$this->print_footer('', '', 1);
 	}
@@ -400,7 +414,7 @@ END;
 	 */
 	function print_database_details_table($name, $extra="")
 	{
-		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb;
+		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb, $lang;
 
 		if(function_exists('mysql_connect'))
 		{
@@ -517,7 +531,7 @@ END;
 			$db_info[$dbfile] = "
 				<tbody id=\"{$dbfile}_settings\" class=\"db_settings db_type{$class}\">
 					<tr>
-						<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Database Settings</th>
+						<th colspan=\"2\" class=\"first last\">{$dbtype['title']} {$lang->database_settings}</th>
 					</tr>";
 
 			// SQLite gets some special settings
@@ -525,7 +539,7 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">Database Path:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_path}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
 					</tr>";
 			}
@@ -534,19 +548,19 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbhost\">Database Server Hostname:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbhost\">{$lang->database_host}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbhost]\" id=\"config_{$dbfile}_dbhost\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbhost'])."\" /></td>
 					</tr>
 					<tr>
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbuser\">Database Username:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbuser\">{$lang->database_user}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbuser]\" id=\"config_{$dbfile}_dbuser\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbuser'])."\" /></td>
 					</tr>
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbpass\">Database Password:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbpass\">{$lang->database_pw}:</label></td>
 						<td class=\"last alt_col\"><input type=\"password\" class=\"text_input\" name=\"config[{$dbfile}][dbpass]\" id=\"config_{$dbfile}_dbpass\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbpass'])."\" /></td>
 					</tr>
 					<tr class=\"last\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">Database Name:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_name}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
 					</tr>";
 			}
@@ -554,7 +568,7 @@ END;
 			// Now we're up to table settings
 			$db_info[$dbfile] .= "
 				<tr>
-					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Table Settings</th>
+					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} {$lang->database_table_settings}</th>
 				</tr>
 				";
 
@@ -563,7 +577,7 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"first\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">{$lang->database_table_prefix}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
 					</tr>
 					";
@@ -592,7 +606,7 @@ END;
 				}
 				$db_info[$dbfile] .= "
 					<tr class=\"last\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_encoding\">Table Encoding:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_encoding\">{$lang->database_table_encoding}:</label></td>
 						<td class=\"last alt_col\"><select name=\"config[{$dbfile}][encoding]\" id=\"config_{$dbfile}_encoding\">{$select_options}</select></td>
 					</tr>
 
@@ -615,24 +629,24 @@ END;
 		$encoding_utf8 = "<tbody>
 		<tr>
 			<tr>
-				<th colspan=\"2\" class=\"first last\">Encode to UTF-8</th>
+				<th colspan=\"2\" class=\"first last\">{$lang->database_utf8_thead}</th>
 			</tr>
 			<tr class=\"last\">
-				<td class=\"first\"><label for=\"encode_to_utf8\">Automatically convert messages to UTF8?:<br /><small>Turn this off if the conversion creates<br />weird characters in your forum's messages.</small></label></td>
-				<td class=\"last alt_col\"><input type=\"radio\" name=\"encode_to_utf8\" value=\"1\" class=\"radio_input radio_yes\" {$encoding_checked_yes} />Yes</label> <input type=\"radio\" name=\"encode_to_utf8\" value=\"0\" class=\"radio_input radio_no\" {$encoding_checked_no} />No
+				<td class=\"first\"><label for=\"encode_to_utf8\">{$lang->database_utf8_desc}</label></td>
+				<td class=\"last alt_col\"><input type=\"radio\" name=\"encode_to_utf8\" value=\"1\" class=\"radio_input radio_yes\" {$encoding_checked_yes} />{$lang->yes}</label> <input type=\"radio\" name=\"encode_to_utf8\" value=\"0\" class=\"radio_input radio_no\" {$encoding_checked_no} />{$lang->no}
 			</td>
 		</tr>
 		</tbody>";
 
 		echo <<<EOF
 <div class="border_wrapper">
-<div class="title">$name Database Configuration</div>
+<div class="title">$name {$lang->database_configuration}</div>
 <table class="general" cellspacing="0">
 <tr>
-	<th colspan="2" class="first last">Database Settings</th>
+	<th colspan="2" class="first last">{$lang->database_settings}</th>
 </tr>
 <tr class="first">
-	<td class="first"><label for="dbengine">Database Engine:</label></td>
+	<td class="first"><label for="dbengine">{$lang->database_engine}:</label></td>
 	<td class="last alt_col"><select name="dbengine" id="dbengine" onchange="updateDBSettings();">{$dbengines}</select></td>
 </tr>
 
@@ -641,7 +655,7 @@ $encoding_utf8
 $extra
 </table>
 </div>
-<p>Once you have checked these details are correct, click next to continue.</p>
+<p>{$lang->database_click_next}</p>
 EOF;
 	}
 

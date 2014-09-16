@@ -4,6 +4,17 @@ $l['next'] = "Next";
 $l['version'] = "Version";
 $l['none'] = "None";
 $l['please_wait'] = "Please wait...";
+$l['welcome'] = "Welcome";
+$l['pause'] = "Pause";
+$l['error'] = "Error";
+$l['warning'] = "Warning";
+$l['completed'] = "Completed";
+$l['dependencies'] = "Dependencies";
+$l['resume'] = "Resume";
+$l['run'] = "Run";
+$l['cleanup'] = "Cleanup";
+$l['yes'] = "Yes";
+$l['no'] = "No";
 
 // Modules, english names are hardcoded. Uncomment this for your language
 /*
@@ -28,7 +39,6 @@ $l['module_attachtypes'] = 'Attachment Types';
 
 $l['indexpage_require'] = "The MyBB Merge System requires MyBB 1.8 to run.";
 
-$l['welcomepage_welcome'] = "Welcome";
 $l['welcomepage_description'] = "Welcome to the MyBB Merge System. The MyBB Merge system has been designed to allow you to convert a supported forum software to MyBB 1.8. In addition, you may also <i>merge</i> multiple forums into one MyBB Forum.<br /><br />You can find a detailed guide to the MyBB Merge System on our docs site: ";
 $l['welcomepage_mergesystem'] = "Merge System";
 $l['welcomepage_anonymousstat'] = "Send anonymous statistics about my merge to the MyBB Group";
@@ -64,6 +74,26 @@ $l['requirementspage_congrats'] = "Congratulations, you passed all the requireme
 $l['boardspage_welcome'] = "Thank you for choosing MyBB. This wizard will guide you through the process of converting from your existing community to MyBB.";
 $l['boardspage_boardselection'] = "Board Selection";
 $l['boardspage_boardselectiondesc'] = "Please select the board you wish to convert from.";
+
+$l['module_selection'] = "Module Selection";
+$l['module_selection_select'] = "Please select a module to run.";
+$l['module_selection_import'] = "Import {1} ";
+$l['module_selection_cleanup_desc'] = "After you have run the modules you want, continue to the next step in the conversion process.  The cleanup step will remove any temporary data created during the conversion.";
+
+$l['database_configuration'] = "Database Configuration";
+$l['database_settings'] = "Database Settings";
+$l['database_engine'] = "Database Engine";
+$l['database_path'] = "Database Path";
+$l['database_host'] = "Database Server Hostname";
+$l['database_user'] = "Database Username";
+$l['database_pw'] = "Database Password";
+$l['database_name'] = "Database Name";
+$l['database_table_settings'] = "Table Settings";
+$l['database_table_prefix'] = "Table Prefix";
+$l['database_table_encoding'] = "Table Encoding";
+$l['database_utf8_thead'] = "Encode to UTF-8";
+$l['database_utf8_desc'] = "Automatically convert messages to UTF8?:<br /><small>Turn this off if the conversion creates<br />weird characters in your forum's messages.</small>";
+$l['database_click_next'] = "Once you have checked these details are correct, click next to continue.";
 
 $l['cleanup_header'] = "MyBB Merge System - Final Step: Cleanup";
 $l['cleanup_notice'] = "Performing final cleanup and maintenance (This may take a while)...";
