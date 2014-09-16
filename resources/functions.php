@@ -187,7 +187,7 @@ function error_list($array)
  */
 function delete_import_fields($text=true)
 {
-	global $db, $output;
+	global $db, $output, $lang;
 
 	if($text == true)
 	{
@@ -196,19 +196,19 @@ function delete_import_fields($text=true)
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->removing_table, TABLE_PREFIX."trackers"));
 	}
 	$db->drop_table("trackers");
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."post_trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->removing_table, TABLE_PREFIX."post_trackers"));
 	}
 	$db->drop_table("post_trackers");
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Removing ".TABLE_PREFIX."privatemessage_trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->removing_table, TABLE_PREFIX."privatemessage_trackers"));
 	}
 	$db->drop_table("privatemessage_trackers");
 
@@ -240,7 +240,7 @@ function delete_import_fields($text=true)
 
 		if($text == true)
 		{
-			$output->update_progress_bar($progress, "Removing columns ".$columns_list." from table ".TABLE_PREFIX.$table);
+			$output->update_progress_bar($progress, $lang->sprintf($lang->removing_columns, $columns_list, TABLE_PREFIX.$table));
 			$progress += $increment;
 		}
 
@@ -257,13 +257,13 @@ function delete_import_fields($text=true)
  */
 function create_import_fields($text=true)
 {
-	global $db, $output;
+	global $db, $output, $lang;
 
 	if($text == true)
 	{
 		$output->construct_progress_bar();
 
-		echo "<br />Creating fields for tracking data during the Merge process (This may take a while)...";
+		echo "<br />{$lang->creating_fields}";
 		flush();
 	}
 
@@ -272,7 +272,7 @@ function create_import_fields($text=true)
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."trackers"));
 	}
 
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."trackers (
@@ -284,7 +284,7 @@ function create_import_fields($text=true)
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."post_trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."post_trackers"));
 	}
 
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."post_trackers (
@@ -298,7 +298,7 @@ function create_import_fields($text=true)
 
 	if($text == true)
 	{
-		$output->update_progress_bar(0, "Creating ".TABLE_PREFIX."privatemessage_trackers table.");
+		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."privatemessage_trackers"));
 	}
 
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."privatemessage_trackers (
@@ -346,7 +346,7 @@ function create_import_fields($text=true)
 
 		if($text == true)
 		{
-			$output->update_progress_bar($progress, "Adding int columns ".$columns_list." to table ".TABLE_PREFIX.$table);
+			$output->update_progress_bar($progress, $lang->sprintf($lang->creating_columns, "int", $columns_list, TABLE_PREFIX.$table));
 			$progress += $increment;
 		}
 
@@ -379,15 +379,15 @@ function create_import_fields($text=true)
 
 		if($text == true)
 		{
-			$output->update_progress_bar($progress, "Adding text columns ".$columns_list." to table ".TABLE_PREFIX.$table);
+			$output->update_progress_bar($progress, $lang->sprintf($lang->creating_columns, "text", $columns_list, TABLE_PREFIX.$table));
 			$progress += $increment;
 		}
 	}
 
 	if($text == true)
 	{
-		$output->update_progress_bar(200, "Please wait...");
-		echo " done.<br />\n";
+		$output->update_progress_bar(200, $lang->please_wait);
+		echo " {$lang->done}<br />\n";
 		flush();
 	}
 }

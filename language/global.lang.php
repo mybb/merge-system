@@ -21,6 +21,7 @@ $l['dont_wait'] = "Click to continue, if you do not wish to wait.";
 $l['back'] = "Back";
 $l['found_error'] = "Error Encountered";
 $l['loading_data'] = "Loading data from database...";
+$l['done'] = "Done";
 
 // Modules, english names are hardcoded. Uncomment this for your language
 /*
@@ -42,6 +43,10 @@ $l['module_smilies'] = 'Smilies';
 $l['module_settings'] = 'Settings';
 $l['module_attachtypes'] = 'Attachment Types';
 */
+
+$l['creating_fields'] = "Creating fields for tracking data during the Merge process (This may take a while)...";
+$l['creating_table'] = "Creating {1} table.";
+$l['creating_columns'] = "Adding {1} columns {2} to table {3}";
 
 $l['indexpage_require'] = "The MyBB Merge System requires MyBB 1.8 to run.";
 
@@ -128,6 +133,9 @@ $l['attmodule_ipadress2'] = "You may not use \"127.0.0.1\" in the URL. Please us
 $l['attmodule_notread'] = "The attachments could not be read. Please adjust the ";
 $l['attmodule_notread2'] = " permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file
 .";
+
+$l['removing_table'] = "Removing {1} table.";
+$l['removing_columns'] = "Removing columns {1} from table {2}";
 
 $l['cleanup_header'] = "MyBB Merge System - Final Step: Cleanup";
 $l['cleanup_notice'] = "Performing final cleanup and maintenance (This may take a while)...";
