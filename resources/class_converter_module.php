@@ -19,7 +19,16 @@ class Converter_Module
 
 	public function __construct($converter_class)
 	{
-		global $import_session, $debug, $db;
+		global $import_session, $debug, $db, $lang;
+
+		if(isset($this->settings['friendly_name']))
+		{
+			$lang_string = "module_{$this->settings['friendly_name']}";
+			if(isset($lang->$lang_string))
+			{
+				$this->settings['friendly_name'] = $lang->$lang_string;
+			}
+		}
 
 		// Setup & Share our variables and classes
 		require_once MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php";

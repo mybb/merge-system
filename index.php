@@ -562,7 +562,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		$latest_version = "<strong>".$tree['mybb_merge']['latest_version']['value']."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
 		{
-			$errors['version_check'] = "{$lang->requirementspage_outofdatedesc} <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/downloads/merge-system\" target=\"_blank\">{$lang->requirementspage_download}</a>)";
+			$errors['version_check'] = "{$lang->requirementspage_outofdatedesc} <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/downloads/merge-system\" target=\"_blank\">{$lang->download}</a>)";
 			$checks['version_check_status'] = '<span class="fail">'.$lang->requirementspage_outofdate.'</span>';
 			$debug->log->warning("This version of the merge system is out-of-date");
 		}
