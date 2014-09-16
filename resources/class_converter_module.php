@@ -83,7 +83,7 @@ class Converter_Module
 
 	public function check_table_type($tables)
 	{
-		global $output;
+		global $output, $lang;
 
 		if(!is_array($tables))
 		{
@@ -97,7 +97,7 @@ class Converter_Module
 				$table_sql = $this->old_db->show_create_table($table);
 				if(stripos($table_sql, "ENGINE=InnoDB") !== false)
 				{
-					$output->print_warning("The table \"{$table}\" is currently in InnoDB format. We strongly recommend converting these databases to MyISAM otherwise you may experience major slow-downs while running the merge system.");
+					$output->print_warning($lang->warning_innodb, $table);
 					$this->debug->log->warning("{$table} is in InnoDB format. This can cause major slow-downs");
 				}
 			}
