@@ -109,6 +109,9 @@ $l['database_check_success'] = "Checking database details... <span style=\"color
 $l['database_success'] = "Successfully configured and connected to the database.";
 $l['database_details'] = "Please enter the database details for your installation of {1} you want to merge from.";
 
+$l['wbb_installationnumber'] = "Installationnumber";
+$l['wbb_installationnumber_desc'] = "Which was the installationnumber you selected when installing?";
+
 $l['per_screen_config'] = "Options Configuration";
 $l['per_screen'] = "Please select how many {1} to import at a time";
 $l['per_screen_label'] = "{1} to import at a time";
