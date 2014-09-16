@@ -238,7 +238,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 
 		if(empty($module_list))
 		{
-			$module_list = "None\r\n";
+			$module_list = "{$lang->none}\r\n";
 		}
 
 		$errors = "";
@@ -256,7 +256,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 
 		if(empty($errors))
 		{
-			$errors = "None\r\n";
+			$errors = "{$lang->none}\r\n";
 		}
 
 		// This may seem weird but it's not. We determine the longest length of the title,
@@ -283,48 +283,19 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			}
 		}
 
-		$output = <<<EOF
-MyBB Merge System - Merge Report
---------------------------------------------------------
-Welcome to the MyBB Merge System Generated Report. This
-report shows a small overview of this merge session.
-
-General
--------
-	Board merged:    {$board->plain_bbname}
-	Import began:    {$begin_date}
-	Import finished: {$end_date}
-
-Database Query Statistics
--------------------------
-	Queries on MyBB database: {$import_session['newdb_query_count']}
-	Queries on old database:  {$import_session['olddb_query_count']}
-	Total query time:         {$import_session['total_query_time_friendly']}
-
-Modules
--------
-The following modules from this converter were completed:
-{$module_list}
-
-Import Statistics
------------------
-The MyBB import system imported the following from your copy of {$board->bbname}:
-{$import_totals}
-
-Errors
-------
-The following errors were logged during the process of the Merge System:
-{$errors}
-
-Problems?
----------
-The "mybb_debuglogs" table located in your database contains
-debug information about this merge. If you find problems
-please file a support inquery at http://community.mybb.com/.
-
---------------------------------------------------------
-Generated: {$generation_time}
-EOF;
+		$output = $lang->sprintf($lang->report_txt,
+			$board->plain_bbname,
+			$begin_date,
+			$end_date,
+			$import_session['newdb_query_count'],
+			$import_session['olddb_query_count'],
+			$import_session['total_query_time_friendly'],
+			$module_list,
+			$board->bbname,
+			$import_totals,
+			$errors,
+			$generation_time
+		);
 	}
 
 	// Ah, our users requests our pretty html format!
@@ -344,7 +315,7 @@ EOF;
 
 		if(empty($module_list))
 		{
-			$module_list = "<li>None</li>\n";
+			$module_list = "<li>{$lang->none}</li>\n";
 		}
 
 		// Generate the list of stats we have (Amount of threads imported, amount of posts imported, etc)
@@ -359,7 +330,7 @@ EOF;
 
 		if(empty($import_totals))
 		{
-			$import_totals = "<dt>None</dt>\n";
+			$import_totals = "<dt>{$lang->none}</dt>\n";
 		}
 
 		$errors = "";
@@ -378,144 +349,23 @@ EOF;
 
 		if(empty($errors))
 		{
-			$errors = "<li>None</li>\n";
+			$errors = "<li>{$lang->none}</li>\n";
 		}
 
-		$output = <<<EOF
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<title>MyBB Merge System &gt; Generated Report</title>
-	<style type="text/css">
-		body {
-			font-family: Verdana, Arial, sans-serif;
-			font-size: 12px;
-			background: #efefef;
-			color: #000000;
-			margin: 0;
-		}
-
-		#container {
-			margin: auto auto;
-			width: 780px;
-			background: #fff;
-			border: 1px solid #ccc;
-			padding: 20px;
-		}
-
-		h1 {
-			font-size: 25px;
-			margin: 0;
-			background: #ddd;
-			padding: 10px;
-		}
-
-		h2 {
-			font-size: 18px;
-			margin: 0;
-			padding: 10px;
-			background: #efefef;
-		}
-
-		h3 {
-			font-size: 14px;
-			clear: left;
-			border-bottom: 1px dotted #aaa;
-			padding-bottom: 4px;
-		}
-
-		ul, li {
-			padding: 0;
-		}
-
-		#general p, #modules p, #import p, ul, li, dl {
-			margin-left: 30px;
-		}
-
-		dl dt {
-			float: left;
-			width: 300px;
-			padding-bottom: 10px;
-			font-weight: bold;
-		}
-
-		dl dd {
-			padding-bottom: 10px;
-		}
-
-		#footer {
-			border-top: 1px dotted #aaa;
-			padding-top: 10px;
-			font-style: italic;
-		}
-
-		.float_right {
-			float: right;
-		}
-	</style>
-</head>
-<body>
-<div id="container">
-	<h1>MyBB Merge System</h1>
-	<h2>Merge Report</h2>
-	<p>Welcome to the MyBB Merge System Generated Report. This report shows a small overview of this merge session.</p>
-	<div id="general">
-		<h3>General Statistics</h3>
-		<p>You merged {$board->plain_bbname} to your forum.</p>
-		<dl>
-			<dt>Import began</dt>
-			<dd>{$begin_date}</dd>
-
-			<dt>Import finished</dt>
-			<dd>{$end_date}</dd>
-		</dl>
-	</div>
-	<div id="database">
-		<h3>Database Query Statistics</h3>
-		<dl>
-			<dt>Queries on the MyBB database</dt>
-			<dd>{$import_session['newdb_query_count']}</dd>
-
-			<dt>Queries on the {$board->plain_bbname} database</dt>
-			<dd>{$import_session['olddb_query_count']}</dd>
-
-			<dt>Total query time</dt>
-			<dd>{$import_session['total_query_time_friendly']}</dd>
-		</dl>
-	</div>
-	<div id="modules">
-		<h3>Modules</h3>
-		<p>The following modules from this converter were completed:</p>
-		<ul>
-		{$module_list}
-		</ul>
-	</div>
-	<div id="import">
-		<h3>Import Statistics</h3>
-		<p>The MyBB import system imported the following from your copy of {$board->bbname}:</p>
-		<dl>
-		{$import_totals}
-		</dl>
-	</div>
-	<div id="errors">
-		<h3>Errors</h3>
-		<p>The following errors were logged during the process of the Merge System:</p>
-		<ul>
-		{$errors}
-		</ul>
-	</div>
-	<div id="problems">
-		<h3>Problems?</h3>
-		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
-	</div>
-	<div id="footer">
-		<div class="float_right">MyBB &copy; 2002-{$year} MyBB Group</div>
-		<div>Generated {$generation_time}</div>
-	</div>
-</div>
-</body>
-</html>
-EOF;
+		$output = $lang->sprintf($lang->report_html,
+			$board->plain_bbname,
+			$begin_date,
+			$end_date,
+			$import_session['newdb_query_count'],
+			$import_session['olddb_query_count'],
+			$import_session['total_query_time_friendly'],
+			$module_list,
+			$board->bbname,
+			$import_totals,
+			$errors,
+			$generation_time,
+			$year
+		);
 
 	}
 
@@ -567,7 +417,7 @@ if($mybb->input['board'])
 
 	if(!file_exists(MERGE_ROOT."boards/".$mybb->input['board'].".php"))
 	{
-		$output->print_error("The board module you have selected does not exist.");
+		$output->print_error($lang->error_invalid_board);
 	}
 
 	// Get the converter up.
@@ -597,16 +447,12 @@ if($mybb->input['board'])
 		{
 			$debug->log->error("Unable to setup loginconvert.php. Cannot continue script execution");
 
-			$output->print_header("MyBB Merge System - Setup Password Conversion");
+			$output->print_header($lang->loginconvert_header);
 
-			echo "			<div class=\"error\">\n				";
-			echo "<h3>Error</h3>";
-			echo "The MyBB Merge System cannot continue until you upload loginconvert.php (found in this directory via a file transfer application) to your MyBB Forums' inc/plugins folder.";
-			echo "\n			</div>";
+			echo $lang->loginconvert_message;
+			
+			echo "			<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 
-			echo "<p>More Information can be found <a href=\"http://docs.mybb.com/1.8/merge/running/#loginconvert.php-plugin\" target=\"_blank\">here</a>.</p>
-				<p>Once you have uploaded the file, click next to continue.</p>
-				<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 			$output->print_footer();
 		}
 
@@ -663,7 +509,7 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 	$output->print_warning($lang->welcomepage_note, $lang->welcomepage_pleasenote);
 
 	echo '<noscript>';
-	$output->print_warning('It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.');
+	$output->print_warning($lang->error_js_off);
 	echo '</noscript>';
 
 	$output->print_footer("", "", 1, false, $lang->next, "id=\"main_submit_button\" disabled=\"disabled\"", "submit_button_disabled");
@@ -734,7 +580,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	if(!$attachmentswritable)
 	{
 		$errors['attachments_check'] = $lang->requirementspage_chmoduploads.' <a href="http://docs.mybb.com/1.8/install/#file-permissions" target="_blank">'.$lang->requirementspage_chmod.'</a>'.$lang->requirementspage_chmoduploads;
-		$checks['attachments_check_status'] = '<span class="fail"><strong>Not Writable</strong></span>';
+		$checks['attachments_check_status'] = '<span class="fail"><strong>'.$lang->requirementspage_notwritable.'</strong></span>';
 		@fclose($attachmentswritable);
 		$debug->log->trace0("Attachments directory not writable");
 	}
@@ -780,7 +626,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	{
 		$import_session['requirements_pass'] = 0;
 		echo '<p><strong>'.$lang->requirementspage_checkagain.'</strong></p>';
-		$output->print_footer("", "", 1, false, "Check Again");
+		$output->print_footer("", "", 1, false, $lang->requirementspage_checkagain);
 	}
 	else
 	{
@@ -814,12 +660,12 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	define("BACK_BUTTON", false);
 
-	$output->print_header("MyBB Merge System - Final Step: Cleanup");
+	$output->print_header($lang->cleanup_header);
 
 	// Delete import fields and update our cache's
 	$output->construct_progress_bar();
 
-	echo "<br />\nPerforming final cleanup and maintenance (This may take a while)... \n";
+	echo "<br />\n {$lang->cleanup_notice} \n";
 	flush();
 
 	delete_import_fields();
@@ -924,7 +770,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
 	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
-	echo "<br /><br />\nPlease wait...<meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
+	echo "<br /><br />\n{$lang->please_wait} <meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
 	exit;
 }
 elseif($import_session['counters_cleanup'])

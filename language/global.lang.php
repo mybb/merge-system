@@ -2,6 +2,29 @@
 
 $l['next'] = "Next";
 $l['version'] = "Version";
+$l['none'] = "None";
+$l['please_wait'] = "Please wait...";
+
+// Modules, english names are hardcoded. Uncomment this for your language
+/*
+$l['module_usergroups'] = 'User Groups';
+$l['module_users'] = 'Users';
+$l['module_categories'] = 'Categories';
+$l['module_forums'] = 'Forums';
+$l['module_forumperms'] = 'Forum Permissions';
+$l['module_moderators'] = 'Moderators';
+$l['module_threads'] = 'Threads';
+$l['module_posts'] = 'Posts';
+$l['module_attachments'] = 'Attachments';
+$l['module_polls'] = 'Polls';
+$l['module_pollvotes'] = 'Poll Votes';
+$l['module_privatemessages'] = 'Private Messages';
+$l['module_events'] = 'Events';
+$l['module_icons'] = 'Icons';
+$l['module_smilies'] = 'Smilies';
+$l['module_settings'] = 'Settings';
+$l['module_attachtypes'] = 'Attachment Types';
+*/
 
 $l['indexpage_require'] = "The MyBB Merge System requires MyBB 1.8 to run.";
 
@@ -42,3 +65,193 @@ $l['boardspage_welcome'] = "Thank you for choosing MyBB. This wizard will guide 
 $l['boardspage_boardselection'] = "Board Selection";
 $l['boardspage_boardselectiondesc'] = "Please select the board you wish to convert from.";
 
+$l['cleanup_header'] = "MyBB Merge System - Final Step: Cleanup";
+$l['cleanup_notice'] = "Performing final cleanup and maintenance (This may take a while)...";
+
+$l['error_invalid_board'] = "The board module you have selected does not exist.";
+$l['error_js_off'] = 'It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.';
+
+$l['loginconvert_title'] = "MyBB Merge System - Setup Password Conversion";
+$l['loginconvert_message'] = "			<div class=\"error\">\n
+				<h3>Error</h3>
+				The MyBB Merge System cannot continue until you upload loginconvert.php (found in this directory via a file transfer application) to your MyBB Forums' inc/plugins folder.\n
+		</div>
+
+		<p>More Information can be found <a href=\"http://docs.mybb.com/1.8/merge/running/#loginconvert.php-plugin\" target=\"_blank\">here</a>.</p>
+		<p>Once you have uploaded the file, click next to continue.</p>";
+
+
+$l['report_txt'] = 'MyBB Merge System - Merge Report
+--------------------------------------------------------
+Welcome to the MyBB Merge System Generated Report. This
+report shows a small overview of this merge session.
+
+General
+-------
+	Board merged:    {1}
+	Import began:    {2}
+	Import finished: {3}
+
+Database Query Statistics
+-------------------------
+	Queries on MyBB database: {4}
+	Queries on old database:  {5}
+	Total query time:         {6}
+
+Modules
+-------
+The following modules from this converter were completed:
+{7}
+
+Import Statistics
+-----------------
+The MyBB import system imported the following from your copy of {8}:
+{9}
+
+Errors
+------
+The following errors were logged during the process of the Merge System:
+{10}
+
+Problems?
+---------
+The "mybb_debuglogs" table located in your database contains
+debug information about this merge. If you find problems
+please file a support inquery at http://community.mybb.com/.
+
+--------------------------------------------------------
+Generated: {11}';
+
+$l['report_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>MyBB Merge System &gt; Generated Report</title>
+	<style type="text/css">
+		body {
+			font-family: Verdana, Arial, sans-serif;
+			font-size: 12px;
+			background: #efefef;
+			color: #000000;
+			margin: 0;
+		}
+
+		#container {
+			margin: auto auto;
+			width: 780px;
+			background: #fff;
+			border: 1px solid #ccc;
+			padding: 20px;
+		}
+
+		h1 {
+			font-size: 25px;
+			margin: 0;
+			background: #ddd;
+			padding: 10px;
+		}
+
+		h2 {
+			font-size: 18px;
+			margin: 0;
+			padding: 10px;
+			background: #efefef;
+		}
+
+		h3 {
+			font-size: 14px;
+			clear: left;
+			border-bottom: 1px dotted #aaa;
+			padding-bottom: 4px;
+		}
+
+		ul, li {
+			padding: 0;
+		}
+
+		#general p, #modules p, #import p, ul, li, dl {
+			margin-left: 30px;
+		}
+
+		dl dt {
+			float: left;
+			width: 300px;
+			padding-bottom: 10px;
+			font-weight: bold;
+		}
+
+		dl dd {
+			padding-bottom: 10px;
+		}
+
+		#footer {
+			border-top: 1px dotted #aaa;
+			padding-top: 10px;
+			font-style: italic;
+		}
+
+		.float_right {
+			float: right;
+		}
+	</style>
+</head>
+<body>
+<div id="container">
+	<h1>MyBB Merge System</h1>
+	<h2>Merge Report</h2>
+	<p>Welcome to the MyBB Merge System Generated Report. This report shows a small overview of this merge session.</p>
+	<div id="general">
+		<h3>General Statistics</h3>
+		<p>You merged {1} to your forum.</p>
+		<dl>
+			<dt>Import began</dt>
+			<dd>{2}</dd>
+
+			<dt>Import finished</dt>
+			<dd>{3}</dd>
+		</dl>
+	</div>
+	<div id="database">
+		<h3>Database Query Statistics</h3>
+		<dl>
+			<dt>Queries on the MyBB database</dt>
+			<dd>{4}</dd>
+
+			<dt>Queries on the {$board->plain_bbname} database</dt>
+			<dd>{5}</dd>
+
+			<dt>Total query time</dt>
+			<dd>{6}</dd>
+		</dl>
+	</div>
+	<div id="modules">
+		<h3>Modules</h3>
+		<p>The following modules from this converter were completed:</p>
+		<ul>
+		{7}
+		</ul>
+	</div>
+	<div id="import">
+		<h3>Import Statistics</h3>
+		<p>The MyBB import system imported the following from your copy of {8}:</p>
+		<dl>
+		{9}
+		</dl>
+	</div>
+	<div id="errors">
+		<h3>Errors</h3>
+		<p>The following errors were logged during the process of the Merge System:</p>
+		<ul>
+		{10}
+		</ul>
+	</div>
+	<div id="problems">
+		<h3>Problems?</h3>
+		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
+	</div>
+	<div id="footer">
+		<div class="float_right">MyBB &copy; 2002-{12} MyBB Group</div>
+		<div>Generated {11}</div>
+	</div>
+</div>
+</body>
+</html>';

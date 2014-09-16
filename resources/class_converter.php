@@ -27,7 +27,20 @@ class Converter
 	 */
 	function __construct()
 	{
-		global $debug;
+		global $debug, $lang;
+
+		// Set the module names here
+		if(isset($this->modules))
+		{
+			foreach($this->modules as $key => $module)
+			{
+				$lang_string = "module_{$key}";
+				if(isset($lang->$lang_string))
+				{
+					$module['name'] = $lang->$lang_string;
+				}	
+			}
+		}
 
 		$this->debug = &$debug;
 		return 'MyBB';
