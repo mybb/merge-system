@@ -102,16 +102,16 @@ class Converter_Module_Posts extends Converter_Module
 	 */
 	public function counters_cleanup()
 	{
-		global $db, $output, $import_session;
+		global $db, $output, $import_session, $lang;
 
-		$output->print_header("Rebuilding Counters");
+		$output->print_header($lang->module_post_rebuilding);
 
 		$this->debug->log->trace0("Rebuilding thread, forum, and statistic counters");
 
 		$output->construct_progress_bar();
 
-		echo "<br />\nRebuilding thread, forum, and statistic counters...(This may take a while)<br /><br />\n";
-		echo "<br />\nRebuilding thread counters... ";
+		echo $lang->module_post_rebuild_counters;
+
 		flush();
 
 		// Rebuild thread counters, forum counters, user post counters, last post* and thread username
@@ -140,7 +140,7 @@ class Converter_Module_Posts extends Converter_Module
 					$percent = round(($progress/$num_imported_threads)*100, 1);
 					if($percent != $last_percent)
 					{
-						$output->update_progress_bar($percent, "Rebuilding counters for thread #{$thread['tid']}");
+						$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
 					}
 					$last_percent = $percent;
 				}
@@ -152,7 +152,7 @@ class Converter_Module_Posts extends Converter_Module
 			{
 				$this->debug->log->trace1("Finished rebuilding thread counters");
 				$import_session['counters_cleanup'] = 0;
-				echo "done.";
+				echo $lang->done;
 				flush();
 				return;
 			}
@@ -163,7 +163,7 @@ class Converter_Module_Posts extends Converter_Module
 		if($import_session['counters_cleanup_start'] >= $num_imported_threads)
 		{
 			$this->debug->log->trace1("Rebuilding forum counters");
-			echo "done. <br />Rebuilding forum counters... ";
+			echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
 			flush();
 
 			$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid != 0");
@@ -175,7 +175,7 @@ class Converter_Module_Posts extends Converter_Module
 			{
 				rebuild_forum_counters($forum['fid']);
 				++$progress;
-				$output->update_progress_bar(round((($progress/$num_imported_forums)*50), 1)+100, "Rebuilding counters for forum #{$forum['fid']}");
+				$output->update_progress_bar(round((($progress/$num_imported_forums)*50), 1)+100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 			}
 
 			$output->update_progress_bar(150);
@@ -201,7 +201,7 @@ class Converter_Module_Posts extends Converter_Module
 			}
 
 			$this->debug->log->trace1("Rebuilding user counters");
-			echo "done. <br />Rebuilding user counters... ";
+			echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
 			flush();
 
 			$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
@@ -220,15 +220,15 @@ class Converter_Module_Posts extends Converter_Module
 				$percent = round((($progress/$num_imported_users)*50)+150, 1);
 				if($percent != $last_percent)
 				{
-					$output->update_progress_bar($percent, "Rebuilding counters for user #{$user['uid']}");
+					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
 				}
 				$last_percent = $percent;
 			}
 			// TODO: recount user posts doesn't seem to work
 
-			$output->update_progress_bar(200, "Please wait...");
+			$output->update_progress_bar(200, $lang->please_wait);
 
-			echo "done.<br />";
+			echo "{$lang->done}.<br />";
 			flush();
 
 			sleep(3);
