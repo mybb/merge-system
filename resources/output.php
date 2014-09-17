@@ -91,9 +91,14 @@ class converterOutput
 	 * @param int Open a form 1/0
 	 * @param int Error???
 	 */
-	function print_header($title="Welcome", $image="welcome", $form=1)
+	function print_header($title=false, $image="welcome", $form=1)
 	{
-		global $mybb, $merge_version, $import_session;
+		global $mybb, $merge_version, $import_session, $lang;
+
+		if($title === false)
+		{
+			$title = $lang->welcome;
+		}
 
 		$this->doneheader = 1;
 
@@ -115,7 +120,7 @@ END;
 			<h1><span class="invisible">MyBB</span></h1>
 		</div>
 		<div id="inner_container">
-		<div id="header">{$this->title} - Version: {$merge_version}</div>
+		<div id="header">{$this->title} - {$lang->version}: {$merge_version}</div>
 		<div id="content">
 END;
 		if($form)
@@ -129,7 +134,7 @@ END;
 		if(IN_MODULE == 1)
 		{
 			echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
-			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; Pause\" /></div>\n";
+			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; {$lang->pause}\" /></div>\n";
 
 			define("BACK_BUTTON", false);
 		}
@@ -159,12 +164,14 @@ END;
 	 */
 	function print_error($message)
 	{
+		global $lang;
+
 		if(!$this->doneheader)
 		{
-			$this->print_header('Error', "", 0);
+			$this->print_header($lang->error, "", 0);
 		}
 		echo "			<div class=\"error\">\n				";
-		echo "<h3>Error</h3>";
+		echo "<h3>{$lang->error}</h3>";
 		$this->print_contents($message);
 		echo "\n			</div>";
 
@@ -176,8 +183,15 @@ END;
 	 *
 	 * @param string Error string
 	 */
-	function print_warning($message, $title="Warning")
+	function print_warning($message, $title=false)
 	{
+		global $lang;
+
+		if($title === false)
+		{
+			$title = $lang->warning;
+		}
+
 		echo "			<div class=\"error\">\n				";
 		echo "<h3>{$title}</h3>";
 		$this->print_contents($message);
@@ -190,18 +204,20 @@ END;
 	 */
 	function board_list()
 	{
+		global $lang;
+
 		if(!$this->doneheader)
 		{
 			$this->print_header();
 		}
 
-		echo "<p>Thank you for choosing MyBB. This wizard will guide you through the process of converting from your existing community to MyBB.";
+		echo "<p>{$lang->boardspage_welcome}";
 
 		echo "<div class=\"border_wrapper\">\n";
-		echo "<div class=\"title\">Board Selection</div>\n";
+		echo "<div class=\"title\">{$lang->boardspage_boardselection}</div>\n";
 		echo "<table class=\"general\" cellspacing=\"0\">\n";
 		echo "<tr>\n";
-		echo "<th colspan=\"2\" class=\"first last\">Please select the board you wish to convert from.</th>\n";
+		echo "<th colspan=\"2\" class=\"first last\">{$lang->boardspage_boardselectiondesc}</th>\n";
 		echo "</tr>\n";
 
 		$dh = opendir(MERGE_ROOT."boards");
@@ -253,7 +269,7 @@ END;
 	 */
 	function module_list()
 	{
-		global $board, $import_session;
+		global $board, $import_session, $lang;
 
 		if(count($board->modules) == count($import_session['completed']))
 		{
@@ -261,7 +277,7 @@ END;
 			exit;
 		}
 
-		$this->print_header("Module Selection", "", 0);
+		$this->print_header($lang->module_selection, "", 0);
 
 		if($import_session['flash_message'])
 		{
@@ -270,10 +286,10 @@ END;
 		}
 
 		echo "<div class=\"border_wrapper\">\n";
-		echo "<div class=\"title\">Module Selection</div>\n";
+		echo "<div class=\"title\">{$lang->module_selection}</div>\n";
 		echo "<table class=\"general\" cellspacing=\"0\">\n";
 		echo "<tr>\n";
-		echo "<th colspan=\"2\" class=\"first last\">Please select a module to run.</th>\n";
+		echo "<th colspan=\"2\" class=\"first last\">{$lang->module_selection_select}</th>\n";
 		echo "</tr>\n";
 
 		$class = "first";
@@ -300,7 +316,7 @@ END;
 					$prefix = "";
 					if($dependency != 'db_configuration')
 					{
-						$prefix = "Import {$board->plain_bbname} ";
+						$prefix = $lang->sprintf($lang->module_selection_import, $board->plain_bbname);
 					}
 
 					if(!in_array($dependency, $import_session['completed']))
@@ -340,12 +356,12 @@ END;
 			if(in_array($key, $import_session['completed']))
 			{
 				// Module has been completed.  Thus show.
-				echo "<div class=\"pass module_description\">Completed</div>\n";
+				echo "<div class=\"pass module_description\">{$lang->completed}</div>\n";
 			}
 
 			if(count($dependency_list) > 0)
 			{
-				echo "<div class=\"module_description\"><small>Dependencies: ".implode(', ', $dependency_list)."</small></div>\n";
+				echo "<div class=\"module_description\"><small>{$lang->dependencies}: ".implode(', ', $dependency_list)."</small></div>\n";
 			}
 
 			echo "</td>\n";
@@ -354,15 +370,15 @@ END;
 
 			if($import_session['module'] == $key || in_array($key, $import_session['resume_module']))
 			{
-				echo "<input type=\"submit\" class=\"submit_button\" value=\"Resume &raquo;\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button\" value=\"{$lang->resume} &raquo;\" />\n";
 			}
 			elseif($awaiting_dependencies || in_array($key, $import_session['disabled']) || in_array($key, $import_session['completed']) && $key != "db_configuration")
 			{
-				echo "<input type=\"submit\" class=\"submit_button submit_button_disabled\" value=\"Run &raquo;\" disabled=\"disabled\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button submit_button_disabled\" value=\"{$lang->run} &raquo;\" disabled=\"disabled\" />\n";
 			}
 			else
 			{
-				echo "<input type=\"submit\" class=\"submit_button\" value=\"Run &raquo;\" />\n";
+				echo "<input type=\"submit\" class=\"submit_button\" value=\"{$lang->run} &raquo;\" />\n";
 			}
 
 			echo "<input type=\"hidden\" name=\"module\" value=\"{$key}\" />\n";
@@ -382,10 +398,10 @@ END;
 
 		echo "</table>\n";
 		echo "</div><br />\n";
-		echo '<p>After you have run the modules you want, continue to the next step in the conversion process.  The cleanup step will remove any temporary data created during the conversion.</p>';
+		echo "<p>{$lang->module_selection_cleanup_desc}</p>";
 		echo "<form method=\"post\" action=\"{$this->script}\">\n";
 		echo '<input type="hidden" name="action" value="finish" />';
-		echo '<div style="text-align:right"><input type="submit" class="submit_button" value="Cleanup &raquo;" /></div></form>';
+		echo '<div style="text-align:right"><input type="submit" class="submit_button" value="'.$lang->cleanup.' &raquo;" /></div></form>';
 
 		$this->print_footer('', '', 1);
 	}
@@ -398,7 +414,7 @@ END;
 	 */
 	function print_database_details_table($name, $extra="")
 	{
-		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb;
+		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb, $lang;
 
 		if(function_exists('mysql_connect'))
 		{
@@ -515,7 +531,7 @@ END;
 			$db_info[$dbfile] = "
 				<tbody id=\"{$dbfile}_settings\" class=\"db_settings db_type{$class}\">
 					<tr>
-						<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Database Settings</th>
+						<th colspan=\"2\" class=\"first last\">{$dbtype['title']} {$lang->database_settings}</th>
 					</tr>";
 
 			// SQLite gets some special settings
@@ -523,7 +539,7 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">Database Path:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_path}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
 					</tr>";
 			}
@@ -532,19 +548,19 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbhost\">Database Server Hostname:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbhost\">{$lang->database_host}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbhost]\" id=\"config_{$dbfile}_dbhost\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbhost'])."\" /></td>
 					</tr>
 					<tr>
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbuser\">Database Username:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbuser\">{$lang->database_user}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbuser]\" id=\"config_{$dbfile}_dbuser\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbuser'])."\" /></td>
 					</tr>
 					<tr class=\"alt_row\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbpass\">Database Password:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbpass\">{$lang->database_pw}:</label></td>
 						<td class=\"last alt_col\"><input type=\"password\" class=\"text_input\" name=\"config[{$dbfile}][dbpass]\" id=\"config_{$dbfile}_dbpass\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbpass'])."\" /></td>
 					</tr>
 					<tr class=\"last\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">Database Name:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_name}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
 					</tr>";
 			}
@@ -552,7 +568,7 @@ END;
 			// Now we're up to table settings
 			$db_info[$dbfile] .= "
 				<tr>
-					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} Table Settings</th>
+					<th colspan=\"2\" class=\"first last\">{$dbtype['title']} {$lang->database_table_settings}</th>
 				</tr>
 				";
 
@@ -561,7 +577,7 @@ END;
 			{
 				$db_info[$dbfile] .= "
 					<tr class=\"first\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">Table Prefix:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">{$lang->database_table_prefix}:</label></td>
 						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
 					</tr>
 					";
@@ -590,7 +606,7 @@ END;
 				}
 				$db_info[$dbfile] .= "
 					<tr class=\"last\">
-						<td class=\"first\"><label for=\"config_{$dbfile}_encoding\">Table Encoding:</label></td>
+						<td class=\"first\"><label for=\"config_{$dbfile}_encoding\">{$lang->database_table_encoding}:</label></td>
 						<td class=\"last alt_col\"><select name=\"config[{$dbfile}][encoding]\" id=\"config_{$dbfile}_encoding\">{$select_options}</select></td>
 					</tr>
 
@@ -613,24 +629,24 @@ END;
 		$encoding_utf8 = "<tbody>
 		<tr>
 			<tr>
-				<th colspan=\"2\" class=\"first last\">Encode to UTF-8</th>
+				<th colspan=\"2\" class=\"first last\">{$lang->database_utf8_thead}</th>
 			</tr>
 			<tr class=\"last\">
-				<td class=\"first\"><label for=\"encode_to_utf8\">Automatically convert messages to UTF8?:<br /><small>Turn this off if the conversion creates<br />weird characters in your forum's messages.</small></label></td>
-				<td class=\"last alt_col\"><input type=\"radio\" name=\"encode_to_utf8\" value=\"1\" class=\"radio_input radio_yes\" {$encoding_checked_yes} />Yes</label> <input type=\"radio\" name=\"encode_to_utf8\" value=\"0\" class=\"radio_input radio_no\" {$encoding_checked_no} />No
+				<td class=\"first\"><label for=\"encode_to_utf8\">{$lang->database_utf8_desc}</label></td>
+				<td class=\"last alt_col\"><input type=\"radio\" name=\"encode_to_utf8\" value=\"1\" class=\"radio_input radio_yes\" {$encoding_checked_yes} />{$lang->yes}</label> <input type=\"radio\" name=\"encode_to_utf8\" value=\"0\" class=\"radio_input radio_no\" {$encoding_checked_no} />{$lang->no}
 			</td>
 		</tr>
 		</tbody>";
 
 		echo <<<EOF
 <div class="border_wrapper">
-<div class="title">$name Database Configuration</div>
+<div class="title">$name {$lang->database_configuration}</div>
 <table class="general" cellspacing="0">
 <tr>
-	<th colspan="2" class="first last">Database Settings</th>
+	<th colspan="2" class="first last">{$lang->database_settings}</th>
 </tr>
 <tr class="first">
-	<td class="first"><label for="dbengine">Database Engine:</label></td>
+	<td class="first"><label for="dbengine">{$lang->database_engine}:</label></td>
 	<td class="last alt_col"><select name="dbengine" id="dbengine" onchange="updateDBSettings();">{$dbengines}</select></td>
 </tr>
 
@@ -639,7 +655,7 @@ $encoding_utf8
 $extra
 </table>
 </div>
-<p>Once you have checked these details are correct, click next to continue.</p>
+<p>{$lang->database_click_next}</p>
 EOF;
 	}
 
@@ -648,11 +664,11 @@ EOF;
 	 */
 	function finish_conversion()
 	{
-		global $config, $import_session;
+		global $config, $import_session, $lang;
 
 		if(!$this->doneheader)
 		{
-			$this->print_header("Completion", '', 1);
+			$this->print_header($lang->finish_completion, '', 1);
 		}
 
 		if(!isset($config['admin_dir']))
@@ -660,34 +676,26 @@ EOF;
 			$config['admin_dir'] = "admin";
 		}
 
-		echo '<p>The current conversion session has been finished.  You may now go to your copy of <a href="../">MyBB</a> or your <a href="../'.$config['admin_dir'].'/index.php">Admin Control Panel</a>.  It is recommended that you run the Rebuild and Recount tools in the Admin CP.</p>';
-		echo '
-<p>Please remove this directory if you are not planning on converting any other forums.</p>';
+		echo $lang->sprintf($lang->finish_head, $config['admin_dir']);
 
-		$this->print_warning('As it\'s impossible to merge all permissions, settings and counters you need to do a few things now to make sure everything works as expected:
-		<ul>
-			<li>Rebuild the <a href="../'.$config['admin_dir'].'/index.php?module=tools-cache">caches</a></li>
-			<li>Run all <a href="../'.$config['admin_dir'].'/index.php?module=tools-recount_rebuild">Recount & Rebuild</a> tools</li>
-			<li>Check all <a href="../'.$config['admin_dir'].'/index.php?module=config">settings</a></li>
-			<li>Check the <a href="../'.$config['admin_dir'].'/index.php?module=forum">forum</a> and  <a href="../'.$config['admin_dir'].'/index.php?module=user-groups">group</a> permissions</li>
-		</ul>', "What's next?");
+		$this->print_warning($lang->sprintf($lang->finish_whats_next, $config['admin_dir']), $lang->finish_whats_next_head);
 
 		echo '<br />
-<p>The following will allow you to download a detailed report generated by the converter in several styles.
+<p>'.$lang->finish_report1.'
 <div class="border_wrapper">
-<div class="title">Report Generation</div>
+<div class="title">'.$lang->finish_report2.'</div>
 <table class="general" cellspacing="0">
 <tr>
-<th colspan="2" class="first last">Please select the report style you wish to generate.</th>
+<th colspan="2" class="first last">'.$lang->finish_report_type.'</th>
 </tr>
 <tr>
-<td><label for="txt"> Plain Text File
+<td><label for="txt"> '.$lang->finish_report_type_txt.'
 </label></td>
 <td><input type="radio" name="reportgen" value="txt" id="txt" /></td>
 </tr>
 
 <tr>
-<td><label for="html"> HTML (Browser Viewable) File
+<td><label for="html"> '.$lang->finish_report_type_html.'
 </label></td>
 <td><input type="radio" name="reportgen" value="html" id="html" /></td>
 </tr>
@@ -695,7 +703,7 @@ EOF;
 </table>
 </div>
 <br />
-		<div id="next_button"><input type="submit" class="submit_button" value="Download &raquo;" /></div>
+		<div id="next_button"><input type="submit" class="submit_button" value="'.$lang->download.' &raquo;" /></div>
 
 </form>';
 
@@ -711,9 +719,14 @@ EOF;
 	 * @param string The name of the next action
 	 * @param int Do session update? 1/0
 	 */
-	function print_footer($next_action="", $name="", $do_session=1, $override_form=false, $next="Next", $button_extra="", $extra_class="")
+	function print_footer($next_action="", $name="", $do_session=1, $override_form=false, $next=false, $button_extra="", $extra_class="")
 	{
-		global $import_session, $conf_global_not_found, $mybb;
+		global $import_session, $conf_global_not_found, $mybb, $lang;
+
+		if($next === false)
+		{
+			$next = $lang->next;
+		}
 
 		if($this->opened_form && $override_form != true)
 		{
@@ -731,7 +744,7 @@ EOF;
 			if($import_session['autorefresh'] == "yes" && !$conf_global_not_found)
 			{
 				echo "\n		<meta http-equiv=\"Refresh\" content=\"2; url=".$this->script."\" />";
-				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"Redirecting... &raquo;\" alt=\"Click to continue, if you do not wish to wait.\" {$button_extra} /></div>";
+				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"{$lang->redirecting} &raquo;\" alt=\"{$lang->dont_wait}\" {$button_extra} /></div>";
 			}
 			else
 			{
@@ -748,12 +761,12 @@ EOF;
 				if($import_session['module'] == 'db_configuration')
 				{
 					echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
-					echo "\n		<div id=\"exit_config_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"&laquo; Exit Configuration\" {$button_extra} /></div><br style=\"clear: both;\" />\n";
+					echo "\n		<div id=\"exit_config_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"&laquo; {$lang->database_exit}\" {$button_extra} /></div><br style=\"clear: both;\" />\n";
 				}
 				else
 				{
 					echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
-					echo "\n		<div id=\"back_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; Back\" {$button_extra} /></div><br style=\"clear: both;\" />\n";
+					echo "\n		<div id=\"back_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; {$lang->back}\" {$button_extra} /></div><br style=\"clear: both;\" />\n";
 				}
 				echo "\n	</form>\n";
 
@@ -798,7 +811,7 @@ END;
 
 	function print_error_page($inline=false)
 	{
-		global $import_session, $mybb, $output, $module;
+		global $import_session, $mybb, $output, $module, $lang;
 
 		$errors = $module->errors;
 		if(empty($errors))
@@ -810,7 +823,7 @@ END;
 
 		if(!$this->doneheader && $inline == false)
 		{
-			$this->print_header("Error Encountered", '', 1);
+			$this->print_header($lang->found_error, '', 1);
 		}
 
 		$error_list = "";
@@ -823,12 +836,12 @@ END;
 
 		echo "<p>
 		<div class=\"error\">
-		<strong>The MyBB Merge System encountered the following problems:</strong><br />
+		<strong>{$lang->error_list}:</strong><br />
 		<ul>
 		<li>{$error_list}</li>
 		</ul>
 		</div>
-		Once you have resolved the mentioned issues, you may continue by pressing \"Next\" below.
+		{$lang->error_click_next}
 		<br />
 		<br />
 		</p>";
@@ -841,7 +854,7 @@ END;
 
 	function print_per_screen_page($per_screen=10)
 	{
-		global $import_session, $mybb, $output, $module, $db;
+		global $import_session, $mybb, $output, $module, $db, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
@@ -853,31 +866,31 @@ END;
 
 		if(!empty($module->errors))
 		{
-		$this->print_inline_errors();
+			$this->print_inline_errors();
 		}
 
 		echo '
 <div class="border_wrapper">
-<div class="title">Options Configuration</div>
+<div class="title">'.$lang->per_screen_config.'</div>
 <table class="general" cellspacing="0">
 <tr>
-<th colspan="2" class="first last">Please select how many '.$module->settings['friendly_name'].' to import at a time:</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->per_screen, $module->settings['friendly_name']).':</th>
 </tr>
 <tr>
-<td><label for="per_screen"> '.ucfirst($module->settings['friendly_name']).' to import at a time:
+<td><label for="per_screen"> '.$lang->sprintf($lang->per_screen_label, ucfirst($module->settings['friendly_name'])).':
 </label></td>
 <td><input type="text" name="'.$module_name.'_per_screen" id="per_screen" value="'.intval($per_screen).'" style="width: 90%" /></td>
 </tr>
 <tr>
-<th colspan="2" class="first last">Do you want to automatically continue to the next step until it\'s finished?:</th>
+<th colspan="2" class="first last">'.$lang->per_screen_autorefresh.':</th>
 </tr>
 <tr>
-<td><label for="autorefresh_yes"> Yes
+<td><label for="autorefresh_yes"> '.$lang->yes.'
 </label></td>
 <td><input type="radio" name="autorefresh" id="autorefresh_yes" value="yes" checked="checked" /></td>
 </tr>
 <tr>
-<td><label for="autorefresh_no"> No
+<td><label for="autorefresh_no"> '.$lang->no.'
 </label></td>
 <td><input type="radio" name="autorefresh" id="autorefresh_no" value="no" /></td>
 </tr>';
@@ -899,7 +912,7 @@ END;
 
 	function calculate_stats($in_progress_stats=true)
 	{
-		global $import_session, $module;
+		global $import_session, $module, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
@@ -932,11 +945,11 @@ END;
 
 		if($in_progress_stats == true)
 		{
-			echo "<i>".my_number_format($importing_now)." {$module->settings['friendly_name']} are importing right now. There are ".my_number_format($left)." {$module->settings['friendly_name']} left to import and ".my_number_format($pages)." pages left.</i><br /><br />";
+			echo "<i>".$lang->sprintf($lang->stats_in_progress, my_number_format($importing_now), $module->settings['friendly_name'], my_number_format($left), my_number_format($pages))."</i><br /><br />";
 		}
 		else
 		{
-			echo "<i>There are ".my_number_format($import_session['total_'.$module_name])." {$module->settings['friendly_name']} that will be imported.</i><br /><br />";
+			echo "<i>".$lang->sprintf($lang->stats, my_number_format($import_session['total_'.$module_name]), $module->settings['friendly_name'])."</i><br /><br />";
 		}
 		flush();
 	}
@@ -948,6 +961,8 @@ END;
 
 	function construct_progress_bar()
 	{
+		global $lang;
+
 		if($this->_progress_bar_constructed == 1)
 		{
 			return;
@@ -959,7 +974,7 @@ END;
 					<span id=\"status_message\">&nbsp;</span></div>";
 		flush();
 
-		$this->update_progress_bar(0, "Loading data from database...");
+		$this->update_progress_bar(0, $lang->loading_data);
 
 		$this->_progress_bar_constructed = 1;
 	}
@@ -989,7 +1004,7 @@ END;
 
 	function print_progress($position, $id="")
 	{
-		global $import_session, $module;
+		global $import_session, $module, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
@@ -1044,21 +1059,29 @@ END;
 				// If we're merging a user
 				if($position == "merge_user")
 				{
-					$status_message = "Merging user #{$id['import_uid']} with user #{$id['duplicate_uid']}";
+					$status_message = $lang->sprintf($lang->progress_merging_user, $id['import_uid'], $id['duplicate_uid']);
 				}
 				else
 				{
 
 					if($this->_friendly_name_singular == "")
 					{
-						// Removes the "s" from the friendly name to make it singular
-						$this->_friendly_name_singular = substr($module->settings['friendly_name'], 0, -1);
+						$lang_string = "module_{$module->settings['orig_name']}_singular";
+						if(isset($lang->$lang_string))
+						{
+							$this->_friendly_name_singular = $lang->$lang_string;
+						}
+						else
+						{
+							// Old code from 1.8-
+							$this->_friendly_name_singular = substr($module->settings['friendly_name'], 0, -1);
+						}
 					}
 
 					// Settings are special case
 					if($import_session['module'] == "settings")
 					{
-						$status_message = "Inserting {$this->_friendly_name_singular} {$this->_current_id} from your other {$module->plain_bbname} database";
+						$status_message = $lang->sprintf($lang->progress_settings, $this->_friendly_name_singular, $this->_current_id, $module->plain_bbname);
 					}
 					else if(!is_numeric($this->_current_id))
 					{
@@ -1066,13 +1089,13 @@ END;
 					}
 					else
 					{
-						$status_message = "Inserting {$this->_friendly_name_singular} #{$this->_current_id}";
+						$status_message = $lang->sprintf($lang->progress, $this->_friendly_name_singular, $this->_current_id);
 					}
 				}
 
 				if($percent_done >= 1)
 				{
-					$status_message = "Please wait... ";
+					$status_message = $lang->please_wait;
 				}
 			}
 
@@ -1084,16 +1107,16 @@ END;
 
 	function print_none_left_message()
 	{
-		global $module, $import_session;
+		global $module, $import_session, $lang;
 
 		echo "<div class=\"alert\">";
 		if($import_session['module'] == "import_settings")
 		{
-			echo "There are no ".$module->settings['friendly_name']." to update. Please press next to continue.";
+			echo $lang->sprintf($lang->progress_none_left_settings, $module->settings['friendly_name']);
 		}
 		else
 		{
-			echo "There are no ".$module->settings['friendly_name']." to import. Please press next to continue.";
+			echo $lang->sprintf($lang->progress_none_left, $module->settings['friendly_name']);
 		}
 		echo "</div>";
 		define("BACK_BUTTON", false);

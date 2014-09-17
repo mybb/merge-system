@@ -146,7 +146,7 @@ class WBB3_Converter extends Converter
 	
 	function db_extra()
 	{
-		global $mybb;
+		global $mybb, $lang;
 
 		if(!empty($this->installationnumber))
 		{
@@ -171,10 +171,10 @@ class WBB3_Converter extends Converter
 		return "<tbody>
 		<tr>
 			<tr>
-				<th colspan=\"2\" class=\"first last\">Installationnumber</th>
+				<th colspan=\"2\" class=\"first last\">{$lang->wbb_installationnumber}</th>
 			</tr>
 			<tr class=\"last\">
-				<td class=\"first\"><label for=\"installationnumber\">Which was the installationnumber you selected when installing?</label></td>
+				<td class=\"first\"><label for=\"installationnumber\">{$lang->wbb_installationnumber_desc}</label></td>
 				<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"installationnumber\" id=\"installationnumber\" value=\"".htmlspecialchars_uni($mybb->input['installationnumber'])."\" /></td>
 			</td>
 		</tr>

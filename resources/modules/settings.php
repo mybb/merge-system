@@ -18,11 +18,11 @@ class Converter_Module_Settings extends Converter_Module
 	 */
 	public function update_setting($name, $value)
 	{
-		global $db, $output;
+		global $db, $output, $lang;
 
 		$this->debug->log->trace0("Updating setting {$name}");
 
-		$output->print_progress("start", "Updating settings ".htmlspecialchars_uni($name));
+		$output->print_progress("start", $lang->sprintf($lang->module_settings_updating, htmlspecialchars_uni($name)));
 
 		$modify = array(
 			'value' => $db->escape_string($value)

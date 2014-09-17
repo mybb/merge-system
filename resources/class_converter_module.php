@@ -19,7 +19,18 @@ class Converter_Module
 
 	public function __construct($converter_class)
 	{
-		global $import_session, $debug, $db;
+		global $import_session, $debug, $db, $lang;
+
+		if(isset($this->settings['friendly_name']))
+		{
+			$key = str_replace(" ", "_", $this->settings['friendly_name']);
+			$lang_string = "module_{$key}";
+			if(isset($lang->$lang_string))
+			{
+				$this->settings['friendly_name'] = $lang->$lang_string;
+			}
+			$this->settings['orig_name'] = $key;
+		}
 
 		// Setup & Share our variables and classes
 		require_once MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php";
@@ -74,7 +85,7 @@ class Converter_Module
 
 	public function check_table_type($tables)
 	{
-		global $output;
+		global $output, $lang;
 
 		if(!is_array($tables))
 		{
@@ -88,7 +99,7 @@ class Converter_Module
 				$table_sql = $this->old_db->show_create_table($table);
 				if(stripos($table_sql, "ENGINE=InnoDB") !== false)
 				{
-					$output->print_warning("The table \"{$table}\" is currently in InnoDB format. We strongly recommend converting these databases to MyISAM otherwise you may experience major slow-downs while running the merge system.");
+					$output->print_warning($lang->sprintf($lang->warning_innodb, $table));
 					$this->debug->log->warning("{$table} is in InnoDB format. This can cause major slow-downs");
 				}
 			}
