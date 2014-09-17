@@ -111,7 +111,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $import_session;
+		global $mybb, $import_session, $lang;
 
 		// Transfer attachment - IPB 4 saves the full path
 		$data_file = merge_fetch_remote_file($data['attach_location']);

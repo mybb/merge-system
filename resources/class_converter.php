@@ -28,12 +28,12 @@ class Converter
 	function __construct()
 	{
 		global $debug, $lang;
-
 		// Set the module names here
 		if(isset($this->modules))
 		{
-			foreach($this->modules as $key => $module)
+			foreach($this->modules as $key => &$module)
 			{
+				$key = str_replace(array("import_", ".", ".."), "", $key);
 				$lang_string = "module_{$key}";
 				if(isset($lang->$lang_string))
 				{
@@ -186,7 +186,7 @@ class Converter
 		{
 			$error_list = error_list($errors);
 			echo "<div class=\"error\">
-			      <h3>Error</h3>
+			      <h3>{$lang->error}</h3>
 				  <p>{$lang->error_database_list}:</p>
 				  {$error_list}
 				  <p>{$lang->error_database_continue}</p>

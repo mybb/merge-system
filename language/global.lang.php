@@ -36,6 +36,9 @@ $l['module_forums'] = 'Forums';
 $l['module_forums_singular'] = 'Forum';
 $l['module_forumperms'] = 'Forum Permissions';
 $l['module_forumperms_singular'] = 'Forum Permission';
+// Yes, this is used twice as the key used for automatic detection is different sometimes. Will be fixed in a later release
+$l['module_forum_permissions'] = 'Forum Permissions';
+$l['module_forum_permissions_singular'] = 'Forum Permission';
 $l['module_moderators'] = 'Moderators';
 $l['module_moderators_singular'] = 'Moderator';
 $l['module_threads'] = 'Threads';
@@ -46,10 +49,16 @@ $l['module_attachments'] = 'Attachments';
 $l['module_attachments_singular'] = 'Attachment';
 $l['module_polls'] = 'Polls';
 $l['module_polls_singular'] = 'Poll';
+// Yes, this is used twice as the key used for automatic detection is different sometimes. Will be fixed in a later release
+$l['module_poll_votes'] = 'Polls';
+$l['module_poll_votes_singular'] = 'Poll';
 $l['module_pollvotes'] = 'Poll Votes';
 $l['module_pollvotes_singular'] = 'Poll Vote';
 $l['module_privatemessages'] = 'Private Messages';
 $l['module_privatemessages_singular'] = 'Private Message';
+// Yes, this is used twice as the key used for automatic detection is different sometimes. Will be fixed in a later release
+$l['module_private_messages'] = 'Private Messages';
+$l['module_private_messages_singular'] = 'Private Message';
 $l['module_events'] = 'Events';
 $l['module_events_singular'] = 'Event';
 $l['module_icons'] = 'Icons';
@@ -171,8 +180,7 @@ $l['attmodule_notwritable2'] = " permissions to allow it to be written to.";
 $l['attmodule_ipadress'] = "You may not use \"localhost\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
 $l['attmodule_ipadress2'] = "You may not use \"127.0.0.1\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
 $l['attmodule_notread'] = "The attachments could not be read. Please adjust the ";
-$l['attmodule_notread2'] = " permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file
-.";
+$l['attmodule_notread2'] = " permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file.";
 
 $l['removing_table'] = "Removing {1} table.";
 $l['removing_columns'] = "Removing columns {1} from table {2}";
@@ -180,7 +188,8 @@ $l['removing_columns'] = "Removing columns {1} from table {2}";
 $l['cleanup_header'] = "MyBB Merge System - Final Step: Cleanup";
 $l['cleanup_notice'] = "Performing final cleanup and maintenance (This may take a while)...";
 
-$l['finish_head'] = '<p>The current conversion session has been finished.  You may now go to your copy of <a href="../">MyBB</a> or your <a href="../{1}/index.php">Admin Control Panel</a>. It is recommended that you run the Rebuild and Recount tools in the Admin CP.</p>
+$l['finish_completion'] = "Completion";
+$l['finish_head'] = '<p>The current conversion session has been finished.  You may now go to your copy of <a href="../">MyBB</a> or your <a href="../{1}/index.php">Admin Control Panel</a>.</p>
 	<p>Please remove this directory if you are not planning on converting any other forums.</p>';
 $l['finish_whats_next_head'] = "What's next?";
 $l['finish_whats_next'] = 'As it\'s impossible to merge all permissions, settings and counters you need to do a few things now to make sure everything works as expected:
@@ -196,7 +205,7 @@ $l['finish_report_type'] = "Please select the report style you wish to generate.
 $l['finish_report_type_txt'] = "Plain Text File";
 $l['finish_report_type_html'] = "HTML (Browser Viewable) File";
 
-$l['warning_innodb'] = "The table \"{1}\" is currently in InnoDB format. We strongly recommend converting these databases to MyISAM otherwise you may experience major slow-downs while running the merge system.";
+$l['warning_innodb'] = "The table \"{1}\" is currently in InnoDB format. We strongly recommend converting these tables to MyISAM otherwise you may experience major slow-downs while running the merge system.";
 
 $l['error_invalid_board'] = "The board module you have selected does not exist.";
 $l['error_js_off'] = 'It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.';

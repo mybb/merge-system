@@ -162,7 +162,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $import_session, $mybb, $db;
+		global $import_session, $mybb, $db, $lang;
 
 		// Transfer attachment thumbnail
 		$thumb_not_exists = "";
@@ -218,7 +218,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function print_attachments_per_screen_page()
 	{
-		global $import_session;
+		global $import_session, $lang;
 
 		echo '<tr>
 <th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>

@@ -106,7 +106,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $db;
+		global $mybb, $db, $lang;
 
 		if($data['thumbnail'])
 		{

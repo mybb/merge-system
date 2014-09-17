@@ -107,7 +107,7 @@ class Converter_Module_Attachments extends Converter_Module
 
 	public function test_readability($table, $path_column)
 	{
-		global $mybb, $import_session, $output;
+		global $mybb, $import_session, $output, $lang;
 
 		if($import_session['total_attachments'] <= 0)
 		{
@@ -174,7 +174,7 @@ class Converter_Module_Attachments extends Converter_Module
 		if((($readable/$total)*100) < 5)
 		{
 			$this->debug->log->error("Not enough attachments could be read: ".(($readable/$total)*100)."%");
-			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>';
+			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>'.$lang->attmodule_notread2;
 			$this->is_errors = true;
 			$import_session['uploads_test'] = 0;
 		}

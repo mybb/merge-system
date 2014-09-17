@@ -668,7 +668,7 @@ EOF;
 
 		if(!$this->doneheader)
 		{
-			$this->print_header("Completion", '', 1);
+			$this->print_header($lang->finish_completion, '', 1);
 		}
 
 		if(!isset($config['admin_dir']))
@@ -744,7 +744,7 @@ EOF;
 			if($import_session['autorefresh'] == "yes" && !$conf_global_not_found)
 			{
 				echo "\n		<meta http-equiv=\"Refresh\" content=\"2; url=".$this->script."\" />";
-				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"{$lang->reporting} &raquo;\" alt=\"{$lang->dont_wait}\" {$button_extra} /></div>";
+				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"{$lang->redirecting} &raquo;\" alt=\"{$lang->dont_wait}\" {$button_extra} /></div>";
 			}
 			else
 			{
@@ -854,7 +854,7 @@ END;
 
 	function print_per_screen_page($per_screen=10)
 	{
-		global $import_session, $mybb, $output, $module, $db;
+		global $import_session, $mybb, $output, $module, $db, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
@@ -1066,7 +1066,7 @@ END;
 
 					if($this->_friendly_name_singular == "")
 					{
-						$lang_string = "module_{$this->settings['friendly_name']}_singular";
+						$lang_string = "module_{$module->settings['orig_name']}_singular";
 						if(isset($lang->$lang_string))
 						{
 							$this->_friendly_name_singular = $lang->$lang_string;

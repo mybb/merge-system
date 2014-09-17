@@ -23,11 +23,13 @@ class Converter_Module
 
 		if(isset($this->settings['friendly_name']))
 		{
-			$lang_string = "module_{$this->settings['friendly_name']}";
+			$key = str_replace(" ", "_", $this->settings['friendly_name']);
+			$lang_string = "module_{$key}";
 			if(isset($lang->$lang_string))
 			{
 				$this->settings['friendly_name'] = $lang->$lang_string;
 			}
+			$this->settings['orig_name'] = $key;
 		}
 
 		// Setup & Share our variables and classes
@@ -97,7 +99,7 @@ class Converter_Module
 				$table_sql = $this->old_db->show_create_table($table);
 				if(stripos($table_sql, "ENGINE=InnoDB") !== false)
 				{
-					$output->print_warning($lang->warning_innodb, $table);
+					$output->print_warning($lang->sprintf($lang->warning_innodb, $table));
 					$this->debug->log->warning("{$table} is in InnoDB format. This can cause major slow-downs");
 				}
 			}
