@@ -135,7 +135,7 @@ class Converter
 				$connection = $this->old_db->connect($connect_config);
 
 				// -1 is returned if we can connect to the server but not to the database
-				if(!$connection || $connection == -1)
+				if(!$connection || $connection === -1)
 				{
 					$errors[] = $lang->sprintf($lang->error_database_cant_connect, $config_data['dbhost']);
 				}
