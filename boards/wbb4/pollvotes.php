@@ -22,7 +22,7 @@ class WBB4_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 	);
 
 	var $cache_poll_details = array();
-	var $pid_cache;
+	var $pid_cache = array();
 
 	function pre_setup()
 	{
