@@ -133,7 +133,11 @@ class Converter_Module
 
 		$this->trackers['start_'.$type] += $amount;
 
-		$db->write_query("REPLACE INTO ".TABLE_PREFIX."trackers SET count=".intval($this->trackers['start_'.$type]).", type='".$db->escape_string($type)."'");
+		$replacements = array(
+			"count"		=> (int) $this->trackers['start_'.$type],
+			"type"		=> $db->escape_string($type)
+		);
+		$db->replace_query("trackers", $replacements);
 	}
 }
 

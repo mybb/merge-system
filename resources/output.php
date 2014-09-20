@@ -860,7 +860,11 @@ END;
 
 		$module->trackers['start_'.$module_name] = 0;
 
-		$db->write_query("REPLACE INTO ".TABLE_PREFIX."trackers SET count=".intval($this->trackers['start_'.$module_name]).", type='".$db->escape_string($module_name)."'");
+		$replacements = array(
+			"count"		=> (int) $this->trackers['start_'.$module_name],
+			"type"		=> $db->escape_string($module_name)
+		);
+		$db->replace_query("trackers", $replacements);
 
 		$this->calculate_stats(false);
 
