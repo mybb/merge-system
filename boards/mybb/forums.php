@@ -94,24 +94,6 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 		return $import_session['total_forums'];
 	}
 
-	function test()
-	{
-		$data = array(
-			'fid' => 4,
-			'pid' => 5,
-			'description' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'
-		);
-
-		$match_data = array(
-			'import_fid' => 4,
-			'import_pid' => 5,
-			'pid' => 0,
-			'description' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ')
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing forums.
 	 */

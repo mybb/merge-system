@@ -72,47 +72,6 @@ class SMF2_Converter_Module_Polls extends Converter_Module_Polls {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$this->cache_get_poll_thread = array(
-			3 => array(
-				'tid' => 1,
-				'dateline' => 12345678,
-				'import_tid' => 2,
-			),
-		);
-
-		$this->cache_poll_choices = array(
-			3 => array(
-				'options' => 'choice 1||~|~||choice 2||~|~||choice 3',
-				'votes' => '5||~|~||12||~|~||32',
-				'options_count' => 3,
-				'vote_count' => 49,
-			),
-		);
-
-		$data = array(
-			'id_poll' => 3,
-			'question' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ?',
-			'tid' => 7,
-			'expireTime' => 12345689,
-		);
-
-		$match_data = array(
-			'import_tid' => 2,
-			'tid' => 1,
-			'dateline' => 12345678,
-			'question' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ?',
-			'options' => 'choice 1||~|~||choice 2||~|~||choice 3',
-			'votes' => '5||~|~||12||~|~||32',
-			'numoptions' => 3,
-			'numvotes' => 49,
-			'timeout' => 12345689,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function get_poll_thread($pid)
 	{
 		global $db;

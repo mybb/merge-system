@@ -68,19 +68,6 @@ class MYBB_Converter_Module_Events extends Converter_Module_Events {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$data = array(
-			'eid' => 4,
-		);
-
-		$match_data = array(
-			'import_eid' => 4,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

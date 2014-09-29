@@ -70,50 +70,6 @@ class PHPBB3_Converter_Module_Polls extends Converter_Module_Polls {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$this->get_import->cache_tids = array(
-			3 => 10,
-		);
-
-		$this->cache_get_poll_thread = array(
-			3 => array(
-				'poll_title' => 'Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��?',
-				'poll_start' => 12345678,
-				'poll_length' => 12345689,
-			),
-		);
-
-		$this->cache_poll_choices = array(
-			3 => array(
-				'options' => 'choice 1||~|~||choice 2||~|~||choice 3',
-				'votes' => '5||~|~||12||~|~||32',
-				'options_count' => 3,
-				'vote_count' => 49,
-			),
-		);
-
-		$data = array(
-			'topic_id' => 3,
-			'tid' => 3,
-			'expireTime' => 12345689,
-		);
-
-		$match_data = array(
-			'import_tid' => 3,
-			'tid' => 10,
-			'dateline' => 12345678,
-			'question' => 'Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��?',
-			'options' => 'choice 1||~|~||choice 2||~|~||choice 3',
-			'votes' => '5||~|~||12||~|~||32',
-			'numoptions' => 3,
-			'numvotes' => 49,
-			'timeout' => 12345689,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function get_poll_thread($tid)
 	{
 		global $db;

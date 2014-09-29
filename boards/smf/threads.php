@@ -63,56 +63,6 @@ class SMF_Converter_Module_Threads extends Converter_Module_Threads {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_fid -> fid
-		$this->get_import->cache_fids = array(
-			5 => 10,
-		);
-
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			6 => 11,
-		);
-
-		$this->get_post_cache = array(
-			7 => array(
-				'posterTime' => 12345678,
-				'subject' => 'Testéfdfsÿÿ subject'
-			),
-		);
-
-		$this->get_attachment_count_cache = array(
-			4 => 53,
-		);
-
-		$data = array(
-			'ID_TOPIC' => 4,
-			'isSticky' => 1,
-			'ID_BOARD' => 5,
-			'ID_FIRST_MSG' => 7,
-			'ID_POLL' => 8,
-			'ID_MEMBER_STARTED' => 6,
-			'numViews' => 532,
-			'locked' => '',
-		);
-
-		$match_data = array(
-			'import_tid' => 4,
-			'sticky' => 1,
-			'fid' => 10,
-			'subject' => utf8_encode('Testéfdfsÿÿ subject'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'import_poll' => 8,
-			'uid' => 11,
-			'import_uid' => 6,
-			'views' => 532,
-			'closed' => '',
-			'attachmentcount' => 53,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function get_attachment_count($tid)
 	{
 		if(array_key_exists($tid, $this->get_attachment_count_cache))

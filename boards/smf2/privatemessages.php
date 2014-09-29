@@ -75,44 +75,6 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			5 => 10,
-			6 => 11,
-		);
-
-		$data = array(
-			'id_pm' => 1,
-			'id_member' => 5,
-			'id_member_from' => 6,
-			'id_member' => 5,
-			'subject' => 'Testéfdfsÿÿ',
-			'is_read' => 1,
-			'msgtime' => 12345678,
-			'body' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
-		);
-
-		$match_data = array(
-			'pmid' => null,
-			'import_pmid' => 1,
-			'uid' => 10,
-			'fromid' => 11,
-			'toid' => 10,
-			'recipients' => serialize(array('to' => 10)),
-			'folder' => 1,
-			'subject' => utf8_encode('Testéfdfsÿÿ'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'status' => 1,
-			'dateline' => 12345678,
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'),
-			'readtime' => TIME_NOW,
-			'receipt' => '2',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function insert_extra_pms($recip_list, $data)
 	{
 		global $db;

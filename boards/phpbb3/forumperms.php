@@ -113,53 +113,6 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$this->get_import->cache_fids = array(
-			2 => 10,
-		);
-
-		$this->get_import->cache_gids = array(
-			3 => 11,
-		);
-
-		$data = array(
-			'fid' => 2,
-			'gid' => 3,
-			'columns' => array(
-				'f_edit' => 1,
-				'f_delete' => 1,
-				'f_attach' => 1,
-				'f_poll' => 1,
-				'f_vote' => 1,
-				'f_post' => 1,
-				'f_download' => 1,
-				'f_attach' => 1,
-				'f_read' => 1,
-				'f_search' => 1,
-			),
-		);
-
-		$match_data = array(
-			'fid' => 10,
-			'gid' => 11,
-			'caneditposts' => 1,
-			'candeleteposts' => 1,
-			'caneditattachments' => 1,
-			'canpostpolls' => 1,
-			'canvotepolls' => 1,
-			'canpostthreads' => 1,
-			'canpostreplys' => 1,
-			'candlattachments' => 1,
-			'canpostattachments' => 1,
-			'canviewthreads' => 1,
-			'canview' => 1,
-			'cansearch' => 1,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

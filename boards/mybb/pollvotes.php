@@ -69,31 +69,6 @@ class MYBB_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_pid => pid
-		$this->get_import->cache_posts = array(
-			6 => 11
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			7 => 12
-		);
-
-		$data = array(
-			'pid' => 6,
-			'uid' => 7,
-		);
-
-		$match_data = array(
-			'pid' => 11,
-			'uid' => 12,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

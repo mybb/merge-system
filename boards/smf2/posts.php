@@ -95,67 +95,6 @@ class SMF2_Converter_Module_Posts extends Converter_Module_Posts {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_tid => tid
-		$this->get_import->cache_tids = array(
-			5 => 10,
-		);
-
-		// import_fid => fid
-		$this->get_import->cache_fids = array(
-			6 => 11,
-		);
-
-		// import_uid => uiid
-		$this->get_import->cache_uids = array(
-			7 => 12,
-		);
-
-		// tid => first_pid
-		$this->cache_first_posts = array(
-			10 => 15,
-		);
-
-		// import_pid -> pid
-		$this->get_import->cache_posts = array(
-			15 => 16,
-		);
-
-		$data = array(
-			'id_msg' => 1,
-			'ID_TOPIC' => 5,
-			'ID_BOARD' => 6,
-			'subject' => 'Test�fdfs��',
-			'id_member' => 7,
-			'posterName' => '#M�gaDeth(b)',
-			'posterTime' => 12345678,
-			'body' => 'Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��',
-			'posterIP' => '127.0.0.1',
-			'smileysEnabled' => '1',
-			'modifiedName' => '',
-			'modifiedTime' => 0,
-		);
-
-		$match_data = array(
-			'import_pid' => 1,
-			'tid' => 10,
-			'replyto' => 16,
-			'fid' => 11,
-			'uid' => 12,
-			'subject' => utf8_encode('Test�fdfs��'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'username' => '#M�gaDeth(b)',
-			'dateline' => 12345678,
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  est�fdf fdsfds s��'),
-			'ipaddress' => '127.0.0.1',
-			'smilieoff' => 0,
-			'edituid' => 0,
-			'edittime' => 0,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function after_insert($data, $insert_data, $pid)
 	{
 		global $db;

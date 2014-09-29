@@ -43,31 +43,6 @@ class SMF2_Converter_Module_Moderators extends Converter_Module_Moderators {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_fid => fid
-		$this->get_import->cache_fids = array(
-			7 => 12
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			8 => 13
-		);
-
-		$data = array(
-			'id_board' => 7,
-			'id_member' => 8,
-		);
-
-		$match_data = array(
-			'fid' => 12,
-			'id' => 13,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

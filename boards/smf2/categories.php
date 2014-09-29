@@ -48,24 +48,6 @@ class SMF2_Converter_Module_Categories extends Converter_Module_Categories {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$data = array(
-			'id_cat' => 4,
-			'name' => 'test fdté &amp; fds',
-			'catOrder' => 5,
-		);
-
-		$match_data = array(
-			'import_fid' => 4,
-			'name' => utf8_encode('test fdté & fds'),
-			'disporder' => 5,
-			"type" => "c",
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

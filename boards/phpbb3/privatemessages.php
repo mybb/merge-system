@@ -67,45 +67,6 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			5 => 10,
-			6 => 11,
-			7 => 12,
-		);
-
-		$data = array(
-			'msg_id' => 1,
-			'to_address' => 'u_5:u_6',
-			'author_id' => 7,
-			'message_subject' => 'Testéfdfsÿÿ',
-			'message_time' => 12345678,
-			'message_text' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
-			'bbcode_uid' => 5,
-			'enable_sig' => 1,
-			'enable_smilies' => 1,
-		);
-
-		$match_data = array(
-			'import_pmid' => 1,
-			'uid' => 10,
-			'fromid' => 12,
-			'toid' => 10,
-			'recipients' => serialize(array('to' => array(10, 11))),
-			'subject' => utf8_encode('Testéfdfsÿÿ'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'readtime' => TIME_NOW,
-			'dateline' => 12345678,
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'),
-			'readtime' => TIME_NOW,
-			'includesig' => 1,
-			'smilieoff' => 0,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

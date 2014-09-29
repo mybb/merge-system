@@ -55,59 +55,6 @@ class PHPBB3_Converter_Module_Posts extends Converter_Module_Posts {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_tid => tid
-		$this->get_import->cache_tids = array(
-			5 => 10,
-		);
-
-		// import_fid => fid
-		$this->get_import->cache_fids = array(
-			6 => 11,
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			7 => 12,
-		);
-
-		// uid => username
-		$this->get_import->cache_usernames = array(
-			7 => '#MégaDeth(b)',
-		);
-
-		$data = array(
-			'post_id' => 1,
-			'topic_id' => 5,
-			'forum_id' => 6,
-			'post_subject' => 'Testéfdfsÿÿ',
-			'poster_id' => 7,
-			'post_time' => 12345678,
-			'post_text' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
-			'bbcode_uid' => 1,
-			'poster_ip' => '127.0.0.1',
-			'enable_sig' => 1,
-			'enable_smilies' => 1,
-		);
-
-		$match_data = array(
-			'import_pid' => 1,
-			'tid' => 10,
-			'fid' => 11,
-			'subject' => utf8_encode('Testéfdfsÿÿ'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'uid' => 12,
-			'import_uid' => 7,
-			'username' => '#MégaDeth(b)',
-			'dateline' => 12345678,
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'),
-			'ipaddress' => '127.0.0.1',
-			'smilieoff' => 0,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function after_insert($data, $insert_data, $pid)
 	{
 		global $db;

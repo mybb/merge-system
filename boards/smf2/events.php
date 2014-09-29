@@ -57,42 +57,6 @@ class SMF2_Converter_Module_Events extends Converter_Module_Events {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			5 => 10,
-		);
-
-		// topic id -> array of thread info
-		$this->threads_cache = array(
-			6 => array(
-				'body' => 'Test, test, stéfdfdsfsf fdsfds sÿÿ',
-			),
-		);
-
-		$data = array(
-			'id_event' => 4,
-			'id_member' => 5,
-			'title' => 'Test, test, stéfdf fdsfds sÿÿ',
-			'startDate' => '4-27-1992',
-			'endDate' => '4-27-2010',
-			'id_topic' => 6,
-		);
-
-		$match_data = array(
-			'import_eid' => 4,
-			'uid' => 10,
-			'name' => 'Test, test, stéfdf fdsfds sÿÿ',
-			'dateline' => '1313218800',
-			'starttime' => '1313218800',
-			'endtime' => '1314774000',
-			'description' => 'Test, test, stéfdfdsfsf fdsfds sÿÿ',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	/**
 	 * Get a thread from the SMF database
 	 *

@@ -51,37 +51,6 @@ class PHPBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_pollid => pollid
-		$this->cache_poll_details = array(
-			2 => array(
-				'dateline' => 12345678,
-				'poll' => 4,
-			),
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			3 => 10
-		);
-
-		$data = array(
-			'topic_id' => 2,
-			'vote_user_id' => 3,
-			'poll_option_id' => 1,
-		);
-
-		$match_data = array(
-			'uid' => 10,
-			'dateline' => 12345678,
-			'voteoption' => 1,
-			'pid' => 4,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function get_poll_details($tid)
 	{
 		global $db;

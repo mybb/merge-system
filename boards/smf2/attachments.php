@@ -254,45 +254,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 </tr>';
 	}
 
-	function test()
-	{
-		$this->get_import->cache_uids = array(
-			3 => 10
-		);
-
-		$this->get_import->cache_post_attachment_details = array(
-			4 => array(
-				'posthash' => 'ds12312dsffdsfs132123f5t54teuhybum',
-				'pid' => 11,
-				'tid' => 12,
-				'uid' => 10,
-			),
-		);
-
-		$data = array(
-			'id_attach' => 2,
-			'id_member' => 3,
-			'filename' => 'testblarg.png',
-			'size' => 1024,
-			'downloads' => 50,
-			'ID_MSG' => 4,
-			'id_thumb' => 0,
-		);
-
-		$match_data = array(
-			'import_aid' => 2,
-			'thumbnail' => '',
-			'uid' => 10,
-			'attachname' => 'post_10_'.TIME_NOW.'.attach',
-			'filesize' => 1024,
-			'downloads' => 50,
-			'pid' => 11,
-			'posthash' => 'ds12312dsffdsfs132123f5t54teuhybum',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function get_import_attach_filename($aid)
 	{
 		if(array_key_exists($aid, $this->cache_attach_filenames))

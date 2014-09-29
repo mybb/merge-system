@@ -72,19 +72,6 @@ class MYBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$data = array(
-			'gid' => 4,
-		);
-
-		$match_data = array(
-			'import_gid' => 4,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;
