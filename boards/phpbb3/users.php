@@ -68,12 +68,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastactive'] = $data['user_lastvisit'];
 		$insert_data['lastvisit'] = $data['user_lastvisit'];
 		$insert_data['website'] = $data['user_website'];
-		$insert_data['avatardimensions'] = $data['user_avatar_width'].'|'.$data['user_avatar_height'];
-		if($insert_data['avatardimensions'] == '0x0')
-		{
-			$insert_data['avatardimensions'] = '';
-		}
-		$insert_data['avatar'] = $data['avatar'];
 		$insert_data['lastpost'] = $data['user_lastpost_time'];
 
 		$birthday = '';

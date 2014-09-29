@@ -55,17 +55,6 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastactive'] = $data['last_login'];
 		$insert_data['lastvisit'] = $data['last_login'];
 		$insert_data['website'] = $data['website_url'];
-		$insert_data['avatar'] = $data['avatar'];
-		list($width, $height) = @getimagesize($data['avatar']);
-		$insert_data['avatardimensions'] = $width.'|'.$height;
-		if($insert_data['avatar'] == '')
-		{
-			$insert_data['avatartype'] = "";
-		}
-		else
-		{
-			$insert_data['avatartype'] = 'remote';
-		}
 		$last_post = $this->get_last_post($data['id_member']);
 		$insert_data['lastpost'] = isset($last_post['poster_time']) ? $last_post['poster_time'] : 0;
 		$data['birthdate'] = trim($data['birthdate']);

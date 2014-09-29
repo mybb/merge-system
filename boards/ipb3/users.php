@@ -61,8 +61,6 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastactive'] = $data['last_activity'];
 		$insert_data['lastvisit'] = $data['last_visit'];
 		$insert_data['website'] = $data['field_3'];
-		//$insert_data['avatardimensions'] = str_replace('x', '|', $data['avatar_size']);
-		//$insert_data['avatar'] = $data['avatar_location'];
 		$insert_data['lastpost'] = $data['last_post'];
 		$data['bday_day'] = trim($data['bday_day']);
 		$data['bday_month'] = trim($data['bday_month']);

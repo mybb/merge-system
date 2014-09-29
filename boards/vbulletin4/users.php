@@ -55,24 +55,6 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastactive'] = $data['lastactivity'];
 		$insert_data['lastvisit'] = $data['lastvisit'];
 		$insert_data['website'] = $data['homepage'];
-		$avatar = $this->get_avatar($data['avatarid']);
-		if(!$avatar)
-		{
-			$customavatar = $this->get_custom_avatar($data['userid']);
-			if(!$customavatar)
-			{
-				$insert_data['avatardimensions'] = '';
-				$insert_data['avatar'] = '';
-				$insert_data['avatartype'] = '';
-			}
-		}
-		else
-		{
-			list($width, $height) = @getimagesize($avatar['avatarpath']);
-			$insert_data['avatardimensions'] = $width.'|'.$height;
-			$insert_data['avatar'] = $avatar['avatarpath'];
-			$insert_data['avatartype'] = 'remote';
-		}
 		$insert_data['lastpost'] = $data['lastpost'];
 		$data['birthday'] = trim($data['birthday']);
 		if(!empty($data['birthday']))
@@ -97,35 +79,6 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($this->get_signature($data['userid'])), "user", "users");
 
 		return $insert_data;
-	}
-
-	/**
-	 * Get a avatar from the vB database
-	 *
-	 * @param int Avatar ID
-	 * @return array The avatar
-	 */
-	function get_avatar($aid)
-	{
-		$aid = intval($aid);
-		$query = $this->old_db->simple_select("avatar", "*", "avatarid = '{$aid}'");
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		return $results;
-	}
-
-	/**
-	 * Get a avatar from the vB database
-	 *
-	 * @param int Avatar ID
-	 * @return array The avatar
-	 */
-	function get_custom_avatar($uid)
-	{
-		$uid = intval($uid);
-		$query = $this->old_db->simple_select("customavatar", "*", "userid = '{$uid}'");
-		return $this->old_db->fetch_array($query);
 	}
 
 	/**
