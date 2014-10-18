@@ -64,7 +64,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("attachments", "*", "", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
+		$query = $this->old_db->simple_select("attachments", "*", "attachmentType != '3' AND ID_MSG != '0'", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			if(in_array($attachment['ID_ATTACH'], $this->thumbs))
@@ -87,16 +87,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data['uid'] = $this->get_import->uid($data['ID_MEMBER']);
 		$insert_data['filename'] = $data['filename'];
-		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW.".attach";
-
-		if(function_exists('mime_content_type'))
-		{
-			$insert_data['filetype'] = mime_content_type(get_extension($data['filename']));
-		}
-		else
-		{
-			$insert_data['filetype'] = '';
-		}
+		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW."_".$data['ID_ATTACH'].".attach";
 
 		if(function_exists("finfo_open"))
 		{
@@ -290,7 +281,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
-			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count", "attachmentType != '3' AND ID_MSG != '0'");
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

@@ -57,7 +57,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("attachments", "*", "attachment_type != '3'", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
+		$query = $this->old_db->simple_select("attachments", "*", "attachment_type != '3' AND id_msg != '0'", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			if(in_array($attachment['id_attach'], $this->thumbs))
@@ -78,7 +78,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		$insert_data['uid'] = $this->get_import->uid($data['id_member']);
 		$insert_data['filename'] = $data['filename'];
-		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW.".attach";
+		$insert_data['attachname'] = "post_".$insert_data['uid']."_".TIME_NOW."_".$data['id_attach'].".attach";
 		$insert_data['filetype'] = $data['mime_type'];
 
 		// Check if this is an image
@@ -282,7 +282,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		// Get number of attachments
 		if(!isset($import_session['total_attachments']))
 		{
-			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count", "attachment_type != '3'");
+			$query = $this->old_db->simple_select("attachments", "COUNT(*) as count", "attachment_type != '3' AND id_msg != '0'");
 			$import_session['total_attachments'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
