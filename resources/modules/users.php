@@ -91,6 +91,8 @@ class Converter_Module_Users extends Converter_Module
 		'classicpostbit' => 0,
 		'loginattempts' => 0,
 		'usernotes' => '',
+		'showimages' => 1,
+		'showvideos' => 1,
 	);
 	
 	public $binary_fields = array(
@@ -146,6 +148,8 @@ class Converter_Module_Users extends Converter_Module
 		'coppauser',
 		'classicpostbit',
 		'loginattempts',
+		'showimages',
+		'showvideos',
 	);
 	
 	/**

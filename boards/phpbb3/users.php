@@ -96,7 +96,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['aim'] = $data['user_aim'];
 		$insert_data['yahoo'] = $data['user_yim'];
 		$insert_data['hideemail'] = $data['user_allow_viewemail'];
-		$insert_data['invisible'] = $data['user_allow_viewonline'];
+		$insert_data['invisible'] = int_to_01($data['user_allow_viewonline']);
 		$insert_data['allownotices'] = $data['user_notify'];
 		if($data['user_notify'] == 1)
 		{
