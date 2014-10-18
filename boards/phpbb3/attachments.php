@@ -156,48 +156,6 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 </tr>';
 	}
 
-	function test()
-	{
-		// poster_id -> array
-		$this->get_import->cache_post_attachment_details = array(
-			5 => array(
-				'posthash' => 'dsrw4eqwsd34255676ffsd#@!',
-				'tid' => 2,
-				'uid' => 3,
-				'pid' => 4)
-		);
-
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			5 => 11,
-		);
-
-		$data = array(
-			'attach_id' => 1,
-			'poster_id' => 5,
-			'real_filename' => 'testests.png',
-			'filetime' => 12345678,
-			'mimetype' => 'image/png',
-			'filesize' => 1234,
-			'download_count' => 500,
-		);
-
-		$match_data = array(
-			'import_aid' => 1,
-			'uid' => 11,
-			'filename' => 'testests.png',
-			'attachname' => 'post_11_12345678.attach',
-			'filetype' => 'image/png',
-			'filesize' => 1234,
-			'downloads' => 500,
-			'pid' => 4,
-			'posthash' => 'dsrw4eqwsd34255676ffsd#@!',
-			'thumbnail' => 'SMALL',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	/**
 	 * Checks if a URL exists (if it is correct or not)
 	 *

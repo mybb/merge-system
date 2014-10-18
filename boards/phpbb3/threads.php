@@ -55,51 +55,6 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_fid -> fid
-		$this->get_import->cache_fids = array(
-			5 => 10,
-		);
-
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			6 => 11,
-		);
-
-		$this->get_poll_pid_cache = array(
-			4 => 12,
-		);
-
-		$data = array(
-			'topic_id' => 4,
-			'topic_type' => 1,
-			'forum_id' => 5,
-			'topic_first_post_id' => 7,
-			'topic_title' => 'Test�fdfs�� subject',
-			'topic_poster' => 6,
-			'topic_views' => 532,
-			'topic_status' => 0,
-			'topic_approved' => 1,
-		);
-
-		$match_data = array(
-			'import_tid' => 4,
-			'sticky' => 1,
-			'fid' => 10,
-			'firstpost' => -7,
-			'subject' => utf8_encode('Test�fdfs�� subject'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'poll' => 12,
-			'uid' => 11,
-			'import_uid' => 6,
-			'views' => 532,
-			'closed' => 0,
-			'visible' => 1,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	/**
 	 * Get poll option id from the phpBB 3 database
 	 *

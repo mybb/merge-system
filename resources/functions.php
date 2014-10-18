@@ -1042,7 +1042,7 @@ function get_time_format($format, $add='')
 // Converts a String timezone (Europe/Berlin) to a MyBB number
 function get_timezone($zone)
 {
-	$time = new \DateTime('now', new DateTimeZone($zone));
+	$time = new DateTime('now', new DateTimeZone($zone));
 	$off = $time->format('P');
 	
 	list($h, $m) = explode(":", $off);

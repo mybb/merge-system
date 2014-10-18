@@ -176,37 +176,6 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 </tr>';
 	}
 
-	function test()
-	{
-		// import_pid -> pid
-		$this->get_import->cache_posts = array(
-			5 => 10,
-		);
-
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			6 => 11,
-		);
-
-		$data = array(
-			'aid' => 4,
-			'attach_pid' => 5,
-			'uid' => 6,
-			'attachname' => 'post_6_blarg.attach',
-			'thumbnail' => 'test.png',
-		);
-
-		$match_data = array(
-			'import_aid' => 4,
-			'pid' => 10,
-			'uid' => 11,
-			'attachname' => 'post_11_blarg.attach',
-			'thumbnail' => 'post_11_blarg_thumb.png',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

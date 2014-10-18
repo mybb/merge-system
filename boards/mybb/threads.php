@@ -72,39 +72,6 @@ class MYBB_Converter_Module_Threads extends Converter_Module_Threads {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_fid -> fid
-		$this->get_import->cache_fids = array(
-			5 => 10,
-		);
-
-		// import_uid -> uid
-		$this->get_import->cache_uids = array(
-			6 => 11,
-		);
-
-		$data = array(
-			'tid' => 4,
-			'fid' => 5,
-			'uid' => 6,
-			'firstpost' => 7,
-			'subject' => 'Testéfdfsÿÿ subject',
-			'poll' => 8,
-		);
-
-		$match_data = array(
-			'import_tid' => 4,
-			'fid' => 10,
-			'uid' => 11,
-			'firstpost' => -7,
-			'subject' => utf8_encode('Testéfdfsÿÿ subject'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'poll' => -8,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

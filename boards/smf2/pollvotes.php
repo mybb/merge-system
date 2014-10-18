@@ -47,42 +47,6 @@ class SMF2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_pollid => pollid
-		$this->get_import->cache_pollids = array(
-			2 => 10
-		);
-
-		// import_pollid => poll
-		$this->get_import->cache_polls = array(
-			2 => array(
-				'dateline' => 12345678,
-				'pid' => 3,
-			),
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			4 => 11
-		);
-
-		$data = array(
-			'id_poll' => 2,
-			'ID_MEMBER' => 4,
-			'ID_CHOICE' => 1,
-		);
-
-		$match_data = array(
-			'uid' => 11,
-			'dateline' => 12345678,
-			'voteoption' => 1,
-			'pid' => 3,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

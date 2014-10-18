@@ -60,33 +60,6 @@ class SMF_Converter_Module_Forums extends Converter_Module_Forums {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$this->get_import->cache_fids_f = array(
-			5 => 11,
-		);
-
-		$data = array(
-			'ID_BOARD' => 4,
-			'name' => 'estéfdf fdsfds &amp; sÿÿ',
-			'description' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
-			'ID_PARENT' => 5,
-			'boardOrder' => 12,
-			'countPosts' => 0,
-		);
-
-		$match_data = array(
-			'import_fid' => 4,
-			'name' => utf8_encode('estéfdf fdsfds & sÿÿ'),
-			'description' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'),
-			'pid' => 11,
-			'disporder' => 12,
-			'usepostcounts' => 1,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

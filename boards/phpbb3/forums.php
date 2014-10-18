@@ -100,40 +100,6 @@ class PHPBB3_Converter_Module_Forums extends Converter_Module_Forums {
 		return $import_session['total_forums'];
 	}
 
-	function test()
-	{
-		$this->get_import->cache_fids_f = array(
-			5 => 11,
-		);
-
-		$data = array(
-			'forum_id' => 2,
-			'forum_name' => 'estéfdf fdsfds &amp; sÿÿ',
-			'forum_desc' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ',
-			'left_id' => 12,
-			'forum_status' => 0,
-			'forum_rules_link' => '',
-			'forum_rules' => 'RULES TEST',
-			'forum_type' => 1,
-			'parent_id' => 5,
-		);
-
-		$match_data = array(
-			'import_fid' => 2,
-			'name' => utf8_encode('estéfdf fdsfds & sÿÿ'),
-			'description' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'),
-			'disporder' => 12,
-			'open' => 1,
-			'rules' => 'RULES TEST',
-			'rulestype' => 1,
-			'linkto' => '',
-			'type' => 'f',
-			'import_pid' => 5,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing
 	 * forums.

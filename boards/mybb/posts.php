@@ -78,50 +78,6 @@ class MYBB_Converter_Module_Posts extends Converter_Module_Posts {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_tid => tid
-		$this->get_import->cache_tids = array(
-			5 => 10
-		);
-
-		// import_fid => fid
-		$this->get_import->cache_fids = array(
-			6 => 11
-		);
-
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			7 => 12
-		);
-
-		// import_uid => username
-		$this->get_import->cache_usernames = array(
-			7 => '#MégaDeth(b)'
-		);
-
-		$data = array(
-			'pid' => 1,
-			'tid' => 5,
-			'fid' => 6,
-			'uid' => 7,
-			'subject' => 'Testéfdfsÿÿ',
-			'message' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'
-		);
-
-		$match_data = array(
-			'import_pid' => 1,
-			'tid' => 10,
-			'fid' => 11,
-			'uid' => 12,
-			'username' => '#MégaDeth(b)',
-			'subject' => utf8_encode('Testéfdfsÿÿ'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ')
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

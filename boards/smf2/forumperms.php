@@ -73,39 +73,6 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$this->get_import->cache_fids = array(
-			2 => 10,
-		);
-
-		$this->get_import->cache_gids = array(
-			3 => 11,
-		);
-
-		$data = array(
-			'id_board' => 2,
-			'id_group' => 3,
-			'permissions' => 'poll_vote,remove_own,delete_own,modify_own,poll_add_own,post_attachment,post_new,post_reply_any,view_attachments',
-		);
-
-		$match_data = array(
-			'fid' => 10,
-			'gid' => 11,
-			'canvotepolls' => 1,
-			'candeletethreads' => 1,
-			'candeleteposts' => 1,
-			'caneditposts' => 1,
-			'canpostpolls' => 1,
-			'canpostattachments' => 1,
-			'canpostthreads' => 1,
-			'canpostreplys' => 1,
-			'candlattachments' => 1,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

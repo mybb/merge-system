@@ -94,37 +94,6 @@ class MYBB_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_uid => uid
-		$this->get_import->cache_uids = array(
-			5 => 10,
-			6 => 11,
-		);
-
-		$data = array(
-			'pmid' => 1,
-			'uid' => 5,
-			'fromid' => 5,
-			'toid' => 6,
-			'recipients' => serialize(array('to' => array(6))),
-			'subject' => 'Testéfdfsÿÿ',
-			'message' => 'Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ'
-		);
-
-		$match_data = array(
-			'import_pmid' => 1,
-			'uid' => 10,
-			'fromid' => 10,
-			'toid' => 11,
-			'recipients' => serialize(array('to' => array(11))),
-			'subject' => utf8_encode('Testéfdfsÿÿ'), // The Merge System should convert the mixed ASCII/Unicode string to proper UTF8
-			'message' => utf8_encode('Test, test, fdsfdsf ds dsf  estéfdf fdsfds sÿÿ')
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

@@ -72,26 +72,6 @@ class MYBB_Converter_Module_Polls extends Converter_Module_Polls {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		// import_tid => tid
-		$this->get_import->cache_tids = array(
-			7 => 12
-		);
-
-		$data = array(
-			'pid' => 6,
-			'tid' => 7,
-		);
-
-		$match_data = array(
-			'import_pid' => 6,
-			'tid' => 12,
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

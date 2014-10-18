@@ -40,6 +40,7 @@ class Converter_Module_Threads extends Converter_Module
 	public $integer_fields = array(
 		'import_tid',
 		'import_poll',
+		'import_firstpost',
 		'sticky',
 		'fid',
 		'firstpost',

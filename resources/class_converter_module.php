@@ -106,34 +106,17 @@ class Converter_Module
 		}
 	}
 
-
-	/**
-	 * Used for unit testing by asserting certain values to make sure their outcome is true
-	 *
-	 */
-	function assert($data, $match_data)
-	{
-		global $variable_name;
-
-		$converted_data = $this->convert_data($data);
-
-		foreach($match_data as $field => $value)
-		{
-			$value = str_replace("'", "\'", $value);
-			$converted_data[$field] = str_replace("'", "\'", $converted_data[$field]);
-
-			$variable_name = $field;
-			assert("'{$value}' == '{$converted_data[$field]}'");
-		}
-	}
-
 	function increment_tracker($type, $amount=1)
 	{
 		global $db;
 
 		$this->trackers['start_'.$type] += $amount;
 
-		$db->write_query("REPLACE INTO ".TABLE_PREFIX."trackers SET count=".intval($this->trackers['start_'.$type]).", type='".$db->escape_string($type)."'");
+		$replacements = array(
+			"count"		=> (int) $this->trackers['start_'.$type],
+			"type"		=> $db->escape_string($type)
+		);
+		$db->replace_query("trackers", $replacements);
 	}
 }
 

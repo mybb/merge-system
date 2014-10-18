@@ -48,23 +48,6 @@ class PHPBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		return $insert_data;
 	}
 
-	function test()
-	{
-		$data = array(
-			'group_id' => 4,
-			'group_name' => 'Test abcdef',
-			'group_desc' => 'test imported group',
-		);
-
-		$match_data = array(
-			'import_gid' => 4,
-			'title' => 'Test abcdef',
-			'description' => 'test imported group',
-		);
-
-		$this->assert($data, $match_data);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

@@ -79,21 +79,7 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['signature'] = encode_to_utf8($data['signature'], "users", "users");
 		$insert_data['showavatars'] = $data['show_avatars'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['timezone']);
-		if($data['use_avatar'] == '1')
-		{
-			$extensions = array('.gif', '.jpg', '.png');
-			foreach($extensions as $key => $extension)
-			{
-				if(file_exists($import_session['main_directory'].'/'.$import_session['avatar_directory'].'/'.$data['id'].$extension))
-				{
-					list($width, $height) = @getimagesize($import_session['main_directory'].'/'.$import_session['avatar_directory'].'/'.$data['id'].$extension);
-					$insert_data['avatardimensions'] = $width.'|'.$height;
-					$insert_data['avatartype'] = 'upload';
-					$insert_data['avatar'] = $data['id'].$extension;
-				}
-			}
-		}
-		
+
 		$insert_data['lastpost'] = (int)$data['last_post'];				
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
