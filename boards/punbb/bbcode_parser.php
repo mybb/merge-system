@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class BBCode_Parser {
+class BBCode_Parser extends BBCode_Parser_Plain{
 
 	/**
 	 * Converts punBB BBCode to MyBB MyCode
@@ -23,8 +23,11 @@ class BBCode_Parser {
 	 */
 	 function convert($text)
 	 {
-	 	$text = preg_replace("#\[center](.*?)\[/center\]#i", "[align=center]$1[/align]", $text);
-		$text = preg_replace("#\[large\](.*?)\[/large\]#i", "[size=large]$1[/size]", $text);
+	 	// First: do our usual things
+		$text = parent::convert($text);
+
+	 	// PunBB saves normal lists as "[list=*]" so we need to remove that
+		$text = preg_replace("#\[list=\*\]#i", "[list]", $text);
 
 		return $text;
 	 }

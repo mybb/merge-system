@@ -13,15 +13,16 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class BBCode_Parser {
+class BBCode_Parser extends BBCode_Parser_Plain {
 
 	function convert($message)
 	{
-		$message = str_ireplace(array('[right]', '[/right]', '[left]', '[/left]', '[center]', '[/center]', "<br />", '[ftp', '[/ftp]', '<!-- m', '<!-- s', '-->'), array('[align=right]', '[/align]', '[align=left]', '[/align]', '[align=center]', '[/align]', "\n", '[url', '[/url]', '', '', ''), $message);
+		$message = str_ireplace(array('[list type=decimal]', '[right]', '[/right]', '[left]', '[/left]', '[center]', '[/center]', "<br />", '[ftp', '[/ftp]', '<!-- m', '<!-- s', '-->'), array('[list=1]', '[align=right]', '[/align]', '[align=left]', '[/align]', '[align=center]', '[/align]', "\n", '[url', '[/url]', '', '', ''), $message);
 		$message = preg_replace("#\[size=([0-9\+\-]+?)p[tx]\](.*?)\[/size\]#si", "[size=$1]$2[/size]", $message);
 		$message = preg_replace("#\[li\](.*?)\[/li\]#si", "[*]$1", $message);
 		$message = preg_replace("#\[img width=([0-9\+\-]+?) height=([0-9\+\-]+?)\]#si", "[img=$1x$2]", $message);
-		$message = preg_replace("#\[quote(.*?)\](.*?)\[\/quote\]#esi", "\$this->mycode_parse_post_quotes('$2', '$1')", $message);
+		$message = preg_replace_callback("#\[quote(.*?)\](.*?)\[\/quote\]#si", array($this, "mycode_parse_post_quotes"), $message);
+
 		return $message;
 	}
 
@@ -32,27 +33,29 @@ class BBCode_Parser {
 	* @param string The information to be parsed
 	* @return string The parsed message.
 	*/
-	function mycode_parse_post_quotes($message, $info)
+	function mycode_parse_post_quotes($matches)
 	{
-		require_once MERGE_ROOT.'resources/class_cache_handler.php';
-		$this->get_import = new Cache_Handler();
+		global $module;
+
+		$message = $matches[2];
+		$info = $matches[1];
 
 		$info = trim($info);
 
 		preg_match("#author=(.*?)=#i", $info, $match);
-		if($match[1])
+		if(isset($match[1]))
 		{
 			$username = $match[1];
 		}
 
 		preg_match("#link=topic=([0-9]+).msg?([0-9]+)\#msg([0-9]+)?#i", $info, $match);
-		if($match[1])
+		if(isset($match[1]))
 		{
-			$pid = $this->get_import->pid($match[1]);
+			$pid = $module->get_import->pid($match[1]);
 		}
 
 		preg_match("#date=?([0-9]+)#i", $info, $match);
-		if($match[1])
+		if(isset($match[1]))
 		{
 			$dateline = $match[1];
 		}

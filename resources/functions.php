@@ -1063,13 +1063,4 @@ function get_timezone($zone)
 	
 	return $h;
 }
-
-// Used if a BBCode conversion parser isn't available for that bulletin board software
-class dummyParser
-{
-	function unconvert($text)
-	{
-		return $text;
-	}
-}
 ?>

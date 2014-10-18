@@ -33,10 +33,36 @@ class Converter_Module
 		}
 
 		// Setup & Share our variables and classes
-		require_once MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php";
 		require_once MERGE_ROOT.'resources/class_cache_handler.php';
-		$this->bbcode_parser = new BBCode_Parser();
 		$this->get_import = new Cache_Handler();
+
+		// Setup our bbcode parser
+		if(!isset($converter_class->parser_class))
+		{
+			$converter_class->parser_class = "";
+		}
+
+		// Plain class is needed as parent class anyways
+		require_once MERGE_ROOT."resources/bbcode_plain.php";
+		// If we're using the plain class or we don't have a custom one -> set it up
+		if($converter_class->parser_class == "plain" || ($converter_class->parser_class != "html" && !file_exists(MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php")))
+		{
+			$this->bbcode_parser = new BBCode_Parser_Plain();
+		}
+		// Using the HTML class? No need for extra checks
+		else if($converter_class->parser_class == "html")
+		{
+			require_once MERGE_ROOT."resources/bbcode_html.php";
+			$this->bbcode_parser = new BBCode_Parser_HTML();
+		}
+		// The only other case is a custom parser. A check whether the class exists is in the first if
+		else
+		{
+			// It's possible that the custom handler is based on the html handler so we need to include it too
+			require_once MERGE_ROOT."resources/bbcode_html.php";
+			require_once MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php";
+			$this->bbcode_parser = new BBCode_Parser();
+		}
 
 		// Setup our trackers
 		$this->trackers = array();

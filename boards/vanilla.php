@@ -80,6 +80,13 @@ class VANILLA_Converter extends Converter
 	);
 
 	/**
+	 * What BBCode Parser we're using
+	 *
+	 * @var String
+	 */
+	var $parser_class = "html";
+
+	/**
 	 * Convert a phpBB 3 group ID into a MyBB group ID
 	 *
 	 * @param int Group ID

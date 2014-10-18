@@ -78,6 +78,13 @@ class BBPRESS_Converter extends Converter
 	);
 
 	/**
+	 * What BBCode Parser we're using
+	 *
+	 * @var String
+	 */
+	var $parser_class = "html";
+
+	/**
 	 * Convert a bbPress group ID into a MyBB group ID
 	 *
 	 * @param int Group ID
