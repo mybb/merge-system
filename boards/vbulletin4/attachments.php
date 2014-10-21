@@ -87,7 +87,7 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['dateline'].".attach";
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['counter'];
-		if($data['visible'] == "visible")
+		if($data['state'] == "visible")
 		{
 			$insert_data['visible'] = 1;
 		}
