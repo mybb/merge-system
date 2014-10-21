@@ -42,7 +42,14 @@ class Converter_Module_Attachments extends Converter_Module
 	{
 		global $db, $output;
 
-		$this->debug->log->datatrace('$data', $data);
+		// vB saves files in the database but we don't want them in the log
+		$deb = $data;
+		if(!empty($deb['filedata']) || !empty($deb['thumbnail']))
+		{
+			$deb['filedata'] = "[Skipped]";
+			$deb['thumbnail'] = "[Skipped]";
+		}
+		$this->debug->log->datatrace('$data', $deb);
 
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
 
