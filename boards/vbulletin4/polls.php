@@ -33,6 +33,7 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 			$pid = $this->insert($poll);
 
 			// Restore connections
+			$thread = $this->get_import_tid_poll($poll['pollid']);
 			$db->update_query("threads", array('poll' => $pid), "import_tid = '".$thread['import_tid']."'");
 		}
 	}
