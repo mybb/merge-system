@@ -51,7 +51,7 @@ class WBB3_Converter_Module_Polls extends Converter_Module_Polls {
 			$pid = $this->insert($poll);
 
 			// Restore connections
-			$db->update_query("threads", array('poll' => $pid), "import_tid = '{$poll['tid']}'");
+			$db->update_query("threads", array('poll' => $pid), "import_tid = '{$poll['import_tid']}'");
 		}
 	}
 
