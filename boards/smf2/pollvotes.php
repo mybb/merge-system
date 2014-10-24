@@ -41,7 +41,7 @@ class SMF2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		// SMF values
 		$insert_data['uid'] = $this->get_import->uid($data['id_member']);
 		$insert_data['dateline'] = TIME_NOW;
-		$insert_data['voteoption'] = $data['id_choice'];
+		$insert_data['voteoption'] = $data['id_choice']+1;
 		$insert_data['pid'] = $this->get_import->pollid($data['id_poll']);
 
 		return $insert_data;

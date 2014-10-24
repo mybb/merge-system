@@ -147,7 +147,7 @@ class Cache_Handler
 
 		if(!array_key_exists($old_pid, $this->cache_polls))
 		{
-			$query = $db->simple_select("polls", "*", "pid = '".$this->pollid($data['ID_POLL'])."'");
+			$query = $db->simple_select("polls", "*", "pid = '".$this->pollid($old_pid)."'");
 			$this->cache_polls[$old_pid] = $db->fetch_array($query);
 			$db->free_result($query);
 		}

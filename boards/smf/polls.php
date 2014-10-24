@@ -49,6 +49,7 @@ class SMF_Converter_Module_Polls extends Converter_Module_Polls {
 		$thread = $this->get_poll_thread($data['ID_POLL']);
 
 		$insert_data['import_tid'] = $thread['import_tid'];
+		$insert_data['import_pid'] = $data['ID_POLL'];
 		$insert_data['tid'] = $thread['tid'];
 		$insert_data['dateline'] = $thread['dateline'];
 
