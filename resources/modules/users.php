@@ -23,8 +23,8 @@ class Converter_Module_Users extends Converter_Module
 		'loginkey' => '',
 		'email' => '',
 		'regdate' => 0,
-		'lastactive' => 0,
-		'lastvisit' => 0,
+		'lastactive' => TIME_NOW,
+		'lastvisit' => TIME_NOW,
 		'website' => '',
 		'showsigs' => 1,
 		'signature' => '',
@@ -180,6 +180,17 @@ class Converter_Module_Users extends Converter_Module
 
 		// Call our currently module's process function
 		$data = $this->convert_data($data);
+
+		// Avoid wrong lastactive and lastvisit times (mybb sees "0" or "" as currently online)
+		// unsetting the value works as the default value above sets it to the current timestamp
+		if(empty($data['lastactive']))
+		{
+			unset($data['lastactive']);
+		}
+		if(empty($data['lastvisit']))
+		{
+			unset($data['lastvisit']);
+		}
 
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
 		$insert_array = $this->prepare_insert_array($data);
