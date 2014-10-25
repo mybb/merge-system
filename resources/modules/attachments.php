@@ -66,6 +66,10 @@ class Converter_Module_Attachments extends Converter_Module
 		$db->insert_query("attachments", $insert_array);
 		$aid = $db->insert_id();
 
+		// Let's change the bbcodes for this attachment
+		$insert_array['aid'] = $aid;
+		$this->bbcode_parser->change_attachment($insert_array);
+
 		if(!defined("IN_TESTING"))
 		{
 			$this->after_insert($unconverted_values, $converted_values, $aid);

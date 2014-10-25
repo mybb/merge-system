@@ -688,6 +688,14 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	$cache->update_usertitles();
 	$output->update_progress_bar(180);
 
+	// Replaces orphaned attachment codes with "[ATTACHMENT NOT FOUND]"
+	$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o%'");
+	while($post = $db->fetch_array($query))
+	{
+		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT NOT FOUND]", $post['message']);
+		$db->update_query("posts", array("message" => $message), "pid={$post['pid']}");
+	}
+
 	// Update import session cache
 	$import_session['end_date'] = time();
 
