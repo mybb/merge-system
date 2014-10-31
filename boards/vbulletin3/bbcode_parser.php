@@ -1,10 +1,10 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2011 MyBB Group, All Rights Reserved
+ * Copyright 2014 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
- * License: http://www.mybb.com/about/license
+ * License: http://www.mybb.com/download/merge-system/license/
  */
 
 // Disallow direct access to this file for security reasons
@@ -13,86 +13,35 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class BBCode_Parser {
+class BBCode_Parser extends BBCode_Parser_Plain {
+
+	// This contains the attachment bbcode which is handled as special code as the id needs to be changed too
+	var $attachment = "\[attach\]([0-9]+)\[/attach\]";
 
 	function convert($text)
 	{
 		$find = array(
-			'[CENTER]',
-			'[/CENTER]',
-			'[LEFT]',
-			'[/LEFT]',
-			'[RIGHT]',
-			'[/RIGHT]',
-			'[QUOTE]',
-			'[/QUOTE]',
-			'[B]',
-			'[/B]',
-			'[PHP]',
-			'[/PHP]',
-			'[URL',
-			'[/URL]',
-			'[I]',
-			'[/I]',
-			'[U]',
-			'[/U]',
-			'[IMG]',
-			'[/IMG]',
-			'[/QUOTE]',
-		);
-
-		$replace = array(
-			'[align=center]',
-			'[/align]',
-			'[align=left]',
-			'[/align]',
-			'[align=right]',
-			'[/align]',
-			'[quote]',
-			'[/quote]',
-			'[b]',
-			'[/b]',
-			'[php]',
-			'[/php]',
-			'[url',
-			'[/url]',
-			'[i]',
-			'[/i]',
-			'[u]',
-			'[/u]',
-			'[img]',
-			'[/img]',
-			'[/quote]',
-		);
-
-		if(function_exists("str_ireplace"))
-		{
-			$text = str_ireplace($find, $replace, $text);
-		}
-		else
-		{
-			$text = str_replace($find, $replace, $text);
-		}
-
-		$find = array(
-			'#\[COLOR\="(.*?)"\](.*?)\[/COLOR\]#i', // TODO: Test?!
-			'#\[COLOR\=(.*?)\](.*?)\[/COLOR\]#i',
+			'#\[COLOR\="([a-zA-Z]*|\#?[\da-fA-F]{3}|\#?[\da-fA-F]{6})"\](.*?)\[/COLOR\]#i',
 			'#\[QUOTE\=(.*?);([0-9]+?)\]#i',
 			'#\[url\="(.*?)"](.*?)\[/url\]#i',
-			'#\[url\=(.*?)](.*?)\[/url\]#i',
+			'#\[email\="(.*?)"](.*?)\[/email\]#i',
+			'#\[size\="(.*?)"](.*?)\[/size\]#i',
 		);
 
 		$replace = array(
-			'[color=$1]$2[/color]',
 			'[color=$1]$2[/color]',
 			"[quote=$1]",
 			'[url=$1]$2[/url]',
-			'[url=$1]$2[/url]',
+			'[email=$1]$2[/email]',
+			'[size=$1]$2[/size]',
 		);
 
 		$text = preg_replace($find, $replace, $text);
 
-		return $text;
+		// Closing line tags
+		$text = str_ireplace("[/hr]", "", $text);
+
+		return parent::convert($text);
 	}
 }
 ?>

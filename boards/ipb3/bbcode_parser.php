@@ -15,6 +15,9 @@ if(!defined("IN_MYBB"))
 
 class BBCode_Parser extends BBCode_Parser_HTML {
 
+	// This contains the attachment bbcode which is handled as special code as the id needs to be changed too
+	var $attachment = "\[attachment=([0-9]+):(.*?)\]";
+
 	/**
 	 * Unconvert the HTML in posts, back to BBCode
 	 * @param ref parser object

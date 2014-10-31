@@ -13,6 +13,10 @@ if(!defined("IN_MYBB"))
 }
 
 class BBCode_Parser_Plain {
+
+	// This contains the attachment bbcode which is handled as special code as the id needs to be changed too
+	var $attachment = "";
+
 	// We handle some special codes already here eg [s] and [del] are the same for mybb
 	function convert($text)
 	{
@@ -29,6 +33,8 @@ class BBCode_Parser_Plain {
 		// "[url='http://community.mybb.com']" is used by some boards...
 		$text = preg_replace("#\[url='(.*?)'\](.*?)\[/url\]#i", "[url=$1]$2[/url]", $text);
 
+		$text = $this->handle_attachments($text);
+
 		return $text;
 	}
 
@@ -36,5 +42,64 @@ class BBCode_Parser_Plain {
 	function convert_title($text)
 	{
 		return $text;
+	}
+
+	// Handles attachment codes. This is a special function to make sure it's called in every parser
+	function handle_attachments($text)
+	{
+		if(empty($this->attachment))
+		{
+			return $text;
+		}
+
+		// Some forums have special codes (eg phpbb doesn't use the id, they use a post counter to identify the attachment)
+		// So we allow the respective parser to add a callback
+		// Using "o{id}" here to make sure we find this attachment later again
+		if(method_exists($this, "attachment_callback"))
+		{
+			return preg_replace_callback("#{$this->attachment}#i", array($this, "attachment_callback"), $text);
+		}
+		else
+		{
+			return preg_replace("#{$this->attachment}#i", "[attachment=o$1]", $text);
+		}
+	}
+
+	// Replaces the old id with the new id. Is automatically called after the attachment was inserted
+	function change_attachment($attachment)
+	{
+		// No attachment code? Skip this
+		if(empty($this->attachment))
+		{
+			return;
+		}
+
+		global $db, $mybb;
+
+		$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o{$attachment['import_aid']}]%'");
+		while($post = $db->fetch_array($query))
+		{
+			// The attachment is in this post, simply update our bbcodes
+			if($post['pid'] == $attachment['pid'])
+			{
+				$replace = "[attachment={$attachment['aid']}]";
+			}
+			// The attachment is in another post, some forums allow this (we don't)
+			// Link to the attachment either with name or thumbnail
+			else
+			{
+				if(substr($attachment['filetype'], 0, 5) == "image")
+				{
+					$text = "[img]{$mybb->settings['bburl']}/attachment.php?thumbnail={$attachment['aid']}[/img]";
+				}
+				else
+				{
+					$text = "{$attachment['filename']}";
+				}
+				$replace = "[url={$mybb->settings['bburl']}/attachment.php?aid={$attachment['aid']}]{$text}[/url]";
+			}
+			$message = str_replace("[attachment=o{$attachment['import_aid']}]", $replace, $post['message']);
+			$db->update_query("posts", array("message" => $message), "pid={$post['pid']}");
+		}
 	}
 }

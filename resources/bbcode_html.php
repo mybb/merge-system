@@ -45,6 +45,8 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 		$text = preg_replace('#<ol>(.*?)</ol>#si', "[list=1]$1[/list]", $text);
 		$text = preg_replace('#<li>(.*?)</li>#si', "[*]$1", $text);
 
+		$text = $this->handle_attachments($text);
+
 		return $text;
 	}
 
