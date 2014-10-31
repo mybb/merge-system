@@ -303,7 +303,13 @@ function check_punbb($password, $user)
 
 function check_phpbb3($password, $user)
 {
-	if (my_strlen($user['passwordconvert']) == 34)
+	// The bcrypt hash is at least 60 chars and is used in phpBB 3.1
+	if (my_strlen($user['passwordconvert']) >= 60 && $user['passwordconvert'] == crypt($password, $user['passwordconvert']))
+	{
+		return true;
+	}
+	// The rest here is phpBB 3.0
+	else if (my_strlen($user['passwordconvert']) == 34)
 	{
 		if(phpbb3_crypt_private($password, $user['passwordconvert']) === $user['passwordconvert'])
 		{

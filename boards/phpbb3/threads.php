@@ -50,7 +50,22 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_uid'] = $data['topic_poster'];
 		$insert_data['views'] = $data['topic_views'];
 		$insert_data['closed'] = $data['topic_status'];
-		$insert_data['visible'] = $data['topic_approved'];
+		if(isset($data['topic_approved']))
+		{
+			// phpBB 3.0
+			$insert_data['visible'] = $data['topic_approved'];
+		}
+		else if(isset($data['topic_visibility']))
+		{
+			// phpBB 3.1
+			$insert_data['visible'] = $data['topic_visibility'];
+
+			// Deleted thread
+			if($insert_data['visible'] == 2)
+			{
+				$insert_data['visible'] = -1;
+			}
+		}
 
 		return $insert_data;
 	}

@@ -112,8 +112,17 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 
 		$insert_data['dateformat'] = get_date_format($data['user_dateformat']);
 		$insert_data['timeformat'] = get_time_format($data['user_dateformat']);
-		$insert_data['timezone'] = $data['user_timezone'];
-		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
+		if(strpos($data['user_timezone'], ".") !== FALSE)
+		{
+			// phpBB 3.0
+			$insert_data['timezone'] = $data['user_timezone'];
+			$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
+		}
+		else
+		{
+			// phpBB 3.1
+			$insert_data['timezone'] = get_timezone($data['user_timezone']);
+		}
 		$insert_data['dst'] = $data['user_dst'];
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['user_sig'], $data['user_sig_bbcode_uid']), "users", "users");
 		$insert_data['regip'] = my_inet_pton($data['user_ip']);
