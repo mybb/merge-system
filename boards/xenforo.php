@@ -81,6 +81,12 @@ class XENFORO_Converter extends Converter
 	);
 	
 	/**
+	 * An array of supported databases
+	 * XenForo only supports MySQL
+	 */
+	var $supported_databases = array("mysql");
+
+	/**
 	 * Convert a XF group ID into a MyBB group ID
 	 *
 	 * @param int Group ID

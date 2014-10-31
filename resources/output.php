@@ -416,7 +416,7 @@ END;
 	{
 		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb, $lang;
 
-		if(function_exists('mysql_connect'))
+		if(function_exists('mysql_connect') && in_array("mysql", $board->supported_databases))
 		{
 			$dboptions['mysql'] = array(
 				'class' => 'DB_MySQL',
@@ -425,7 +425,7 @@ END;
 			);
 		}
 
-		if(function_exists('mysqli_connect'))
+		if(function_exists('mysqli_connect') && in_array("mysql", $board->supported_databases))
 		{
 			$dboptions['mysqli'] = array(
 				'class' => 'DB_MySQLi',
@@ -434,7 +434,7 @@ END;
 			);
 		}
 
-		if(function_exists('pg_connect'))
+		if(function_exists('pg_connect') && in_array("pgsql", $board->supported_databases))
 		{
 			$dboptions['pgsql'] = array(
 				'class' => 'DB_PgSQL',
@@ -443,7 +443,7 @@ END;
 			);
 		}
 
-		if(class_exists('PDO'))
+		if(class_exists('PDO') && in_array("sqlite", $board->supported_databases))
 		{
 			$supported_dbs = PDO::getAvailableDrivers();
 			if(in_array('sqlite', $supported_dbs))

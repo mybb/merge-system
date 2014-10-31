@@ -87,6 +87,12 @@ class VANILLA_Converter extends Converter
 	var $parser_class = "html";
 
 	/**
+	 * An array of supported databases
+	 * Vanilla only supports MySQL
+	 */
+	var $supported_databases = array("mysql");
+
+	/**
 	 * Convert a phpBB 3 group ID into a MyBB group ID
 	 *
 	 * @param int Group ID

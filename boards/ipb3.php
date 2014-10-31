@@ -84,6 +84,12 @@ class IPB3_Converter extends Converter {
 		6 => MYBB_ADMINS, // Administrators
 	);
 
+	/**
+	 * An array of supported databases
+	 * IPB only supports MySQL
+	 */
+	var $supported_databases = array("mysql");
+
 	function db_connect()
 	{
 		parent::db_connect();

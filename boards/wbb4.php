@@ -90,6 +90,12 @@ class WBB4_Converter extends Converter
 		6 => MYBB_SMODS, // Super Moderators
 	);
 
+	/**
+	 * An array of supported databases
+	 * WBB only supports MySQL
+	 */
+	var $supported_databases = array("mysql");
+
 	function __construct()
 	{
 		global $import_session;

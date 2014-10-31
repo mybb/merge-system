@@ -23,6 +23,12 @@ class Converter
 	var $debug;
 
 	/**
+	 * An array of supported databases
+	 * defaulting to every databases if not set by the board itself
+	 */
+	var $supported_databases = array("mysql", "pgsql", "sqlite");
+
+	/**
 	 * Class constructor
 	 */
 	function __construct()
@@ -216,12 +222,19 @@ class Converter
 
 			if($import_session['old_tbl_prefix'])
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['tableprefix'] = $import_session['old_tbl_prefix'];
+				$tableprefix = $import_session['old_tbl_prefix'];
 			}
 			else
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['tableprefix'] = $this->prefix_suggestion;
+				$tableprefix = $this->prefix_suggestion;
 			}
+			// This looks probably odd, but we want that the table prefix is shown everywhere correctly
+			foreach($this->supported_databases as $dbs)
+			{
+				$mybb->input['config'][$dbs]['tableprefix'] = $tableprefix;
+			}
+			// Handling mysqli seperatly as the array above doesn't make a difference between mysql and mysqli
+			$mybb->input['config']["mysqli"]['tableprefix'] = $tableprefix;
 
 			if($import_session['old_db_user'])
 			{
