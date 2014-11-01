@@ -45,6 +45,7 @@ class MYBB_Converter extends Converter
 						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
 						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
+						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
@@ -79,8 +80,10 @@ class MYBB_Converter extends Converter
 	var $groups = array(
 		1 => MYBB_GUESTS, // Guests
 		2 => MYBB_REGISTERED, // Registered
+		3 => MYBB_SMODS, // Super Moderators
 		4 => MYBB_ADMINS, // Administrators
 		5 => MYBB_AWAITING, // Awaiting Activation
+		6 => MYBB_MODS, // Mods
 		7 => MYBB_BANNED, // Banned
 	);
 
@@ -93,17 +96,9 @@ class MYBB_Converter extends Converter
 	 */
 	function get_group_id($gid, $options=array())
 	{
-		$settings = array();
-		if($options['not_multiple'] == false)
-		{
-			$query = $this->old_db->simple_select("usergroups", "COUNT(*) as rows", "gid='{$gid}'");
-			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
-			$this->old_db->free_result($query);
-		}
+		$query = $this->old_db->simple_select("usergroups", "*", "gid='{$gid}'");
 
-		$query = $this->old_db->simple_select("usergroups", "*", "gid='{$gid}'", $settings);
-
-    	if(!$query)
+		if(!$query)
 		{
 			return MYBB_REGISTERED;
 		}
