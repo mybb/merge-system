@@ -36,54 +36,94 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			'cansearch' => 'f_search',
 		);
 
+	var $role_cache = array();
+	var $role_perm_cache = array();
+	var $option_cache = array();
+	var $perm_cache = array();
+
+	function pre_setup($cache=true)
+	{
+		$query = $this->old_db->simple_select("acl_options", "auth_option_id, auth_option", "auth_option IN ('".implode("','", $this->convert_val)."')");
+		while($auth = $this->old_db->fetch_array($query))
+		{
+			$this->option_cache[$auth['auth_option_id']] = $auth['auth_option'];
+		}
+		$this->old_db->free_result($query);
+
+		$query = $this->old_db->simple_select("acl_roles_data", "DISTINCT(role_id)", "auth_option_id IN ('".implode("','", array_keys($this->option_cache))."')");
+		while($id = $this->old_db->fetch_field($query, "role_id"))
+		{
+			$this->role_cache[] = $id;
+		}
+		$this->old_db->free_result($query);
+
+		if($cache === true)
+		{
+			// Ignore newly registered and bots - otherwise we'd have multiple rows for one forum and one group
+			$query = $this->old_db->simple_select("groups", "group_id", "group_id NOT IN(3,6,7)");
+			$groups = array();
+			while($gid = $this->old_db->fetch_field($query, "group_id"))
+			{
+				$groups[] = $gid;
+			}
+
+			// Only forums
+			$query = $this->old_db->simple_select("forums", "forum_id", "forum_type=1");
+			while($fid = $this->old_db->fetch_field($query, "forum_id"))
+			{
+				foreach($groups as $gid)
+				{
+					foreach($this->convert_val as $perm)
+					{
+						$this->perm_cache[$fid][$gid][$perm] = 0;
+					}
+				}
+			}
+		}
+	}
+
 	function import()
 	{
 		global $import_session;
 
+		// Ignores categorys, newly registered and bots - otherwise we'd have duplicated entries
 		$query = $this->old_db->query("
-			SELECT g.*, o.auth_option
-			FROM ".OLD_TABLE_PREFIX."acl_groups g
-			LEFT JOIN ".OLD_TABLE_PREFIX."acl_options o ON (g.auth_option_id=o.auth_option_id)
-			WHERE g.auth_option_id > 0 AND o.auth_option IN ('".implode("','", $this->convert_val)."')
+			SELECT g.* FROM ".OLD_TABLE_PREFIX."acl_groups g
+			LEFT JOIN ".OLD_TABLE_PREFIX."forums f ON (f.forum_id=g.forum_id)
+			WHERE g.group_id NOT IN(3,6,7) AND g.forum_id > 0 AND f.forum_type=1 AND (auth_option_id IN ('".implode("','", array_keys($this->option_cache))."') OR auth_role_id IN ('".implode("','", $this->role_cache)."'))
 			LIMIT {$this->trackers['start_forumperms']}, {$import_session['forumperms_per_screen']}
 		");
 		while($perm = $this->old_db->fetch_array($query))
 		{
-			$this->debug->log->datatrace('$perm', $perm);
-
-			$this->permissions[$perm['forum_id']][$perm['group_id']][$perm['auth_option']] = $perm['auth_setting'];
+			$this->process_permissions($perm);
 		}
 
-		$this->process_permissions();
+		foreach($this->perm_cache as $fid => $temp)
+		{
+			foreach($temp as $gid => $perms)
+			{
+				$perms['fid'] = $fid;
+				$perms['gid'] = $gid;
+				$this->insert($perms);
+			}
+		}
 	}
 
-	function process_permissions()
+	function process_permissions($data)
 	{
-		$this->debug->log->datatrace('$this->permissions', $this->permissions);
-
-		if(is_array($this->permissions))
+		if($data['auth_option_id'] > 0)
 		{
-			foreach($this->permissions as $fid => $groups)
+			// Single permission
+			$perm = $this->option_cache[$data['auth_option_id']];
+			$this->perm_cache[$data['forum_id']][$data['group_id']][$perm] = $data['auth_setting'];
+		}
+		else
+		{
+			// Role permission -> get their permissions
+			$perms = $this->get_role_options($data['auth_role_id']);
+			foreach($perms as $name => $value)
 			{
-				foreach($groups as $gid => $columns)
-				{
-					$perm = array(
-						'fid' => $fid,
-						'gid' => $gid,
-						'columns' => $columns,
-					);
-
-					$this->debug->log->datatrace('$perm', $perm);
-
-					// Yeah, this looks very very dirty and yeah it is
-					// But we need to modify our trackers to avoid useless redirects
-					// we increment our tracker about the number of inserted permissions
-					// -1 as it get's incremented by one in the insert function called below
-					$increment = count($columns)-1;
-					$this->increment_tracker("forumperms", $increment);
-
-					$this->insert($perm);
-				}
+				$this->perm_cache[$data['forum_id']][$data['group_id']][$name] = $value;
 			}
 		}
 	}
@@ -98,35 +138,50 @@ class PHPBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		foreach($this->convert_val as $mybb_column => $phpbb_column)
 		{
-			if(!$data['columns'][$phpbb_column])
-			{
-				$data['columns'][$phpbb_column] = 0;
-			}
-			else
-			{
-				$data['columns'][$phpbb_column] = 1;
-			}
-
-			$insert_data[$mybb_column] = $data['columns'][$phpbb_column];
+			$insert_data[$mybb_column] = $data[$phpbb_column];
 		}
 
+		// Yeah, this looks very very dirty and yeah it is
+		// But we need to modify our trackers to avoid useless redirects
+		// we increment our tracker about the number of inserted permissions
+		// -1 as it get's incremented by one in the insert function called below
+		// -2 for gid and fid
+		$increment = count($data)-1-2;
+		$this->increment_tracker("forumperms", $increment);
+
 		return $insert_data;
+	}
+
+	function get_role_options($id)
+	{
+		if(isset($this->role_perm_cache[$id]))
+		{
+			return $this->role_perm_cache[$id];
+		}
+
+		$query = $this->old_db->simple_select("acl_roles_data", "*", "role_id='{$id}' AND auth_option_id IN ('".implode("','", array_keys($this->option_cache))."')");
+		$perms = array();
+		while($auth = $this->old_db->fetch_array($query))
+		{
+			$perms[$this->option_cache[$auth['auth_option_id']]] = $auth['auth_setting'];
+		}
+		$this->role_perm_cache[$id] = $perms;
+		return $perms;
 	}
 
 	function fetch_total()
 	{
 		global $import_session;
 
+		$this->pre_setup(false);
+
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
-			$query = $this->old_db->query("
-				SELECT COUNT(*) as count
-				FROM ".OLD_TABLE_PREFIX."acl_groups g
-				LEFT JOIN ".OLD_TABLE_PREFIX."acl_options o ON (g.auth_option_id=o.auth_option_id)
-				WHERE g.auth_option_id > 0 AND o.auth_option IN ('".implode("','", $this->convert_val)."')
-			");
-			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
+			$query = $this->old_db->query("SELECT g.* FROM ".OLD_TABLE_PREFIX."acl_groups g
+				LEFT JOIN ".OLD_TABLE_PREFIX."forums f ON (f.forum_id=g.forum_id)
+				WHERE g.group_id NOT IN(3,6,7) AND g.forum_id > 0 AND f.forum_type=1 AND (auth_option_id IN ('".implode("','", array_keys($this->option_cache))."') OR auth_role_id IN ('".implode("','", $this->role_cache)."'))");
+			$import_session['total_forumperms'] = $this->old_db->num_rows($query);
 			$this->old_db->free_result($query);
 		}
 
