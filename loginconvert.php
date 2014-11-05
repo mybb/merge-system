@@ -14,6 +14,7 @@ if(!defined("IN_MYBB"))
 }
 
 $plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1);
+$plugins->add_hook("member_resetpassword_process", "loginconvert_pw_reset");
 
 global $valid_login_types;
 $valid_login_types = array(
@@ -97,6 +98,19 @@ function loginconvert_deactivate()
 		$db->drop_column("users", "passwordconverttype");
 		$db->drop_column("users", "passwordconvertsalt");
 	}
+}
+
+function loginconvert_pw_reset()
+{
+	global $db, $user;
+
+	// Someone reseted their password, clear the passwordconvert columns for this user
+	$update = array(
+		"passwordconvert" => "",
+		"passwordconverttype" => "",
+		"passwordconvertsalt" => ""
+	);
+	$db->update_query("users", $update, "uid={$user['uid']}");
 }
 
 function loginconvert_convert(&$login)
@@ -319,7 +333,7 @@ function check_phpbb3($password, $user)
 		return false;
 	}
 
-	if(md5($user['passwordconvert']) === $hash)
+    if(md5($user['passwordconvert']) === $hash)
 	{
 		return true;
 	}
