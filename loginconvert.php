@@ -146,6 +146,10 @@ function loginconvert_convert(&$login)
 		$function = "check_".$valid_login_types[$user['passwordconverttype']];
 		$check = $function($login->data['password'], $user);
 
+		// Make sure the password isn't tested again
+		// For both, wrong and correct passwords
+		unset($login->data['password']);
+
 		if(!$check)
 		{
 			// Yeah, that function is called later too, but we need to know whether the captcha is right
@@ -168,9 +172,6 @@ function loginconvert_convert(&$login)
 			);
 
 			$db->update_query("users", $update, "uid='{$user['uid']}'");
-
-			// Make sure the password isn't tested again
-			unset($login->data['password']);
 
 			// Also make sure all data is available when creating the session (otherwise SQL errors -.-)
 			$login->login_data = array_merge($user, $update);
@@ -276,7 +277,7 @@ function check_smf2($password, $user)
 		$is_sha1 = false;
 	}
 
-	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $user['username'])).$password) == $user['passwordconvert'])
+	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $user['username'])).utf8_decode($password)) == $user['passwordconvert'])
 	{
 		return true;
 	}
