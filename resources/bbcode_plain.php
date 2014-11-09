@@ -99,7 +99,7 @@ class BBCode_Parser_Plain {
 				$replace = "[url={$mybb->settings['bburl']}/attachment.php?aid={$attachment['aid']}]{$text}[/url]";
 			}
 			$message = str_replace("[attachment=o{$attachment['import_aid']}]", $replace, $post['message']);
-			$db->update_query("posts", array("message" => $message), "pid={$post['pid']}");
+			$db->update_query("posts", array("message" => $db->escape_string($message)), "pid={$post['pid']}");
 		}
 	}
 }
