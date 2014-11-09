@@ -693,7 +693,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	while($post = $db->fetch_array($query))
 	{
 		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT NOT FOUND]", $post['message']);
-		$db->update_query("posts", array("message" => $message), "pid={$post['pid']}");
+		$db->update_query("posts", array("message" => $db->escape_string($message)), "pid={$post['pid']}");
 	}
 
 	// Update import session cache
