@@ -146,12 +146,11 @@ function loginconvert_convert(&$login)
 		$function = "check_".$valid_login_types[$user['passwordconverttype']];
 		$check = $function($login->data['password'], $user);
 
-		// Make sure the password isn't tested again
-		// For both, wrong and correct passwords
-		unset($login->data['password']);
-
 		if(!$check)
 		{
+			// Make sure the password isn't tested again
+			unset($login->data['password']);
+
 			// Yeah, that function is called later too, but we need to know whether the captcha is right
 			// If we wouldn't call that function the error would always be shown
 			$login->verify_attempts($mybb->settings['captchaimage']);
@@ -172,6 +171,9 @@ function loginconvert_convert(&$login)
 			);
 
 			$db->update_query("users", $update, "uid='{$user['uid']}'");
+
+			// Make sure the password isn't tested again
+			unset($login->data['password']);
 
 			// Also make sure all data is available when creating the session (otherwise SQL errors -.-)
 			$login->login_data = array_merge($user, $update);
