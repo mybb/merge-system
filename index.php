@@ -109,6 +109,10 @@ require_once MERGE_ROOT.'resources/class_converter.php';
 
 $mybb->config = $config;
 
+if(file_exists(MYBB_ROOT."inc/db_base.php")) // MyBB 1.8.4+
+{
+	require_once MYBB_ROOT."inc/db_base.php";
+}
 require_once MYBB_ROOT."inc/db_".$config['database']['type'].".php";
 switch($config['database']['type'])
 {
