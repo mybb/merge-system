@@ -14,8 +14,8 @@ header('Content-type: text/html; charset=utf-8');
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
-$merge_version = "1.8.1";
-$version_code = 1801;
+$merge_version = "1.8.4";
+$version_code = 1804;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
