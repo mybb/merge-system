@@ -14,7 +14,6 @@ if(!defined("IN_MYBB"))
 }
 
 $plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1);
-$plugins->add_hook("member_resetpassword_process", "loginconvert_pw_reset");
 
 global $valid_login_types;
 $valid_login_types = array(
@@ -48,7 +47,7 @@ function loginconvert_info()
 		"website"			=> "http://www.mybb.com",
 		"author"			=> "MyBB Group",
 		"authorsite"		=> "http://www.mybb.com",
-		"version"			=> "1.4",
+		"version"			=> "1.4.1",
 		"guid"				=> "",
 		"compatibility"		=> "18*",
 	);
@@ -133,6 +132,19 @@ function loginconvert_convert(&$login)
 	// This fails also when no user was found above, so no need for an extra check
 	if(!isset($user['passwordconvert']) || $user['passwordconvert'] == '')
 	{
+		return;
+	}
+
+	// This user has already a mybb generated hash, delete the merge system data
+	// Happens eg after resetting password or getting a new one via the acp
+	if(!empty($user['password']))
+	{
+		$update = array(
+			"passwordconvert" => "",
+			"passwordconverttype" => "",
+			"passwordconvertsalt" => ""
+		);
+		$db->update_query("users", $update, "uid={$user['uid']}");
 		return;
 	}
 
