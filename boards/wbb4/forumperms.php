@@ -45,7 +45,8 @@ class WBB4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				FROM ".WCF_PREFIX."acl_option_to_group g
 				LEFT JOIN ".WCF_PREFIX."acl_option o ON(o.optionID=g.optionID)
 				WHERE o.optionName IN ('".implode("','", array_keys($this->convert_val))."')
-				ORDER BY objectID, groupID, optionName");
+				ORDER BY objectID, groupID, optionName
+				LIMIT {$this->trackers['start_forumperms']}, {$import_session['forumperms_per_screen']}");
 		while($perm = $this->old_db->fetch_array($query))
 		{
 			$this->perm_cache[$perm['objectID']][$perm['groupID']][$perm['optionName']] = $perm['optionValue'];
