@@ -79,8 +79,13 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		// Get number of forum permissions
 		if(!isset($import_session['total_forumperms']))
 		{
-			$query = $this->old_db->simple_select("board_permissions", "COUNT(*) as count", "ID_GROUP != '-1' AND ID_BOARD > 0");
-			$import_session['total_forumperms'] = $this->old_db->fetch_field($query, 'count');
+			$query = $this->old_db->query("
+				SELECT ID_GROUP, ID_BOARD, GROUP_CONCAT(permission) as permissions
+				FROM ".OLD_TABLE_PREFIX."board_permissions
+				WHERE ID_GROUP != '-1' AND ID_BOARD > 0
+				GROUP BY ID_GROUP, ID_BOARD
+			");
+			$import_session['total_forumperms'] = $this->old_db->num_rows($query);
 			$this->old_db->free_result($query);
 
 			// We need to run cleanup to make sure the canview perm gets merged too
@@ -121,7 +126,8 @@ class SMF_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			foreach($gcache as $mgid => $sgid)
 			{
 				// No need to change anything if we really can view this forum
-				if(in_array($sgid, $groups) || $mgid == MYBB_ADMINS)
+				// We need to check empty as registered is "0" and "0" is in an empty array according to php
+				if((in_array($sgid, $groups) && !empty($forum['memberGroups'])) || $mgid == MYBB_ADMINS)
 				{
 					continue;
 				}

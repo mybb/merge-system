@@ -81,10 +81,11 @@ class SMF2_Converter extends Converter
 	 * @var array
 	 */
 	var $groups = array(
+		-1 => MYBB_GUESTS, // Guests
+		0 => MYBB_REGISTERED, // Registered
 		1 => MYBB_ADMINS, // Administrators
 		2 => MYBB_SMODS, // Super Moderators
 		3 => MYBB_MODS, // Moderators
-		// 0 => MYBB_REGISTERED, // Registered
 	);
 
 	var $get_post_cache = array();

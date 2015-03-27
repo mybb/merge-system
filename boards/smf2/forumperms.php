@@ -85,14 +85,71 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				SELECT p.id_group, GROUP_CONCAT(p.permission) as permissions, b.id_board
 				FROM ".OLD_TABLE_PREFIX."boards b
 				LEFT JOIN ".OLD_TABLE_PREFIX."board_permissions p ON (p.id_profile=b.id_profile)
-				WHERE p.id_group>4 AND p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
+				WHERE p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
 				GROUP BY b.id_board
 			");
 			$import_session['total_forumperms'] = $this->old_db->num_rows($query);
 			$this->old_db->free_result($query);
+
+			// We need to run cleanup to make sure the canview perm gets merged too
+			if($import_session['total_forumperms'] == 0)
+			{
+				$this->cleanup();
+			}
 		}
 
 		return $import_session['total_forumperms'];
+	}
+
+
+	// We need to handle the canview permissions seperatly
+	function cleanup()
+	{
+		global $db;
+
+		$gcache = array();
+		$gquery = $db->simple_select('usergroups', 'gid,import_gid');
+		while($group = $db->fetch_array($gquery))
+		{
+			if(in_array($group['gid'], $this->board->groups))
+			{
+				$t = array_flip($this->board->groups);
+				$gcache[$group['gid']] = $t[$group['gid']];
+			}
+			else
+			{
+				$gcache[$group['gid']] = $group['import_gid'];
+			}
+		}
+
+		$query = $this->old_db->simple_select("boards", "id_board,member_groups");
+		while($forum = $this->old_db->fetch_array($query))
+		{
+			$groups = explode(',', $forum['member_groups']);
+
+			foreach($gcache as $mgid => $sgid)
+			{
+				// No need to change anything if we really can view this forum
+				// We need to check empty as registered is "0" and "0" is in an empty array according to php
+				if((in_array($sgid, $groups) && !empty($forum['member_groups'])) || $mgid == MYBB_ADMINS)
+				{
+					continue;
+				}
+
+				$fid = $this->get_import->fid($forum['id_board']);
+				$tquery = $db->simple_select('forumpermissions', 'pid', "fid={$fid} AND gid={$mgid}");
+				if($db->num_rows($tquery) == 0)
+				{
+					// We hadn't any permissions for this forum so simply insert one and leave everything to default
+					$db->insert_query('forumpermissions', array('fid' => $fid, 'gid' => $mgid, 'canview' => 0));
+				}
+				else
+				{
+					// We had permissions so simply update them
+					$db->update_query('forumpermissions', array('canview' => 0), "fid={$fid} AND gid={$mgid}");
+				}
+			}
+		}
 	}
 }
 
