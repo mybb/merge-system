@@ -42,11 +42,14 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// vBulletin 3 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroupid']));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['usergroupid'], array("not_multiple" => true));
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['usergroupid'], array("original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['usergroupid'], array("original" => true));
+		$insert_data['usergroup'] = $this->board->get_gid($data['usergroupid']);
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['membergroupids']);
+		if($data['displaygroupid'] > 0)
+		{
+			$insert_data['displaygroup'] = $this->board->get_gid($data['displaygroupid']);
+		}
+		$insert_data['import_usergroup'] = $data['usergroupid'];
+		$insert_data['import_additionalgroups'] = $data['membergroupids'];
 		$insert_data['import_displaygroup'] = $data['displaygroupid'];
 		$insert_data['import_uid'] = $data['userid'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "user", "users");

@@ -43,8 +43,8 @@ class VBULLETIN3_Converter extends Converter
 	 * @var array
 	 */
 	var $modules = array("db_configuration" => array("name" => "Database Configuration", "dependencies" => ""),
-						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration"),
-						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration,import_users"),
+						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
+						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
 						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
@@ -85,6 +85,8 @@ class VBULLETIN3_Converter extends Converter
 		4 => MYBB_REGISTERED, // Registered coppa
 		5 => MYBB_SMODS, // Super Moderators
 		6 => MYBB_ADMINS, // Administrators
+		7 => MYBB_MODS, // Moderators
+		8 => MYBB_BANNED, // Banned
 	);
 
 	/**
@@ -92,47 +94,6 @@ class VBULLETIN3_Converter extends Converter
 	 * vB only supports MySQL
 	 */
 	var $supported_databases = array("mysql");
-
-	/**
-	 * Convert a vB group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		$settings = array();
-		if($options['not_multiple'] == false)
-		{
-			$query = $this->old_db->simple_select("usergroup", "COUNT(*) as rows", "usergroupid='{$gid}'");
-			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
-			$this->old_db->free_result($query);
-		}
-
-		$query = $this->old_db->simple_select("usergroup", "*", "usergroupid='{$gid}'", $settings);
-
-		if(!$query)
-		{
-			return MYBB_REGISTERED; // Return regular registered user.
-		}
-
-		$groups = array();
-		while($vbgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$group .= $vbgroup['usergroupid'].$comma;
-			}
-			else
-			{
-				$groups[] = $this->get_gid($vbgroup['usergroupid']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
-	}
 }
 
 ?>
