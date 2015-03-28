@@ -43,8 +43,8 @@ class XENFORO_Converter extends Converter
 	 * @var array
 	 */
 	var $modules = array("db_configuration" => array("name" => "Database Configuration", "dependencies" => ""),
-						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration"),
-						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration,import_users"),
+						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
+						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
@@ -85,38 +85,6 @@ class XENFORO_Converter extends Converter
 	 * XenForo only supports MySQL
 	 */
 	var $supported_databases = array("mysql");
-
-	/**
-	 * Convert a XF group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		$query = $this->old_db->simple_select("user_group", "*", "user_group_id='{$gid}'");
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($xfgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$groups[] = $xfgroup['user_group_id'];
-			}
-			else
-			{
-				$groups[] = $this->get_gid($xfgroup['user_group_id']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
-	}
 }
 
 ?>

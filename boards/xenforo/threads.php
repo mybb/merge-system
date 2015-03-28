@@ -28,7 +28,7 @@ class XENFORO_Converter_Module_Threads extends Converter_Module_Threads {
 		$query = $this->old_db->simple_select("thread", "*", "", array('limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
 		while($thread = $this->old_db->fetch_array($query))
 		{
-			$this->insert($thread);		
+			$this->insert($thread);
 		}
 	}
 	

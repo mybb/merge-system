@@ -46,16 +46,10 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 		
 		// Xenforo 1 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['user_group_id'], array("not_multiple" => true));
-		$sec = explode(",", $data['secondary_group_ids']);
-		$groups = array();
-		foreach($sec as $gid)
-		{
-		    $groups[] = $this->board->get_group_id($gid);
-		}
-		$insert_data['additionalgroups'] = implode(",", $groups);
+		$insert_data['usergroup'] = $this->board->get_gid($data['user_group_id']);
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['secondary_group_ids']);
 		$insert_data['displaygroup'] = $this->board->get_gid($data['display_style_group_id']);
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['user_group_id'], array("original" => true));
+		$insert_data['import_usergroup'] = $data['user_group_id'];
 		$insert_data['import_additionalgroups'] = $data['secondary_group_ids'];
 		$insert_data['import_displaygroup'] = $data['display_style_group_id'];
 		$insert_data['import_uid'] = $data['user_id'];
