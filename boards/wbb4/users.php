@@ -75,9 +75,11 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 		$this->settings['encode_table'] = WCF_PREFIX.$this->settings['encode_table'];
 
 		// Get members
-		$query = $this->old_db->query("SELECT u.*, {$this->fields}
+		$query = $this->old_db->query("SELECT u.*, {$this->fields}, GROUP_CONCAT(g.groupID) as usergroups
 			FROM ".WCF_PREFIX."user u
 			LEFT JOIN ".WCF_PREFIX."user_option_value o ON (o.userID=u.userID)
+			LEFT JOIN ".WCF_PREFIX."user_to_group g ON (g.userID=u.userID AND g.groupID != 1)
+			GROUP BY u.userID
 			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}");
 
     	while($user = $this->old_db->fetch_array($query))
@@ -98,13 +100,22 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// WBB 4 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = $this->board->get_group_id($data['userID']);
-		$insert_data['displaygroup'] = $this->board->get_gid($data['userOnlineGroupID']);
+		// Using the displaygroup as usergroup as wbb doesn't have a "primary" group
+		$insert_data['usergroup'] = $this->board->get_gid($data['userOnlineGroupID']);
+		// Remove the primary usergroup and the guest group which is used for not activated users
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['usergroups'], array($insert_data['usergroup'], MYBB_GUESTS));
 
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['userID'], array("not_multiple" => true, "original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['userID'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['userOnlineGroupID'];
+		// User isn't activated
+		if($data['activationCode'] > 0)
+		{
+			$insert_data['usergroup'] = MYBB_AWAITING;
+			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
+			unset($groups[MYBB_REGISTERED]);
+			$insert_data['additionalgroups'] = implode(',', array_keys($groups));
+		}
+
+		$insert_data['import_usergroup'] = $data['userOnlineGroupID'];
+		$insert_data['import_additionalgroups'] = $data['usergroups'];
 
 		$insert_data['import_uid'] = $data['userID'];
 		$insert_data['username'] = encode_to_utf8($data['username'], WCF_PREFIX."user", "users");

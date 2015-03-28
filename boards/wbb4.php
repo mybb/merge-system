@@ -50,8 +50,8 @@ class WBB4_Converter extends Converter
 	 * @var array
 	 */
 	var $modules = array("db_configuration" => array("name" => "Database Configuration", "dependencies" => ""),
-						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration"),
-						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration,import_users"),
+						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
+						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
 						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
@@ -117,38 +117,6 @@ class WBB4_Converter extends Converter
 		
 		define("WCF_PREFIX", "wcf{$this->installationnumber}_");
 		define("WBB_PREFIX", "wbb{$this->installationnumber}_");
-	}
-
-	/**
-	 * Convert a WBB group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($uid, $options=array())
-	{
-		$query = $this->old_db->simple_select(WCF_PREFIX."user_to_group", "*", "userID = '{$uid}'");
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($wbbgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$groups[] = $wbbgroup['groupID'];
-			}
-			else
-			{
-				$groups[] = $this->get_gid($wbbgroup['groupID']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
 	}
 	
 	function db_extra()
