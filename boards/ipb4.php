@@ -86,47 +86,6 @@ class IPB4_Converter extends Converter {
 	 * IPB only supports MySQL
 	 */
 	var $supported_databases = array("mysql");
-
-	/**
-	 * Convert a IPB group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		if($options['not_multiple'] != true)
-		{
-			$query = $this->old_db->simple_select("core_groups", "COUNT(*) as rows", "g_id='{$gid}'");
-			$query = $this->old_db->simple_select("core_groups", "*", "g_id='{$gid}'", array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows')));
-		}
-		else
-		{
-			$query = $this->old_db->simple_select("core_groups", "*", "g_id='{$gid}'");
-		}
-
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($ipbgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$groups[] = $ipbgroup['g_id'];
-			}
-			else
-			{
-				$groups[] = $this->get_gid($ipbgroup['g_id']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
-	}
 }
 
 ?>

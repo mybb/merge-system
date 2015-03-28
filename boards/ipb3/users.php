@@ -48,12 +48,10 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// Invision Power Board 3 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['member_group_id'], array("not_multiple" => true));
+		$insert_data['usergroup'] = $this->board->get_gid($data['member_group_id']);
 		$insert_data['additionalgroups'] = $this->board->get_group_id($data['mgroup_others']);
-		$insert_data['displaygroup'] = $insert_data['usergroup'];
 		$insert_data['import_usergroup'] = $data['member_group_id'];
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['mgroup_others'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['member_group_id'];
+		$insert_data['import_additionalgroups'] = $data['mgroup_others'];
 		$insert_data['import_uid'] = $data['member_id'];
 		$insert_data['username'] = encode_to_utf8($data['name'], "members", "users");
 		$insert_data['email'] = $data['email'];

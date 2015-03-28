@@ -88,7 +88,7 @@ class IPB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				$perm_split = explode(',', $permission);
 				foreach($perm_split as $key2 => $gid)
 				{
-					$new_perms[$this->board->get_gid($gid, array("not_multiple" => true))][$key] = 1;
+					$new_perms[$this->board->get_gid($gid)][$key] = 1;
 				}
 			}
 		}

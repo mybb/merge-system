@@ -346,7 +346,8 @@ class Converter
 
 		if(!is_array($gids))
 		{
-			$gids = explode(',', $gids);
+			// Fix strings like ",{id}," and then explode
+			$gids = explode(',', trim($gids, ','));
 		}
 		$gids = array_map('trim', $gids);
 
