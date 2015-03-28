@@ -57,9 +57,9 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		//phpBB3 inactive for user registration (not yet activated) force awaiting and remove possible registered group from additionalgroups
 		if($data['user_inactive_reason'] == '1' && $data['user_type'] == '1')
 		{
-			$insert_data['usergroup'] = 5;
+			$insert_data['usergroup'] = MYBB_AWAITING;
 			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
-			unset($groups[2]);
+			unset($groups[MYBB_REGISTERED]);
 			$insert_data['additionalgroups'] = implode(',', array_keys($groups));
 		}
 

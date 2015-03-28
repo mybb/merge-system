@@ -32,7 +32,14 @@ class VANILLA_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session;
 
 		// Get members
-		$query = $this->old_db->simple_select("user", "*", "Name != 'System'", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
+		$query = $this->old_db->query("
+			SELECT u.*, GROUP_CONCAT(g.RoleID) as usergroups
+			FROM ".OLD_TABLE_PREFIX."user u
+			LEFT JOIN ".OLD_TABLE_PREFIX."userrole g ON(g.UserID=u.UserID)
+			WHERE u.Name != 'System'
+			GROUP BY u.UserID
+			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}
+		");
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
@@ -44,13 +51,13 @@ class VANILLA_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// Vanilla values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['UserID'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['UserID']));
-		$insert_data['displaygroup'] = $insert_data['usergroup'];
+		// Vanilla doesn't have a primary usergroup - we're simply using the first and remove it from additionalgroups
+		$groups = explode(',', $data['usergroups']);
+		$insert_data['usergroup'] = $this->board->get_gid($groups[0]);
+		$insert_data['additionalgroups'] = $this->board->get_group_id($groups, $insert_data['usergroup']);
 
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['UserID'], array("not_multiple" => true, "original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['UserID'], array("original" => true));
-		$insert_data['import_displaygroup'] = $insert_data['import_usergroup'];
+		$insert_data['import_usergroup'] = $groups[0];
+		$insert_data['import_additionalgroups'] = $data['usergroups'];
 		$insert_data['import_uid'] = $data['UserID'];
 		$insert_data['username'] = encode_to_utf8($data['Name'], "user", "users");
 		$insert_data['email'] = $data['Email'];

@@ -29,10 +29,7 @@ class VANILLA_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$query = $this->old_db->simple_select("role", "*", "RoleID NOT IN ('".implode("','", array_keys($this->board->groups))."')", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
-			$gid = $this->insert($group);
-
-			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '".intval($group['RoleID'])."' OR import_displaygroup = '".intval($group['RoleID'])."'");
+			$this->insert($group);
 		}
 	}
 
@@ -41,7 +38,7 @@ class VANILLA_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data = array();
 
 		// Vanilla values
-		$insert_data['import_gid'] = $data['Role'];
+		$insert_data['import_gid'] = $data['RoleID'];
 		$insert_data['title'] = $data['Name'];
 		$insert_data['description'] = $data['Description'];
 
