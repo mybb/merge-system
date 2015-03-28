@@ -35,11 +35,6 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$this->insert($user);
 		}
-
-		if($this->old_db->num_rows($query) == 0)
-		{
-			$output->print_none_left_message();
-		}
 	}
 
 	function convert_data($data)
