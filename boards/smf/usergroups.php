@@ -31,20 +31,7 @@ class SMF_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$query = $this->old_db->simple_select("membergroups", "*", "ID_GROUP > 3 AND minPosts = -1", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
-			$gid = $this->insert($group);
-
-			// Update our internal cache array
-			$this->get_import->cache_gids[$group['ID_GROUP']] = $gid;
-
-			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '{$group['ID_GROUP']}' OR import_displaygroup = '{$group['ID_GROUP']}'");
-
-			$query2 = $db->simple_select("users", "uid, import_additionalgroups AS additionalGroups", "CONCAT(',', import_additionalgroups, ',') LIKE '%,{$group['ID_GROUP']},%'");
-			while($user = $db->fetch_array($query2))
-			{
-				$db->update_query("users", array('additionalgroups' => $this->board->get_group_id($user['additionalGroups'])), "uid = '{$user['uid']}'");
-			}
-			$db->free_result($query2);
+			$this->insert($group);
 		}
 	}
 

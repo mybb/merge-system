@@ -58,7 +58,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		if($data['user_inactive_reason'] == '1' && $data['user_type'] == '1')
 		{
 			$insert_data['usergroup'] = 5;
-			$insert_data['displaygroup'] = 0;
 			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
 			unset($groups[2]);
 			$insert_data['additionalgroups'] = implode(',', array_keys($groups));

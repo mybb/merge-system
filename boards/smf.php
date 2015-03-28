@@ -111,45 +111,6 @@ class SMF_Converter extends Converter
 
 		return $results;
 	}
-
-	/**
-	 * Convert a SMF group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param boolean whether or not the Group ID came from ID_GROUP column
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($group_id, $is_group_row=false, $is_activated=1)
-	{
-		if(empty($group_id))
-		{
-			return MYBB_REGISTERED;
-		}
-
-		if(!is_numeric($group_id))
-		{
-			$groups = $group_id;
-		}
-		else
-		{
-			$groups = array($group_id);
-		}
-
-
-		$ngroups = array();
-		foreach($groups as $key => $smfgroup)
-		{
-			// Deal with non-activated people
-			if($is_activated != 1 && $is_group_row == true)
-			{
-				return MYBB_AWAITING;
-			}
-
-			$ngroups[] = $this->get_gid($punbbgroup['g_id']);
-		}
-
-		return implode(',', array_unique($ngroups));
-	}
 }
 
 ?>

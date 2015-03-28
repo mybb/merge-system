@@ -42,12 +42,20 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// SMF values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['id_group'], true, $data['is_activated']);
+		$insert_data['usergroup'] = $this->board->get_gid($data['id_group']);
 		$insert_data['additionalgroups'] = $this->board->get_group_id($data['additional_groups']);
-		$insert_data['displaygroup'] = $insert_data['usergroup'];
+
+		// user not acticated
+		if(!$data['is_activated'])
+		{
+			$insert_data['usergroup'] = 5;
+			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
+			unset($groups[2]);
+			$insert_data['additionalgroups'] = implode(',', array_keys($groups));
+		}
+
 		$insert_data['import_usergroup'] = $data['id_group'];
 		$insert_data['import_additionalgroups'] = $data['additional_groups'];
-		$insert_data['import_displaygroup'] = $data['id_group'];
 		$insert_data['import_uid'] = $data['id_member'];
 		$insert_data['username'] = encode_to_utf8($data['member_name'], "members", "users");
 		$insert_data['email'] = $data['email_address'];
