@@ -29,12 +29,6 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 		while($forum = $this->old_db->fetch_array($query))
 		{
 			$fid = $this->insert($forum);
-
-			// Update parent list.
-			if($insert_forum['type'] == 'c')
-			{
-				$db->update_query("forums", array('parentlist' => $fid), "import_fid = '{$forum['fid']}'");
-			}
 		}
 	}
 
