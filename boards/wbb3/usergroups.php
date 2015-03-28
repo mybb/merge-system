@@ -96,20 +96,7 @@ class WBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 			}
 			$this->old_db->free_result($oquery);
 
-			$gid = $this->insert($group);
-
-			// Update our internal cache array
-			$this->get_import->cache_gids[$group['groupID']] = $gid;
-
-			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '".intval($group['groupID'])."' OR import_displaygroup = '".intval($group['groupID'])."'");
-
-			$query2 = $db->simple_select("users", "uid, import_additionalgroups AS additional_groups", "CONCAT(',', import_additionalgroups, ',') LIKE '%,{$group['groupID']},%'");
-			while($user = $db->fetch_array($query2))
-			{
-				$db->update_query("users", array('additionalgroups' => $this->board->get_group_id($user['additional_groups'])), "uid = '{$user['uid']}'");
-			}
-			$db->free_result($query2);
+			$this->insert($group);
 		}
 	}
 
@@ -118,7 +105,7 @@ class WBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data = array();
 
 		// WBB 3 values
-		$insert_data['import_gid'] = $data['groupId'];
+		$insert_data['import_gid'] = $data['groupID'];
 		$insert_data['type'] = 2; // Custom usergroup
 		$insert_data['title'] = $data['groupName'];
 		$insert_data['description'] = 'WBB Lite 2 imported group';
