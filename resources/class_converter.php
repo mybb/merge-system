@@ -335,9 +335,10 @@ class Converter
 	 * Convert a comma seperated list of original groups ids in one of mybb
 	 *
 	 * @param string $gids A comma seperated list of original group ids
+	 * @param int|array $remove Either a single group id or an array of group ids which shouldn't be in the group array
 	 * @return string group id(s)
 	 */
-	function get_group_id($gids)
+	function get_group_id($gids, $remove='')
 	{
 		if(empty($gids))
 		{
@@ -358,7 +359,19 @@ class Converter
 			$groups[] = $this->get_gid($gid);
 		}
 
-		return implode(',', array_unique($groups));
+		$groups = array_unique($groups);
+
+		if(!empty($remove))
+		{
+			if(!is_array($remove))
+			{
+				$remove = array($remove);
+			}
+
+			$groups = array_diff($groups, $remove);
+		}
+
+		return implode(',', $groups);
 	}
 }
 ?>

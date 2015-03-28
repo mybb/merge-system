@@ -32,7 +32,14 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session;
 
 		// Get members
-		$query = $this->old_db->simple_select("users", "*", "user_id > 0 AND username != 'Anonymous' AND group_id != 6", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
+		$query = $this->old_db->query("
+			SELECT u.*, GROUP_CONCAT(g.group_id) as usergroups
+			FROM ".OLD_TABLE_PREFIX."users u
+			LEFT JOIN ".OLD_TABLE_PREFIX."user_group g ON(g.user_id=u.user_id AND g.user_pending=0)
+			WHERE u.user_id > 0 AND u.username != 'Anonymous' AND u.group_id != 6
+			GROUP BY u.user_id
+			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}
+		");
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
@@ -44,23 +51,21 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// phpBB 3 values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['user_id']));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true));
+		$insert_data['usergroup'] = $this->board->get_gid($data['group_id']);
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['usergroups'], $insert_data['usergroup']);
 
 		//phpBB3 inactive for user registration (not yet activated) force awaiting and remove possible registered group from additionalgroups
 		if($data['user_inactive_reason'] == '1' && $data['user_type'] == '1')
 		{
 			$insert_data['usergroup'] = 5;
-			$insert_data['displaygroup'] = 5;
+			$insert_data['displaygroup'] = 0;
 			$groups = array_flip(explode(',', $insert_data['additionalgroups']));
 			unset($groups[2]);
 			$insert_data['additionalgroups'] = implode(',', array_keys($groups));
 		}
 
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['user_id'], array("not_multiple" => true, "original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['user_id'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['group_id'];
+		$insert_data['import_usergroup'] = $data['group_id'];
+		$insert_data['import_additionalgroups'] = $data['usergroups'];
 		$insert_data['import_uid'] = $data['user_id'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "users", "users");
 		$insert_data['email'] = $data['user_email'];

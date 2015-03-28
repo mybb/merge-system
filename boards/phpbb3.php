@@ -43,8 +43,8 @@ class PHPBB3_Converter extends Converter
 	 * @var array
 	 */
 	var $modules = array("db_configuration" => array("name" => "Database Configuration", "dependencies" => ""),
-						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration"),
-						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration,import_users"),
+						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
+						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
 						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
@@ -85,52 +85,6 @@ class PHPBB3_Converter extends Converter
 		6 => MYBB_GUESTS, // Bots
 		7 => MYBB_REGISTERED, // Newly registered
 	);
-
-	/**
-	 * Convert a phpBB 3 group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($uid, $options=array())
-	{
-		$settings = array();
-		if($options['not_multiple'] == false)
-		{
-			$query = $this->old_db->simple_select("user_group", "COUNT(*) as rows", "user_id = '{$uid}'");
-			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
-			$this->old_db->free_result($query);
-		}
-
-		$query = $this->old_db->simple_select("user_group", "*", "user_id = '{$uid}'", $settings);
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($phpbbgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$groups[] = $phpbbgroup['group_id'];
-			}
-			else
-			{
-				// Deal with non-activated people
-				if($phpbbgroup['user_pending'] != '0')
-				{
-					return MYBB_AWAITING;
-				}
-
-				$groups[] = $this->get_gid($phpbbgroup['group_id']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
-	}
 }
 
 ?>

@@ -29,10 +29,7 @@ class PHPBB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$query = $this->old_db->simple_select("groups", "*", "group_id > 7", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
-			$gid = $this->insert($group);
-
-			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '".intval($group['group_id'])."' OR import_displaygroup = '".intval($group['group_id'])."'");
+			$this->insert($group);
 		}
 	}
 
