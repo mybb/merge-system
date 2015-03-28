@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright Â© 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -103,25 +103,6 @@ class FLUXBB_Converter extends Converter
 		$this->old_db->free_result($query);
 		
 		return $results;
-	}
-	
-	/**
-	 * Convert a FluxBB group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		if($options['original'] == true)
-		{
-			return $gid;
-		}
-		else
-		{
-			return $this->get_gid($gid);
-		}
 	}
 }
 

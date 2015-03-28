@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright Â© 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -63,11 +63,8 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 		
 		// fluxBB values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true));
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true, "original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['group_id'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['group_id'];
+		$insert_data['usergroup'] = $this->board->get_gid($data['group_id']);
+		$insert_data['import_usergroup'] = $data['group_id'];
 		$insert_data['import_uid'] = $data['id'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "users", "users");
 		$insert_data['email'] = $data['email'];
@@ -80,7 +77,7 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['showavatars'] = $data['show_avatars'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['timezone']);
 
-		$insert_data['lastpost'] = (int)$data['last_post'];				
+		$insert_data['lastpost'] = (int)$data['last_post'];
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];

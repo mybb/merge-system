@@ -61,11 +61,8 @@ class PUNBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// punBB values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true));
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true));
-		$insert_data['import_usergroup'] = $this->board->get_group_id($data['group_id'], array("not_multiple" => true, "original" => true));
-		$insert_data['import_additionalgroups'] = $this->board->get_group_id($data['group_id'], array("original" => true));
-		$insert_data['import_displaygroup'] = $data['group_id'];
+		$insert_data['usergroup'] = $this->board->get_gid($data['group_id']);
+		$insert_data['import_usergroup'] = $data['group_id'];
 		$insert_data['import_uid'] = $data['id'];
 		$insert_data['username'] = encode_to_utf8($data['username'], "users", "users");
 		$insert_data['email'] = $data['email'];

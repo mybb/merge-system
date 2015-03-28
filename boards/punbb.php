@@ -102,25 +102,6 @@ class PUNBB_Converter extends Converter
 
 		return $results;
 	}
-
-	/**
-	 * Convert a punBB group ID into a MyBB group ID
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		if($options['original'] == true)
-		{
-			return $gid;
-		}
-		else
-		{
-			return $this->get_gid($gid);
-		}
-	}
 }
 
 ?>
