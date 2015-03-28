@@ -69,11 +69,14 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 
 		// MyBB 1.8 values
 		$insert_data['import_uid'] = $data['uid'];
-		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroup'], array("not_multiple" => true));
-		$insert_data['additionalgroups'] = str_replace($insert_data['usergroup'], '', $this->board->get_group_id($data['usergroup']));
+		$insert_data['usergroup'] = $this->board->get_gid($data['usergroup']);
+		$insert_data['additionalgroups'] = $this->board->get_group_id($data['additionalgroups']);
+		if($data['displaygroup'] > 0)
+		{
+			$insert_data['displaygroup'] = $this->board->get_gid($data['displaygroup']);
+		}
 		$insert_data['username'] = encode_to_utf8($insert_data['username'], "users", "users");
 		$insert_data['signature'] = encode_to_utf8($data['signature'], "users", "users");
-		$insert_data['displaygroup'] = $this->board->get_group_id($data['displaygroup'], array("not_multiple" => true));
 		$insert_data['import_usergroup'] = $data['usergroup'];
 		$insert_data['import_additionalgroups'] = $data['additionalgroups'];
 

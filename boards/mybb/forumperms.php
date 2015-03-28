@@ -64,7 +64,7 @@ class MYBB_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		// MyBB 1.8 values
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['gid'] = $this->board->get_group_id($data['gid']);
+		$insert_data['gid'] = $this->board->get_gid($data['gid']);
 
 		return $insert_data;
 	}

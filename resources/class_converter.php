@@ -330,5 +330,31 @@ class Converter
 			}
 		}
 	}
+
+	/**
+	 * Convert a comma seperated list of original groups ids in one of mybb
+	 *
+	 * @param string $gids A comma seperated list of original group ids
+	 * @return string group id(s)
+	 */
+	function get_group_id($gids)
+	{
+		if(empty($gids))
+		{
+			return '';
+		}
+
+		$gids = explode(',', $gids);
+		$gids = array_map('trim', $gids);
+
+		$groups = array();
+
+		foreach($gids as $gid)
+		{
+			$groups[] = $this->get_gid($gid);
+		}
+
+		return implode(',', array_unique($groups));
+	}
 }
 ?>

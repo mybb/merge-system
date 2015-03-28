@@ -86,39 +86,6 @@ class MYBB_Converter extends Converter
 		6 => MYBB_MODS, // Mods
 		7 => MYBB_BANNED, // Banned
 	);
-
-	/**
-	 * Convert a MyBB group ID into a MyBB group ID (merge)
-	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
-	 */
-	function get_group_id($gid, $options=array())
-	{
-		$query = $this->old_db->simple_select("usergroups", "*", "gid='{$gid}'");
-
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($mybbgroup = $this->old_db->fetch_array($query))
-		{
-			if($options['original'] == true)
-			{
-				$groups[] = $mybbgroup['gid'];
-			}
-			else
-			{
-				$groups[] = $this->get_gid($mybbgroup['gid']);
-			}
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
-	}
 }
 
 ?>
