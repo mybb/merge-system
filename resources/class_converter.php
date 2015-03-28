@@ -344,7 +344,10 @@ class Converter
 			return '';
 		}
 
-		$gids = explode(',', $gids);
+		if(!is_array($gids))
+		{
+			$gids = explode(',', $gids);
+		}
 		$gids = array_map('trim', $gids);
 
 		$groups = array();

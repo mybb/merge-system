@@ -29,7 +29,11 @@ class BBPRESS_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session, $db;
 
 		// Get members
-		$query = $this->old_db->simple_select("users", "*", "ID > 0", array('limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
+		$query = $this->old_db->query("SELECT u.*, m.meta_value AS usergroups
+				FROM ".OLD_TABLE_PREFIX."users u
+				LEFT JOIN ".OLD_TABLE_PREFIX."usermeta m ON (m.user_id=u.ID AND m.meta_key='".OLD_TABLE_PREFIX."capabilities')
+				WHERE ID > 0
+				LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}");
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
@@ -41,9 +45,7 @@ class BBPRESS_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data = array();
 
 		// bbPress values
-		$insert_data['usergroup'] = $this->board->get_group_id($data['ID'], array("not_multiple" => true));
-		$insert_data['displaygroup'] = $insert_data['usergroup'];
-		$insert_data['import_displaygroup'] = $insert_data['import_usergroup'];
+		$insert_data['usergroup'] = $this->board->get_group_id($data['usergroups']);
 		$insert_data['import_uid'] = $data['ID'];
 		$insert_data['username'] = encode_to_utf8($data['user_login'], "users", "users");
 		$insert_data['email'] = $data['user_email'];

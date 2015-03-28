@@ -70,11 +70,11 @@ class BBPRESS_Converter extends Converter
 	 * @var array
 	 */
 	var $groups = array(
-		"blocked" => MYBB_BANNED, // Banned
-		"member" => MYBB_REGISTERED, // Registered
-		"moderator" => MYBB_SMODS, // Super Moderators
-		"keymaster" => MYBB_ADMINS, // Administrators
-		"administrator" => MYBB_REGISTERED, // Administrators
+		"bbp_blocked" => MYBB_BANNED, // Banned
+		"bbp_spectator" => MYBB_REGISTERED, // Registered
+		"bbp_participant" => MYBB_REGISTERED, // Registered
+		"bbp_moderator" => MYBB_SMODS, // Super Moderators
+		"bbp_keymaster" => MYBB_ADMINS, // Administrators
 	);
 
 	/**
@@ -91,39 +91,28 @@ class BBPRESS_Converter extends Converter
 	var $supported_databases = array("mysql");
 
 	/**
-	 * Convert a bbPress group ID into a MyBB group ID
+	 * Convert a serialized list of original roes in one of mybb
 	 *
-	 * @param int Group ID
-	 * @param array Options for retreiving the group ids
-	 * @return mixed group id(s)
+	 * @param string $gids A serialized list of original roles
+	 * @return string group id(s)
 	 */
-	function get_group_id($uid, $options=array())
+	function get_group_id($gids)
 	{
-		global $old_table_prefix;
-		$settings = array();
-		if($options['not_multiple'] == false)
+		// bbPress saves roles as ["name" => true]
+		$roles = array_keys(unserialize($gids));
+
+		// A user can have multiple roles but only one for bbPress
+		foreach($roles as $role)
 		{
-			$query = $this->old_db->simple_select("usermeta", "COUNT(*) as rows", "user_id = '{$uid}' AND meta_key = '".$this->old_db->table_prefix."capabilities'");
-			$settings = array('limit_start' => '1', 'limit' => $this->old_db->fetch_field($query, 'rows'));
-			$this->old_db->free_result($query);
+			// We found our role so return it
+			if(isset($this->groups[$role]))
+			{
+				return $this->groups[$role];
+			}
 		}
 
-		$query = $this->old_db->simple_select("usermeta", "*", "user_id = '{$uid}' AND meta_key = '".$this->old_db->table_prefix."capabilities'", $settings);
-		if(!$query)
-		{
-			return MYBB_REGISTERED;
-		}
-
-		$groups = array();
-		while($bbpress = $this->old_db->fetch_array($query))
-		{
-			$bbpress['group_id'] = preg_replace('#\w+:\d+:{\w+:\d+:\"(.*?)\";\w+:\d+;}#', '$1', $bbpress['meta_value']);
-
-			$groups[] = $this->get_gid($bbpress['group_id']);
-		}
-
-		$this->old_db->free_result($query);
-		return implode(',', array_unique($groups));
+		// The user hadn't a role but he was registered
+		return MYBB_REGISTERED;
 	}
 }
 
