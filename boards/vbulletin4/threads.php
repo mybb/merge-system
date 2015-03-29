@@ -42,7 +42,7 @@ class VBULLETIN4_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['fid'] = $this->get_import->fid($data['forumid']);
 		$insert_data['import_firstpost'] = $data['firstpostid'];
 		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['subject'] = encode_to_utf8(str_replace('&quot;', '"', $data['title']), "thread", "threads");
+		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['title']), "thread", "threads");
 		$insert_data['import_poll'] = $data['pollid'];
 		$insert_data['uid'] = $this->get_import->uid($data['postuserid']);
 		$insert_data['import_uid'] = $data['postuserid'];

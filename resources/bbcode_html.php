@@ -47,7 +47,13 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 
 		$text = $this->handle_attachments($text);
 
-		return $text;
+		return utf8_unhtmlentities($text);
+	}
+
+
+	function convert_title($text)
+	{
+		return utf8_unhtmlentities($text);
 	}
 
 	function handle_size($matches)

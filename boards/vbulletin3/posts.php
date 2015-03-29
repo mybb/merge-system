@@ -42,7 +42,7 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['tid'] = $this->get_import->tid($data['threadid']);
 		$thread = $this->get_thread($data['threadid']);
 		$insert_data['fid'] = $this->get_import->fid($thread['forumid']);
-		$insert_data['subject'] = encode_to_utf8(str_replace('&quot;', '"', $thread['title']), "thread", "posts");
+		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($thread['title']), "thread", "posts");
 		if(strlen($insert_data['subject']) > 120)
 		{
 			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
