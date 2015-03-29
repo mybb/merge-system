@@ -73,7 +73,7 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastvisit'] = $data['last_visit'];
 		$insert_data['website'] = $data['url'];
 		$insert_data['showsigs'] = $data['show_sig'];
-		$insert_data['signature'] = encode_to_utf8($data['signature'], "users", "users");
+		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "users", "users");
 		$insert_data['showavatars'] = $data['show_avatars'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['timezone']);
 

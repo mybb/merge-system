@@ -86,7 +86,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['timeonline'] = $data['total_time_logged_in'];
 		$insert_data['totalpms'] = $data['instant_messages'];
 		$insert_data['unreadpms'] = $data['unread_messages'];
-		$insert_data['signature'] = str_replace(array("[bgcolor=", "[/bgcolor]"), array("[color=", "[/color]"), preg_replace('#\[quote author\=(.*?) link\=topic\=([0-9]*).msg([0-9]*)\#msg([0-9]*) date\=(.*?)\]#i', "[quote='$1' pid='{$pid}' dateline='$5']", encode_to_utf8($data['signature'], "members", "users")));
+		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['signature'])), "members", "users");
 
 		if($data['passwd'])
 		{

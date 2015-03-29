@@ -76,6 +76,7 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['displaygroup'] = $this->board->get_gid($data['displaygroup']);
 		}
 		$insert_data['username'] = encode_to_utf8($insert_data['username'], "users", "users");
+		// No need to run the parser - the mybb parser only handles attachment codes which aren't allowed in signatures
 		$insert_data['signature'] = encode_to_utf8($data['signature'], "users", "users");
 		$insert_data['import_usergroup'] = $data['usergroup'];
 		$insert_data['import_additionalgroups'] = $data['additionalgroups'];

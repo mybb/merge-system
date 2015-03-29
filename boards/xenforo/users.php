@@ -59,7 +59,7 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['lastactive'] = $data['last_activity'];
 		$insert_data['lastvisit'] = $data['last_activity'];
 		$insert_data['website'] = $data['homepage'];
-		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "user", "users");
+		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "user_profile", "users");
 		if($data['dob_day'] != 0 && $data['dob_month'] != 0)
 		{
 			$insert_data['birthday'] = $data['dob_day']."-".$data['dob_month']."-".$data['dob_year'];

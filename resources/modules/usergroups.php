@@ -33,7 +33,7 @@ class Converter_Module_Usergroups extends Converter_Module
 		'namestyle' => '{username}',
 		'type' => 2,
 		'stars' => 0,
-		'starimage' => 'images/star.gif',
+		'starimage' => 'images/star.png',
 		'image' => '',
 		'disporder' => 0,
 		'isbannedgroup' => 0,
@@ -65,6 +65,7 @@ class Converter_Module_Usergroups extends Converter_Module
 		'candisplaygroup' => 1,
 		'attachquota' => 0,
 		'cancustomtitle' => 1,
+		'canusesig' => 1,
 	);
 
 	public $integer_fields = array(
@@ -118,6 +119,7 @@ class Converter_Module_Usergroups extends Converter_Module
 		'candisplaygroup',
 		'attachquota',
 		'cancustomtitle',
+		'canusesig'
 	);
 
 	/**

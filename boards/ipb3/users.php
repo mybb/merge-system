@@ -78,7 +78,7 @@ class IPB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['totalpms'] = $data['msg_count_total'];
 		$insert_data['unreadpms'] = $data['msg_count_new'];
 		$insert_data['dst'] = $data['dst_in_use'];
-		$insert_data['signature'] =  encode_to_utf8($this->bbcode_parser->convert($data['pp_bio_content ']), "profile_portal", "users");
+		$insert_data['signature'] =  encode_to_utf8($this->bbcode_parser->convert($data['signature']), "profile_portal", "users");
 		$insert_data['passwordconvertsalt'] = $data['members_pass_salt'];
 		$insert_data['passwordconvert'] = $data['members_pass_hash'];
 		$insert_data['passwordconverttype'] = 'ipb3';

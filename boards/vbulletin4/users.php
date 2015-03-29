@@ -30,7 +30,13 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		global $import_session;
 
 		// Get members
-		$query = $this->old_db->simple_select("user", "*", "", array('order_by' => 'userid', 'order_dir' => 'asc', 'limit_start' => $this->trackers['start_users'], 'limit' => $import_session['users_per_screen']));
+		$query = $this->old_db->query("
+			SELECT u.*, f.signature
+			FROM ".OLD_TABLE_PREFIX."user u
+			LEFT JOIN ".OLD_TABLE_PREFIX."usertextfield f ON(f.userid=u.userid)
+			ORDER BY u.userid asc
+			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}
+		");
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
@@ -79,22 +85,9 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['passwordconvert'] = $data['password'];
 		$insert_data['passwordconverttype'] = 'vb4';
 		$insert_data['passwordconvertsalt'] = $data['salt'];
-		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($this->get_signature($data['userid'])), "user", "users");
+		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['signature']), "usertextfield", "users");
 
 		return $insert_data;
-	}
-
-	/**
-	 * Get a signature from a user in the vB database
-	 *
-	 * @param int User ID
-	 * @return array The signature
-	 */
-	function get_signature($userid)
-	{
-		$userid = intval($userid);
-		$query = $this->old_db->simple_select("usertextfield", "signature", "userid = '{$userid}'", array('limit' => 1));
-		return $this->old_db->fetch_field($query, "signature");
 	}
 
 	function fetch_total()
