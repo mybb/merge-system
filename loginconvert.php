@@ -15,7 +15,9 @@ if(!defined("IN_MYBB"))
 
 $plugins->add_hook("datahandler_login_validate_start", "loginconvert_convert", 1);
 
-global $valid_login_types;
+global $valid_login_types, $utf8_recheck;
+
+// Array of supported login types
 $valid_login_types = array(
 	"vb3"		=> "vb",		// Module isn't supported anymore, but old merges may require it
 	"vb4"		=> "vb",
@@ -35,6 +37,14 @@ $valid_login_types = array(
 	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
 	"vanilla"	=> "vanilla",
 	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
+);
+
+// Array of login types for which we need to handle utf8 issues
+$utf8_recheck = array(
+	'smf',
+	'smf11',
+	'smf2',
+	'vb',
 );
 
 function loginconvert_info()
@@ -99,22 +109,9 @@ function loginconvert_deactivate()
 	}
 }
 
-function loginconvert_pw_reset()
-{
-	global $db, $user;
-
-	// Someone reseted their password, clear the passwordconvert columns for this user
-	$update = array(
-		"passwordconvert" => "",
-		"passwordconverttype" => "",
-		"passwordconvertsalt" => ""
-	);
-	$db->update_query("users", $update, "uid={$user['uid']}");
-}
-
 function loginconvert_convert(&$login)
 {
-	global $mybb, $valid_login_types, $db, $settings;
+	global $mybb, $valid_login_types, $utf8_recheck, $db, $settings;
 
 	$options = array(
 		"fields" => array('username', "password", "salt", 'loginkey', 'coppauser', 'usergroup', "passwordconvert", "passwordconverttype", "passwordconvertsalt"),
@@ -155,8 +152,15 @@ function loginconvert_convert(&$login)
 	}
 	else
 	{
-		$function = "check_".$valid_login_types[$user['passwordconverttype']];
+		$login_type = $valid_login_types[$user['passwordconverttype']];
+		$function = "check_{$login_type}";
 		$check = $function($login->data['password'], $user);
+
+		// If the password was wrong, an utf8 password and we want to check utf8 passwords we call the function again
+		if(!$check && in_array($login_type, $utf8_recheck) && utf8_decode($login->data['password']) != $login->data['password'])
+		{
+			$check = $function(utf8_decode($login->data['password']), $user);
+		}
 
 		if(!$check)
 		{
@@ -291,7 +295,7 @@ function check_smf2($password, $user)
 		$is_sha1 = false;
 	}
 
-	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $user['username'])).utf8_decode($password)) == $user['passwordconvert'])
+	if($is_sha1 && sha1(strtolower(preg_replace("#\_smf2\.0\_import(\d+)$#i", '', $user['username'])).$password) == $user['passwordconvert'])
 	{
 		return true;
 	}
