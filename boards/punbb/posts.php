@@ -24,17 +24,12 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->simple_select("posts", "*", "", array('limit_start' => $this->trackers['start_posts'], 'limit' => $import_session['posts_per_screen']));
 		while($post = $this->old_db->fetch_array($query))
 		{
-			$pid = $this->insert($post);
-
-			if($insert_post['replyto'] == 0)
-			{
-				$db->update_query("threads", array('firstpost' => $pid), "import_tid='{$post['topic_id']}'");
-			}
+			$this->insert($post);
 		}
 	}
 
@@ -55,7 +50,7 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 		$db->free_result($query);
 
 		// Make the replyto the first post of thread unless it is the first post
-		if($first_data == $data['post_id'])
+		if($first_post == $data['post_id'])
 		{
 			$insert_data['replyto'] = 0;
 		}
@@ -80,7 +75,7 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 		if($data['edited'] != 0)
 		{
 			$user = $this->board->get_user($data['edited_by']);
-			$insert_data['edituid'] = $user['id'];
+			$insert_data['edituid'] = $this->get_import->uid($user['id']);
 			$insert_data['edittime'] = $data['edited'];
 		}
 		else
@@ -92,29 +87,15 @@ class PUNBB_Converter_Module_Posts extends Converter_Module_Posts {
 		return $insert_data;
 	}
 
-	/**
-	 * Get a user from the SMF database
-	 *
-	 * @param int User ID
-	 * @return array If the uid is 0, returns an array of posterName and memberName as Guest.  Otherwise returns the user
-	 */
-	function get_user($uid)
+	function after_import($old, $new, $pid)
 	{
-		$uid = intval($uid);
-		if(empty($uid))
+		global $db;
+
+		// If this post isn't a reply to another post it's probably the first post for our thread
+		if($new['replyto'] == 0)
 		{
-			return array(
-				'posterName' => 'Guest',
-				'memberName' => 'Guest'
-			);
+			$db->update_query("threads", array('firstpost' => $pid), "tid='{$new['tid']}'");
 		}
-
-		$query = $this->old_db->simple_select("members", "*", "ID_MEMBER = '{$uid}'", array('limit' => 1));
-
-		$result = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		return $results;
 	}
 
 	function fetch_total()

@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright Â© 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -26,14 +26,12 @@ class FLUXBB_Converter_Module_Posts extends Converter_Module_Posts {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 		
 		$query = $this->old_db->simple_select("posts", "*", "", array('limit_start' => $this->trackers['start_posts'], 'limit' => $import_session['posts_per_screen']));
 		while($post = $this->old_db->fetch_array($query))
 		{
-			$pid = $this->insert($post);
-
-			$db->update_query("threads", array('firstpost' => $pid), "import_tid='{$post['topic_id']}'");
+			$this->insert($post);
 		}
 	}
 	
@@ -76,10 +74,10 @@ class FLUXBB_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "posts", "posts");
 		$insert_data['ipaddress'] = my_inet_pton($data['poster_ip']);
 		$insert_data['smilieoff'] = $data['hide_smilies'];
-		if($data['edited'] != 0)
+		if(!empty($data['edited']))
 		{
 			$user = $this->board->get_user($data['edited_by']);
-			$insert_data['edituid'] = $user['id'];
+			$insert_data['edituid'] = $this->get_import->uid($user['id']);
 			$insert_data['edittime'] = $data['edited'];
 		}
 		else
@@ -89,6 +87,17 @@ class FLUXBB_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 		
 		return $insert_data;
+	}
+
+	function after_import($old, $new, $pid)
+	{
+		global $db;
+
+		// If this post isn't a reply to another post it's probably the first post for our thread
+		if($new['replyto'] == 0)
+		{
+			$db->update_query("threads", array('firstpost' => $pid), "tid='{$new['tid']}'");
+		}
 	}
 
 	function fetch_total()
