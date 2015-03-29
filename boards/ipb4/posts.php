@@ -109,7 +109,7 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 			return 0;
 		}
 
-		$query = $this->old_db->simple_select("core_members", "member_id", "name='{$username}'", array('limit' => 1));
+		$query = $this->old_db->simple_select("core_members", "member_id", "name='".$this->old_db->escape_string($username)."'", array('limit' => 1));
 
 		$results = $this->old_db->fetch_field($query, "member_id");
 		$this->old_db->free_result($query);
