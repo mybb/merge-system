@@ -225,6 +225,7 @@ $l['error_database_cant_connect'] = "Could not connect to the database server at
 $l['error_database_wrong_table'] = "The {1} database could not be found in '{2}'.  Please ensure {1} exists at this database and with this table prefix.";
 $l['error_database_list'] = "There seems to be one or more errors with the database configuration information that you supplied";
 $l['error_database_continue'] = "Once the above are corrected, continue with the conversion.";
+$l['error_database_non_supported'] = 'Unfortunately it seems that your server doesn\'t support any of the required database extensions';
 
 $l['loginconvert_title'] = "MyBB Merge System - Setup Password Conversion";
 $l['loginconvert_message'] = "			<div class=\"error\">\n

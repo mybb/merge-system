@@ -416,6 +416,8 @@ END;
 	{
 		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb, $lang;
 
+		$dboptions = array();
+
 		if(function_exists('mysql_connect') && in_array("mysql", $board->supported_databases))
 		{
 			$dboptions['mysql'] = array(
@@ -454,6 +456,11 @@ END;
 					'short_title' => 'SQLite',
 				);
 			}
+		}
+
+		if(empty($dboptions))
+		{
+			$this->print_error($lang->error_database_non_supported);
 		}
 
 		// Loop through database engines
