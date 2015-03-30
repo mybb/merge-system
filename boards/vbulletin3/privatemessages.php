@@ -67,7 +67,9 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 				$recipients['to'][] = $this->get_import->uid($id);
 				// set toid if there is only one recipient
 				if(count($touserarray['cc']) == 1)
+				{
 					$insert_data['toid'] = $this->get_import->uid($id);
+				}
 			}
 		}
 		// import bcc, too

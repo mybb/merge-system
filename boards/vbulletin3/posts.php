@@ -47,7 +47,15 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 		{
 			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
 		}
-		$insert_data['visible'] = ($data['visible'] == 2) ? -1 : $data['visible']; // "deleted" is visible=2 in vB, and visible=-1 in MyBB
+		if($data['visible'] == 2)
+		{
+			// "deleted" is visible=2 in vB, and visible=-1 in MyBB
+			$insert_data['visible'] = -1;
+		}
+		else
+		{
+			$insert_data['visible'] = $data['visible'];
+		}
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['import_uid'] = $data['userid'];
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
