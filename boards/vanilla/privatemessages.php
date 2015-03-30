@@ -98,8 +98,11 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			$db->insert_query("privatemessages", $data);
 		}
 
-		foreach($recip as $key => $rec)
+		$key = 0;
+		foreach($recip as $rec)
 		{
+			$key++;
+
 			$insert_data['uid'] = $rec;
 			$insert_data['toid'] = $rec;
 			// It'd be too difficult to determine whether there was an answer so we simply set it to "read"
@@ -107,7 +110,7 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			$insert_data['folder'] = 1; // Inbox
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
-			if($key < count($recip)-1)
+			if($key < count($recip))
 			{
 				$data = $this->prepare_insert_array($insert_data);
 				unset($data['import_pmid']);
