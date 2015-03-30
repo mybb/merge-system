@@ -39,8 +39,6 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 	function convert_data($data)
 	{
-		global $db;
-
 		// vBulletin 3 values
 		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
@@ -56,26 +54,19 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 		// Rebuild the recipients array and toid field
 		$touserarray = unserialize($data['touserarray']);
-		$insert_data['toid'] = 0;
 		$recipients = array();
 		// main recipients are in cc array
 		if(is_array($touserarray['cc']))
 		{
-			$recipients['to'] = array();
 			foreach($touserarray['cc'] as $id => $name)
 			{
 				$recipients['to'][] = $this->get_import->uid($id);
-				// set toid if there is only one recipient
-				if(count($touserarray['cc']) == 1)
-				{
-					$insert_data['toid'] = $this->get_import->uid($id);
-				}
 			}
 		}
+
 		// import bcc, too
 		if(is_array($touserarray['bcc']) && !empty($touserarray['bcc']))
 		{
-			$recipients['bcc'] = array();
 			foreach($touserarray['bcc'] as $id => $name)
 			{
 				$recipients['bcc'][] = $this->get_import->uid($id);
@@ -83,7 +74,13 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		}
 		$insert_data['recipients'] = serialize($recipients);
 
-		$insert_data['subject'] = encode_to_utf8($data['title'], "pm", "privatemessages");
+		// set toid if there is only one recipient
+		if(count($recipients['to']) == 1)
+		{
+			$insert_data['toid'] = $recipients['to'][0];
+		}
+
+		$insert_data['subject'] = encode_to_utf8($data['title'], "pmtext", "privatemessages");
 		$insert_data['status'] = $data['messageread'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
@@ -92,34 +89,10 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 		if($data['messageread'] == 1)
 		{
-			$insert_data['readtime'] = time();
+			$insert_data['readtime'] = TIME_NOW;
 		}
 
 		return $insert_data;
-	}
-
-	/**
-	 * Get a user from the vB database
-	 *
-	 * @param int Username
-	 * @return array If the username is empty, returns an array of username as Guest.  Otherwise returns the user
-	 */
-	function get_username($username)
-	{
-		if(empty($username))
-		{
-			return array(
-				'username' => 'Guest',
-				'userid' => 0,
-			);
-		}
-
-		$query = $this->old_db->simple_select("user", "*", "username = '".$this->old_db->escape_string($username)."'", array('limit' => 1));
-
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		return $results;
 	}
 
 	function fetch_total()
