@@ -5,6 +5,10 @@
 language/*
 !language/global.lang.php
 
+### Logs
+logs/*
+!logs/index.html
+
 ### Old Modules
 boards/ipb2
 boards/ipb2.php
@@ -14,3 +18,28 @@ boards/nabble
 boards/nabble.php
 boards/phpbb2
 boards/phpbb2.php
+
+# MyBB Misc
+error.log
+.htaccess
+.htgroup
+.htpasswd
+
+# Eclipse IDE files
+.settings
+.project
+.buildpath
+
+# Generic OS stuff
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Generic git files
+*.orig
+*.bak
