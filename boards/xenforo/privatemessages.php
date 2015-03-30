@@ -26,7 +26,7 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		global $import_session;
 		
 		$query = $this->old_db->query("
-			SELECT * 
+			SELECT m.*, c.title
 			FROM ".OLD_TABLE_PREFIX."conversation_message m
 			LEFT JOIN ".OLD_TABLE_PREFIX."conversation_master c ON(c.conversation_id=m.conversation_id)
 			LEFT JOIN ".OLD_TABLE_PREFIX."ip i ON(i.ip_id=m.ip_id)
