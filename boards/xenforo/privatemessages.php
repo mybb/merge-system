@@ -72,9 +72,9 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		{
 			$insert_data['toid'] = 0; // multiple recipients
 		}
-		$insert_data['status'] = 1; // Read - of course
+		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = 2; // Outbox
+		$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
 		$data = $this->prepare_insert_array($insert_data);
 		unset($data['import_pmid']);
@@ -84,15 +84,14 @@ class XENFORO_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		{
 			$insert_data['uid'] = $rec['user_id'];
 			$insert_data['toid'] = $rec['user_id'];
-			// 0 -> unread
-			// 1 -> read
-			$insert_data['status'] = 0;
+
+			$insert_data['status'] = PM_STATUS_UNREAD;
 			if($rec['last_read_date'] > $insert_data['dateline'])
 			{
-				$insert_data['status'] = 1;
+				$insert_data['status'] = PM_STATUS_READ;
 			}
 			$insert_data['readtime'] = $rec['last_read_date'];
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)

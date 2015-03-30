@@ -79,9 +79,9 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 		{
 			$insert_data['toid'] = 0; // multiple recipients
 		}
-		$insert_data['status'] = 1; // Read - of course
+		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = 2; // Outbox
+		$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
 		$edata = $this->prepare_insert_array($insert_data);
 		unset($edata['import_pmid']);
@@ -91,18 +91,14 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 		{
 			$insert_data['uid'] = $rec['ID_MEMBER'];
 			$insert_data['toid'] = $rec['ID_MEMBER'];
-			// 0 -> unread
-			// 1 -> read
-			$insert_data['status'] = 0;
+
+			$insert_data['status'] = PM_STATUS_UNREAD;
 			if($data['is_read'] > 0)
 			{
-				$insert_data['status'] = 1;
-			}
-			if($insert_data['status'] == 1)
-			{
+				$insert_data['status'] = PM_STATUS_READ;
 				$insert_data['readtime'] = TIME_NOW;
 			}
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)

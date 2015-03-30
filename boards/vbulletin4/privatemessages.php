@@ -45,11 +45,11 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
 		if($data['folderid'] == -1)
 		{
-			$insert_data['folder'] = 2;
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 		}
 		else
 		{
-			$insert_data['folder'] = 1;
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 		}
 
 		// Rebuild the recipients array and toid field

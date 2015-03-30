@@ -79,9 +79,9 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		{
 			$insert_data['toid'] = 0; // multiple recipients
 		}
-		$insert_data['status'] = 1; // Read - of course
+		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = 2; // Outbox
+		$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
 		$data = $this->prepare_insert_array($insert_data);
 		unset($data['import_pmid']);
@@ -91,15 +91,14 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		{
 			$insert_data['uid'] = $rec['participantID'];
 			$insert_data['toid'] = $rec['participantID'];
-			// 0 -> unread
-			// 1 -> read
-			$insert_data['status'] = 0;
+
+			$insert_data['status'] = PM_STATUS_UNREAD;
 			if($rec['lastVisitTime'] > $insert_data['dateline'])
 			{
-				$insert_data['status'] = 1;
+				$insert_data['status'] = PM_STATUS_READ;
 			}
 			$insert_data['readtime'] = $rec['lastVisitTime'];
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)

@@ -96,9 +96,9 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		{
 			$insert_data['toid'] = 0; // multiple recipients
 		}
-		$insert_data['status'] = 1; // Read - of course
+		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = 2; // Outbox
+		$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
 		$edata = $this->prepare_insert_array($insert_data);
 		unset($edata['import_pmid']);
@@ -113,14 +113,13 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 
 			$insert_data['uid'] = $this->get_import->uid($rec['user_id']);
 			$insert_data['toid'] = $insert_data['uid'];
-			// 0 -> unread
-			// 1 -> read
+
 			$insert_data['status'] = int_to_01($rec['pm_unread']);
-			if($insert_data['status'] == 1)
+			if($insert_data['status'] == PM_STATUS_READ)
 			{
 				$insert_data['readtime'] = TIME_NOW; // We don't have a real readtime as phpBB doesn't save that so we set it to now
 			}
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($count < $num)

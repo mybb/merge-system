@@ -7,6 +7,16 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
+define('PM_FOLDER_INBOX',  1);
+define('PM_FOLDER_OUTBOX', 2);
+define('PM_FOLDER_DRAFTS', 3);
+
+define('PM_STATUS_UNREAD',    0);
+define('PM_STATUS_READ',      1);
+define('PM_STATUS_REPLIED',   3);
+define('PM_STATUS_FORWARDED', 4);
+
+
 class Converter_Module_Privatemessages extends Converter_Module
 {
 	public $default_values = array(
@@ -15,13 +25,13 @@ class Converter_Module_Privatemessages extends Converter_Module
 		'toid' => 0,
 		'fromid' => 0,
 		'recipients' => '',
-		'folder' => 1,
+		'folder' => PM_FOLDER_INBOX,
 		'subject' => '',
 		'icon' => 0,
 		'message' => '',
 		'dateline' => 0,
 		'deletetime' => 0,
-		'status' => 0,
+		'status' => PM_STATUS_UNREAD,
 		'statustime' => 0,
 		'includesig' => 0,
 		'smilieoff' => 0,

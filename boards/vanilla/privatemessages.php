@@ -90,9 +90,9 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			{
 				$insert_data['toid'] = 0; // multiple recipients
 			}
-			$insert_data['status'] = 1; // Read - of course
-			$insert_data['folder'] = 2; // Outbox
-	
+			$insert_data['status'] = PM_STATUS_READ; // Read - of course
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
+
 			$data = $this->prepare_insert_array($insert_data);
 			unset($data['import_pmid']);
 			$db->insert_query("privatemessages", $data);
@@ -106,8 +106,8 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			$insert_data['uid'] = $rec;
 			$insert_data['toid'] = $rec;
 			// It'd be too difficult to determine whether there was an answer so we simply set it to "read"
-			$insert_data['status'] = 1;
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['status'] = PM_STATUS_READ;
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($recip))

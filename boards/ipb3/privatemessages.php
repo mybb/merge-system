@@ -74,7 +74,7 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		{
 			$insert_data['toid'] = 0; // multiple recipients
 		}
-		$insert_data['status'] = 1; // Read - of course
+		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
 
 
@@ -83,12 +83,12 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		// Otherwise we need to insert multiple pms and so we need to insert it manually
 		if($data['map_folder_id'] == 'drafts')
 		{
-			$insert_data['folder'] = 3; // Drafts
+			$insert_data['folder'] = PM_FOLDER_DRAFTS;
 			return $insert_data;
 		}
 		else
 		{
-			$insert_data['folder'] = 2; // Outbox
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 		}
 
 		$edata = $this->prepare_insert_array($insert_data);
@@ -105,15 +105,14 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 			$insert_data['uid'] = $this->get_import->uid($rec['map_user_id']);
 			$insert_data['toid'] = $insert_data['uid'];
-			// 0 -> unread
-			// 1 -> read
-			$insert_data['status'] = 0;
+
+			$insert_data['status'] = PM_STATUS_UNREAD;
 			if($rec['map_read_time'] > $insert_data['dateline'])
 			{
-				$insert_data['status'] = 1;
+				$insert_data['status'] = PM_STATUS_READ;
 			}
 			$insert_data['readtime'] = $rec['map_read_time'];
-			$insert_data['folder'] = 1; // Inbox
+			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($count < $num)
