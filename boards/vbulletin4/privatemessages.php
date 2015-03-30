@@ -39,39 +39,48 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 	function convert_data($data)
 	{
-		global $db;
-
 		// vBulletin 4 values
 		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
-		$insert_data['toid'] = $this->get_import->uid($data['touserid']);
-		$touserarray = unserialize($data['touserarray']);
-
-		// Rebuild the recipients array
-		$recipients = array();
-		if(is_array($touserarray['cc']) && !empty($touserarray['cc']))
-		{
-			foreach($touserarray['cc'] as $key => $to)
-			{
-				$username = $this->get_username($to);
-				$recipients['to'][] = $this->get_import->uid($username['userid']);
-			}
-		}
-		$insert_data['recipients'] = serialize($recipients);
-
 		if($data['folderid'] == -1)
 		{
-			// Outbox
 			$insert_data['folder'] = 2;
 		}
 		else
 		{
-			// Inbox
 			$insert_data['folder'] = 1;
 		}
 
-		$insert_data['subject'] = encode_to_utf8($data['title'], "pm", "privatemessages");
+		// Rebuild the recipients array and toid field
+		$touserarray = unserialize($data['touserarray']);
+		$recipients = array();
+		// main recipients are in cc array
+		if(is_array($touserarray['cc']))
+		{
+			foreach($touserarray['cc'] as $id => $name)
+			{
+				$recipients['to'][] = $this->get_import->uid($id);
+			}
+		}
+
+		// import bcc, too
+		if(is_array($touserarray['bcc']) && !empty($touserarray['bcc']))
+		{
+			foreach($touserarray['bcc'] as $id => $name)
+			{
+				$recipients['bcc'][] = $this->get_import->uid($id);
+			}
+		}
+		$insert_data['recipients'] = serialize($recipients);
+
+		// set toid if there is only one recipient
+		if(count($recipients['to']) == 1)
+		{
+			$insert_data['toid'] = $recipients['to'][0];
+		}
+
+		$insert_data['subject'] = encode_to_utf8($data['title'], "pmtext", "privatemessages");
 		$insert_data['status'] = $data['messageread'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
@@ -84,30 +93,6 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 		}
 
 		return $insert_data;
-	}
-
-	/**
-	 * Get a user from the vB database
-	 *
-	 * @param int Username
-	 * @return array If the username is empty, returns an array of username as Guest.  Otherwise returns the user
-	 */
-	function get_username($username)
-	{
-		if(empty($username))
-		{
-			return array(
-				'username' => 'Guest',
-				'userid' => 0,
-			);
-		}
-
-		$query = $this->old_db->simple_select("user", "*", "username = '".$this->old_db->escape_string($username)."'", array('limit' => 1));
-
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		return $results;
 	}
 
 	function fetch_total()
