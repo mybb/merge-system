@@ -65,7 +65,15 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 
 		$insert_data['totalratings'] = $data['votetotal'];
 		$insert_data['notes'] = $data['notes'];
-		$insert_data['visible'] = $data['visible'];
+		if($data['visible'] == 2)
+		{
+			// "deleted" is visible=2 in vB, and visible=-1 in MyBB
+			$insert_data['visible'] = -1;
+		}
+		else
+		{
+			$insert_data['visible'] = $data['visible'];
+		}
 		$insert_data['numratings'] = $data['votenum'];
 		$insert_data['attachmentcount'] = $data['attach'];
 
