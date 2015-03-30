@@ -1,0 +1,16 @@
+### PHPStorm
+.idea
+
+### Languages
+language/*
+!language/global.lang.php
+
+### Old Modules
+boards/ipb2
+boards/ipb2.php
+boards/mingle
+boards/mingle.php
+boards/nabble
+boards/nabble.php
+boards/phpbb2
+boards/phpbb2.php
