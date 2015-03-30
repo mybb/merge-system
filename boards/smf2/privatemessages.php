@@ -28,7 +28,6 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$query = $this->old_db->query("
 			SELECT *
 			FROM ".OLD_TABLE_PREFIX."personal_messages p
-			LEFT JOIN ".OLD_TABLE_PREFIX."pm_recipients r ON(p.id_pm=r.id_pm)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
 		);
 		while($privatemessage = $this->old_db->fetch_array($query))
@@ -43,61 +42,78 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 		$insert_data = array();
 
-		$query = $this->old_db->simple_select("pm_recipients", "id_member", "id_pm = '{$data['id_pm']}'");
-		$recip_list = array();
-		while($recip = $this->old_db->fetch_field($query, 'id_member'))
-		{
-			$recip_list[] = $recip;
-		}
-		$this->old_db->free_result($query);
-
 		// SMF values
 		$insert_data['import_pmid'] = $data['id_pm'];
-		$insert_data['uid'] = $this->get_import->uid($data['id_member']);
 		$insert_data['fromid'] = $this->get_import->uid($data['id_member_from']);
-		$insert_data['toid'] = $this->get_import->uid($recip_list['0']);
-		$insert_data['recipients'] = serialize($recip_list);
-		$insert_data['folder'] = '1';
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "personal_messages", "privatemessages");
-		$insert_data['status'] = $data['is_read'];
 		$insert_data['dateline'] = $data['msgtime'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['body'])), "personal_messages", "privatemessages");
-		if($insert_data['status'] == '1')
+
+		// Now figure out who is participating
+		$to_send = $recipients = array();
+		$rec_query = $this->old_db->simple_select('pm_recipients', '*', "id_pm={$data['id_pm']} AND id_member!={$data['id_member_from']}");
+		while($rec = $this->old_db->fetch_array($rec_query))
 		{
-			$insert_data['readtime'] = TIME_NOW;
-			$insert_data['receipt'] = '2';
+			$rec['id_member'] = $this->get_import->uid($rec['id_member']);
+			$to_send[] = $rec;
+			if($rec['bcc'])
+			{
+				$recipients['bcc'][] = $rec['id_member'];
+			}
+			else
+			{
+				$recipients['to'][] = $rec['id_member'];
+			}
 		}
 
-		// Hack to work around SMF 2's way of storing multiple recipients in the db...
-		// NOT a very efficient way to handle this, but it works for now.
-		$this->insert_extra_pms($recip_list, $insert_data);
+		$insert_data['recipients'] = serialize($recipients);
+
+		// Now save a copy for every user involved in this pm
+		// First one for the sender
+		$insert_data['uid'] = $insert_data['fromid'];
+		if(count($recipients['to']) == 1)
+		{
+			$insert_data['toid'] = $recipients['to'][0];
+		}
+		else
+		{
+			$insert_data['toid'] = 0; // multiple recipients
+		}
+		$insert_data['status'] = 1; // Read - of course
+		$insert_data['readtime'] = 0;
+		$insert_data['folder'] = 2; // Outbox
+
+		$edata = $this->prepare_insert_array($insert_data);
+		unset($edata['import_pmid']);
+		$db->insert_query("privatemessages", $edata);
+
+		foreach($to_send as $key => $rec)
+		{
+			$insert_data['uid'] = $rec['id_member'];
+			$insert_data['toid'] = $rec['id_member'];
+			// 0 -> unread
+			// 1 -> read
+			$insert_data['status'] = 0;
+			if($data['is_read'] > 0)
+			{
+				$insert_data['status'] = 1;
+			}
+			if($insert_data['status'] == 1)
+			{
+				$insert_data['readtime'] = TIME_NOW;
+			}
+			$insert_data['folder'] = 1; // Inbox
+
+			// The last pm will be inserted by the main method, so we only insert x-1 here
+			if($key < count($to_send)-1)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
+		}
 
 		return $insert_data;
-	}
-
-	function insert_extra_pms($recip_list, $data)
-	{
-		global $db;
-
-		$this->debug->log->datatrace('$data', $data);
-
-		foreach($recip_list as $pos => $val)
-		{
-			if($pos == '0')
-			{
-				continue;
-			}
-
-			$data['toid'] = $this->get_import->uid($val);
-
-			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
-			$insert_array = $this->prepare_insert_array($data);
-			unset($insert_array['import_pmid']);
-
-			$this->debug->log->datatrace('$insert_array', $insert_array);
-
-			$db->insert_query("privatemessages", $insert_array);
-		}
 	}
 
 	function fetch_total()

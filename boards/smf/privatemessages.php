@@ -28,7 +28,6 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 		$query = $this->old_db->query("
 			SELECT *
 			FROM ".OLD_TABLE_PREFIX."personal_messages p
-			LEFT JOIN ".OLD_TABLE_PREFIX."pm_recipients r ON(p.ID_PM=r.ID_PM)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
 		);
 		while($privatemessage = $this->old_db->fetch_array($query))
@@ -44,21 +43,74 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 		$insert_data = array();
 
 		// SMF values
-		$insert_data['pmid'] = null;
 		$insert_data['import_pmid'] = $data['ID_PM'];
-		$insert_data['uid'] = $this->get_import->uid($data['ID_MEMBER']);
 		$insert_data['fromid'] = $this->get_import->uid($data['ID_MEMBER_FROM']);
-		$insert_data['toid'] = $insert_data['uid'];
-		$insert_data['recipients'] = serialize(array("to" => $insert_data['toid']));
-		$insert_data['folder'] = '1';
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "personal_messages", "privatemessages");
-		$insert_data['status'] = $data['is_read'];
 		$insert_data['dateline'] = $data['msgtime'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['body'])), "personal_messages", "privatemessages");
-		if($insert_data['status'] == '1')
+
+		// Now figure out who is participating
+		$to_send = $recipients = array();
+		$rec_query = $this->old_db->simple_select('pm_recipients', '*', "ID_PM={$data['ID_PM']} AND ID_MEMBER!={$data['ID_MEMBER_FROM']}");
+		while($rec = $this->old_db->fetch_array($rec_query))
 		{
-			$insert_data['readtime'] = TIME_NOW;
-			$insert_data['receipt'] = '2';
+			$rec['ID_MEMBER'] = $this->get_import->uid($rec['ID_MEMBER']);
+			$to_send[] = $rec;
+			if($rec['bcc'])
+			{
+				$recipients['bcc'][] = $rec['ID_MEMBER'];
+			}
+			else
+			{
+				$recipients['to'][] = $rec['ID_MEMBER'];
+			}
+		}
+
+		$insert_data['recipients'] = serialize($recipients);
+
+		// Now save a copy for every user involved in this pm
+		// First one for the sender
+		$insert_data['uid'] = $insert_data['fromid'];
+		if(count($recipients['to']) == 1)
+		{
+			$insert_data['toid'] = $recipients['to'][0];
+		}
+		else
+		{
+			$insert_data['toid'] = 0; // multiple recipients
+		}
+		$insert_data['status'] = 1; // Read - of course
+		$insert_data['readtime'] = 0;
+		$insert_data['folder'] = 2; // Outbox
+
+		$edata = $this->prepare_insert_array($insert_data);
+		unset($edata['import_pmid']);
+		$db->insert_query("privatemessages", $edata);
+
+		foreach($to_send as $key => $rec)
+		{
+			$insert_data['uid'] = $rec['ID_MEMBER'];
+			$insert_data['toid'] = $rec['ID_MEMBER'];
+			// 0 -> unread
+			// 1 -> read
+			$insert_data['status'] = 0;
+			if($data['is_read'] > 0)
+			{
+				$insert_data['status'] = 1;
+			}
+			if($insert_data['status'] == 1)
+			{
+				$insert_data['readtime'] = TIME_NOW;
+			}
+			$insert_data['folder'] = 1; // Inbox
+
+			// The last pm will be inserted by the main method, so we only insert x-1 here
+			if($key < count($to_send)-1)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
 		}
 
 		return $insert_data;
