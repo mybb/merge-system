@@ -25,7 +25,7 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 	{
 		global $import_session;
 
-		$query = $this->old_db->query("SELECT *
+		$query = $this->old_db->query("SELECT m.*, c.subject
 			FROM ".WCF_PREFIX."conversation_message m
 			LEFT JOIN ".WCF_PREFIX."conversation c ON(c.conversationID=m.conversationID)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']);
@@ -56,7 +56,7 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		{
 			$rec['participantID'] = $this->get_import->uid($rec['participantID']);
 			$to_send[] = $rec;
-			if($rec['hideConversation'])
+			if($rec['isInvisible'])
 			{
 				$recipients['bcc'][] = $rec['participantID'];
 			}
@@ -69,7 +69,7 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['recipients'] = serialize($recipients);
 
 		// Now save a copy for every user involved in this pm
-		// First one for the sender - if he wants it
+		// First one for the sender
 		$insert_data['uid'] = $insert_data['fromid'];
 		if(count($recipients['to']) == 1)
 		{
