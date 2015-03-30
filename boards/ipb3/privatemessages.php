@@ -29,7 +29,7 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			SELECT *
 			FROM ".OLD_TABLE_PREFIX."message_posts m
 			LEFT JOIN ".OLD_TABLE_PREFIX."message_topics mt ON(m.msg_topic_id=mt.mt_id)
-			LEFT JOIN ".OLD_TABLE_PREFIX."message_topic_user_map mp ON(mt.mt_id=mp.map_topic_id)
+			LEFT JOIN ".OLD_TABLE_PREFIX."message_topic_user_map mp ON(mp.map_topic_id=mt.mt_id AND mp.map_user_id=mt.mt_starter_id)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']
 		);
 		while($pm = $this->old_db->fetch_array($query))
@@ -40,71 +40,91 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 	function convert_data($data)
 	{
+		global $db;
+
 		$insert_data = array();
 
 		// Invision Power Board 3 values
 		$insert_data['import_pmid'] = $data['msg_id'];
-		$insert_data['uid'] = $this->get_import->uid($data['map_user_id']);
-		$insert_data['fromid'] = $this->get_import->uid($data['mt_starter_id']);
-		$insert_data['toid'] = $this->get_import->uid($data['mt_to_member_id']);
-		/*$touserarray = explode('<br />', $data['msg_cc_users']);
+		$insert_data['fromid'] = $this->get_import->uid($data['msg_author_id']);
+		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "message_topics", "privatemessages");
+		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['msg_post'])), "message_posts", "privatemessages");
+		$insert_data['ipaddress'] = my_inet_pton($data['msg_ip_address']);
+		$insert_data['dateline'] = $data['msg_date'];
 
-		// Rebuild the recipients array
-		$recipients = array();
-		foreach($touserarray as $key => $to)
-		{
-			$username = $this->get_username($to);
-			$recipients['to'][] = $this->get_import->username($username['id']);
-		}
-		$insert_data['recipients'] = serialize($recipients);*/
+		// Now figure out who is participating
+		$recipients = unserialize($data['mt_invited_members']);
+		$recipients[] = $data['mt_to_member_id'];
 
-		if($data['map_folder_id'] == 'myconvo' && $data['map_is_starter'] == '0')
+		foreach($recipients as $k => $rec)
 		{
-			// Inbox
-			$insert_data['folder'] = 1;
+			$recipients[$k] = $this->get_import->uid($rec);
 		}
-		elseif($data['map_folder_id'] == 'drafts')
+
+		$insert_data['recipients'] = serialize(array('to' => $recipients));
+
+		// Now save a copy for every user involved in this pm
+		// First one for the sender
+		$insert_data['uid'] = $insert_data['fromid'];
+		if(count($recipients) == 1)
 		{
-			$insert_data['folder'] = 3;
+			$insert_data['toid'] = $recipients[0];
 		}
 		else
 		{
-			// Outbox
-			$insert_data['folder'] = 2;
+			$insert_data['toid'] = 0; // multiple recipients
+		}
+		$insert_data['status'] = 1; // Read - of course
+		$insert_data['readtime'] = 0;
+
+
+		// Now a bit of magic: we need to return one insert array as our parent method inserts one
+		// If we save a draft we only have one so we need to return here
+		// Otherwise we need to insert multiple pms and so we need to insert it manually
+		if($data['map_folder_id'] == 'drafts')
+		{
+			$insert_data['folder'] = 3; // Drafts
+			return $insert_data;
+		}
+		else
+		{
+			$insert_data['folder'] = 2; // Outbox
 		}
 
-		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "message_posts", "privatemessages");
-		$insert_data['status'] = $data['mt_read'];
-		$insert_data['dateline'] = $data['mt_date'];
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['msg_post'])), "message_posts", "privatemessages");
-		$insert_data['readtime'] = $data['map_read_time'];
-		$insert_data['ipaddress'] = my_inet_pton($data['msg_ip_address']);
+		$edata = $this->prepare_insert_array($insert_data);
+		unset($edata['import_pmid']);
+		$db->insert_query("privatemessages", $edata);
+
+		// Some more magic: get the map data for every recip and insert all except the last - we need the data for it but don't insert!
+		$rec_query = $this->old_db->simple_select('message_topic_user_map', '*', "map_topic_id={$data['mt_id']} AND map_user_id!={$data['msg_author_id']}");
+		$num = $this->old_db->num_rows($rec_query);
+		$count = 0;
+		while($rec = $this->old_db->fetch_array($rec_query))
+		{
+			$count++;
+
+			$insert_data['uid'] = $this->get_import->uid($rec['map_user_id']);
+			$insert_data['toid'] = $insert_data['uid'];
+			// 0 -> unread
+			// 1 -> read
+			$insert_data['status'] = 0;
+			if($rec['map_read_time'] > $insert_data['dateline'])
+			{
+				$insert_data['status'] = 1;
+			}
+			$insert_data['readtime'] = $rec['map_read_time'];
+			$insert_data['folder'] = 1; // Inbox
+
+			// The last pm will be inserted by the main method, so we only insert x-1 here
+			if($count < $num)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
+		}
 
 		return $insert_data;
-	}
-
-	/**
-	 * Get a user from the IPB database
-	 *
-	 * @param int Username
-	 * @return array If the username is empty, returns an array of username as Guest.  Otherwise returns the user
-	 */
-	function get_username($username)
-	{
-		if($username == '')
-		{
-			return array(
-				'username' => 'Guest',
-				'id' => 0,
-			);
-		}
-
-		$query = $this->old_db->simple_select("members", "*", "name='{$username}'", array('limit' => 1));
-
-		$results = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		return $results;
 	}
 
 	function fetch_total()
