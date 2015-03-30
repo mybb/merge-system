@@ -34,35 +34,102 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 
 	function convert_data($data)
 	{
+		global $db;
+
 		$insert_data = array();
 
 		// phpBB 3 values
-		$to = explode(':', $data['to_address']);
-
-		foreach($to as $key => $uid)
-		{
-			$to[$key] = $this->get_import->uid(str_replace('u_', '', $uid));
-		}
-		$toid = $to[0];
-
 		$insert_data['import_pmid'] = $data['msg_id'];
-		$insert_data['uid'] = $toid;
 		$insert_data['fromid'] = $this->get_import->uid($data['author_id']);
-		$insert_data['toid'] = $toid;
-		$insert_data['recipients'] = serialize(array('to' => $to));
-		$text = encode_to_utf8($data['message_subject'], "privmsgs", "privatemessages");
-		$text = preg_replace('/&quot;/','"', $text);
-		$text = preg_replace('/&lt;/','<', $text);
-		$text = preg_replace('/&gt;/','>', $text);
-		$text = preg_replace('/&amp;/','&', $text);
-		$insert_data['subject'] = $text;
-		$insert_data['status'] = $this->get_pm_status($data['msg_id']);
-		$insert_data['readtime'] = TIME_NOW;
+		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['message_subject']), "privmsgs", "privatemessages");
 		$insert_data['dateline'] = $data['message_time'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message_text'], $data['bbcode_uid']), "privmsgs", "privatemessages");
 		$insert_data['includesig'] = $data['enable_sig'];
 		$insert_data['smilieoff'] = int_to_01($data['enable_smilies']);
 		$insert_data['ipaddress'] = my_inet_pton($data['author_ip']);
+
+		// Now figure out who is participating
+		$to = explode(':', $data['to_address']);
+		foreach($to as $key => $uid)
+		{
+			if(empty($uid))
+			{
+				unset($to[$key]);
+				continue;
+			}
+			$to[$key] = $this->get_import->uid(str_replace('u_', '', $uid));
+		}
+
+		$bcc = explode(':', $data['bcc_address']);
+		foreach($bcc as $key => $uid)
+		{
+			if(empty($uid))
+			{
+				unset($bcc[$key]);
+				continue;
+			}
+			$bcc[$key] = $this->get_import->uid(str_replace('u_', '', $uid));
+		}
+
+		$recipients = array();
+
+		if(!empty($to))
+		{
+			$recipients['to'] = $to;
+		}
+
+		if(!empty($bcc))
+		{
+			$recipients['bcc'] = $bcc;
+		}
+
+		$insert_data['recipients'] = serialize($recipients);
+
+		// Now save a copy for every user involved in this pm
+		// First one for the sender
+		$insert_data['uid'] = $insert_data['fromid'];
+		if(count($recipients['to']) == 1)
+		{
+			$insert_data['toid'] = $recipients['to'][0];
+		}
+		else
+		{
+			$insert_data['toid'] = 0; // multiple recipients
+		}
+		$insert_data['status'] = 1; // Read - of course
+		$insert_data['readtime'] = 0;
+		$insert_data['folder'] = 2; // Outbox
+
+		$edata = $this->prepare_insert_array($insert_data);
+		unset($edata['import_pmid']);
+		$db->insert_query("privatemessages", $edata);
+
+		$rec_query = $this->old_db->simple_select('privmsgs_to', '*', "msg_id={$data['msg_id']} AND user_id!={$data['author_id']}");
+		$num = $this->old_db->num_rows($rec_query);
+		$count = 0;
+		while($rec = $this->old_db->fetch_array($rec_query))
+		{
+			$count++;
+
+			$insert_data['uid'] = $this->get_import->uid($rec['user_id']);
+			$insert_data['toid'] = $insert_data['uid'];
+			// 0 -> unread
+			// 1 -> read
+			$insert_data['status'] = int_to_01($rec['pm_unread']);
+			if($insert_data['status'] == 1)
+			{
+				$insert_data['readtime'] = TIME_NOW; // We don't have a real readtime as phpBB doesn't save that so we set it to now
+			}
+			$insert_data['folder'] = 1; // Inbox
+
+			// The last pm will be inserted by the main method, so we only insert x-1 here
+			if($count < $num)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
+		}
 
 		return $insert_data;
 	}
@@ -80,14 +147,6 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		}
 
 		return $import_session['total_privatemessages'];
-	}
-
-	function get_pm_status($pm_id)
-	{
-		$query = $this->old_db->simple_select("privmsgs_to", "pm_unread", "msg_id = {$pm_id}");
-		$retval = $this->old_db->fetch_field($query, "pm_unread");
-		$this->old_db->free_result($query);
-		return $retval;
 	}
 }
 
