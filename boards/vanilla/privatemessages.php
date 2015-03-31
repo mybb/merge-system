@@ -43,19 +43,27 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 
 		// Vanilla values
 		$recip = unserialize($data['recips']);
+		$to_send = array();
 		foreach($recip as $key => $id)
 		{
-			if($id == $data['InsertUserID'])
-			{
-				unset($recip[$key]);
-				continue;
-			}
-
 			$recip[$key] = $this->get_import->uid($id);
 			// This happens eg for the System user
 			if($recip[$key] == 0)
 			{
 				unset($recip[$key]);
+			}
+
+			$query = $this->old_db->simple_select('userconversation', '*', "UserID={$id} AND ConversationID={$data['ConversationID']}");
+			$rec = $this->old_db->fetch_array($query);
+			if(!$rec['Deleted'])
+			{
+				$to_send[$recip[$key]] = $rec;
+			}
+
+			if($id == $data['InsertUserID'])
+			{
+				unset($recip[$key]);
+				continue;
 			}
 		}
 
@@ -70,14 +78,13 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		{
 			$insert_data['subject'] = "Vanilla imported conversation";
 		}
-		$insert_data['readtime'] = TIME_NOW;
 		$insert_data['dateline'] = strtotime($data['DateInserted']);
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['Body']), "conversationmessage", "privatemessages");
 		$insert_data['ipaddress'] = my_inet_pton($data['InsertIPAddress']);
 
 		// Now save a copy for every user involved in this conversation
-		// First the one who send this message (only if the user exists)
-		if($insert_data['fromid'] != 0)
+		// First the one who send this message (only if the user exists and hasn't deleted it)
+		if($insert_data['fromid'] != 0 && isset($to_send[$insert_data['fromid']]))
 		{
 			$insert_data['uid'] = $insert_data['fromid'];
 			if(count($recip) == 1)
@@ -93,24 +100,35 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			$insert_data['status'] = PM_STATUS_READ; // Read - of course
 			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
-			$data = $this->prepare_insert_array($insert_data);
-			unset($data['import_pmid']);
-			$db->insert_query("privatemessages", $data);
+			if(count($to_send) > 1)
+			{
+				$data = $this->prepare_insert_array($insert_data);
+				unset($data['import_pmid']);
+				$db->insert_query("privatemessages", $data);
+			}
+
+			unset($to_send[$insert_data['fromid']]);
 		}
 
+
 		$key = 0;
-		foreach($recip as $rec)
+		foreach($to_send as $uid => $rec)
 		{
 			$key++;
 
-			$insert_data['uid'] = $rec;
-			$insert_data['toid'] = $rec;
-			// It'd be too difficult to determine whether there was an answer so we simply set it to "read"
-			$insert_data['status'] = PM_STATUS_READ;
+			$insert_data['uid'] = $uid;
+			$insert_data['toid'] = $uid;
+
+			$insert_data['status'] = PM_STATUS_UNREAD;
+			if(strtotime($rec['DateLastViewed']) > $insert_data['dateline'])
+			{
+				$insert_data['status'] = PM_STATUS_READ;
+				$insert_data['readtime'] = strtotime($rec['DateLastViewed']);
+			}
 			$insert_data['folder'] = PM_FOLDER_INBOX;
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
-			if($key < count($recip))
+			if($key < count($to_send))
 			{
 				$data = $this->prepare_insert_array($insert_data);
 				unset($data['import_pmid']);
