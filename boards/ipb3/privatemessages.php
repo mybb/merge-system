@@ -64,31 +64,34 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['recipients'] = serialize(array('to' => $recipients));
 
 		// Now save a copy for every user involved in this pm
-		// First one for the sender
-		$insert_data['uid'] = $insert_data['fromid'];
-		if(count($recipients) == 1)
+		// First one for the sender - if he hasn't deleted the conversation
+		if($data['map_user_active'])
 		{
-			$insert_data['toid'] = $recipients[0];
-		}
-		else
-		{
-			$insert_data['toid'] = 0; // multiple recipients
-		}
-		$insert_data['status'] = PM_STATUS_READ; // Read - of course
-		$insert_data['readtime'] = 0;
+			$insert_data['uid'] = $insert_data['fromid'];
+			if (count($recipients) == 1)
+			{
+				$insert_data['toid'] = $recipients[0];
+			}
+			else
+			{
+				$insert_data['toid'] = 0; // multiple recipients
+			}
+			$insert_data['status'] = PM_STATUS_READ; // Read - of course
+			$insert_data['readtime'] = 0;
 
 
-		// Now a bit of magic: we need to return one insert array as our parent method inserts one
-		// If we save a draft we only have one so we need to return here
-		// Otherwise we need to insert multiple pms and so we need to insert it manually
-		if($data['map_folder_id'] == 'drafts')
-		{
-			$insert_data['folder'] = PM_FOLDER_DRAFTS;
-			return $insert_data;
-		}
-		else
-		{
-			$insert_data['folder'] = PM_FOLDER_OUTBOX;
+			// Now a bit of magic: we need to return one insert array as our parent method inserts one
+			// If we save a draft we only have one so we need to return here
+			// Otherwise we need to insert multiple pms and so we need to insert it manually
+			if ($data['map_folder_id'] == 'drafts')
+			{
+				$insert_data['folder'] = PM_FOLDER_DRAFTS;
+				return $insert_data;
+			}
+			else
+			{
+				$insert_data['folder'] = PM_FOLDER_OUTBOX;
+			}
 		}
 
 		$edata = $this->prepare_insert_array($insert_data);
@@ -96,7 +99,9 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$db->insert_query("privatemessages", $edata);
 
 		// Some more magic: get the map data for every recip and insert all except the last - we need the data for it but don't insert!
-		$rec_query = $this->old_db->simple_select('message_topic_user_map', '*', "map_topic_id={$data['mt_id']} AND map_user_id!={$data['msg_author_id']}");
+		// Only get active users - active means delete here so if the user isn't active he deleted the conversation
+		// Also active is set to "0" for "ignored/blocked/banned" users
+		$rec_query = $this->old_db->simple_select('message_topic_user_map', '*', "map_topic_id={$data['mt_id']} AND map_user_id!={$data['msg_author_id']} AND map_user_active=1");
 		$num = $this->old_db->num_rows($rec_query);
 		$count = 0;
 		while($rec = $this->old_db->fetch_array($rec_query))
@@ -107,7 +112,9 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			$insert_data['toid'] = $insert_data['uid'];
 
 			$insert_data['status'] = PM_STATUS_UNREAD;
-			if($rec['map_read_time'] > $insert_data['dateline'])
+			// The "map_read_time" is set when first opening the message
+			// However it's possible to mark as unread where only "map_has_unread" is updated and not "map_read_time"
+			if($rec['map_read_time'] > $insert_data['dateline'] && !$rec['map_has_unread'])
 			{
 				$insert_data['status'] = PM_STATUS_READ;
 			}
