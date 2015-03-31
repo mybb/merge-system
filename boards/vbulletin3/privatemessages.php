@@ -88,13 +88,24 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		// Otherwise we're saving a pm with multiple recipients for the sender so the toid is "0" (default)
 
 		$insert_data['subject'] = encode_to_utf8($data['title'], "pmtext", "privatemessages");
-		$insert_data['status'] = $data['messageread'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
 		$insert_data['includesig'] = $data['showsignature'];
 		$insert_data['smilieoff'] = int_to_01($data['allowsmilie']);
 
-		if($data['messageread'] == 1)
+		if($data['messageread'] < 2)
+		{
+			// 0 and 1 are the same (unread, read)
+			$insert_data['status'] = $data['messageread'];
+		}
+		else
+		{
+			// 2 and 3 are replied and forwarded but we use 3 and 4
+			$insert_data['status'] = $data['messageread']+1;
+			$insert_data['statustime'] = TIME_NOW;
+		}
+
+		if($data['messageread'] == PM_STATUS_READ)
 		{
 			$insert_data['readtime'] = TIME_NOW;
 		}
