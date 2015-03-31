@@ -74,11 +74,18 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		}
 		$insert_data['recipients'] = serialize($recipients);
 
-		// set toid if there is only one recipient
-		if(count($recipients['to']) == 1)
+		// Now figure out what to do with toid
+		if($insert_data['uid'] != $insert_data['fromid'])
 		{
+			// Inserting a pm for one of the recipients so the toid is our id
+			$insert_data['toid'] = $insert_data['uid'];
+		}
+		elseif(count($recipients['to']) == 1)
+		{
+			// Inserting a pm for the sender with only one recipient so we can set the toid
 			$insert_data['toid'] = $recipients['to'][0];
 		}
+		// Otherwise we're saving a pm with multiple recipients for the sender so the toid is "0" (default)
 
 		$insert_data['subject'] = encode_to_utf8($data['title'], "pmtext", "privatemessages");
 		$insert_data['status'] = $data['messageread'];
