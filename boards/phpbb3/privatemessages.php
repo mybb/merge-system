@@ -86,25 +86,31 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		$insert_data['recipients'] = serialize($recipients);
 
 		// Now save a copy for every user involved in this pm
-		// First one for the sender
-		$insert_data['uid'] = $insert_data['fromid'];
-		if(count($recipients['to']) == 1)
+		// First one for the sender - if he hasn't deleted it yet
+		// Though I wasn't able to produce a scenario where "pm_deleted" is changed we exclude it to be one the safe site
+		$tquery = $this->old_db->simple_select('privmsgs_to', 'msg_id', "msg_id={$data['msg_id']} AND user_id={$data['author_id']} AND pm_deleted=0");
+		if($db->num_rows($tquery) == 1)
 		{
-			$insert_data['toid'] = $recipients['to'][0];
-		}
-		else
-		{
-			$insert_data['toid'] = 0; // multiple recipients
-		}
-		$insert_data['status'] = PM_STATUS_READ; // Read - of course
-		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = PM_FOLDER_OUTBOX;
+			$insert_data['uid'] = $insert_data['fromid'];
+			if (count($recipients['to']) == 1)
+			{
+				$insert_data['toid'] = $recipients['to'][0];
+			}
+			else
+			{
+				$insert_data['toid'] = 0; // multiple recipients
+			}
+			$insert_data['status'] = PM_STATUS_READ; // Read - of course
+			$insert_data['readtime'] = 0;
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
-		$edata = $this->prepare_insert_array($insert_data);
-		unset($edata['import_pmid']);
-		$db->insert_query("privatemessages", $edata);
+			$edata = $this->prepare_insert_array($insert_data);
+			unset($edata['import_pmid']);
+			$db->insert_query("privatemessages", $edata);
+		}
 
-		$rec_query = $this->old_db->simple_select('privmsgs_to', '*', "msg_id={$data['msg_id']} AND user_id!={$data['author_id']}");
+		// Though I wasn't able to produce a scenario where "pm_deleted" is changed we exclude it to be one the safe site
+		$rec_query = $this->old_db->simple_select('privmsgs_to', '*', "msg_id={$data['msg_id']} AND user_id!={$data['author_id']} AND pm_deleted=0");
 		$num = $this->old_db->num_rows($rec_query);
 		$count = 0;
 		while($rec = $this->old_db->fetch_array($rec_query))
@@ -114,10 +120,16 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			$insert_data['uid'] = $this->get_import->uid($rec['user_id']);
 			$insert_data['toid'] = $insert_data['uid'];
 
-			$insert_data['status'] = int_to_01($rec['pm_unread']);
-			if($insert_data['status'] == PM_STATUS_READ)
+			$insert_data['status'] = PM_STATUS_UNREAD;
+			if(!$rec['pm_unread'])
 			{
+				$insert_data['status'] = PM_STATUS_READ;
 				$insert_data['readtime'] = TIME_NOW; // We don't have a real readtime as phpBB doesn't save that so we set it to now
+			}
+			if($rec['pm_replied'])
+			{
+				$insert_data['status'] = PM_STATUS_REPLIED;
+				$insert_data['statustime'] = TIME_NOW;
 			}
 			$insert_data['folder'] = PM_FOLDER_INBOX;
 
