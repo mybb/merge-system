@@ -55,7 +55,13 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		while($rec = $this->old_db->fetch_array($rec_query))
 		{
 			$rec['id_member'] = $this->get_import->uid($rec['id_member']);
-			$to_send[] = $rec;
+
+			// We can't check it in the query above as the user was still a recipient in the first place
+			if(!$rec['deleted'])
+			{
+				$to_send[] = $rec;
+			}
+
 			if($rec['bcc'])
 			{
 				$recipients['bcc'][] = $rec['id_member'];
@@ -69,23 +75,29 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['recipients'] = serialize($recipients);
 
 		// Now save a copy for every user involved in this pm
-		// First one for the sender
-		$insert_data['uid'] = $insert_data['fromid'];
-		if(count($recipients['to']) == 1)
+		// First one for the sender - if not deleted
+		if(!$data['deleted_by_sender'])
 		{
-			$insert_data['toid'] = $recipients['to'][0];
-		}
-		else
-		{
-			$insert_data['toid'] = 0; // multiple recipients
-		}
-		$insert_data['status'] = PM_STATUS_READ; // Read - of course
-		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = PM_FOLDER_OUTBOX;
+			$insert_data['uid'] = $insert_data['fromid'];
+			if (count($recipients['to']) == 1)
+			{
+				$insert_data['toid'] = $recipients['to'][0];
+			}
+			else
+			{
+				$insert_data['toid'] = 0; // multiple recipients
+			}
+			$insert_data['status'] = PM_STATUS_READ; // Read - of course
+			$insert_data['readtime'] = 0;
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
-		$edata = $this->prepare_insert_array($insert_data);
-		unset($edata['import_pmid']);
-		$db->insert_query("privatemessages", $edata);
+			if(count($to_send) > 0)
+			{
+				$edata = $this->prepare_insert_array($insert_data);
+				unset($edata['import_pmid']);
+				$db->insert_query("privatemessages", $edata);
+			}
+		}
 
 		foreach($to_send as $key => $rec)
 		{
@@ -93,10 +105,15 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			$insert_data['toid'] = $rec['id_member'];
 
 			$insert_data['status'] = PM_STATUS_UNREAD;
-			if($data['is_read'] > 0)
+			if($rec['is_read'] == 1)
 			{
 				$insert_data['status'] = PM_STATUS_READ;
 				$insert_data['readtime'] = TIME_NOW;
+			}
+			if($rec['is_read'] > 1)
+			{
+				$insert_data['status'] = PM_STATUS_REPLIED;
+				$insert_data['statustime'] = TIME_NOW;
 			}
 			$insert_data['folder'] = PM_FOLDER_INBOX;
 
