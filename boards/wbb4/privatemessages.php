@@ -25,7 +25,7 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 	{
 		global $import_session;
 
-		$query = $this->old_db->query("SELECT m.*, c.subject
+		$query = $this->old_db->query("SELECT m.*, c.subject, c.isDraft, c.draftData
 			FROM ".WCF_PREFIX."conversation_message m
 			LEFT JOIN ".WCF_PREFIX."conversation c ON(c.conversationID=m.conversationID)
 			LIMIT ".$this->trackers['start_privatemessages'].", ".$import_session['privatemessages_per_screen']);
@@ -50,19 +50,43 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['smilieoff'] = int_to_01($data['enableSmilies']);
 
 		// Now build our recipients list
-		$rec_query = $this->old_db->simple_select(WCF_PREFIX."conversation_to_user", "*", "conversationID='{$data['conversationID']}' AND participantID!='{$data['userID']}'");
 		$to_send = $recipients = array();
-		while($rec = $this->old_db->fetch_array($rec_query))
+		if($data['isDraft'])
 		{
-			$rec['participantID'] = $this->get_import->uid($rec['participantID']);
-			$to_send[] = $rec;
-			if($rec['isInvisible'])
+			// Draft handles the recipients in a special array so figure them out
+			$draftData = unserialize($data['draftData']);
+			foreach($draftData['participants'] as $uid)
 			{
-				$recipients['bcc'][] = $rec['participantID'];
+				$recipients['to'][] = $this->get_import->uid($uid);
 			}
-			else
+
+			foreach($draftData['invisibleParticipants'] as $uid)
 			{
-				$recipients['to'][] = $rec['participantID'];
+				$recipients['bcc'][] = $this->get_import->uid($uid);
+			}
+		}
+		else
+		{
+			// Otherwise we have real recipients which we need to query
+			$rec_query = $this->old_db->simple_select(WCF_PREFIX . "conversation_to_user", "*", "conversationID='{$data['conversationID']}' AND participantID!='{$data['userID']}'");
+			while ($rec = $this->old_db->fetch_array($rec_query))
+			{
+				$rec['participantID'] = $this->get_import->uid($rec['participantID']);
+
+				// 2 means that the user left the conversation
+				if($rec['hideConversation'] < 2)
+				{
+					$to_send[] = $rec;
+				}
+
+				if ($rec['isInvisible'])
+				{
+					$recipients['bcc'][] = $rec['participantID'];
+				}
+				else
+				{
+					$recipients['to'][] = $rec['participantID'];
+				}
 			}
 		}
 
@@ -81,11 +105,22 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		}
 		$insert_data['status'] = PM_STATUS_READ; // Read - of course
 		$insert_data['readtime'] = 0;
-		$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
-		$data = $this->prepare_insert_array($insert_data);
-		unset($data['import_pmid']);
-		$db->insert_query("privatemessages", $data);
+		if($data['isDraft'])
+		{
+			$insert_data['folder'] = PM_FOLDER_DRAFTS;
+		}
+		else
+		{
+			$insert_data['folder'] = PM_FOLDER_OUTBOX;
+		}
+
+		if(count($to_send) > 0)
+		{
+			$data = $this->prepare_insert_array($insert_data);
+			unset($data['import_pmid']);
+			$db->insert_query("privatemessages", $data);
+		}
 
 		foreach($to_send as $key => $rec)
 		{
@@ -98,7 +133,17 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 				$insert_data['status'] = PM_STATUS_READ;
 			}
 			$insert_data['readtime'] = $rec['lastVisitTime'];
-			$insert_data['folder'] = PM_FOLDER_INBOX;
+
+			if($rec['hideConversation'])
+			{
+				// A hidden Conversation is not really trash but it shouldn't be shown in the inbox
+				// The user decided that he doesn't want to see messages and the trash is the most similar we have
+				$insert_data['folder'] = PM_FOLDER_TRASH;
+			}
+			else
+			{
+				$insert_data['folder'] = PM_FOLDER_INBOX;
+			}
 
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)
