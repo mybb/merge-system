@@ -66,7 +66,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 		$last_post = $this->get_last_post($data['id_member']);
 		$insert_data['lastpost'] = isset($last_post['poster_time']) ? $last_post['poster_time'] : 0;
 		$data['birthdate'] = trim($data['birthdate']);
-		if(!empty($data['birthdate']))
+		if(!empty($data['birthdate']) && $data['birthdate'] != '0001-01-01')
 		{
 			$insert_data['birthday'] = date("j-n-Y", strtotime($data['birthdate']));
 		}
