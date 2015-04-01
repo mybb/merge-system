@@ -61,6 +61,13 @@ class IPB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data['canpostthreads'] = $data['g_post_new_topics'];
 		$insert_data['canpostreplys'] = $data['g_reply_other_topics'];
 
+		// -1 is disabled
+		if($insert_data['attachquota'] < 0)
+		{
+			$insert_data['attachquota'] = 0;
+			$insert_data['canpostattachments'] = 0;
+		}
+
 		return $insert_data;
 	}
 
