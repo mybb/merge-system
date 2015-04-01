@@ -55,6 +55,8 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		// Rebuild the recipients array and toid field
 		$touserarray = unserialize($data['touserarray']);
 		$recipients = array();
+		
+		
 		// main recipients are in cc array
 		if(is_array($touserarray['cc']))
 		{
@@ -72,6 +74,16 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 				$recipients['bcc'][] = $this->get_import->uid($id);
 			}
 		}
+		
+		// prior to vb3.6 recipients were stored in a plain array, not in a cc/bcc nested array
+		if(!array_key_exists('cc', $touserarray) && !array_key_exists('bcc', $touserarray))
+		{
+			foreach($touserarray as $id => $name)
+			{
+				$recipients['to'][] = $this->get_import->uid($id);
+			}
+		}
+		
 		$insert_data['recipients'] = serialize($recipients);
 
 		// Now figure out what to do with toid
