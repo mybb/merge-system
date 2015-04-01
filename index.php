@@ -14,8 +14,8 @@ header('Content-type: text/html; charset=utf-8');
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
-$merge_version = "1.8.4";
-$version_code = 1804;
+$merge_version = "1.8.5";
+$version_code = 1805;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
@@ -562,11 +562,11 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		$parser = new XMLParser($contents);
 		$tree = $parser->get_tree();
 
-		$latest_code = $tree['mybb_merge']['version_code']['value'];
-		$latest_version = "<strong>".$tree['mybb_merge']['latest_version']['value']."</strong> (".$latest_code.")";
+		$latest_code = (int)$tree['mybb_merge']['version_code']['value'];
+		$latest_version = "<strong>".htmlspecialchars_uni($tree['mybb_merge']['latest_version']['value'])."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
 		{
-			$errors['version_check'] = "{$lang->requirementspage_outofdatedesc} <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/downloads/merge-system\" target=\"_blank\">{$lang->download}</a>)";
+			$errors['version_check'] = "{$lang->requirementspage_outofdatedesc} <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/download/merge-system\" target=\"_blank\">{$lang->download}</a>)";
 			$checks['version_check_status'] = '<span class="fail">'.$lang->requirementspage_outofdate.'</span>';
 			$debug->log->warning("This version of the merge system is out-of-date");
 		}
