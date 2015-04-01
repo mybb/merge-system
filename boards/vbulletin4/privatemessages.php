@@ -55,23 +55,30 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 		// Rebuild the recipients array and toid field
 		$touserarray = unserialize($data['touserarray']);
 		$recipients = array();
-		// main recipients are in cc array
-		if(is_array($touserarray['cc']))
+
+		// This is the original check in vB
+		foreach($touserarray AS $key => $item)
 		{
-			foreach($touserarray['cc'] as $id => $name)
+			if (is_array($item))
 			{
-				$recipients['to'][] = $this->get_import->uid($id);
+				foreach($item AS $id => $name)
+				{
+					$recipients[$key][] = $this->get_import->uid($id);
+				}
+			}
+			else
+			{
+				$recipients['bcc'][] = $this->get_import->uid($key);
 			}
 		}
 
-		// import bcc, too
-		if(is_array($touserarray['bcc']) && !empty($touserarray['bcc']))
+		// However we use "to" instead of "cc"
+		if(!empty($recipients['cc']))
 		{
-			foreach($touserarray['bcc'] as $id => $name)
-			{
-				$recipients['bcc'][] = $this->get_import->uid($id);
-			}
+			$recipients['to'] = $recipients['cc'];
+			unset($recipients['cc']);
 		}
+
 		$insert_data['recipients'] = serialize($recipients);
 
 		// Now figure out what to do with toid
