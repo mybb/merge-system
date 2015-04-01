@@ -10,6 +10,7 @@
 define('PM_FOLDER_INBOX',  1);
 define('PM_FOLDER_OUTBOX', 2);
 define('PM_FOLDER_DRAFTS', 3);
+define('PM_FOLDER_TRASH',  4);
 
 define('PM_STATUS_UNREAD',    0);
 define('PM_STATUS_READ',      1);
