@@ -95,6 +95,10 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		// Otherwise we're saving a pm with multiple recipients for the sender so the toid is "0" (default)
 
 		$insert_data['subject'] = encode_to_utf8($data['title'], "pmtext", "privatemessages");
+		if(strlen($insert_data['subject']) > 120)
+		{
+			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
+		}
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "pmtext", "privatemessages");
 		$insert_data['includesig'] = $data['showsignature'];
