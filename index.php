@@ -14,6 +14,23 @@ header('Content-type: text/html; charset=utf-8');
 @ini_set('display_errors', true);
 @ini_set('memory_limit', -1);
 
+/*************************************
+ *********** Configuration ***********
+ *************************************/
+
+// Whether or not we write data in the log table
+// On some boards it may happen that the log throws errors, but until then you can keep this enabled
+define("WRITE_LOGS", 1);
+// The encoding detection can cause timeout errors and is automatically skipped for larger strings
+// However this may also happen on smaller strings - set this to 1 if you have that problem
+define("SKIP_ENCODING_DETECTION", 0);
+// Normally there isn't a need to turn this off but just in case you can disable the admin checks here
+define("SKIP_ADMIN_CHECK", 0);
+
+/******************************************************
+ *********** DON'T TOUCH ANYTHING ELSE HERE ***********
+ ******************************************************/
+
 $merge_version = "1.8.5";
 $version_code = 1805;
 
@@ -21,11 +38,7 @@ $version_code = 1805;
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
 define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
-define("WRITE_LOGS", 1);
 define("TIME_NOW", time());
-// The encoding detection can cause timeout errors and is automatically skipped for larger strings
-// However this may also happen on smaller strings - set this to 1 if you have that problem
-define("SKIP_ENCODING_DETECTION", 0);
 
 if(function_exists('date_default_timezone_set') && !ini_get('date.timezone'))
 {
@@ -147,6 +160,9 @@ $db->connect($config['database']);
 $db->set_table_prefix(TABLE_PREFIX);
 $db->type = $config['database']['type'];
 
+// Initialize cache
+$cache->cache();
+
 // Start up our main timer so we can aggregate performance data
 $start_timer = microtime(true);
 
@@ -172,6 +188,24 @@ if(!$import_session['resume_module'])
 if($mybb->version_code < 1700 || $mybb->version_code >= 2000)
 {
 	$output->print_error($lang->indexpage_require);
+}
+
+
+// Are we allowed to run the merge system? Note: we added the config skip option for easy testing and for special cases
+if(!SKIP_ADMIN_CHECK)
+{
+	// First load cookies
+	$mybb->parse_cookies();
+	// We need to get the session in that case
+	require_once MYBB_ROOT."inc/class_session.php";
+	$session = new session;
+	$session->init();
+
+	if($mybb->usergroup['cancp'] != 1 && $mybb->usergroup['cancp'] != 'yes')
+	{
+		// Not an admin!
+		$output->print_error($lang->error_no_admin);
+	}
 }
 
 // Are we done? Generate the report!

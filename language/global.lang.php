@@ -214,6 +214,8 @@ $l['finish_report_type_html'] = "HTML (Browser Viewable) File";
 
 $l['warning_innodb'] = "The table \"{1}\" is currently in InnoDB format. We strongly recommend converting these tables to MyISAM otherwise you may experience major slow-downs while running the merge system.";
 
+$l['error_no_admin'] = 'Only admins can run the merge system. Please go to your forum index and login with an admin account.';
+
 $l['error_invalid_board'] = "The board module you have selected does not exist.";
 $l['error_js_off'] = 'It appears that you have javascript turned off. The MyBB Merge System requires that javascript be turned on in order to operate properly. Once you have turned javascript on, please refresh this page.';
 $l['error_list'] = "The MyBB Merge System encountered the following problems";
