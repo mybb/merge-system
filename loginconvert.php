@@ -58,8 +58,8 @@ function loginconvert_info()
 		"author"			=> "MyBB Group",
 		"authorsite"		=> "http://www.mybb.com",
 		"version"			=> "1.4.1",
-		"guid"				=> "",
 		"compatibility"		=> "18*",
+		"codename"			=> "loginconvert",
 	);
 
 	if($db->field_exists("passwordconvert", "users"))
