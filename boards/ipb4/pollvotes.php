@@ -42,13 +42,14 @@ class IPB4_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		$insert_data['uid'] = $this->get_import->uid($data['member_id']);
 		$insert_data['dateline'] = $data['vote_date'];
 
-		// Get poll id from thread id
-		$query = $db->simple_select("core_polls", "pid", "import_tid = '".$data['tid']."'");
-		$insert_data['pid'] = $db->fetch_field($query, "pid");
-		$db->free_result($query);
+		$insert_data['pid'] = $this->get_import->pollid($data['poll']);
 
-		$choices = unserialize($data['member_choices']);
+		$choices = json_decode($data['member_choices'], true);
 		$choices = $choices[1];
+		if(!is_array($choices))
+		{
+			$choices = array($choices);
+		}
 		foreach($choices as $key => $choice)
 		{
 			$insert_data['voteoption'] = $choice;

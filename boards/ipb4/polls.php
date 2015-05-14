@@ -28,6 +28,13 @@ class IPB4_Converter_Module_Polls extends Converter_Module_Polls {
 		$query = $this->old_db->simple_select("core_polls", "*", "", array('limit_start' => $this->trackers['start_polls'], 'limit' => $import_session['polls_per_screen']));
 		while($poll = $this->old_db->fetch_array($query))
 		{
+			// TODO: Check how updates are handled and probably add this query as left join
+			if($poll['tid'] == 0)
+			{
+				$query = $this->old_db->simple_select('forums_topics', 'tid', "poll_state={$poll['pid']}");
+				$poll['tid'] = $this->old_db->fetch_field($query, 'tid');
+			}
+
 			$pid = $this->insert($poll);
 
 			// Restore connections
@@ -44,7 +51,7 @@ class IPB4_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
-		$choices = unserialize(utf8_decode($data['choices']));
+		$choices = json_decode($data['choices'], true);
 		$choices = $choices[1];
 
 		$seperator = '';
@@ -53,7 +60,7 @@ class IPB4_Converter_Module_Polls extends Converter_Module_Polls {
 		foreach($choices['choice'] as $key => $choice)
 		{
 			++$choice_count;
-			$choices1 .= $seperator.$db->escape_string($choice);
+			$choices1 .= $seperator.$db->escape_string(trim($choice));
 			$seperator = '||~|~||';
 		}
 
