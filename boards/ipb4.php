@@ -45,7 +45,7 @@ class IPB4_Converter extends Converter {
 						 "import_usergroups" => array("name" => "Usergroups", "dependencies" => "db_configuration"),
 						 "import_users" => array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
-//						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
+						 "import_forumperms" => array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_polls" => array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
@@ -77,8 +77,8 @@ class IPB4_Converter extends Converter {
 	var $groups = array(
 		2 => MYBB_GUESTS, // Guests
 		3 => MYBB_REGISTERED, // Registered
-		4 => MYBB_ADMINS, // Root Admin
-		6 => MYBB_ADMINS, // Administrators
+		4 => MYBB_ADMINS, // Administrators
+		6 => MYBB_MODS, // Moderators
 	);
 
 	/**
