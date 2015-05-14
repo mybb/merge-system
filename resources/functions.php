@@ -605,11 +605,6 @@ function check_url_exists($url)
 		return false;
 	}
 
-	if(empty($url_parsed['scheme']))
-	{
-		$url_parsed['scheme'] = 'http';
-	}
-
 	$headers = @get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]{$url_parsed['path']}");
 
 	$status = 0;

@@ -67,7 +67,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		if(function_exists("finfo_open"))
 		{
 			$file_info = finfo_open(FILEINFO_MIME);
-			list($insert_data['filetype'], ) = explode(';', finfo_file($file_info, $data['attach_location']), 1);
+			list($insert_data['filetype'], ) = explode(';', finfo_file($file_info, $this->generate_raw_filename($data)), 1);
 			finfo_close($file_info);
 		}
 
@@ -119,7 +119,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $mybb, $import_session, $lang;
 
 		// Transfer attachment - IPB 4 saves the full path
-		$data_file = merge_fetch_remote_file($data['attach_location']);
+		$data_file = merge_fetch_remote_file($this->generate_raw_filename($data));
 		if(!empty($data_file))
 		{
 			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
@@ -158,6 +158,18 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 
 		return $import_session['total_attachments'];
+	}
+
+	function generate_raw_filename($data)
+	{
+		$url = $data['attach_location'];
+
+		if(substr($url, 0, 2) == '//')
+		{
+			return "http:".$url;
+		}
+
+		return $url;
 	}
 }
 
