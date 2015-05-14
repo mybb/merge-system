@@ -35,7 +35,6 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 			FROM ".OLD_TABLE_PREFIX."core_members m
 			LIMIT ".$this->trackers['start_users'].", ".$import_session['users_per_screen']
 		);
-//			LEFT JOIN ".OLD_TABLE_PREFIX."core_pfields_content pc ON (m.member_id=pc.member_id)
 		while($user = $this->old_db->fetch_array($query))
 		{
 			$this->insert($user);
@@ -57,7 +56,6 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['regdate'] = $data['joined'];
 		$insert_data['lastactive'] = $data['last_activity'];
 		$insert_data['lastvisit'] = $data['last_visit'];
-//		$insert_data['website'] = $data['field_3'];
 		$insert_data['lastpost'] = $data['last_post'];
 		$data['bday_day'] = trim($data['bday_day']);
 		$data['bday_month'] = trim($data['bday_month']);
@@ -66,10 +64,6 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$insert_data['birthday'] = $data['bday_day'].'-'.$data['bday_month'].'-'.$data['bday_year'];
 		}
-//		$insert_data['icq'] = $data['field_4'];
-//		$insert_data['aim'] = $data['field_1'];
-//		$insert_data['yahoo'] = $data['field_8'];
-//		$insert_data['skype'] = $data['field_10'];
 		if(!empty($data['timezone']))
 		{
 			$insert_data['timezone'] = get_timezone($data['timezone']);

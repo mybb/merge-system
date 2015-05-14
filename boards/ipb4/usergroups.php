@@ -29,10 +29,7 @@ class IPB4_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$query = $this->old_db->simple_select("core_groups", "*", "g_id > 6", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));
 		while($group = $this->old_db->fetch_array($query))
 		{
-			$gid = $this->insert($group);
-
-			// Restore connections
-			$db->update_query("users", array('usergroup' => $gid), "import_usergroup = '{$group['g_id']}' OR import_displaygroup = '{$group['g_id']}'");
+			$this->insert($group);
 		}
 	}
 
@@ -42,6 +39,7 @@ class IPB4_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 		// Invision Power Board 4 values
 		$insert_data['import_gid'] = $data['g_id'];
+		$insert_data['title'] = $this->board->getLanguageString("core_group_{$data['g_id']}");
 		$insert_data['pmquota'] = $data['g_max_messages'];
 		$insert_data['maxpmrecipients'] = $data['g_max_mass_pm'];
 		$insert_data['attachquota'] = $data['g_attach_max'];
@@ -55,6 +53,13 @@ class IPB4_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		$insert_data['cansearch'] = $data['g_use_search'];
 		$insert_data['canview'] = $data['g_view_board'];
 		$insert_data['canviewprofiles'] = $data['g_mem_info'];
+
+		// -1 is disabled
+		if($insert_data['attachquota'] < 0)
+		{
+			$insert_data['attachquota'] = 0;
+			$insert_data['canpostattachments'] = 0;
+		}
 
 		return $insert_data;
 	}

@@ -64,7 +64,12 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['pid'] = $attach_details['pid'];
 		$insert_data['posthash'] = md5($attach_details['tid'].$attach_details['uid'].random_str());
 
-		$insert_data['filetype'] = $this->get_attach_type($data['attach_ext']);
+		if(function_exists("finfo_open"))
+		{
+			$file_info = finfo_open(FILEINFO_MIME);
+			list($insert_data['filetype'], ) = explode(';', finfo_file($file_info, $data['attach_location']), 1);
+			finfo_close($file_info);
+		}
 
 		// Check if it is it an image
 		switch(strtolower($insert_data['filetype']))
@@ -135,21 +140,6 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
 		}
-	}
-
-	/**
-	 * Get a attachment mime type from the IPB database
-	 *
-	 * @param string Extension
-	 * @return string The mime type
-	 */
-	function get_attach_type($ext)
-	{
-		$query = $this->old_db->simple_select("core_attachments_type", "atype_mimetype", "atype_extension = '{$ext}'");
-		$results = $this->old_db->fetch_field($query, "atype_mimetype");
-		$this->old_db->free_result($query);
-
-		return $results;
 	}
 
 	function fetch_total()

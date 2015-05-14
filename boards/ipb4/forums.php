@@ -44,8 +44,14 @@ class IPB4_Converter_Module_Forums extends Converter_Module_Forums {
 
 		// Invision Power Board 4 values
 		$insert_data['import_fid'] = $data['id'];
-		$insert_data['name'] = $data['name'];
-		$insert_data['description'] = encode_to_utf8($data['description'], "forums_forums", "forums");
+		$insert_data['name'] = $this->board->getLanguageString("forums_forum_{$data['id']}", 'forums');
+
+		$desc = $this->board->getLanguageString("forums_forum_{$data['id']}_desc", 'forums');
+		if($desc != "forums_forum_{$data['id']}_desc")
+		{
+			$insert_data['description'] = $desc;
+		}
+
 		$insert_data['disporder'] = $data['position'];
 		$insert_data['password'] = $data['password'];
 		if($data['sort_key'] == 'last_post')

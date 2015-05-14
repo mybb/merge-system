@@ -576,38 +576,6 @@ function make_parent_list_pid($fid, $navsep=",", $parent_list="")
 }
 
 /**
- * Salts a password based on a supplied salt.
- *
- * @param string The md5()'ed password.
- * @param string The salt.
- * @return string The password hash.
- */
-function salt_password($password, $salt)
-{
-	return md5(md5($salt).$password);
-}
-
-/**
- * Generates a random salt
- *
- * @return string The salt.
- */
-function generate_salt()
-{
-	return random_str(8);
-}
-
-/**
- * Generates a 50 character random login key.
- *
- * @return string The login key.
- */
-function generate_loginkey()
-{
-	return random_str(50);
-}
-
-/**
  * Checks for the existance of a file via url (via http status code)
  *
  * @param string The link to the url
@@ -637,8 +605,14 @@ function check_url_exists($url)
 		return false;
 	}
 
-	$headers = get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]{$url_parsed['path']}");
+	if(empty($url_parsed['scheme']))
+	{
+		$url_parsed['scheme'] = 'http';
+	}
 
+	$headers = @get_headers("$url_parsed[scheme]://$url_parsed[host]:$url_parsed[port]{$url_parsed['path']}");
+
+	$status = 0;
 	if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
 	{
 		$status = $matches[1];

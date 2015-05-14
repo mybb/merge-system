@@ -20,7 +20,7 @@ class IPB4_Converter extends Converter {
 	 *
 	 * @var string
 	 */
-	var $bbname = "Invision Power Board 4 (Pre Release Version)";
+	var $bbname = "Invision Power Board 4";
 
 	/**
 	 * String of the plain bulletin board name
@@ -86,6 +86,64 @@ class IPB4_Converter extends Converter {
 	 * IPB only supports MySQL
 	 */
 	var $supported_databases = array("mysql");
+
+	private $defaultLanguage = null;
+
+	/**
+	 * @param string $key      The language key to retrieve
+	 * @param string $app      The app where the key belongs to. Defaults to 'core'
+	 * @param null $plugin     The plugin the key belongs to
+	 * @param string $language The language to be used. Defaults to the board default
+	 * @param bool $default    Whether the default or custom language string should be used
+	 *
+	 * @return string
+	 */
+	public function getLanguageString($key, $app = 'core', $plugin = null, $language = 'default', $default = false)
+	{
+		if($language == 'default')
+		{
+			if($this->defaultLanguage == null)
+			{
+				$query = $this->old_db->simple_select('core_sys_lang', 'lang_id', 'lang_default=1');
+				$this->defaultLanguage = $this->old_db->fetch_field($query, 'lang_id');
+			}
+
+			$language = $this->defaultLanguage;
+		}
+		elseif(!is_int($language))
+		{
+			$language = (string)$language;
+			$query = $this->old_db->simple_select('core_sys_lang', 'lang_id', "lang_short='".$this->old_db->escape_string($language)."'");
+
+			if($this->old_db->num_rows($query) != 1)
+			{
+				return $key;
+			}
+
+			$language = $this->old_db->fetch_field($query, 'lang_id');
+		}
+
+		$where = "word_key='".$this->old_db->escape_string($key)."' AND lang_id={$language} AND word_app='".$this->old_db->escape_string($app)."'";
+
+		if($plugin != null)
+		{
+			$where .= " AND word_plugin=".(int)$plugin;
+		}
+		else
+		{
+			$where .= ' AND word_plugin IS NULL';
+		}
+
+		$query = $this->old_db->simple_select('core_sys_lang_words', 'word_default,word_custom', $where);
+		$word = $this->old_db->fetch_array($query);
+
+		if($default || empty($word['word_custom']))
+		{
+			return $word['word_default'];
+		}
+
+		return $word['word_custom'];
+	}
 }
 
 ?>

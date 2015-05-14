@@ -89,8 +89,9 @@ $timer = new timer;
 require_once MYBB_ROOT.'inc/class_datacache.php';
 $cache = new datacache;
 
-require_once MYBB_ROOT."inc/functions_rebuild.php";
 require_once MYBB_ROOT."inc/functions.php";
+require_once MYBB_ROOT."inc/functions_rebuild.php";
+require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/settings.php";
 $mybb->settings = $settings;
 
