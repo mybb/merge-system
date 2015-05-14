@@ -71,7 +71,7 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['regip'] = my_inet_pton($data['ip_address']);
 		$insert_data['totalpms'] = $data['msg_count_total'];
 		$insert_data['unreadpms'] = $data['msg_count_new'];
-		$insert_data['signature'] =  encode_to_utf8($this->bbcode_parser->convert($data['signature']), "core_members", "users");
+		$insert_data['signature'] =  $this->bbcode_parser->convert($data['signature']);
 		$insert_data['passwordconvertsalt'] = $data['members_pass_salt'];
 		$insert_data['passwordconvert'] = $data['members_pass_hash'];
 		if(mb_strlen($insert_data['passwordconvertsalt']) === 22)

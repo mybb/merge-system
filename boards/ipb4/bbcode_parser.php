@@ -25,6 +25,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	{
 		$text = preg_replace('# data-ipb=\'(.*?)\'#si', "", $text);
 		$text = preg_replace('# rel="(.*?)"#si', "", $text);
+		$text = preg_replace('#line-height:(.*?)px;#si', "", $text);
 
 		$text = parent::convert($text);
 

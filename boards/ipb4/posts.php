@@ -42,7 +42,7 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['tid'] = $this->get_import->tid($data['topic_id']);
 		$thread = $this->get_thread($data['topic_id']);
 		$insert_data['fid'] = $this->get_import->fid($thread['forum_id']);
-		$insert_data['subject'] = encode_to_utf8($thread['title'], "forums_topics", "posts");
+		$insert_data['subject'] = $thread['title'];
 
     	if($data['queued'] == 0)
 		{
@@ -56,7 +56,7 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['import_uid'] = $data['author_id'];
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid']);
 		$insert_data['dateline'] = $data['post_date'];
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['post'])), "forums_posts", "posts");
+		$insert_data['message'] = $this->bbcode_parser->convert($data['post']);
 		$insert_data['ipaddress'] = my_inet_pton($data['ip_address']);
 		$insert_data['includesig'] = $data['use_sig'];
 		$insert_data['smilieoff'] = int_to_01($data['use_emo']);

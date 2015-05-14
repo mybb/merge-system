@@ -44,7 +44,7 @@ class IPB4_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['fid'] = $this->get_import->fid($data['forum_id']);
 		$insert_data['import_firstpost'] = $data['topic_firstpost'];
 		$insert_data['dateline'] = $data['start_date'];
-		$insert_data['subject'] = encode_to_utf8($data['title'], "forums_topics", "threads");
+		$insert_data['subject'] = $data['title'];
 		$insert_data['uid'] = $this->get_import->uid($data['starter_id']);
 		$insert_data['import_uid'] = $data['starter_id'];
 		$insert_data['views'] = $data['views'];

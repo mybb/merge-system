@@ -18,6 +18,7 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 	function convert($text)
 	{
 		$text = str_replace(array("<br>", "<br />"), "\n", $text);
+		$text = str_replace(array("<hr>", "<hr />"), "[hr]", $text);
 		$text = preg_replace('#<em>(.*?)</em>#si', '[i]$1[/i]', $text);
 		$text = preg_replace('#<u>(.*?)</u>#si', '[u]$1[/u]', $text);
 		$text = preg_replace('#<strong>(.*?)</strong>#si', '[b]$1[/b]', $text);
@@ -28,8 +29,7 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 		$text = preg_replace('#<a href="(.*?)".*?>(.*?)</a>#si', '[url=$1]$2[/url]', $text);
 		$text = preg_replace('#<a href=\'(.*?)\'.*?>(.*?)</a>#si', '[url=$1]$2[/url]', $text);
 		$text = preg_replace('#<del .*?>(.*?)</del>#si', '[s]$1[/s]', $text);
-//		$text = preg_replace('#<img src="(.*?)".*? />#si', '[img]$1[/img]', $text);
-		$text = preg_replace('#<img src="(.*?)".*?>#si', '[img]$1[/img]', $text);
+		$text = preg_replace('#<img.*? src="(.*?)".*?>#si', '[img]$1[/img]', $text);
 		$text = preg_replace('#<p style="text-align: ?(left|center|right|justify);?">(.*?)</p>#si', "[align=$1]$2[/align]\n", $text);
 		$text = preg_replace('#<div style="text-align: ?(left|center|right|justify);?">(.*?)</div>#si', "[align=$1]$2[/align]\n", $text);
 		$text = preg_replace('#<span style="color: ?([a-zA-Z]*|\#?[\da-fA-F]{3}|\#?[\da-fA-F]{6});?">(.*?)</span>#si', "[color=$1]$2[/color]\n", $text);
@@ -46,6 +46,11 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 		$text = preg_replace('#<li>(.*?)</li>#si', "[*]$1", $text);
 
 		$text = $this->handle_attachments($text);
+
+		//Clean a bit
+		$text = preg_replace('#<span.*?>(.*?)</span>#si', "$1", $text);
+		$text = preg_replace('#<div.*?>(.*?)</div>#si', "$1", $text);
+		$text = preg_replace('#<h[1-6].*?>(.*?)</h[1-6]>#si', "$1", $text);
 
 		return utf8_unhtmlentities($text);
 	}
