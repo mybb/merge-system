@@ -822,7 +822,7 @@ END;
 
 	function print_error_page($inline=false)
 	{
-		global $import_session, $output, $module, $lang;
+		global $import_session, $module, $lang;
 
 		$errors = $module->errors;
 		if(empty($errors))
@@ -858,13 +858,13 @@ END;
 
 		if($inline == false)
 		{
-			$output->print_footer($import_session['module'], 'module', 1);
+			$this->print_footer($import_session['module'], 'module', 1);
 		}
 	}
 
 	function print_per_screen_page($per_screen=10)
 	{
-		global $import_session, $mybb, $output, $module, $db, $lang;
+		global $import_session, $mybb, $module, $db, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
@@ -922,7 +922,7 @@ END;
 
 		echo '</table></div><br />';
 
-		$output->print_footer($import_session['module'], 'module', 1);
+		$this->print_footer($import_session['module'], 'module', 1);
 	}
 
 	function calculate_stats($in_progress_stats=true)
