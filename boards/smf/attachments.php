@@ -289,4 +289,4 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 	}
 }
 
-?>
+

@@ -61,4 +61,3 @@ class VBULLETIN4_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 	}
 }
 
-?>

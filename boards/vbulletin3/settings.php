@@ -222,4 +222,4 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 	}
 }
 
-?>
+

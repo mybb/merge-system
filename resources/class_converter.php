@@ -465,4 +465,4 @@ class Converter
 		return implode(',', $groups);
 	}
 }
-?>
+

@@ -62,4 +62,3 @@ class PUNBB_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	}
 }
 
-?>

@@ -41,4 +41,4 @@ class Converter_Module_Settings extends Converter_Module
 	function convert_data($data) {}
 }
 
-?>
+

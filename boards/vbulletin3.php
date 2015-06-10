@@ -96,4 +96,4 @@ class VBULLETIN3_Converter extends Converter
 	var $supported_databases = array("mysql");
 }
 
-?>
+

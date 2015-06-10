@@ -104,4 +104,4 @@ class FLUXBB_Converter extends Converter
 	}
 }
 
-?>
+

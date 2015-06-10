@@ -134,4 +134,3 @@ class VBULLETIN4_Converter_Module_Forums extends Converter_Module_Forums {
 	}
 }
 
-?>

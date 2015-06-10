@@ -74,4 +74,4 @@ class debugErrorHandler extends errorHandler {
 		parent::trigger($message, $type);
 	}
 }
-?>
+

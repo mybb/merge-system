@@ -102,4 +102,3 @@ class IPB3_Converter extends Converter {
 	}
 }
 
-?>

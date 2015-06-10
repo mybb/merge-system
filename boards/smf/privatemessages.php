@@ -145,4 +145,3 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 	}
 }
 
-?>

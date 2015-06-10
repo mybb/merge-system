@@ -64,4 +64,4 @@ class VBULLETIN4_Converter_Module_Usergroups extends Converter_Module_Usergroups
 	}
 }
 
-?>
+

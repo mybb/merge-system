@@ -85,4 +85,4 @@ class WBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 	}
 }
 
-?>
+

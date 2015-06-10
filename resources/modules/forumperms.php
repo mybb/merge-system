@@ -68,4 +68,4 @@ abstract class Converter_Module_Forumperms extends Converter_Module
 	}
 }
 
-?>
+

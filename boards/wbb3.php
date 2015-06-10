@@ -157,4 +157,4 @@ class WBB3_Converter extends Converter
 	}
 }
 
-?>
+

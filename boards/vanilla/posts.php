@@ -87,4 +87,3 @@ class VANILLA_Converter_Module_Posts extends Converter_Module_Posts {
 	}
 }
 
-?>

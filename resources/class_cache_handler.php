@@ -615,4 +615,4 @@ class Cache_Handler
 	}
 }
 
-?>
+

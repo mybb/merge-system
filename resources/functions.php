@@ -1038,4 +1038,4 @@ function get_timezone($zone)
 	
 	return $h;
 }
-?>
+

@@ -87,4 +87,3 @@ class XENFORO_Converter extends Converter
 	var $supported_databases = array("mysql");
 }
 
-?>

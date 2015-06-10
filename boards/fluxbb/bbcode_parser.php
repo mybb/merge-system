@@ -95,4 +95,4 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 		return "[url]{$mybb->settings['bburl']}/member.php?action=profile&uid={$id}[/url]";
 	}
 }
-?>
+

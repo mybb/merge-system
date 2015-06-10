@@ -85,4 +85,4 @@ class MYBB_Converter_Module_Events extends Converter_Module_Events {
 	}
 }
 
-?>
+

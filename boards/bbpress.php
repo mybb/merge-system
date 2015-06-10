@@ -116,4 +116,3 @@ class BBPRESS_Converter extends Converter
 	}
 }
 
-?>

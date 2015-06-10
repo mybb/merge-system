@@ -95,4 +95,4 @@ class VBULLETIN4_Converter extends Converter
 	var $supported_databases = array("mysql");
 }
 
-?>
+

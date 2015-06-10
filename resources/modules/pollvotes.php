@@ -57,4 +57,4 @@ abstract class Converter_Module_Pollvotes extends Converter_Module
 	}
 }
 
-?>
+

@@ -115,4 +115,4 @@ class SMF2_Converter extends Converter
 	}
 }
 
-?>
+

@@ -97,4 +97,4 @@ class WBB4_Converter_Module_Forums extends Converter_Module_Forums {
 	}
 }
 
-?>
+

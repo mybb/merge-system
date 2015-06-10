@@ -171,4 +171,4 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 	}
 }
 
-?>
+

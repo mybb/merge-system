@@ -69,4 +69,4 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		return "[url]{$mybb->settings['bburl']}/showthread.php?pid={$id}[/url]";
 	}
 }
-?>
+

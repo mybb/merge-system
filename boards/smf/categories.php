@@ -64,4 +64,3 @@ class SMF_Converter_Module_Categories extends Converter_Module_Categories {
 	}
 }
 
-?>

@@ -87,4 +87,3 @@ class PHPBB3_Converter extends Converter
 	);
 }
 
-?>

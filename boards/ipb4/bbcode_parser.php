@@ -35,4 +35,4 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		return $text;
 	}
 }
-?>
+

@@ -93,4 +93,3 @@ class VANILLA_Converter extends Converter
 	var $supported_databases = array("mysql");
 }
 
-?>

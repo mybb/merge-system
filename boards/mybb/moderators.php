@@ -93,4 +93,4 @@ class MYBB_Converter_Module_Moderators extends Converter_Module_Moderators {
 	}
 }
 
-?>
+

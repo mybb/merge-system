@@ -88,4 +88,3 @@ class MYBB_Converter extends Converter
 	);
 }
 
-?>

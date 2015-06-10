@@ -1030,4 +1030,4 @@ else
 
 	$output->module_list();
 }
-?>
+

@@ -64,4 +64,3 @@ class VBULLETIN4_Converter_Module_Events extends Converter_Module_Events {
 	}
 }
 
-?>

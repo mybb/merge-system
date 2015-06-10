@@ -138,4 +138,4 @@ class PHPBB3_Converter_Module_Settings extends Converter_Module_Settings {
 	}
 }
 
-?>
+

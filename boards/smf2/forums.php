@@ -91,4 +91,3 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 	}
 }
 
-?>

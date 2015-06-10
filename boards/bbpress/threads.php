@@ -81,4 +81,3 @@ class BBPRESS_Converter_Module_Threads extends Converter_Module_Threads {
 	}
 }
 
-?>

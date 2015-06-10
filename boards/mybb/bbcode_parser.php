@@ -27,4 +27,3 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 		return $message;
 	}
 }
-?>

@@ -94,4 +94,4 @@ class VBULLETIN3_Converter_Module_Polls extends Converter_Module_Polls {
 	}
 }
 
-?>
+

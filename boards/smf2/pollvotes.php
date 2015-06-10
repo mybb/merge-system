@@ -61,4 +61,4 @@ class SMF2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 	}
 }
 
-?>
+

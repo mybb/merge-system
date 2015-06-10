@@ -69,4 +69,4 @@ abstract class Converter_Module_Polls extends Converter_Module
 	}
 }
 
-?>
+

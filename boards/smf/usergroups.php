@@ -131,4 +131,4 @@ class SMF_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 	}
 }
 
-?>
+

@@ -155,4 +155,3 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 	}
 }
 
-?>

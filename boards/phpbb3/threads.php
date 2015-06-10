@@ -108,4 +108,3 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 	}
 }
 
-?>

@@ -140,4 +140,4 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 	}
 }
 
-?>
+
