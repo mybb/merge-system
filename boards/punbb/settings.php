@@ -66,6 +66,8 @@ class PUNBB_Converter_Module_Settings extends Converter_Module_Settings {
 			"p_sig_img_tag" => 1
 		);
 
+		// TODO: Avatar setting needs to be researched
+		$avatar_setting = '';
 		$query = $this->old_db->simple_select("config", "conf_name, conf_value", "conf_name IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{

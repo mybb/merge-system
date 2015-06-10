@@ -34,8 +34,6 @@ class SMF2_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 	function convert_data($data)
 	{
-		global $db;
-
 		$insert_data = array();
 
 		// SMF values

@@ -143,7 +143,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 	/**
 	 * Get total number of Private Messages the user has from the phpBB database
 	 *
-	 * @param int User ID
+	 * @param int $uid User ID
 	 * @return int Number of Private Messages
 	 */
 	function get_private_messages($uid)

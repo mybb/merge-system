@@ -27,7 +27,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $output, $mybb;
+		global $import_session, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -156,7 +156,6 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $mybb, $db, $lang;
 
 		// Transfer attachment thumbnail
-		$thumb_not_exists = "";
 		if($data['ID_THUMB'] != 0)
 		{
 			// Transfer attachment thumbnail
@@ -212,7 +211,7 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
 <td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>

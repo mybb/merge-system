@@ -13,6 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+/** @property IPB4_Converter $board */
 class IPB4_Converter_Module_Forums extends Converter_Module_Forums {
 
 	var $settings = array(

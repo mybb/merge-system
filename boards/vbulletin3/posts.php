@@ -35,8 +35,6 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 
 	function convert_data($data)
 	{
-		global $db;
-
 		// vBulletin 3 values
 		$insert_data['import_pid'] = $data['postid'];
 		$insert_data['tid'] = $this->get_import->tid($data['threadid']);
@@ -109,7 +107,7 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 	/**
 	 * Get a edit log from the vB database
 	 *
-	 * @param int Post ID
+	 * @param int $pid Post ID
 	 * @return array The edit log
 	 */
 	function get_editlog($pid)

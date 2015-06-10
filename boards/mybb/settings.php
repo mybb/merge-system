@@ -24,7 +24,7 @@ class MYBB_Converter_Module_Settings extends Converter_Module_Settings {
 
 	function import()
 	{
-		global $mybb, $output, $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->simple_select("settings", "name, value", "name NOT IN('".implode("','", $this->convert_ignore_settings)."') AND isdefault='1'", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))

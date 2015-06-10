@@ -50,7 +50,8 @@ class Converter_Module_Posts extends Converter_Module
 	/**
 	 * Insert post into database
 	 *
-	 * @param post The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{
@@ -82,7 +83,7 @@ class Converter_Module_Posts extends Converter_Module
 			'import_uid' => intval($data['import_uid'])
 		));
 
-		$this->cache_posts[$data['import_pid']] = $pid;
+		$this->get_import->cache_posts[$data['import_pid']] = $pid;
 
 		if(method_exists($this, "after_import"))
 		{
@@ -117,7 +118,7 @@ class Converter_Module_Posts extends Converter_Module
 		// Rebuild thread counters, forum counters, user post counters, last post* and thread username
 		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid != 0");
 		$num_imported_threads = $db->fetch_field($query, "count");
-		$progress = $last_percent = 0;
+		$last_percent = 0;
 
 		if($import_session['counters_cleanup_start'] < $num_imported_threads)
 		{
@@ -186,12 +187,12 @@ class Converter_Module_Posts extends Converter_Module
 				$fids[] = $forum['fid'];
 			}
 
-			if(is_array($fids))
+			if(isset($fids) && is_array($fids))
 			{
 				$fids = implode(',', $fids);
 			}
 
-			if($fids)
+			if(!empty($fids))
 			{
 				$fids = " AND fid NOT IN($fids)";
 			}
@@ -234,6 +235,9 @@ class Converter_Module_Posts extends Converter_Module
 			sleep(3);
 		}
 	}
+
+	// For some reason this module is initialized seperatly so we need to add an empty function here
+	function convert_data($data) {}
 }
 
 ?>

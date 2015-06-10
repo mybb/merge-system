@@ -20,13 +20,93 @@ class Converter
 	 */
 	var $errors = array();
 
+	/**
+	 * @var Debug
+	 */
 	var $debug;
+
+	/**
+	 * @var DB_Base
+	 */
+	var $old_db;
+
+	/**
+	 * @var array
+	 */
+	var $trackers = array();
+
+	/**
+	 * @var Cache_Handler
+	 */
+	var $get_import;
+
+	/**
+	 * @var array
+	 */
+	var $settings;
 
 	/**
 	 * An array of supported databases
 	 * defaulting to every databases if not set by the board itself
 	 */
 	var $supported_databases = array("mysql", "pgsql", "sqlite");
+
+
+	/**
+	 * String of the bulletin board name
+	 *
+	 * @var string
+	 */
+	var $bbname;
+
+	/**
+	 * String of the plain bulletin board name
+	 *
+	 * @var string
+	 */
+	var $plain_bbname;
+
+	/**
+	 * Whether or not this module requires the loginconvert.php plugin
+	 *
+	 * @var boolean
+	 */
+	var $requires_loginconvert = false;
+
+	/**
+	 * Array of all of the modules
+	 *
+	 * @var array
+	 */
+	var $modules = array();
+
+	/**
+	 * The table we check to verify it's "our" database
+	 *
+	 * @var string
+	 */
+	var $check_table;
+
+	/**
+	 * The table prefix we suggest to use
+	 *
+	 * @var string
+	 */
+	var $prefix_suggestion = "";
+
+	/**
+	 * An array of board -> mybb groups
+	 *
+	 * @var array
+	 */
+	var $groups = array();
+
+	/**
+	 * What BBCode Parser we're using
+	 *
+	 * @var string
+	 */
+	var $parser_class;
 
 	/**
 	 * Class constructor
@@ -64,7 +144,7 @@ class Converter
 	 */
 	function db_connect()
 	{
-		global $import_session, $cache;
+		global $import_session;
 
 		$this->debug->log->trace0("Setting up connection to Convert DB.");
 
@@ -94,7 +174,7 @@ class Converter
 
 	function db_configuration()
 	{
-		global $mybb, $output, $import_session, $db, $dboptions, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $lang;
+		global $mybb, $output, $import_session, $tableprefix, $lang;
 
 		// Just posted back to this form?
 		if($mybb->input['dbengine'])
@@ -158,7 +238,7 @@ class Converter
 				}
 
 				// No errors? Save import DB info and then return finished
-				if(!is_array($errors))
+				if(!isset($errors) || !is_array($errors))
 				{
 					$output->print_header("{$this->plain_bbname} {$lang->database_configuration}");
 
@@ -180,7 +260,7 @@ class Converter
 					sleep(2);
 
 					$import_session['flash_message'] = $lang->database_success;
-					return "finished";
+					return true;
 				}
 			}
 		}
@@ -188,7 +268,7 @@ class Converter
 		$output->print_header("{$this->plain_bbname} {$lang->database_configuration}");
 
 		// Check for errors
-		if(is_array($errors))
+		if(isset($errors) && is_array($errors))
 		{
 			$error_list = error_list($errors);
 			echo "<div class=\"error\">
@@ -267,11 +347,14 @@ class Converter
 		$output->print_database_details_table($this->plain_bbname, $extra);
 
 		$output->print_footer();
+
+		return false;
 	}
 
 	/**
 	 * Checks if the current module is done importing or not
 	 *
+	 * @return bool
 	 */
 	function check_if_done()
 	{
@@ -288,13 +371,16 @@ class Converter
 		{
 			$import_session['disabled'][] = 'import_'.$module_name;
 			$import_session['flash_message'] = $lang->sprintf($lang->import_successfully, $this->settings['friendly_name']);
-			return "finished";
+			return true;
 		}
+
+		return false;
 	}
 
 	/**
 	 * Used for modules if there are handleable errors during the import process
 	 *
+	 * @param string $error_message
 	 */
 	function set_error_notice_in_progress($error_message)
 	{
@@ -307,6 +393,11 @@ class Converter
 		$output->set_error_notice_in_progress($error_message);
 	}
 
+	/**
+	 * @param int $gid
+	 *
+	 * @return int
+	 */
 	public function get_gid($gid)
 	{
 		// A default group, return the correct MyBB group
@@ -338,7 +429,7 @@ class Converter
 	 * @param int|array $remove Either a single group id or an array of group ids which shouldn't be in the group array
 	 * @return string group id(s)
 	 */
-	function get_group_id($gids, $remove='')
+	function get_group_id($gids, $remove=array())
 	{
 		if(empty($gids))
 		{

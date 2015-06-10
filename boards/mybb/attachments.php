@@ -23,7 +23,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $output, $mybb;
+		global $import_session, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -59,7 +59,8 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function convert_data($data)
 	{
-		global $db, $import_session, $mybb, $error_notice, $insert_data;
+		global $db, $insert_data;
+		/** @var array $field_info */
 		static $field_info;
 
 		if(!isset($field_info))
@@ -108,7 +109,6 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 	{
 		global $mybb, $db, $import_session, $lang;
 
-		$thumb_not_exists = $error_notice = "";
 		if($data['thumbnail'])
 		{
 			// Transfer attachment thumbnail
@@ -155,12 +155,6 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
 		}
-
-		// Restore connection
-		$query = $db->simple_select("posts", "message", "pid = '{$insert_data['pid']}'");
-		$message = $db->fetch_field($query, 'message');
-		$db->free_result($query);
-		$message = str_replace('[attachment='.$data['aid'].']', '[attachment='.$aid.']', $message);
 	}
 
 	function print_attachments_per_screen_page()
@@ -168,7 +162,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
 <td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>

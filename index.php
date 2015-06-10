@@ -35,7 +35,8 @@ $merge_version = "1.8.5";
 $version_code = 1805;
 
 // Load core files
-define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
+//define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
+define("MYBB_ROOT", "C:/www/public/mybb1");
 define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
 define("TIME_NOW", time());
@@ -64,6 +65,7 @@ if(!isset($config['database']['type']))
 }
 
 // If we have register globals on and we're coming from the db config page it seems to screw up the $config variable
+$config_copy = array();
 if(@ini_get("register_globals") == 1)
 {
 	$config_copy = $config;
@@ -75,8 +77,8 @@ $mybb = new MyBB;
 if(@ini_get("register_globals") == 1)
 {
 	$config = $config_copy;
-	unset($config_copy);
 }
+unset($config_copy);
 
 require_once MYBB_ROOT."inc/class_error.php";
 require_once MERGE_ROOT."resources/class_error.php";
@@ -107,10 +109,6 @@ if(substr($mybb->settings['uploadspath'], 0, 2) == "./" || substr($mybb->setting
 {
 	$mybb->settings['uploadspath'] = MYBB_ROOT.$mybb->settings['uploadspath'];
 }
-else
-{
-	$mybb->settings['uploadspath'] = $mybb->settings['uploadspath'];
-}
 
 require_once MYBB_ROOT."inc/class_xml.php";
 
@@ -127,7 +125,7 @@ if(file_exists(MYBB_ROOT."inc/db_base.php")) // MyBB 1.8.4+
 {
 	require_once MYBB_ROOT."inc/db_base.php";
 }
-require_once MYBB_ROOT."inc/db_".$config['database']['type'].".php";
+require_once MYBB_ROOT."inc/db_{$config['database']['type']}.php";
 switch($config['database']['type'])
 {
 	case "sqlite":
@@ -215,7 +213,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 	$debug->log->event("Generating report for completed merge");
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
+	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
 
 	$board = new $class_name;
@@ -460,7 +458,7 @@ if($mybb->input['board'])
 	}
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$mybb->input['board'].".php";
+	require_once MERGE_ROOT."boards/{$mybb->input['board']}.php";
 	$class_name = strtoupper($mybb->input['board'])."_Converter";
 
 	$board = new $class_name;
@@ -489,7 +487,7 @@ if($mybb->input['board'])
 			$output->print_header($lang->loginconvert_header);
 
 			echo $lang->loginconvert_message;
-			
+
 			echo "			<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
 
 			$output->print_footer();
@@ -739,7 +737,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	$import_session['end_date'] = time();
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
+	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
 
 	$board = new $class_name;
@@ -766,7 +764,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 			'total_events' => 'Events',
 			'total_settings' => 'Settings',
 		);
-	
+
 		$post_data = array();
 
 		// Prepare data
@@ -827,7 +825,7 @@ elseif($import_session['counters_cleanup'])
 	define("BACK_BUTTON", false);
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
+	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
 
 	$board = new $class_name;
@@ -851,10 +849,13 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 {
 	$debug->log->event("Running a specific module");
 
+	$finished = false;
+
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
+	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
 
+	/** @var Converter $board */
 	$board = new $class_name;
 
 	// Are we ready to configure out database details?
@@ -863,7 +864,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		$debug->log->trace0("Configuring our module");
 
 		// Show the database details configuration
-		$result = $board->db_configuration();
+		$finished = $board->db_configuration();
 	}
 	// We've selected a module (or we're in one) that is valid
 	elseif($board->modules[$import_session['module']])
@@ -873,11 +874,12 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
 		require_once MERGE_ROOT.'resources/class_converter_module.php';
-		require_once MERGE_ROOT.'resources/modules/'.$module_name.'.php';
-		require_once MERGE_ROOT."boards/".$import_session['board']."/".$module_name.".php";
+		require_once MERGE_ROOT."resources/modules/{$module_name}.php";
+		require_once MERGE_ROOT."boards/{$import_session['board']}/{$module_name}.php";
 
 		$importer_class_name = strtoupper($import_session['board'])."_Converter_Module_".ucfirst($module_name);
 
+		/** @var Converter_Module $module */
 		$module = new $importer_class_name($board);
 
 		// Open our DB Connection
@@ -895,7 +897,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 				$module->finish();
 			}
 
-			$result = "finished";
+			$finished = true;
 		}
 		// Otherwise, run the module
 		else
@@ -943,7 +945,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 				$output->calculate_stats();
 
 				// Run, baby, run
-				$result = $module->import();
+				$module->import();
 			}
 
 			$output->print_footer();
@@ -962,9 +964,9 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		exit;
 	}
 
-	// If the module returns "finished" then it has finished everything it needs to do. We set the import session
+	// If the module has finished everything it needs to do we set the import session
 	// to blank so we go back to the module list
-	if($result == "finished")
+	if($finished)
 	{
 		$debug->log->trace1("Module finished. Run cleanup if needed.");
 
@@ -979,6 +981,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		// Once we finish with posts we always recount and update lastpost info, etc.
 		if($import_session['module'] == "import_posts")
 		{
+			/** @var Converter_Module_Posts $module */
 			$debug->log->trace2("Running import_posts counters cleanup.");
 			$module->counters_cleanup();
 		}
@@ -1019,9 +1022,10 @@ else
 	}
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/".$import_session['board'].".php";
+	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
 	$class_name = strtoupper($import_session['board'])."_Converter";
 
+	/** @var Converter $board */
 	$board = new $class_name;
 
 	$output->module_list();

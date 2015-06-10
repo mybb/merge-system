@@ -40,8 +40,6 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 
 	function convert_data($data)
 	{
-		global $db;
-
 		$insert_data = array();
 
 		// vBulletin 4 values

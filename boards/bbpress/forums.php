@@ -45,12 +45,12 @@ class BBPRESS_Converter_Module_Forums extends Converter_Module_Forums {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->simple_select("posts", "*", "post_type='forum'", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
 		while($forum = $this->old_db->fetch_array($query))
 		{
-			$fid = $this->insert($forum);
+			$this->insert($forum);
 		}
 	}
 

@@ -54,6 +54,7 @@ class IPB4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 		foreach($perms as $perm => $operm)
 		{
+			$perm_split = array();
 			if($data[$perm] != '*')
 			{
 				$perm_split = explode(',', trim($data[$perm], ","));
@@ -72,10 +73,10 @@ class IPB4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			}
 		}
 
-		$this->debug->log->datatrace('$new_perms', $new_perms);
-
 		if(!empty($new_perms))
 		{
+			$this->debug->log->datatrace('$new_perms', $new_perms);
+
 			foreach($new_perms as $gid => $perm2)
 			{
 				$perm_array = $perm2;

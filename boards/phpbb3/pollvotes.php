@@ -36,8 +36,6 @@ class PHPBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 	function convert_data($data)
 	{
-		global $db;
-
 		$insert_data = array();
 
 		// phpBB 3 values

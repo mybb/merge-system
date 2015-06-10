@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Categories extends Converter_Module
+abstract class Converter_Module_Categories extends Converter_Module
 {
 	public $default_values = array(
 		'import_fid' => 0,
@@ -79,7 +79,8 @@ class Converter_Module_Categories extends Converter_Module
 	/**
 	 * Insert forum into database
 	 *
-	 * @param forum The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{
@@ -101,11 +102,11 @@ class Converter_Module_Categories extends Converter_Module
 		$fid = $db->insert_id();
 
 		// Update internal array caches
-		$this->get_import->cache_fids[$forum['import_fid']] = $fid; // TODO: Fix?
+		$this->get_import->cache_fids[$insert_array['import_fid']] = $fid; // TODO: Fix?
 
 		if($data['type'] == "f")
 		{
-			$this->get_import->cache_fids_f[$forum['import_fid']] = $fid; // TODO: Fix?
+			$this->get_import->cache_fids_f[$insert_array['import_fid']] = $fid; // TODO: Fix?
 		}
 
 		$this->increment_tracker('categories');

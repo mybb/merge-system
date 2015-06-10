@@ -20,8 +20,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 
 	/**
 	 * Unconvert the HTML in posts, back to BBCode
-	 * @param ref parser object
-	 * @param string post message
+	 * @param string $text post message
 	 * @return string post message
 	 */
 	function convert($text)

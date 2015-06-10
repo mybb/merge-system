@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Users extends Converter_Module
+abstract class Converter_Module_Users extends Converter_Module
 {
 	public $default_values = array(
 		'usergroup' => 0,
@@ -160,7 +160,8 @@ class Converter_Module_Users extends Converter_Module
 	/**
 	 * Insert user into database
 	 *
-	 * @param user The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int|bool The new id or false if it's a duplicated user
 	 */
 	public function insert($data)
 	{
@@ -169,7 +170,7 @@ class Converter_Module_Users extends Converter_Module
 		if(!$this->check_for_duplicates($data))
 		{
 			$this->increment_tracker('users');
-			return;
+			return false;
 		}
 
 		++$this->total_users;

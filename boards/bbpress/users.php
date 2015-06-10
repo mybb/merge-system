@@ -26,7 +26,7 @@ class BBPRESS_Converter_Module_Users extends Converter_Module_Users {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		// Get members
 		$query = $this->old_db->query("SELECT u.*, m.meta_value AS usergroups
@@ -64,6 +64,8 @@ class BBPRESS_Converter_Module_Users extends Converter_Module_Users {
 	function get_user_lastpost($uid)
 	{
 		$query = $this->old_db->simple_select("usermeta", "COUNT(*) as count", "user_id = '{$uid}'");
+
+		$last = 0;
 
 		while($metadata = $this->old_db->fetch_array($query))
 		{

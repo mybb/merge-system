@@ -37,7 +37,7 @@ class WBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->query("SELECT v.*, o.showOrder
 			FROM ".WCF_PREFIX."poll_option_vote v
@@ -53,8 +53,6 @@ class WBB3_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 
 	function convert_data($data)
 	{
-		global $db;
-
 		$insert_data = array();
 
 		// WBB 3 values

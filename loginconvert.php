@@ -109,6 +109,9 @@ function loginconvert_deactivate()
 	}
 }
 
+/**
+ * @param LoginDataHandler $login
+ */
 function loginconvert_convert(&$login)
 {
 	global $mybb, $valid_login_types, $utf8_recheck, $db, $settings;
@@ -280,8 +283,6 @@ function check_smf11($password, $user)
 	{
 		return check_smf($password, $user);
 	}
-
-	return false;
 }
 
 function check_smf2($password, $user)
@@ -303,8 +304,6 @@ function check_smf2($password, $user)
 	{
 		return check_smf($password, $user);
 	}
-
-	return false;
 }
 
 function check_punbb($password, $user)
@@ -352,10 +351,11 @@ function check_phpbb3($password, $user)
 		return false;
 	}
 
-    if(md5($user['passwordconvert']) === $hash)
+    if(md5($password) === $user['passwordconvert'])
 	{
 		return true;
 	}
+
 	return false;
 }
 
@@ -364,7 +364,7 @@ function check_bbpress($password, $user)
 	// WordPress (and so bbPress) used simple md5 hashing some time ago
 	if ( strlen($user['passwordconvert']) <= 32 )
 	{
-		return ($hash == md5($password));
+		return ($user['passwordconvert'] == md5($password));
 	}
 	else
 	{
@@ -447,6 +447,7 @@ function wcf1_encrypt($value, $method) {
 		case 'md5': return md5($value);
 		case 'crc32': return crc32($value);
 		case 'crypt': return crypt($value);
+		default: return $value;
 	}
 }
 

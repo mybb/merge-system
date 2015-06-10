@@ -29,8 +29,6 @@ class WBB3_Converter_Module_Polls extends Converter_Module_Polls {
 	{
 		global $import_session, $db;
 
-		$done_array = array();
-
 		$query = $this->old_db->simple_select(WCF_PREFIX."poll", "*", "messageType='post'", array('limit_start' => $this->trackers['start_polls'], 'limit' => $import_session['polls_per_screen']));
 		while($poll = $this->old_db->fetch_array($query))
 		{

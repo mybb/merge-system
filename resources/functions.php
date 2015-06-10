@@ -103,7 +103,8 @@ function int_to_01($var)
 
 /**
  * Converts an 1/0 integer to yes/no
- * @param int Integer to be converted
+ * @param int $setting Integer to be converted
+ * @param bool|int $yes Whether 0 is yes or not
  * @return int Correspondig 1 or 0. Tells the function how to process it
  */
 function int_to_yes_no($setting, $yes=1)
@@ -134,7 +135,8 @@ function int_to_yes_no($setting, $yes=1)
 
 /**
  * Convert an integer 1/0 into text on/off
- * @param int Integer to be converted
+ * @param int $setting Integer to be converted
+ * @param bool|int $on whether 1 is on or not
  * @return string Correspondig on or off
  */
 function int_to_on_off($setting, $on=1)
@@ -166,7 +168,7 @@ function int_to_on_off($setting, $on=1)
 /**
  * Return a formatted list of errors
  *
- * @param array Errors
+ * @param array $array Errors
  * @return string Formatted errors list
  */
 function error_list($array)
@@ -183,7 +185,7 @@ function error_list($array)
 /**
  * Remove the temporary importing data fields we use to keep track of, for example, vB's imported user id, etc.
  *
- * @param boolean Show text progress
+ * @param boolean $text Show text progress
  */
 function delete_import_fields($text=true)
 {
@@ -253,7 +255,7 @@ function delete_import_fields($text=true)
 /**
  * Create the temporary importing data fields we use to keep track of, for example, vB's imported user id, etc.
  *
- * @param boolean Show text progress
+ * @param boolean $text Show text progress
  */
 function create_import_fields($text=true)
 {
@@ -323,6 +325,7 @@ function create_import_fields($text=true)
 		),
 	);
 
+	$increment = 0;
 	foreach($add_list as $array)
 	{
 		$increment += (count($array, COUNT_RECURSIVE)-count($array));
@@ -395,9 +398,9 @@ function create_import_fields($text=true)
 /**
  * Properly converts the encoding of a string based upon the old table to the new table to utf8 encoding, as best as we can
  *
- * @param string The text to convert
- * @param string The old table (e.x. vB's user table)
- * @param string The new table (e.x. MyBB's user table)
+ * @param string $text The text to convert
+ * @param string $old_table_name The old table (e.x. vB's user table)
+ * @param string $new_table_name The new table (e.x. MyBB's user table)
  * @return string The converted text in utf8 format
  */
 function encode_to_utf8($text, $old_table_name, $new_table_name)
@@ -464,9 +467,9 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 			}
 		}
 
-        // Try to convert, but don't stop when a character cannot be converted
-        return iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
-    }
+		// Try to convert, but don't stop when a character cannot be converted
+		return iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
+	}
 
 	return $text;
 }
@@ -474,19 +477,19 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 /**
  * Converts the given MySQL encoding to a PHP iconv usable encoding
  *
- * @param string The MySQL encoding
- * @param The iconv encoding
+ * @param string $mysql_encoding The MySQL encoding
+ * @return string The iconv encoding
  */
 function fetch_iconv_encoding($mysql_encoding)
 {
-    $mysql_encoding = explode("_", $mysql_encoding);
-    switch($mysql_encoding[0])
-    {
+	$mysql_encoding = explode("_", $mysql_encoding);
+	switch($mysql_encoding[0])
+	{
 		case "utf8":
-            return "utf-8";
+			return "utf-8";
 			break;
-        case "latin1":
-            return "iso-8859-1";
+		case "latin1":
+			return "iso-8859-1";
 			break;
 		default:
 			return $mysql_encoding[0];
@@ -496,8 +499,9 @@ function fetch_iconv_encoding($mysql_encoding)
 /**
  * Builds a CSV parent list for a particular forum.
  *
- * @param int The forum ID
- * @param string Optional separator - defaults to comma for CSV list
+ * @param int $fid The forum ID
+ * @param string $navsep Optional separator - defaults to comma for CSV list
+ * @param string $parent_list
  * @return string The built parent list
  */
 function make_parent_list($fid, $navsep=",", $parent_list="")
@@ -537,8 +541,9 @@ function make_parent_list($fid, $navsep=",", $parent_list="")
 /**
  * Builds a CSV parent list for a particular forum.
  *
- * @param int The forum ID
- * @param string Optional separator - defaults to comma for CSV list
+ * @param int $fid The forum ID
+ * @param string $navsep Optional separator - defaults to comma for CSV list
+ * @param string $parent_list
  * @return string The built parent list
  */
 function make_parent_list_pid($fid, $navsep=",", $parent_list="")
@@ -578,7 +583,7 @@ function make_parent_list_pid($fid, $navsep=",", $parent_list="")
 /**
  * Checks for the existance of a file via url (via http status code)
  *
- * @param string The link to the url
+ * @param string $url The link to the url
  * @return boolean Whether or not the url exists
  */
 function check_url_exists($url)
@@ -587,8 +592,6 @@ function check_url_exists($url)
 	{
 		return false;
 	}
-
-	$buffer = '';
 
 	$url_parsed = @parse_url($url);
 
@@ -624,7 +627,8 @@ function check_url_exists($url)
 /**
  * Fetch the contents of a remote file.
  *
- * @param string The URL of the remote file
+ * @param string $url The URL of the remote file
+ * @param array $post_data
  * @return string The remote file contents.
  */
 function merge_fetch_remote_file($url, $post_data=array())
@@ -719,6 +723,7 @@ function merge_fetch_remote_file($url, $post_data=array())
 		{
 			return false;
 		}
+		$data = "";
 		while(!feof($fp))
 		{
 			$data .= fgets($fp, 12800);
@@ -742,7 +747,7 @@ if(!function_exists('htmlspecialchars_decode'))
 	/**
 	 * Decodes a string of html special characters
 	 *
-	 * @param string The encoded string of html special characters
+	 * @param string $text The encoded string of html special characters
 	 * @return string  The decoded string of html special characters
 	 */
 	function htmlspecialchars_decode($text)
@@ -754,7 +759,7 @@ if(!function_exists('htmlspecialchars_decode'))
 /**
  * Returns any html entities to their original character.
  *
- * @param string The string to un-htmlentitize.
+ * @param string $string The string to un-htmlentitize.
  * @return int The un-htmlentitied' string.
  */
 function utf8_unhtmlentities($string)
@@ -775,7 +780,7 @@ if(!function_exists('unichr'))
 	/**
 	 * Returns any ascii to it's character (utf-8 safe).
 	 *
-	 * @param string The ascii to characterize.
+	 * @param string $c The ascii to characterize.
 	 * @return int The characterized ascii.
 	 */
 	function unichr($c)
@@ -811,8 +816,8 @@ if(!function_exists('unichr'))
 /**
  * Checks the encoding of a string (currently only supports utf-8)
  *
- * @param string The string to check
- * @param string the encoding to check against
+ * @param string $string The string to check
+ * @param string $encoding the encoding to check against
  * @return mixed true on success, false on failure, -1 on unknown (couldn't detect)
 **/
 function check_encoding($string, $encoding)
@@ -864,7 +869,7 @@ function check_memory()
 		return false;
 	}
 
-	$limit = preg_match("#^([0-9]+)\s?([kmg])b?$#i", trim(my_strtolower($memory_limit)), $matches);
+	preg_match("#^([0-9]+)\s?([kmg])b?$#i", trim(my_strtolower($memory_limit)), $matches);
 	$memory_limit = 0;
 	if($matches[1] && $matches[2])
 	{
@@ -903,6 +908,8 @@ function check_memory()
 
 		@ini_set("memory_limit", $memory_limit);
 	}
+
+	return true;
 }
 
 function my_friendly_time($timestamp)
@@ -960,7 +967,6 @@ function my_friendly_time($timestamp)
 	if($seconds)
 	{
 		$string .= "{$comma}{$seconds} seconds";
-		$comma = ", ";
 	}
 
 	return $string;

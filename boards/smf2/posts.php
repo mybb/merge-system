@@ -104,15 +104,10 @@ class SMF2_Converter_Module_Posts extends Converter_Module_Posts {
 		{
 			$db->update_query("threads", array('replyto' => $this->get_import->pid($data['id_msg'])), "tid='{$insert_data['tid']}'");
 		}
-
-		$update_post['message'] = $db->escape_string(str_replace(array("[bgcolor=", "[/bgcolor]"), array("[color=", "[/color]"), preg_replace('#\[quote author\=(.*?) link\=topic\=([0-9]*).msg([0-9]*)\#msg([0-9]*) date\=(.*?)\]#i', "[quote='$1' pid='{$pid}' dateline='$5']", $insert_post['message'])));
-		$db->update_query("posts", $update_post, "pid='{$pid}'");
 	}
 
 	function cache_first_post($tid)
 	{
-		global $db;
-
 		if(array_key_exists($tid, $this->cache_first_posts))
 		{
 			return $this->cache_first_posts[$tid];

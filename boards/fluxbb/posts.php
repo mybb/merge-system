@@ -15,7 +15,9 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+/** @property FLUXBB_Converter $board */
 class FLUXBB_Converter_Module_Posts extends Converter_Module_Posts {
+
 
 	var $settings = array(
 		'friendly_name' => 'posts',

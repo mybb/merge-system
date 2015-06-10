@@ -23,7 +23,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $mybb, $output, $import_session;
+		global $mybb, $import_session;
 
 		$this->check_attachments_dir_perms();
 
@@ -36,7 +36,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function import()
 	{
-		global $mybb, $output, $import_session;
+		global $import_session;
 
 		$query = $this->old_db->query("SELECT *
 				FROM ".OLD_TABLE_PREFIX."core_attachments a
@@ -51,7 +51,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function convert_data($data)
 	{
-		global $db, $error_notice, $mybb;
+		global $db, $error_notice;
 
 		$error_notice = "";
 
@@ -116,7 +116,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $import_session, $lang;
+		global $mybb, $lang;
 
 		// Transfer attachment - IPB 4 saves the full path
 		$data_file = merge_fetch_remote_file($this->generate_raw_filename($data));
@@ -134,7 +134,6 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 			@fclose($attachrs);
 
 			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-			$attach_not_exists = "";
 		}
 		else
 		{

@@ -23,7 +23,7 @@ class IPB3_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		// Get only non-staff groups.
 		$query = $this->old_db->simple_select("groups", "*", "g_id > 6", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));

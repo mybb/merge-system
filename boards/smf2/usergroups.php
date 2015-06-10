@@ -25,7 +25,7 @@ class SMF2_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		// Get only non-staff groups.
 		$query = $this->old_db->simple_select("membergroups", "*", "id_group > 3 AND min_posts = -1", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));

@@ -39,8 +39,6 @@ class XENFORO_Converter_Module_Posts extends Converter_Module_Posts {
 	
 	function convert_data($data)
 	{
-		global $db;
-		
 		// Xenforo 1 values
 		$insert_data['import_pid'] = $data['post_id'];
 		$insert_data['tid'] = $this->get_import->tid($data['thread_id']);

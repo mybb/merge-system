@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Threads extends Converter_Module
+abstract class Converter_Module_Threads extends Converter_Module
 {
 	public $default_values = array(
 		'import_tid' => 0,
@@ -66,7 +66,8 @@ class Converter_Module_Threads extends Converter_Module
 	/**
 	 * Insert thread into database
 	 *
-	 * @param thread The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{
@@ -87,7 +88,7 @@ class Converter_Module_Threads extends Converter_Module
 		$db->insert_query("threads", $insert_array);
 		$tid = $db->insert_id();
 
-		$this->cache_tids[$data['import_tid']] = $tid;
+		$this->get_import->cache_tids[$data['import_tid']] = $tid;
 
 		$this->increment_tracker('threads');
 

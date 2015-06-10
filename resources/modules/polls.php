@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Polls extends Converter_Module
+abstract class Converter_Module_Polls extends Converter_Module
 {
 	public $default_values = array(
 		'import_pid' => 0,
@@ -39,7 +39,8 @@ class Converter_Module_Polls extends Converter_Module
 	/**
 	 * Insert poll into database
 	 *
-	 * @param poll The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{

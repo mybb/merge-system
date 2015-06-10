@@ -29,8 +29,7 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 	/**
 	* Parses SMF quotes with author, post id and/or dateline.
 	*
-	* @param string The message to be parsed
-	* @param string The information to be parsed
+	* @param array $matches The matches from the regex
 	* @return string The parsed message.
 	*/
 	function mycode_parse_post_quotes($matches)

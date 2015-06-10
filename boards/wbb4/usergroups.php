@@ -72,7 +72,7 @@ class WBB4_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		// Get only non-standard groups.
 		$query = $this->old_db->simple_select(WCF_PREFIX."user_group", "*", "groupID > 6", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));

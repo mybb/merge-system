@@ -91,7 +91,7 @@ class SMF_Converter extends Converter
 	/**
 	 * Get a post from the SMF database
 	 *
-	 * @param int Post ID
+	 * @param int $pid Post ID
 	 * @return array The post
 	 */
 	function get_post($pid)

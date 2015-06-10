@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Forumperms extends Converter_Module
+abstract class Converter_Module_Forumperms extends Converter_Module
 {
 	public $default_values = array(
 		'gid' => 0,
@@ -39,7 +39,8 @@ class Converter_Module_Forumperms extends Converter_Module
 	/**
 	 * Insert forumpermissions into database
 	 *
-	 * @param perm The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{
@@ -57,8 +58,7 @@ class Converter_Module_Forumperms extends Converter_Module
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
-		$query = $db->insert_query("forumpermissions", $insert_array);
-		$fpid = $db->insert_id();
+		$fpid = $db->insert_query("forumpermissions", $insert_array);
 
 		$this->increment_tracker('forumperms');
 

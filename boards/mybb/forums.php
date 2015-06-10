@@ -23,18 +23,19 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->simple_select("forums", "*", "", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen'], 'order_by' => 'type', 'order_dir' => 'asc'));
 		while($forum = $this->old_db->fetch_array($query))
 		{
-			$fid = $this->insert($forum);
+			$this->insert($forum);
 		}
 	}
 
 	function convert_data($data)
 	{
 		global $db;
+		/** @var array $field_info */
 		static $field_info;
 
 		if(!isset($field_info))

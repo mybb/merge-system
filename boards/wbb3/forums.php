@@ -23,7 +23,7 @@ class WBB3_Converter_Module_Forums extends Converter_Module_Forums {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		$query = $this->old_db->query("SELECT b.*, s.position AS disporder
 				FROM ".WBB_PREFIX."board b
@@ -31,7 +31,7 @@ class WBB3_Converter_Module_Forums extends Converter_Module_Forums {
 				LIMIT {$this->trackers['start_forums']}, {$import_session['forums_per_screen']}");
    		while($forum = $this->old_db->fetch_array($query))
 		{
-			$fid = $this->insert($forum);
+			$this->insert($forum);
 		}
 	}
 

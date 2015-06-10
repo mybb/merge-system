@@ -86,7 +86,6 @@ class VBULLETIN3_Converter_Module_Settings extends Converter_Module_Settings {
 	{
 		global $import_session;
 
-		$settings = "";
 		$int_to_yes_no = array(
 			"addtemplatename" => 1,
 			"allowregistration" => 0,

@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Pollvotes extends Converter_Module
+abstract class Converter_Module_Pollvotes extends Converter_Module
 {
 	public $default_values = array(
 		'vid' => 0,
@@ -27,7 +27,8 @@ class Converter_Module_Pollvotes extends Converter_Module
 	/**
 	 * Insert poll vote into database
 	 *
-	 * @param vote The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{

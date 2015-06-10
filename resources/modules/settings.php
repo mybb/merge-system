@@ -13,8 +13,8 @@ class Converter_Module_Settings extends Converter_Module
 	/**
 	 * Update setting in the database
 	 *
-	 * @param name The name of the setting being inserted
-	 * @param value The value of the setting being inserted
+	 * @param string $name The name of the setting being inserted
+	 * @param string $value The value of the setting being inserted
 	 */
 	public function update_setting($name, $value)
 	{
@@ -36,6 +36,9 @@ class Converter_Module_Settings extends Converter_Module
 
 		$output->print_progress("end");
 	}
+
+	// Nothing to do for settings, they're handled differently
+	function convert_data($data) {}
 }
 
 ?>

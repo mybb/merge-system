@@ -23,8 +23,9 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 	/**
 	 * Converts messages containing phpBB code to MyBB BBcode
 	 *
-	 * @param string the text to convert
-	 * @param int user id of the text
+	 * @param string $text the text to convert
+	 * @param int $uid user id of the text
+	 * @param int $pid
 	 * @return string the converted text
 	 */
 	function convert($text, $uid=0, $pid=0)
@@ -49,7 +50,7 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 	{
 		// Sorry guys, without pid nothing to do
 		if($this->pid == 0)
-			return;
+			return '';
 
 		global $module;
 

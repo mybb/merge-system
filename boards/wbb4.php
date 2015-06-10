@@ -125,7 +125,7 @@ class WBB4_Converter extends Converter
 
 		if(!empty($this->installationnumber))
 		{
-		    return;
+			return '';
 		}
 
 		if(!isset($mybb->input['installationnumber']))

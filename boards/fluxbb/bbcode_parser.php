@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright ï¿½ 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -20,7 +20,7 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 	/**
 	 * Converts fluxBB BBCode to MyBB MyCode
 	 *
-	 * @param string Text to convert
+	 * @param string $text Text to convert
 	 * @return string converted text
 	 */
 	 function convert($text)

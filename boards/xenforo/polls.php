@@ -39,10 +39,8 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 	
 	function convert_data($data)
 	{
-		global $db;
-		
 		$insert_data = array();
-		
+
 		// Xenforo values
 		$responses = unserialize($data['responses']);
 
@@ -61,13 +59,6 @@ class XENFORO_Converter_Module_Polls extends Converter_Module_Polls {
 			$seperator = '||~|~||';
 		}
 
-		$poll_choices = array(
-			'options' => $options,
-			'votes' => $votes,
-			'options_count' => $options_count,
-			'vote_count' => $vote_count
-		);
-		
 		$insert_data['import_pid'] = $data['poll_id'];
 		$insert_data['import_tid'] = $data['content_id'];
 		$insert_data['tid'] = $this->get_import->tid($data['content_id']);

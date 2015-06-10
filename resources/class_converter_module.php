@@ -13,10 +13,56 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class Converter_Module
+abstract class Converter_Module
 {
+	/**
+	 * @var Converter
+	 */
 	public $board = null;
 
+	/**
+	 * @var array
+	 */
+	var $default_values = array();
+
+	/**
+	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite
+	 */
+	var $old_db;
+
+	/**
+	 * @var array
+	 */
+	var $settings;
+
+	/**
+	 * @var Cache_Handler
+	 */
+	var $get_import;
+
+	/**
+	 * @var array
+	 */
+	var $trackers;
+
+	/**
+	 * @var Debug
+	 */
+	var $debug;
+
+	/**
+	 * @var array
+	 */
+	var $errors = array();
+
+	/**
+	 * @var bool
+	 */
+	var $is_errors = false;
+
+	/**
+	 * @param Converter $converter_class
+	 */
 	public function __construct($converter_class)
 	{
 		global $import_session, $debug, $db, $lang;
@@ -45,7 +91,7 @@ class Converter_Module
 		// Plain class is needed as parent class anyways
 		require_once MERGE_ROOT."resources/bbcode_plain.php";
 		// If we're using the plain class or we don't have a custom one -> set it up
-		if($converter_class->parser_class == "plain" || ($converter_class->parser_class != "html" && !file_exists(MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php")))
+		if($converter_class->parser_class == "plain" || ($converter_class->parser_class != "html" && !file_exists(MERGE_ROOT."boards/{$import_session['board']}/bbcode_parser.php")))
 		{
 			$this->bbcode_parser = new BBCode_Parser_Plain();
 		}
@@ -60,7 +106,7 @@ class Converter_Module
 		{
 			// It's possible that the custom handler is based on the html handler so we need to include it too
 			require_once MERGE_ROOT."resources/bbcode_html.php";
-			require_once MERGE_ROOT."boards/".$import_session['board']."/bbcode_parser.php";
+			require_once MERGE_ROOT."boards/{$import_session['board']}/bbcode_parser.php";
 			$this->bbcode_parser = new BBCode_Parser();
 		}
 
@@ -83,13 +129,17 @@ class Converter_Module
 	/**
 	 * Fills an array of insert data with default MyBB values if they were not specified
 	 *
+	 * @param array $values
+	 *
+	 * @return array
 	 */
 	public function prepare_insert_array($values)
 	{
 		global $db;
 
 		$data = array_merge($this->default_values, $values);
-		
+		$insert_array = array();
+
 		foreach($data as $key => $value)
 		{
 			if(isset($this->binary_fields) && in_array($key, $this->binary_fields))
@@ -109,6 +159,9 @@ class Converter_Module
 		return $insert_array;
 	}
 
+	/**
+	 * @param array|string $tables
+	 */
 	public function check_table_type($tables)
 	{
 		global $output, $lang;
@@ -132,6 +185,10 @@ class Converter_Module
 		}
 	}
 
+	/**
+	 * @param string $type
+	 * @param int $amount
+	 */
 	function increment_tracker($type, $amount=1)
 	{
 		global $db;
@@ -144,6 +201,25 @@ class Converter_Module
 		);
 		$db->replace_query("trackers", $replacements);
 	}
+
+	/**
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	abstract function convert_data($data);
+
+//	function after_insert($data) {}
+
+	abstract function fetch_total();
+
+//	function finish() {}
+
+	abstract function import();
+
+//	function cleanup() {}
+
+//	function pre_setup() {}
 }
 
 ?>

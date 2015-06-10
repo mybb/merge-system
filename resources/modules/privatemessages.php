@@ -18,7 +18,7 @@ define('PM_STATUS_REPLIED',   3);
 define('PM_STATUS_FORWARDED', 4);
 
 
-class Converter_Module_Privatemessages extends Converter_Module
+abstract class Converter_Module_Privatemessages extends Converter_Module
 {
 	public $default_values = array(
 		'import_pmid' => 0,
@@ -65,7 +65,8 @@ class Converter_Module_Privatemessages extends Converter_Module
 	/**
 	 * Insert privatemessages into database
 	 *
-	 * @param pm The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{

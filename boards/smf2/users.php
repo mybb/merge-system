@@ -105,7 +105,7 @@ class SMF2_Converter_Module_Users extends Converter_Module_Users {
 	/**
 	 * Gets the time of the last post of a user from the SMF database
 	 *
-	 * @param int User ID
+	 * @param int $uid User ID
 	 * @return int Last post
 	 */
 	function get_last_post($uid)

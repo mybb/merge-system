@@ -14,7 +14,13 @@ if(!defined("IN_MYBB"))
 
 // We extend the plain class to make sure all our functions exist
 class BBCode_Parser_HTML extends BBCode_Parser_Plain {
-	// We handle some special codes already here eg [s] and [del] are the same for mybb
+	/**
+	 * We handle some special codes already here eg [s] and [del] are the same for mybb
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
 	function convert($text)
 	{
 		$text = str_replace(array("<br>", "<br />"), "\n", $text);
@@ -55,12 +61,23 @@ class BBCode_Parser_HTML extends BBCode_Parser_Plain {
 		return utf8_unhtmlentities($text);
 	}
 
-
+	/**
+	 * @param string $text
+	 *
+	 * @return string
+	 */
 	function convert_title($text)
 	{
 		return utf8_unhtmlentities($text);
 	}
 
+	/**
+	 * Callback for size bbcode
+	 *
+	 * @param array $matches
+	 *
+	 * @return string
+	 */
 	function handle_size($matches)
 	{
 		if($matches[1] > 50)

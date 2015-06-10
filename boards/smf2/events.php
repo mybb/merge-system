@@ -13,6 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+/** @property SMF2_Converter $board */
 class SMF2_Converter_Module_Events extends Converter_Module_Events {
 
 	var $settings = array(

@@ -34,8 +34,6 @@ class IPB4_Converter_Module_Threads extends Converter_Module_Threads {
 
 	function convert_data($data)
 	{
-		global $import_session;
-
 		$insert_data = array();
 
 		// Invision Power Board 4 values

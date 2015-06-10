@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Attachments extends Converter_Module
+abstract class Converter_Module_Attachments extends Converter_Module
 {
 	public $default_values = array(
 		'import_aid' => 0,
@@ -36,7 +36,8 @@ class Converter_Module_Attachments extends Converter_Module
 	/**
 	 * Insert attachment into database
 	 *
-	 * @param attachment The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{
@@ -118,7 +119,7 @@ class Converter_Module_Attachments extends Converter_Module
 
 	public function test_readability($table, $path_column)
 	{
-		global $mybb, $import_session, $output, $lang;
+		global $mybb, $import_session, $lang;
 
 		if($import_session['total_attachments'] <= 0)
 		{
@@ -190,6 +191,13 @@ class Converter_Module_Attachments extends Converter_Module
 			$import_session['uploads_test'] = 0;
 		}
 	}
+
+	/**
+	 * @param array $unconverted_values
+	 * @param array $converted_values
+	 * @param int $aid
+	 */
+	abstract function after_insert($unconverted_values, $converted_values, $aid);
 }
 
 ?>

@@ -35,6 +35,7 @@ class MYBB_Converter_Module_Moderators extends Converter_Module_Moderators {
 	function convert_data($data)
 	{
 		global $db;
+		/** @var array $field_info */
 		static $field_info;
 
 		if(!isset($field_info))

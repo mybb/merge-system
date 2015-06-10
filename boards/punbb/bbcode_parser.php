@@ -18,7 +18,7 @@ class BBCode_Parser extends BBCode_Parser_Plain{
 	/**
 	 * Converts punBB BBCode to MyBB MyCode
 	 *
-	 * @param string Text to convert
+	 * @param string $text Text to convert
 	 * @return string converted text
 	 */
 	 function convert($text)

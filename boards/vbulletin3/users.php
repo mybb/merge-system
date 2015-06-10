@@ -108,7 +108,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	/**
 	 * Get a avatar from the vB database
 	 *
-	 * @param int Avatar ID
+	 * @param int $aid Avatar ID
 	 * @return array The avatar
 	 */
 	function get_avatar($aid)
@@ -124,7 +124,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 	/**
 	 * Get a avatar from the vB database
 	 *
-	 * @param int Avatar ID
+	 * @param int $uid Avatar ID
 	 * @return array The avatar
 	 */
 	function get_custom_avatar($uid)

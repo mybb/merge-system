@@ -84,7 +84,7 @@ class FLUXBB_Converter extends Converter
 	/**
 	 * Get a user from the FluxBB database
 	 *
-	 * @param string Username
+	 * @param string $username Username
 	 * @return array If the uid is 0, returns an array of username as Guest.  Otherwise returns the user
 	 */
 	function get_user($username)

@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Usertitles extends Converter_Module
+abstract class Converter_Module_Usertitles extends Converter_Module
 {
 
 	public $default_values = array(
@@ -25,7 +25,7 @@ class Converter_Module_Usertitles extends Converter_Module
 	/**
 	 * Insert user titles into database
 	 *
-	 * @param usertitle The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
 	 */
 	public function insert($data)
 	{

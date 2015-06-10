@@ -23,7 +23,7 @@ class VANILLA_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 
 	function import()
 	{
-		global $import_session, $db;
+		global $import_session;
 
 		// Get only non-standard groups.
 		$query = $this->old_db->simple_select("role", "*", "RoleID NOT IN ('".implode("','", array_keys($this->board->groups))."')", array('limit_start' => $this->trackers['start_usergroups'], 'limit' => $import_session['usergroups_per_screen']));

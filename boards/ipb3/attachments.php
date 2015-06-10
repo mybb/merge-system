@@ -23,7 +23,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $mybb, $output, $import_session;
+		global $mybb, $import_session;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -50,7 +50,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function import()
 	{
-		global $mybb, $output, $import_session;
+		global $import_session;
 
 		$query = $this->old_db->simple_select("attachments", "*", "attach_rel_module='post'", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
 		while($attachment = $this->old_db->fetch_array($query))
@@ -61,7 +61,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function convert_data($data)
 	{
-		global $db, $error_notice, $mybb;
+		global $db, $error_notice;
 
 		$error_notice = "";
 
@@ -139,7 +139,6 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			@fclose($attachrs);
 
 			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-			$attach_not_exists = "";
 		}
 		else
 		{
@@ -152,7 +151,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
 <td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
@@ -163,7 +162,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 	/**
 	 * Get a attachment mime type from the IPB database
 	 *
-	 * @param string Extension
+	 * @param string $ext Extension
 	 * @return string The mime type
 	 */
 	function get_attach_type($ext)

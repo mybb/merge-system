@@ -23,7 +23,7 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 	
 	function pre_setup()
 	{
-		global $import_session, $output, $mybb;
+		global $import_session, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -150,8 +150,6 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 
 	function generate_raw_filename($attach)
 	{
-		global $db;
-
 		if(!isset($attach['file_hash']))
 		{
 			$query = $this->old_db->simple_select("attachment_data", "file_hash,filename", "data_id='{$attach['data_id']}'");
@@ -169,7 +167,7 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
 <td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>

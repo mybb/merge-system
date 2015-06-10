@@ -27,7 +27,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $output, $mybb;
+		global $import_session, $mybb;
 
 		// Set uploads path
 		if(!isset($import_session['uploadspath']))
@@ -140,6 +140,9 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 				case "image/x-png":
 					$ext = "png";
 					break;
+				default:
+					$ext = "";
+					break;
 			}
 
 			$insert_data['thumbnail'] = str_replace(".attach", "_thumb.$ext", $insert_data['attachname']);
@@ -153,7 +156,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $mybb, $db, $lang;
 
 		// Transfer attachment thumbnail
-		$thumb_not_exists = "";
 		if($data['id_thumb'] != 0)
 		{
 			// Transfer attachment thumbnail
@@ -212,7 +214,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 	// TODO: Recheck whether this is anywhere called, seems like it's replaced with test_readability
 	function test_attachment()
 	{
-		global $mybb, $import_session, $output;
+		global $mybb, $import_session;
 
 		if($import_session['total_attachments'] <= 0)
 		{
@@ -246,7 +248,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		global $import_session, $lang;
 
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
 <td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>

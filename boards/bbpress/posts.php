@@ -63,6 +63,8 @@ class BBPRESS_Converter_Module_Posts extends Converter_Module_Posts {
 	{
 		global $db;
 
+		// TODO: We're running this query after each inserted thread. That's not efficient...
+
 		// Restore first post connections
 		$db->write_query("UPDATE `".TABLE_PREFIX."threads` t SET firstpost=(SELECT MIN(pid) FROM `".TABLE_PREFIX."posts` p WHERE t.tid=p.tid)");
 	}

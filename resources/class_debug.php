@@ -15,6 +15,9 @@ if(!defined("IN_MYBB"))
 
 class Debug {
 
+	/**
+	 * @var Log
+	 */
 	public $log;
 
 	/**
@@ -40,46 +43,78 @@ class Log {
 	private $table_exists = false;
 	private $caused_error = false;
 
+	/** @var array */
+	private $log_inserts = array();
+
+	/**
+	 * @param string $message
+	 */
 	public function error($message)
 	{
 		$this->write(self::ERROR, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function warning($message)
 	{
 		$this->write(self::WARNING, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function event($message)
 	{
 		$this->write(self::EVENT, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function trace0($message)
 	{
 		$this->write(self::TRACE0, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function trace1($message)
 	{
 		$this->write(self::TRACE1, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function trace2($message)
 	{
 		$this->write(self::TRACE2, $message);
 	}
 
+	/**
+	 * @param string $message
+	 */
 	public function trace3($message)
 	{
 		$this->write(self::TRACE3, $message);
 	}
 
+	/**
+	 * @param string $message
+	 * @param mixed $data
+	 */
 	public function datatrace($message, $data)
 	{
 		$this->write(self::DATATRACE, $message.': '.var_export($data, true));
 	}
 
+	/**
+	 * @param int $type
+	 * @param string $message
+	 */
 	private function write($type, $message)
 	{
 		global $db;
@@ -180,6 +215,8 @@ class Log {
 
 	/**
 	 * Generates a plain backtrace if the server supports it.
+	 *
+	 * @param int $shift
 	 *
 	 * @return string The generated backtrace
 	 */

@@ -99,7 +99,7 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 	/**
 	 * Get a user id from a username in the IPB database
 	 *
-	 * @param int Username
+	 * @param string $username Username
 	 * @return int If the username is blank it returns 0. Otherwise returns the user id
 	 */
 	function get_uid_from_username($username)

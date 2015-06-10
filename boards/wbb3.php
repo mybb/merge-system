@@ -118,14 +118,14 @@ class WBB3_Converter extends Converter
 		define("WCF_PREFIX", "wcf{$this->installationnumber}_");
 		define("WBB_PREFIX", "wbb{$this->installationnumber}_1_");
 	}
-	
+
 	function db_extra()
 	{
 		global $mybb, $lang;
 
 		if(!empty($this->installationnumber))
 		{
-		    return;
+			return '';
 		}
 
 		if(!isset($mybb->input['installationnumber']))

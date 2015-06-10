@@ -72,8 +72,6 @@ class PHPBB3_Converter_Module_Polls extends Converter_Module_Polls {
 
 	function get_poll_thread($tid)
 	{
-		global $db;
-
 		if(array_key_exists($tid, $this->cache_get_poll_thread))
 		{
 			return $this->cache_get_poll_thread[$tid];

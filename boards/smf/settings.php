@@ -65,6 +65,8 @@ class SMF_Converter_Module_Settings extends Converter_Module_Settings {
 			"enableErrorLogging" => 1
 		);
 
+		// TODO: Avatar setting needs to be researched
+		$avatar_setting = '';
 		$query = $this->old_db->simple_select("settings", "variable, value", "variable IN('".implode("','", array_keys($this->convert_settings))."')", array('limit_start' => $this->trackers['start_settings'], 'limit' => $import_session['settings_per_screen']));
 		while($setting = $this->old_db->fetch_array($query))
 		{

@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Moderators extends Converter_Module
+abstract class Converter_Module_Moderators extends Converter_Module
 {
 	public $default_values = array(
 		'fid' => 0,
@@ -32,7 +32,8 @@ class Converter_Module_Moderators extends Converter_Module
 	/**
 	 * Insert moderator into database
 	 *
-	 * @param mod The insert array going into the MyBB database
+	 * @param array $data The insert array going into the MyBB database
+	 * @return int The new id
 	 */
 	public function insert($data)
 	{

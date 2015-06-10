@@ -17,7 +17,13 @@ class BBCode_Parser_Plain {
 	// This contains the attachment bbcode which is handled as special code as the id needs to be changed too
 	var $attachment = "";
 
-	// We handle some special codes already here eg [s] and [del] are the same for mybb
+	/**
+	 * We handle some special codes already here eg [s] and [del] are the same for mybb
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
 	function convert($text)
 	{
 		// IMG tag with alt attribute - remove the attribute
@@ -38,13 +44,25 @@ class BBCode_Parser_Plain {
 		return $text;
 	}
 
-	// Normally not needed, but some boards may call it so it's still here
+	/**
+	 * Normally not needed, but some boards may call it so it's still here
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
 	function convert_title($text)
 	{
 		return $text;
 	}
 
-	// Handles attachment codes. This is a special function to make sure it's called in every parser
+	/**
+	 * Handles attachment codes. This is a special function to make sure it's called in every parser
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
 	function handle_attachments($text)
 	{
 		if(empty($this->attachment))
@@ -65,7 +83,11 @@ class BBCode_Parser_Plain {
 		}
 	}
 
-	// Replaces the old id with the new id. Is automatically called after the attachment was inserted
+	/**
+	 * Replaces the old id with the new id. Is automatically called after the attachment was inserted
+	 *
+	 * @param array $attachment
+	 */
 	function change_attachment($attachment)
 	{
 		// No attachment code? Skip this

@@ -101,7 +101,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $db;
+		global $mybb;
 
 		if($data['thumbnail'])
 		{
@@ -136,7 +136,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	/**
 	 * Get a attachment mime type from the vB database
 	 *
-	 * @param string Extension
+	 * @param string $ext Extension
 	 * @return string The mime type
 	 */
 	function get_attach_type($ext)

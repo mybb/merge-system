@@ -25,16 +25,14 @@ class debugErrorHandler extends errorHandler {
 	/**
 	 * Parses a error for processing.
 	 *
-	 * @param string The error type (i.e. E_ERROR, E_FATAL)
-	 * @param string The error message
-	 * @param string The error file
-	 * @param integer The error line
+	 * @param string $type The error type (i.e. E_ERROR, E_FATAL)
+	 * @param string $message The error message
+	 * @param string $file The error file
+	 * @param integer $line The error line
 	 * @return boolean True if parsing was a success, otherwise assume a error
 	 */
 	function error($type, $message, $file=null, $line=0)
 	{
-		global $mybb;
-
 		// Error reporting turned off (either globally or by @ before erroring statement)
 		if(error_reporting() == 0)
 		{
@@ -66,8 +64,8 @@ class debugErrorHandler extends errorHandler {
 	 * Triggers a user created error
 	 * Example: $error_handler->trigger("Some Warning", E_USER_ERROR);
 	 *
-	 * @param string Message
-	 * @param string Type
+	 * @param string $message Message
+	 * @param int $type Type
 	 */
 	function trigger($message="", $type=E_USER_ERROR)
 	{

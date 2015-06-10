@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.6
- * Copyright © 2009 MyBB Group, All Rights Reserved
+ * Copyright ï¿½ 2009 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
   * License: http://www.mybb.com/about/license
@@ -59,7 +59,7 @@ class FLUXBB_Converter_Module_Categories extends Converter_Module_Categories {
 		{
 			$query = $this->old_db->simple_select("categories", "COUNT(*) as count");
 			$import_session['total_categories'] = $this->old_db->fetch_field($query, 'count');
-			$this->old_db->free_result($query);				
+			$this->old_db->free_result($query);
 		}
 		
 		return $import_session['total_categories'];

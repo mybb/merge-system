@@ -71,16 +71,36 @@ class Cache_Handler
 	var $cache_post_attachment_details = array();
 
 	/**
+	 * Cache for poll ids
+	 */
+	var $cache_pollids = array();
+
+	/**
+	 * Cache for poll votes
+	 */
+	var $cache_pollvotes = array();
+
+	/**
+	 * Cache for event ids
+	 */
+	var $cache_eids = array();
+
+	/**
+	 * Cache for post information
+	 */
+	var $cache_posts = array();
+
+	/**
 	 * Get an array of data needed for attachments from the posts table
 	 *
-	 * @param int Import Post ID
+	 * @param int $old_pid Import Post ID
 	 * @return array
 	 */
 	function post_attachment_details($old_pid)
 	{
 		global $db;
 
-		if(array_key_exists($pid, $this->cache_post_attachment_details))
+		if(array_key_exists($old_pid, $this->cache_post_attachment_details))
 		{
 			return $this->cache_post_attachment_details[$old_pid];
 		}
@@ -104,6 +124,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("polls", "pid, import_pid", "import_pid>0");
+		$polls = array();
 		while($poll = $db->fetch_array($query))
 		{
 			$polls[$poll['import_pid']] = $poll['pid'];
@@ -117,7 +138,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB PID of an old PID.
 	 *
-	 * @param int Poll ID used before import (e.x. vBulletin poll id)
+	 * @param int $old_pid Poll ID used before import (e.x. vBulletin poll id)
 	 * @return int Poll ID in MyBB or 0 if the old PID cannot be found
 	 */
 	function pollid($old_pid)
@@ -138,7 +159,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB PID of an old PID.
 	 *
-	 * @param int Poll ID used before import (e.x. vBulletin poll id)
+	 * @param int $old_pid Poll ID used before import (e.x. vBulletin poll id)
 	 * @return int Poll ID in MyBB or 0 if the old PID cannot be found
 	 */
 	function poll($old_pid)
@@ -170,6 +191,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("pollvotes", "vid, import_vid", "import_vid>0");
+		$pollvotes = array();
 		while($pollvote = $db->fetch_array($query))
 		{
 			$pollvotes[$pollvote['import_vid']] = $pollvote['vid'];
@@ -183,7 +205,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB VID of an old VID. (e.x. vBulletin poll vote id)
 	 *
-	 * @param int Vote ID used before import
+	 * @param int $old_vid Vote ID used before import
 	 * @return int Vote ID in MyBB or 0 if the old VID cannot be found
 	 */
 	function vid($old_vid)
@@ -211,6 +233,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("users", "uid, import_uid", "import_uid>0");
+		$users = array();
 		while($user = $db->fetch_array($query))
 		{
 			$users[$user['import_uid']] = $user['uid'];
@@ -224,7 +247,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB UID of an old UID. (e.x. vBulletin user id)
 	 *
-	 * @param int User ID used before import
+	 * @param int $old_uid User ID used before import
 	 * @return int User ID in MyBB or 0 if the old UID cannot be found
 	 */
 	function uid($old_uid)
@@ -252,6 +275,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("users", "username, import_uid", "import_uid>0");
+		$users = array();
 		while($user = $db->fetch_array($query))
 		{
 			$users[$user['import_uid']] = $user['username'];
@@ -265,8 +289,8 @@ class Cache_Handler
 	/**
 	 * Get the MyBB Username of an old UID. (e.x. vBulletin user id)
 	 *
-	 * @param int User ID used before import
-	 * @param string Username used before import
+	 * @param int $old_uid User ID used before import
+	 * @param string $old_username Username used before import
 	 * @return string Username in MyBB or the old username (if provided)/'Guest' if the old UID cannot be found
 	 */
 	function username($old_uid, $old_username="")
@@ -299,6 +323,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("forums", "fid, import_fid", "import_fid>0");
+		$forums = array();
 		while($forum = $db->fetch_array($query))
 		{
 			$forums[$forum['import_fid']] = $forum['fid'];
@@ -312,7 +337,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB FID of an old FID. (e.x. vBulletin forum id)
 	 *
-	 * @param int Forum ID used before import
+	 * @param int $old_fid Forum ID used before import
 	 * @return int Forum ID in MyBB
 	 */
 	function fid($old_fid)
@@ -335,6 +360,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("forums", "fid, import_fid", "import_fid>0 AND type='f'");
+		$forums = array();
 		while($forum = $db->fetch_array($query))
 		{
 			$forums[$forum['import_fid']] = $forum['fid'];
@@ -348,7 +374,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB FID of an old FID. (e.x. vBulletin forum id [forums only, not categories])
 	 *
-	 * @param int Forum ID used before import
+	 * @param int $old_fid Forum ID used before import
 	 * @return int Forum ID in MyBB
 	 */
 	function fid_f($old_fid)
@@ -371,6 +397,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("forums", "fid, import_fid", "import_fid>0 AND type='c'");
+		$forums = array();
 		while($forum = $db->fetch_array($query))
 		{
 			$forums[$forum['import_fid']] = $forum['fid'];
@@ -384,7 +411,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB FID of an old FID. (e.x. vBulletin category id [categories only, not forums])
 	 *
-	 * @param int Forum ID used before import
+	 * @param int $old_fid Forum ID used before import
 	 * @return int Forum ID in MyBB
 	 */
 	function fid_c($old_fid)
@@ -407,6 +434,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("threads", "tid, import_tid", "import_tid>0");
+		$threads = array();
 		while($thread = $db->fetch_array($query))
 		{
 			$threads[$thread['import_tid']] = $thread['tid'];
@@ -443,6 +471,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("usergroups", "gid, import_gid", "import_gid>0");
+		$usergroups = array();
 		while($usergroup = $db->fetch_array($query))
 		{
 			$usergroups[$usergroup['import_gid']] = $usergroup['gid'];
@@ -456,7 +485,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB usergroup ID of an old GID. (e.x. vBulletin usergroup id)
 	 *
-	 * @param int Group ID used before import
+	 * @param int $old_gid Group ID used before import
 	 * @return int Group ID in MyBB
 	 */
 	function gid($old_gid)
@@ -479,6 +508,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("attachments", "aid, import_aid", "import_aid>0");
+		$attachments = array();
 		while($attachment = $db->fetch_array($query))
 		{
 			$attachments[$attachment['import_aid']] = $attachment['aid'];
@@ -492,7 +522,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB attachments ID of an old AID. (e.x. vBulletin attachment id)
 	 *
-	 * @param int Attachment ID used before import
+	 * @param int $old_aid Attachment ID used before import
 	 * @return int Attachment ID in MyBB
 	 */
 	function aid($old_aid)
@@ -515,6 +545,7 @@ class Cache_Handler
 		global $db;
 
 		$query = $db->simple_select("events", "eid, import_eid", "import_eid>0");
+		$events = array();
 		while($event = $db->fetch_array($query))
 		{
 			$events[$event['import_eid']] = $event['eid'];
@@ -528,7 +559,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB event ID of an old EID. (e.x. vBulletin event id)
 	 *
-	 * @param int Event ID used before import
+	 * @param int $old_eid Event ID used before import
 	 * @return int Event ID in MyBB
 	 */
 	function eid($old_eid)
@@ -544,7 +575,7 @@ class Cache_Handler
 	/**
 	 * Get an array of imported posts (e.x. array vBulletin post id => MyBB post id)
 	 *
-	 * @return array
+	 * @return array|false
 	 */
 	function cache_posts()
 	{
@@ -556,6 +587,7 @@ class Cache_Handler
 		}
 
 		$query = $db->simple_select("post_trackers", "pid, import_pid");
+		$posts = array();
 		while($post = $db->fetch_array($query))
 		{
 			$posts[$post['import_pid']] = $post['pid'];
@@ -569,7 +601,7 @@ class Cache_Handler
 	/**
 	 * Get the MyBB post ID of an old PID. (e.x. vBulletin post id)
 	 *
-	 * @param int Post ID used before import
+	 * @param int $old_pid Post ID used before import
 	 * @return int Post ID in MyBB
 	 */
 	function pid($old_pid)

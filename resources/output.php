@@ -60,6 +60,8 @@ class converterOutput
 	*/
 	var $_internal_counter = 0;
 
+	var $_current_id;
+
 	/**
 	* Internal string for friendly name but in English singular form
 	*
@@ -86,16 +88,15 @@ class converterOutput
 	/**
 	 * Method to print the converter header
 	 *
-	 * @param string Page title
-	 * @param string Icon to be used
-	 * @param int Open a form 1/0
-	 * @param int Error???
+	 * @param string $title Page title
+	 * @param string $image Icon to be used
+	 * @param int $form Open a form 1/0
 	 */
-	function print_header($title=false, $image="welcome", $form=1)
+	function print_header($title="", $image="welcome", $form=1)
 	{
-		global $mybb, $merge_version, $import_session, $lang;
+		global $merge_version, $lang;
 
-		if($title === false)
+		if(empty($title))
 		{
 			$title = $lang->welcome;
 		}
@@ -130,7 +131,6 @@ END;
 		}
 
 		// Only if we're in a module
-		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 		if(IN_MODULE == 1)
 		{
 			echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
@@ -150,7 +150,7 @@ END;
 	/**
 	 * Echo the contents out
 	 *
-	 * @param string Contents to echo out
+	 * @param string $contents Contents to echo out
 	 */
 	function print_contents($contents)
 	{
@@ -160,7 +160,7 @@ END;
 	/**
 	 * Print an error block, and the footer.
 	 *
-	 * @param string Error string
+	 * @param string $message Error string
 	 */
 	function print_error($message)
 	{
@@ -181,13 +181,14 @@ END;
 	/**
 	 * Print an warning block
 	 *
-	 * @param string Error string
+	 * @param string $message Error string
+	 * @param string $title
 	 */
-	function print_warning($message, $title=false)
+	function print_warning($message, $title="")
 	{
 		global $lang;
 
-		if($title === false)
+		if(empty($title))
 		{
 			$title = $lang->warning;
 		}
@@ -409,12 +410,12 @@ END;
 	/**
 	 * Print a list of fields to be written in by user for database details.
 	 *
-	 * @param string Name of the bulletin board software
-	 * @param string Any extra text to include (optional)
+	 * @param string $name Name of the bulletin board software
+	 * @param string $extra Any extra text to include (optional)
 	 */
 	function print_database_details_table($name, $extra="")
 	{
-		global $board, $dbengines, $dbhost, $dbuser, $dbname, $tableprefix, $mybb, $lang;
+		global $board, $dbengines, $mybb, $lang;
 
 		$dboptions = array();
 
@@ -500,6 +501,7 @@ END;
 		});
 		</script>";
 
+		$db_info = array();
 		foreach($dboptions as $dbfile => $dbtype)
 		{
 			require_once MYBB_ROOT."inc/db_{$dbfile}.php";
@@ -508,9 +510,10 @@ END;
 				continue;
 			}
 
+			/** @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite $db */
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
-			$encoding_select = '';
+
 			if(!$mybb->input['config'][$dbfile]['dbhost'])
 			{
 				$mybb->input['config'][$dbfile]['dbhost'] = "localhost";
@@ -525,7 +528,7 @@ END;
 			}
 
 			$class = '';
-			if(!$first && !$mybb->input['dbengine'])
+			if(!isset($first) && !$mybb->input['dbengine'])
 			{
 				$mybb->input['dbengine'] = $dbfile;
 				$first = true;
@@ -722,12 +725,17 @@ EOF;
 	/**
 	 * Print the footer of the page
 	 *
-	 * @param string The next 'action'
-	 * @param string The name of the next action
-	 * @param int Do session update? 1/0
+	 * @param string $next_action The next 'action'
+	 * @param string $name The name of the next action
+	 * @param int $do_session Do session update? 1/0
+	 * @param bool $override_form
+	 * @param bool $next
+	 * @param string $button_extra
+	 * @param string $extra_class
 	 */
 	function print_footer($next_action="", $name="", $do_session=1, $override_form=false, $next=false, $button_extra="", $extra_class="")
 	{
+		// TODO: First two params aren't used here -> research & remove
 		global $import_session, $conf_global_not_found, $mybb, $lang;
 
 		if($next === false)
@@ -783,10 +791,6 @@ EOF;
 				echo "\n <br style=\"clear: both;\" />";
 			}
 		}
-		else
-		{
-			$formend = "";
-		}
 
 		echo <<<END
 		</div>
@@ -818,7 +822,7 @@ END;
 
 	function print_error_page($inline=false)
 	{
-		global $import_session, $mybb, $output, $module, $lang;
+		global $import_session, $output, $module, $lang;
 
 		$errors = $module->errors;
 		if(empty($errors))
@@ -833,7 +837,6 @@ END;
 			$this->print_header($lang->found_error, '', 1);
 		}
 
-		$error_list = "";
 		if(!is_array($errors))
 		{
 			$errors = array($errors);
@@ -867,6 +870,7 @@ END;
 
 		$module->trackers['start_'.$module_name] = 0;
 
+		// TODO: $this->trackers is never defined and will always be 0 therefore
 		$replacements = array(
 			"count"		=> (int) $this->trackers['start_'.$module_name],
 			"type"		=> $db->escape_string($module_name)
@@ -965,6 +969,7 @@ END;
 		flush();
 	}
 
+	// TODO: Research! This function is called from the converter class. But the variable is never called again and seems pretty useless to me
 	function set_error_notice_in_progress($error_message)
 	{
 		$this->error_notice_in_progress = $error_message;
@@ -1048,6 +1053,7 @@ END;
 			// If it is still == 0 then don't cause division by 0 error (we shouldn't normally get this, but if we do then there is a bug and we should gracefully handle it)
 			if($this->_progress_denominator == 0)
 			{
+				$percent_done = 0;
 				$left = 200;
 			}
 			else
@@ -1065,6 +1071,7 @@ END;
 				$modulus = 1;
 			}
 
+			$status_message = "";
 			if($import_session[$module_name.'_per_screen'] <= 1000 || ($import_session[$module_name.'_per_screen'] > 1000 && ($this->_internal_counter % $modulus) == 0))
 			{
 				// If we're merging a user
@@ -1092,7 +1099,7 @@ END;
 					// Settings are special case
 					if($import_session['module'] == "settings")
 					{
-						$status_message = $lang->sprintf($lang->progress_settings, $this->_friendly_name_singular, $this->_current_id, $module->plain_bbname);
+						$status_message = $lang->sprintf($lang->progress_settings, $this->_friendly_name_singular, $this->_current_id, $module->board->plain_bbname);
 					}
 					else if(!is_numeric($this->_current_id))
 					{
