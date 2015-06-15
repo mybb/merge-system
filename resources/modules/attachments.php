@@ -34,6 +34,16 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	);
 
 	/**
+	 * @var string
+	 */
+	public $path_column = "";
+
+	/**
+	 * @var array
+	 */
+	private $thread_cache = array();
+
+	/**
 	 * Insert attachment into database
 	 *
 	 * @param array $data The insert array going into the MyBB database
@@ -71,10 +81,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		$insert_array['aid'] = $aid;
 		$this->bbcode_parser->change_attachment($insert_array);
 
-		if(!defined("IN_TESTING"))
-		{
-			$this->after_insert($unconverted_values, $converted_values, $aid);
-		}
+		$this->after_insert($unconverted_values, $converted_values, $aid);
 
 		$this->increment_tracker('attachments');
 
@@ -117,7 +124,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 	}
 
-	public function test_readability($table, $path_column)
+	public function test_readability($table)
 	{
 		global $mybb, $import_session, $lang;
 
@@ -150,16 +157,12 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 
 		$readable = $total = 0;
-		$query = $this->old_db->simple_select($table, $path_column);
+		$query = $this->old_db->simple_select($table, $this->path_column);
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			++$total;
 
 			$filename = $this->generate_raw_filename($attachment);
-			if($filename === false)
-			{
-				$filename = $attachment[$path_column];
-			}
 
 			// If this is a relative or absolute server path, use is_readable to check
 			if(strpos($import_session['uploadspath'], '../') !== false || my_substr($import_session['uploadspath'], 0, 1) == '/' || my_substr($import_session['uploadspath'], 1, 1) == ':')
@@ -189,12 +192,52 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 	}
 
-	/**
-	 * @param array $unconverted_values
-	 * @param array $converted_values
-	 * @param int $aid
-	 */
-	abstract function after_insert($unconverted_values, $converted_values, $aid);
+	function after_insert($unconverted_data, $converted_data, $aid)
+	{
+		global $mybb, $import_session, $lang, $db;
+
+		// Transfer attachment
+		$data_file = merge_fetch_remote_file($import_session['uploadspath'].$this->generate_raw_filename($unconverted_data));
+		if(!empty($data_file))
+		{
+			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], 'w');
+			if($attachrs)
+			{
+				@fwrite($attachrs, $data_file);
+			}
+			else
+			{
+				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
+			}
+			@fclose($attachrs);
+
+			@my_chmod($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], '0777');
+		}
+		else
+		{
+			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
+		}
+
+		if(!isset($this->thread_cache[$converted_data['pid']])) {
+			$query = $db->simple_select("posts", "tid", "pid='{$converted_data['pid']}");
+			$this->thread_cache[$converted_data['pid']] = $db->fetch_field($query, "tid");
+		}
+		// TODO: This may not work with SQLite/PgSQL
+		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$this->thread_cache[$converted_data['pid']]."'");
+	}
+
+	function print_attachments_per_screen_page()
+	{
+		global $import_session, $lang;
+
+		echo '<tr>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
+</tr>
+<tr>
+<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
+<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
+</tr>';
+	}
 
 	/**
 	 * @param array $attachment
@@ -203,7 +246,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	 */
 	function generate_raw_filename($attachment)
 	{
-		return false;
+		return isset($attachment[$this->path_column]) ? $attachment[$this->path_column]: '';
 	}
 }
 

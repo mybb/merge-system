@@ -21,6 +21,8 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'default_per_screen' => 20,
 	);
 
+	public $path_column = "attachname";
+
 	function pre_setup()
 	{
 		global $import_session, $mybb;
@@ -35,6 +37,10 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$query = $this->old_db->simple_select("settings", "value", "name = 'uploadspath'", array('limit' => 1));
 			$import_session['uploadspath'] = str_replace('./', $bburl.'/', $this->old_db->fetch_field($query, 'value'));
 			$this->old_db->free_result($query);
+
+			if(my_substr($import_session['uploadspath'], -1) != '/') {
+				$import_session['uploadspath'] .= '/';
+			}
 		}
 
 		$this->check_attachments_dir_perms();
@@ -42,7 +48,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachments", "attachname");
+			$this->test_readability("attachments");
 		}
 	}
 
@@ -112,7 +118,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		if($data['thumbnail'])
 		{
 			// Transfer attachment thumbnail
-			$attachment_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$insert_data['thumbnail']);
+			$attachment_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].$data['thumbnail']);
 
 			if(!empty($attachment_thumbnail_file))
 			{
@@ -134,40 +140,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 			}
 		}
 
-		// Transfer attachment
-		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['attachname']);
-		if(!empty($attachment_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $attachment_file);
-				@fclose($attachrs);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
+		parent::after_insert($data, $insert_data, $aid);
 	}
 
 	function fetch_total()

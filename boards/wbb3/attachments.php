@@ -21,6 +21,8 @@ class WBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'default_per_screen' => 20,
 	);
 
+	public $path_column = "attachmentID";
+
 	function pre_setup()
 	{
 		global $import_session, $mybb;
@@ -29,14 +31,15 @@ class WBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$query = $this->old_db->simple_select(WCF_PREFIX."option", "optionValue", "optionName='page_url' AND optionValue!=''");
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, "optionValue");
-			$import_session['uploadspath'] .= "/wcf/attachments";
+			$import_session['uploadspath'] .= "/wcf/attachments/";
 		}
 
 		$this->check_attachments_dir_perms();
+
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability(WCF_PREFIX."attachment", "attachmentID");
+			$this->test_readability(WCF_PREFIX."attachment");
 		}
 
 	}
@@ -92,51 +95,9 @@ class WBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $db, $import_session, $lang;
-
-		// Transfer attachment
-		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$this->generate_raw_filename($data));
-		if(!empty($attachment_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $attachment_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-
-		$attach_details = $this->get_import->post_attachment_details($data['containerID']);
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$attach_details['tid']."'");
-	}
-
 	function generate_raw_filename($attach)
 	{
 		return "attachment-".$attach['attachmentID'];
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
 	}
 
 	function fetch_total()

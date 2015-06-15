@@ -21,6 +21,8 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'default_per_screen' => 20,
 	);
 
+	public $path_column = "attach_location";
+
 	function pre_setup()
 	{
 		global $mybb, $import_session;
@@ -31,6 +33,10 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'conf_value');
 			$this->old_db->free_result($query);
+
+			if(my_substr($import_session['uploadspath'], -1) != '/') {
+				$import_session['uploadspath'] .= '/';
+			}
 		}
 
 		$this->check_attachments_dir_perms();
@@ -44,7 +50,7 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachments", "attach_location");
+			$this->test_readability("attachments");
 		}
 	}
 
@@ -117,46 +123,6 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 	
 		return $insert_data;
-	}
-
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $import_session, $lang;
-
-		// Transfer attachment
-		$data_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['attach_location']);
-		if(!empty($data_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $data_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
 	}
 
 	/**

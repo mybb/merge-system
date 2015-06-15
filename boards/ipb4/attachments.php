@@ -21,6 +21,8 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		'default_per_screen' => 20,
 	);
 
+	public $path_column = "attach_location";
+
 	function pre_setup()
 	{
 		global $mybb, $import_session;
@@ -31,7 +33,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$import_session['uploadspath'] = $mybb->input['uploadspath'] = "";
 
 		// Test our ability to read attachment files from the forum software
-		$this->test_readability("core_attachments", "attach_location");
+		$this->test_readability("core_attachments");
 	}
 
 	function import()
@@ -114,33 +116,6 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $lang;
-
-		// Transfer attachment - IPB 4 saves the full path
-		$data_file = merge_fetch_remote_file($this->generate_raw_filename($data));
-		if(!empty($data_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $data_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-	}
-
 	function fetch_total()
 	{
 		global $import_session;
@@ -170,6 +145,9 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 		return $url;
 	}
+
+	// Overwrite parent function. As the full path is saved we don't need to ask for it
+	function print_attachments_per_screen_page() {}
 }
 
 

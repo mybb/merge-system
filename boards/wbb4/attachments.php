@@ -23,6 +23,8 @@ class WBB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	var $objectID;
 
+	public $path_column = "attachmentID,fileHash";
+
 	function pre_setup()
 	{
 		global $import_session, $mybb;
@@ -31,14 +33,15 @@ class WBB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		{
 			$query = $this->old_db->simple_select(WCF_PREFIX."application", "domainName,domainPath", "isPrimary='1'");
 			$data = $this->old_db->fetch_array($query);
-			$import_session['uploadspath'] = "http://".$data['domainName'].$data['domainPath']."wcf/attachments";
+			$import_session['uploadspath'] = "http://".$data['domainName'].$data['domainPath']."wcf/attachments/";
 		}
 
 		$this->check_attachments_dir_perms();
+
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability(WCF_PREFIX."attachment", "attachmentID,fileHash");
+			$this->test_readability(WCF_PREFIX."attachment");
 		}
 
 		// Don't ask - wbb...
@@ -99,52 +102,10 @@ class WBB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $db, $import_session, $lang;
-
-		// Transfer attachment
-		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$this->generate_raw_filename($data));
-		if(!empty($attachment_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $attachment_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-
-		$attach_details = $this->get_import->post_attachment_details($data['objectID']);
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$attach_details['tid']."'");
-	}
-
 	function generate_raw_filename($attach)
 	{
 		$dir = substr($attach['fileHash'], 0, 2);
 		return "{$dir}/{$attach['attachmentID']}-{$attach['fileHash']}";
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
 	}
 
 	function fetch_total()

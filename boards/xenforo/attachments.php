@@ -20,7 +20,9 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		'progress_column' => 'attachment_id',
 		'default_per_screen' => 20,
 	);
-	
+
+	public $path_colum = "attachment_id, data_id";
+
 	function pre_setup()
 	{
 		global $import_session, $mybb;
@@ -30,14 +32,15 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		{
 			$query = $this->old_db->simple_select("option", "option_value", "option_id='boardUrl'");
 			$import_session['uploadspath'] = $this->old_db->fetch_field($query, "option_value");
-			$import_session['uploadspath'] .= "/internal_data/attachments";
+			$import_session['uploadspath'] .= "/internal_data/attachments/";
 		}
 
 		$this->check_attachments_dir_perms();
+
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachment", "attachment_id, data_id");
+			$this->test_readability("attachment");
 		}
 	}
 
@@ -118,41 +121,12 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 
 		return $insert_data;
 	}
-	
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $db, $import_session, $lang;
-
-		// Transfer attachment
-		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$this->generate_raw_filename($data));
-		if(!empty($attachment_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $attachment_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-
-		$attach_details = $this->get_import->post_attachment_details($data['content_id']);
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$attach_details['tid']."'");
-	}
 
 	function generate_raw_filename($attach)
 	{
 		if(!isset($attach['file_hash']))
 		{
-			$query = $this->old_db->simple_select("attachment_data", "file_hash,filename", "data_id='{$attach['data_id']}'");
+			$query = $this->old_db->simple_select("attachment_data", "file_hash", "data_id='{$attach['data_id']}'");
 			$data = $this->old_db->fetch_array($query);
 			$this->old_db->free_result($query);
 			$attach = array_merge($attach, $data);
@@ -160,19 +134,6 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		$name = floor($attach['data_id']/1000)."/{$attach['data_id']}-{$attach['file_hash']}.data";
 
 		return $name;
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
 	}
 
 	function fetch_total()

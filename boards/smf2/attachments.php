@@ -25,6 +25,8 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	var $cache_attach_filenames = array();
 
+	public $path_column = "id_attach,file_hash";
+
 	function pre_setup()
 	{
 		global $import_session, $mybb;
@@ -42,6 +44,10 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 				$import_session['uploadspath'] = str_replace('avatars', 'attachments', $this->old_db->fetch_field($query, 'value'));
 				$this->old_db->free_result($query);
 			}
+
+			if(my_substr($import_session['uploadspath'], -1) != '/') {
+				$import_session['uploadspath'] .= '/';
+			}
 		}
 
 		$this->check_attachments_dir_perms();
@@ -49,7 +55,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		if($mybb->input['uploadspath'])
 		{
 			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachments", "id_attach,file_hash");
+			$this->test_readability("attachments");
 		}
 	}
 
@@ -186,42 +192,7 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 			}
 		}
 
-		// Transfer attachment
-		$attachment_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['id_attach']."_".$data['file_hash']);
-		if(!empty($attachment_file))
-		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-			if($attachrs)
-			{
-				@fwrite($attachrs, $attachment_file);
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-			}
-			@fclose($attachrs);
-			@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
-		}
-
-		$posthash = $this->get_import->post_attachment_details($data['id_msg']);
-		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$posthash['tid']."'");
-	}
-
-	function print_attachments_per_screen_page()
-	{
-		global $import_session, $lang;
-
-		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
-</tr>
-<tr>
-<td><label for="uploadspath"> '.$lang->module_attachment_label.':</label></td>
-<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="'.$import_session['uploadspath'].'" style="width: 95%;" /></td>
-</tr>';
+		parent::after_insert($data, $insert_data, $aid);
 	}
 
 	function get_import_attach_filename($aid)
