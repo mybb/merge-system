@@ -238,6 +238,8 @@ class Converter_Module_Posts extends Converter_Module
 
 	// For some reason this module is initialized seperatly so we need to add an empty function here
 	function convert_data($data) {}
+	function fetch_total() {}
+	function import() {}
 }
 
 

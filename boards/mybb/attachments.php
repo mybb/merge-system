@@ -107,7 +107,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function after_insert($data, $insert_data, $aid)
 	{
-		global $mybb, $db, $import_session, $lang;
+		global $mybb, $import_session, $lang;
 
 		if($data['thumbnail'])
 		{

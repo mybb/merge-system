@@ -211,6 +211,9 @@ abstract class Converter_Module
 
 //	function after_insert($data) {}
 
+	/**
+	 * @return int
+	 */
 	abstract function fetch_total();
 
 //	function finish() {}

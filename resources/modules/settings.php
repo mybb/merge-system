@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Settings extends Converter_Module
+abstract class Converter_Module_Settings extends Converter_Module
 {
 
 	/**

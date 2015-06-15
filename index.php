@@ -35,8 +35,7 @@ $merge_version = "1.8.5";
 $version_code = 1805;
 
 // Load core files
-//define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
-define("MYBB_ROOT", "C:/www/public/mybb1");
+define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
 define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
 define("TIME_NOW", time());

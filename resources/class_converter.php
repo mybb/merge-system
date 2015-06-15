@@ -26,7 +26,7 @@ class Converter
 	var $debug;
 
 	/**
-	 * @var DB_Base
+	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite
 	 */
 	var $old_db;
 
