@@ -211,38 +211,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$posthash['tid']."'");
 	}
 
-	// TODO: Recheck whether this is anywhere called, seems like it's replaced with test_readability
-	function test_attachment()
-	{
-		global $mybb, $import_session;
-
-		if($import_session['total_attachments'] <= 0)
-		{
-			return;
-		}
-
-		if($mybb->input['uploadspath'])
-		{
-			$import_session['uploadspath'] = $mybb->input['uploadspath'];
-		}
-
-		if(strpos($mybb->input['uploadspath'], "localhost") !== false)
-		{
-			$this->errors[] = "<p>You may not use \"localhost\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).</p>";
-			$import_session['uploads_test'] = 0;
-		}
-
-		$query = $this->old_db->simple_select("attachments", "*", "", array('limit' => 1));
-		$attachment = $this->old_db->fetch_array($query);
-		$this->old_db->free_result($query);
-
-		if(!is_readable($import_session['uploadspath'].'/'.$attachment['id_attach'].'_'.$attachment['file_hash']))
-		{
-			$this->errors[] = 'The attachments could not be read. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/).';
-			$import_session['uploads_test'] = 0;
-		}
-	}
-
 	function print_attachments_per_screen_page()
 	{
 		global $import_session, $lang;

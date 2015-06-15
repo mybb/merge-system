@@ -24,7 +24,7 @@ class debugMyLanguage extends MyLanguage {
 		return $this->$string;
 	}
 
-//** Note: Mainly here to suppress phpstorm warnings for debugging
+/** Note: Mainly here to suppress phpstorm warnings for debugging
 	function __get($name)
 	{
 		return $this->$name;

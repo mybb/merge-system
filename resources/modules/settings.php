@@ -37,6 +37,14 @@ abstract class Converter_Module_Settings extends Converter_Module
 		$output->print_progress("end");
 	}
 
+	/**
+	 * Rebuild the settings file at the end of this
+	 */
+	function finish()
+	{
+		rebuild_settings();
+	}
+
 	// Nothing to do for settings, they're handled differently
 	function convert_data($data) {}
 	function insert($data) {}

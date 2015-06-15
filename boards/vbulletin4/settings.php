@@ -215,11 +215,6 @@ class VBULLETIN4_Converter_Module_Settings extends Converter_Module_Settings {
 
 		return $import_session['total_settings'];
 	}
-
-	function finish()
-	{
-		rebuild_settings();
-	}
 }
 
 
