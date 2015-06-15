@@ -53,6 +53,7 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 		// MyBB 1.8 values
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
+		// TODO: it's not always a jpg file, need to get the extension. Check whether get_extension ignores query strings, possible PR?
 		$insert_data['avatar'] = $mybb->settings['avataruploadpath'] . "/avatar_{$insert_data['uid']}.jpg?dateline=".TIME_NOW;
 		$insert_data['avatardimensions'] = $data['avatardimensions'];
 		$insert_data['avatartype'] = $data['avatartype'];
