@@ -85,10 +85,7 @@ class Converter_Module_Posts extends Converter_Module
 
 		$this->get_import->cache_posts[$data['import_pid']] = $pid;
 
-		if(method_exists($this, "after_import"))
-		{
-			$this->after_import($unconverted_values, $converted_values, $pid);
-		}
+		$this->after_import($unconverted_values, $converted_values, $pid);
 
 		$this->increment_tracker('posts');
 

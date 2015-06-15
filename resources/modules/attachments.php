@@ -155,11 +155,8 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		{
 			++$total;
 
-			if(method_exists($this, "generate_raw_filename"))
-			{
-				$filename = $this->generate_raw_filename($attachment);
-			}
-			else
+			$filename = $this->generate_raw_filename($attachment);
+			if($filename === false)
 			{
 				$filename = $attachment[$path_column];
 			}
@@ -199,7 +196,15 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	 */
 	abstract function after_insert($unconverted_values, $converted_values, $aid);
 
-//	function generate_raw_filename($attachment);
+	/**
+	 * @param array $attachment
+	 *
+	 * @return bool|string
+	 */
+	function generate_raw_filename($attachment)
+	{
+		return false;
+	}
 }
 
 

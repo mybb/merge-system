@@ -203,28 +203,64 @@ abstract class Converter_Module
 	}
 
 	/**
+	 * Called every time when the module is setup (before "fetch_total" or "import")
+	 */
+	function pre_setup() {}
+
+	/**
+	 * Fetch the number of rows to insert. Needs to be the same number as "insert" is called!
+	 *
+	 * @return int
+	 */
+	abstract function fetch_total();
+
+	/**
+	 * Grab the data from the original database and call "insert" on every entry to insert.
+	 * Query should have the usual limit clause
+	 *
+	 * @return void
+	 */
+	abstract function import();
+
+	/**
+	 * Used to show progress, insert data and insert the array. Also updates internal caches. Calls "convert_data"
+	 * Usually the same for all boards
+	 *
+	 * @param array $data
+	 *
+	 * @return int The ID of the new row
+	 */
+	abstract function insert($data);
+
+	/**
+	 * Convert an array of original entry to an array that can be inserted into our database
+	 *
 	 * @param array $data
 	 *
 	 * @return array
 	 */
 	abstract function convert_data($data);
 
-//	function after_insert($unconverted_values, $converted_values, $aid) {}
+	/**
+	 * Perform any work after the new row has been inserted. Called from "insert", but not on all modules!
+	 * TODO: call it from all modules
+	 *
+	 * @param array $unconverted_values
+	 * @param array $converted_values
+	 * @param int $id The ID of the mybb row
+	 */
+	function after_insert($unconverted_values, $converted_values, $id) {}
 
 	/**
-	 * @return int
+	 * Called after all rows are inserted. So basically after "insert" has been called as many times as "fetch_total" returned
 	 */
-	abstract function fetch_total();
+	function finish() {}
 
-//	function finish() {}
+	/**
+	 * Called after "finish" is called. Except that the same
+	 */
+	function cleanup() {}
 
-	abstract function import();
-
-//	function cleanup() {}
-
-//	function pre_setup() {}
-
-	abstract function insert($data);
 }
 
 

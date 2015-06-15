@@ -891,10 +891,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		if($module->board->check_if_done())
 		{
 			// If we have anything to do "on finish"
-			if(method_exists($module, "finish"))
-			{
-				$module->finish();
-			}
+			$module->finish();
 
 			$finished = true;
 		}
@@ -911,13 +908,10 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 			}
 
 			// Do we need to do any setting up or checking before we start the actual import?
-			if(method_exists($module, "pre_setup"))
-			{
-				$module->pre_setup();
+			$module->pre_setup();
 
-				// Incase we updated any $import_session variables while we were setting up
-				update_import_session();
-			}
+			// Incase we updated any $import_session variables while we were setting up
+			update_import_session();
 
 			// Have we set our "per screen" amount yet?
 			if($import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
@@ -971,9 +965,8 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 
 		// Once we finished running a module we check if there are any post-functions that need to be run
 		// For instance, ususally we need to run a post-function on the forums to update the 'parentlist' properly
-		if(method_exists($module, "cleanup"))
+		if(isset($module))
 		{
-			$debug->log->trace2("Running module cleanup.");
 			$module->cleanup();
 		}
 

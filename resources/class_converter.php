@@ -338,11 +338,7 @@ abstract class Converter
 		$import_session['autorefresh'] = "";
 		$mybb->input['autorefresh'] = "no";
 
-		$extra = "";
-		if(method_exists($this, "db_extra"))
-		{
-			$extra = $this->db_extra();
-		}
+		$extra = $this->db_extra();
 
 		$output->print_database_details_table($this->plain_bbname, $extra);
 
@@ -463,6 +459,14 @@ abstract class Converter
 		}
 
 		return implode(',', $groups);
+	}
+
+	/**
+	 * @return string HTML to add to the db configuration page
+	 */
+	function db_extra()
+	{
+		return "";
 	}
 }
 
