@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class Converter
+abstract class Converter
 {
 	/**
 	 * An array of custom defined errors (i.e. attachments directory permission error)

@@ -209,7 +209,7 @@ abstract class Converter_Module
 	 */
 	abstract function convert_data($data);
 
-//	function after_insert($data) {}
+//	function after_insert($unconverted_values, $converted_values, $aid) {}
 
 	/**
 	 * @return int
@@ -223,6 +223,8 @@ abstract class Converter_Module
 //	function cleanup() {}
 
 //	function pre_setup() {}
+
+	abstract function insert($data);
 }
 
 

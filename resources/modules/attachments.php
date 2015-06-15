@@ -198,6 +198,8 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	 * @param int $aid
 	 */
 	abstract function after_insert($unconverted_values, $converted_values, $aid);
+
+//	function generate_raw_filename($attachment);
 }
 
 

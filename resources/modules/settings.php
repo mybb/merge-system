@@ -39,6 +39,7 @@ abstract class Converter_Module_Settings extends Converter_Module
 
 	// Nothing to do for settings, they're handled differently
 	function convert_data($data) {}
+	function insert($data) {}
 }
 
 
