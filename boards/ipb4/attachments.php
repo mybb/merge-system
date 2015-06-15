@@ -23,17 +23,14 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	public $path_column = "attach_location";
 
-	function pre_setup()
+	public $test_table = "core_attachments";
+
+	function get_upload_path()
 	{
-		global $mybb, $import_session;
-
-		$this->check_attachments_dir_perms();
-
-		// IPB 4 seems to save the full location
-		$import_session['uploadspath'] = $mybb->input['uploadspath'] = "";
-
-		// Test our ability to read attachment files from the forum software
-		$this->test_readability("core_attachments");
+		global $mybb;
+		// IPB 4 seems to save the full location - reset the input so the we check whether we can read the attachments
+		$mybb->input['uploadspath'] = "";
+		return "";
 	}
 
 	function import()

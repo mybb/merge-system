@@ -27,28 +27,22 @@ class WBB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $mybb;
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
-		{
-			$query = $this->old_db->simple_select(WCF_PREFIX."application", "domainName,domainPath", "isPrimary='1'");
-			$data = $this->old_db->fetch_array($query);
-			$import_session['uploadspath'] = "http://".$data['domainName'].$data['domainPath']."wcf/attachments/";
-		}
+		$this->test_table = WCF_PREFIX."attachment";
 
-		$this->check_attachments_dir_perms();
-
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			$this->test_readability(WCF_PREFIX."attachment");
-		}
+		parent::pre_setup();
 
 		// Don't ask - wbb...
 		$class = $this->old_db->escape_string("wbb\system\attachment\PostAttachmentObjectType");
 		$query = $this->old_db->simple_select(WCF_PREFIX."object_type", "objectTypeID", "className='{$class}'");
 		$this->objectID = $this->old_db->fetch_field($query, "objectTypeID");
 		$this->old_db->free_result($query);
+	}
+
+	function get_upload_path()
+	{
+		$query = $this->old_db->simple_select(WCF_PREFIX."application", "domainName,domainPath", "isPrimary='1'");
+		$data = $this->old_db->fetch_array($query);
+		return "http://".$data['domainName'].$data['domainPath']."wcf/attachments/";
 	}
 
 	function import()

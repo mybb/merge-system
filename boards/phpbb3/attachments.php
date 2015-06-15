@@ -23,41 +23,25 @@ class PHPBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	public $path_column = "physical_filename";
 
-	function pre_setup()
+	function get_upload_path()
 	{
-		global $import_session, $mybb;
+		$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_protocol'", array('limit' => 1));
+		$uploadspath = $this->old_db->fetch_field($query, 'config_value');
+		$this->old_db->free_result($query);
 
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
-		{
-			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_protocol'", array('limit' => 1));
-			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'config_value');
-			$this->old_db->free_result($query);
+		$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_name'", array('limit' => 1));
+		$uploadspath .= $this->old_db->fetch_field($query, 'config_value');
+		$this->old_db->free_result($query);
 
-			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'server_name'", array('limit' => 1));
-			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value');
-			$this->old_db->free_result($query);
+		$query = $this->old_db->simple_select("config", "config_value", "config_name = 'script_path'", array('limit' => 1));
+		$uploadspath .= $this->old_db->fetch_field($query, 'config_value').'/';
+		$this->old_db->free_result($query);
 
-			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'script_path'", array('limit' => 1));
-			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value').'/';
-			$this->old_db->free_result($query);
+		$query = $this->old_db->simple_select("config", "config_value", "config_name = 'upload_path'", array('limit' => 1));
+		$uploadspath .= $this->old_db->fetch_field($query, 'config_value');
+		$this->old_db->free_result($query);
 
-			$query = $this->old_db->simple_select("config", "config_value", "config_name = 'upload_path'", array('limit' => 1));
-			$import_session['uploadspath'] .= $this->old_db->fetch_field($query, 'config_value');
-			$this->old_db->free_result($query);
-
-			if(my_substr($import_session['uploadspath'], -1) != '/') {
-				$import_session['uploadspath'] .= '/';
-			}
-		}
-
-		$this->check_attachments_dir_perms();
-
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachments");
-		}
+		return $uploadspath;
 	}
 
 	function import()

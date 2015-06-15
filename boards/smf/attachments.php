@@ -27,42 +27,32 @@ class SMF_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $mybb;
-
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
+		if($this->old_db->field_exists("file_hash", "attachments"))
 		{
-			$query = $this->old_db->simple_select("settings", "value", "variable = 'attachmentUploadDir'", array('limit' => 1));
-			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'value');
+			$this->path_column = "ID_ATTACH,file_hash";
+		}
+		else
+		{
+			$this->path_column = "ID_ATTACH,filename";
+		}
+
+		parent::pre_setup();
+	}
+
+	function get_upload_path()
+	{
+		$query = $this->old_db->simple_select("settings", "value", "variable = 'attachmentUploadDir'", array('limit' => 1));
+		$uploadspath = $this->old_db->fetch_field($query, 'value');
+		$this->old_db->free_result($query);
+
+		if(empty($uploadspath))
+		{
+			$query = $this->old_db->simple_select("settings", "value", "variable = 'avatar_url'", array('limit' => 1));
+			$uploadspath = str_replace('avatars', 'attachments', $this->old_db->fetch_field($query, 'value'));
 			$this->old_db->free_result($query);
-
-			if(empty($import_session['uploadspath']))
-			{
-				$query = $this->old_db->simple_select("settings", "value", "variable = 'avatar_url'", array('limit' => 1));
-				$import_session['uploadspath'] = str_replace('avatars', 'attachments', $this->old_db->fetch_field($query, 'value'));
-				$this->old_db->free_result($query);
-			}
-
-			if(my_substr($import_session['uploadspath'], -1) != '/') {
-				$import_session['uploadspath'] .= '/';
-			}
 		}
 
-		$this->check_attachments_dir_perms();
-
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			if($this->old_db->field_exists("file_hash", "attachments"))
-			{
-				$this->path_column = "ID_ATTACH,file_hash";
-			}
-			else
-			{
-				$this->path_column = "ID_ATTACH,filename";
-			}
-			$this->test_readability("attachments");
-		}
+		return $uploadspath;
 	}
 
 	function import()

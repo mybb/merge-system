@@ -25,23 +25,17 @@ class WBB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function pre_setup()
 	{
-		global $import_session, $mybb;
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
-		{
-			$query = $this->old_db->simple_select(WCF_PREFIX."option", "optionValue", "optionName='page_url' AND optionValue!=''");
-			$import_session['uploadspath'] = $this->old_db->fetch_field($query, "optionValue");
-			$import_session['uploadspath'] .= "/wcf/attachments/";
-		}
+		$this->test_table = WCF_PREFIX."attachment";
 
-		$this->check_attachments_dir_perms();
+		parent::pre_setup();
+	}
 
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			$this->test_readability(WCF_PREFIX."attachment");
-		}
-
+	function get_upload_path()
+	{
+		$query = $this->old_db->simple_select(WCF_PREFIX."option", "optionValue", "optionName='page_url' AND optionValue!=''");
+		$uploadspath = $this->old_db->fetch_field($query, "optionValue") . "/wcf/attachments/";
+		$this->old_db->free_result($query);
+		return $uploadspath;
 	}
 
 	function import()

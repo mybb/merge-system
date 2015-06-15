@@ -23,25 +23,14 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 
 	public $path_colum = "attachment_id, data_id";
 
-	function pre_setup()
+	public $test_table = "attachment";
+
+	function get_upload_path()
 	{
-		global $import_session, $mybb;
-
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
-		{
-			$query = $this->old_db->simple_select("option", "option_value", "option_id='boardUrl'");
-			$import_session['uploadspath'] = $this->old_db->fetch_field($query, "option_value");
-			$import_session['uploadspath'] .= "/internal_data/attachments/";
-		}
-
-		$this->check_attachments_dir_perms();
-
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachment");
-		}
+		$query = $this->old_db->simple_select("option", "option_value", "option_id='boardUrl'");
+		$uploadspath = $this->old_db->fetch_field($query, "option_value") . "/internal_data/attachments/";
+		$this->old_db->free_result($query);
+		return $uploadspath;
 	}
 
 	function import()

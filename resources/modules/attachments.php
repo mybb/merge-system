@@ -39,9 +39,41 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	public $path_column = "";
 
 	/**
+	 * @var string
+	 */
+	public $test_table = "attachments";
+
+	/**
 	 * @var array
 	 */
 	private $thread_cache = array();
+
+	abstract function get_upload_path();
+
+	function pre_setup()
+	{
+		global $mybb, $import_session;
+
+		// Always check whether we can write to our own directory first
+		$this->check_attachments_dir_perms();
+
+		// Do we still need to set the uploads path?
+		if(!isset($import_session['uploadspath']))
+		{
+			$import_session['uploadspath'] = $this->get_upload_path();
+
+			// Make sure it ends on a slash if it's not empty - helps later
+			if(!empty($import_session['uploadspath']) && my_substr($import_session['uploadspath'], -1) != '/') {
+				$import_session['uploadspath'] .= '/';
+			}
+		}
+
+		// Test whether we can read
+		if(isset($mybb->input['uploadspath']))
+		{
+			$this->test_readability();
+		}
+	}
 
 	/**
 	 * Insert attachment into database
@@ -124,7 +156,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 	}
 
-	public function test_readability($table)
+	public function test_readability()
 	{
 		global $mybb, $import_session, $lang;
 
@@ -138,7 +170,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		if($mybb->input['uploadspath'])
 		{
 			$import_session['uploadspath'] = $mybb->input['uploadspath'];
-			if(substr($import_session['uploadspath'], strlen($import_session['uploadspath'])-1, 1) != '/')
+			if(!empty($import_session['uploadspath']) && my_substr($import_session['uploadspath'], -1) != '/')
 			{
 				$import_session['uploadspath'] .= '/';
 			}
@@ -157,7 +189,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 
 		$readable = $total = 0;
-		$query = $this->old_db->simple_select($table, $this->path_column);
+		$query = $this->old_db->simple_select($this->test_table, $this->path_column);
 		while($attachment = $this->old_db->fetch_array($query))
 		{
 			++$total;

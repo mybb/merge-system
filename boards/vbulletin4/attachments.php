@@ -169,6 +169,9 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 		return $import_session['total_attachments'];
 	}
+
+	// No need for an upload path, vb saves the complete file(!!!) in the database
+	function get_upload_path() {}
 }
 
 

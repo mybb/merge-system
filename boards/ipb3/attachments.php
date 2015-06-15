@@ -23,35 +23,12 @@ class IPB3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	public $path_column = "attach_location";
 
-	function pre_setup()
+	public function get_upload_path()
 	{
-		global $mybb, $import_session;
-
-		// Set uploads path
-		if(!isset($import_session['uploadspath']))
-		{
-			$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
-			$import_session['uploadspath'] = $this->old_db->fetch_field($query, 'conf_value');
-			$this->old_db->free_result($query);
-
-			if(my_substr($import_session['uploadspath'], -1) != '/') {
-				$import_session['uploadspath'] .= '/';
-			}
-		}
-
-		$this->check_attachments_dir_perms();
-
-		// Get number of polls per screen from form
-		if(isset($mybb->input['attachments_per_screen']))
-		{
-			$import_session['attachments_per_screen'] = intval($mybb->input['attachments_per_screen']);
-		}
-
-		if($mybb->input['uploadspath'])
-		{
-			// Test our ability to read attachment files from the forum software
-			$this->test_readability("attachments");
-		}
+		$query = $this->old_db->simple_select("core_sys_conf_settings", "conf_value", "conf_key = 'upload_url'", array('limit' => 1));
+		$uploadspath = $this->old_db->fetch_field($query, 'conf_value');
+		$this->old_db->free_result($query);
+		return $uploadspath;
 	}
 
 	function import()
