@@ -14,16 +14,6 @@ define('AVATAR_TYPE_GRAVATAR', 'gravatar');
 
 abstract class Converter_Module_Avatars extends Converter_Module
 {
-	/**
-	 * @var string
-	 */
-	public $path_column = "";
-
-	/**
-	 * @var string
-	 */
-	public $test_table = "";
-
 	abstract function get_avatar_path();
 
 	function pre_setup()
@@ -162,42 +152,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			$import_session['uploads_avatars_test'] = 0;
 		}
 
-		// TODO: Avatars are usually saved somewhere special. Also this should only check "uploaded" avatars
-/*		$readable = $total = 0;
-		$query = $this->old_db->simple_select($this->test_table, $this->path_column);
-		while($attachment = $this->old_db->fetch_array($query))
-		{
-			++$total;
-
-			$filename = $this->generate_raw_filename($attachment);
-
-			// If this is a relative or absolute server path, use is_readable to check
-			if(strpos($import_session['uploadspath'], '../') !== false || my_substr($import_session['uploadspath'], 0, 1) == '/' || my_substr($import_session['uploadspath'], 1, 1) == ':')
-			{
-				if(@is_readable($import_session['uploadspath'].$filename))
-				{
-					++$readable;
-				}
-			}
-			else
-			{
-				if(check_url_exists($import_session['uploadspath'].$filename))
-				{
-					++$readable;
-				}
-			}
-		}
-		$this->old_db->free_result($query);*/
-
-		// If less than 5% of our avatars are readable then it seems like we don't have a good uploads path set.
-		if((($readable/$total)*100) < 5)
-		{
-			$this->debug->log->error("Not enough avatar could be read: ".(($readable/$total)*100)."%");
-			// TODO: Does this lang string match?
-			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>'.$lang->attmodule_notread2;
-			$this->is_errors = true;
-			$import_session['uploads_avatars_test'] = 0;
-		}
+		// TODO: we can't check every single avatar here but we could try to check at least whether the directory is readable
 	}
 
 	function after_insert($unconverted_data, $converted_data, $aid)
@@ -252,10 +207,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	 *
 	 * @return bool|string
 	 */
-	function generate_raw_filename($avatar)
-	{
-		return isset($avatar[$this->path_column]) ? $avatar[$this->path_column]: '';
-	}
+	abstract function generate_raw_filename($avatar);
 }
 
 

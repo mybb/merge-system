@@ -53,10 +53,17 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 		// MyBB 1.8 values
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
-		// TODO: it's not always a jpg file, need to get the extension. Check whether get_extension ignores query strings, possible PR?
-		$insert_data['avatar'] = $mybb->settings['avataruploadpath'] . "/avatar_{$insert_data['uid']}.jpg?dateline=".TIME_NOW;
 		$insert_data['avatardimensions'] = $data['avatardimensions'];
 		$insert_data['avatartype'] = $data['avatartype'];
+
+		if($insert_data['avatartype'] == AVATAR_TYPE_UPLOAD) {
+			$ext = get_extension(my_substr($data['avatar'], 1)); // Need to substr here as relative paths are saved
+			$ext = my_substr($ext, 0, strrpos($ext, '?')); // Remove the query string
+			$insert_data['avatar'] = $mybb->settings['avataruploadpath'] . "/avatar_{$insert_data['uid']}.{$ext}?dateline=".TIME_NOW;
+		} else {
+			// Remote or gravatar can be copied without problems (we could update the dateline here though but we're lazy)
+			$insert_data['avatar'] = $data['avatar'];
+		}
 
 		return $insert_data;
 	}
