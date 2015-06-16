@@ -706,23 +706,47 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	delete_import_fields();
 
+	$cache->update_attachtypes();
+	$output->update_progress_bar(10);
+
 	$cache->update_stats();
+	$output->update_progress_bar(20);
+
+	$cache->update_most_replied_threads();
 	$output->update_progress_bar(30);
 
+	$cache->update_most_viewed_threads();
+	$output->update_progress_bar(40);
+
 	$cache->update_usergroups();
-	$output->update_progress_bar(60);
+	$output->update_progress_bar(50);
 
 	$cache->update_forums();
-	$output->update_progress_bar(90);
+	$output->update_progress_bar(60);
+
+	$cache->update_banned();
+	$output->update_progress_bar(70);
 
 	$cache->update_forumpermissions();
-	$output->update_progress_bar(120);
+	$output->update_progress_bar(80);
+
+	$cache->update_birthdays();
+	$output->update_progress_bar(90);
 
 	$cache->update_moderators();
-	$output->update_progress_bar(150);
+	$output->update_progress_bar(100);
 
 	$cache->update_usertitles();
-	$output->update_progress_bar(180);
+	$output->update_progress_bar(110);
+
+	$cache->update_awaitingactivation();
+	$output->update_progress_bar(120);
+
+	$cache->update_forumsdisplay();
+	$output->update_progress_bar(130);
+
+	$cache->update_groupleaders();
+	$output->update_progress_bar(140);
 
 	// Replaces orphaned attachment codes with "[ATTACHMENT NOT FOUND]"
 	$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o%'");
@@ -802,6 +826,8 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 		// Try and send statistics
 		merge_fetch_remote_file("http://community.mybb.com/merge_stats.php", $post_data);
 	}
+
+	$output->update_progress_bar(180);
 
 	$import_session['allow_anonymous_info'] = 0;
 
