@@ -100,7 +100,7 @@ class Converter_Module_Posts extends Converter_Module
 	 */
 	public function counters_cleanup()
 	{
-		global $db, $output, $import_session, $lang;
+		global $output, $lang;
 
 		$output->print_header($lang->module_post_rebuilding);
 
@@ -113,124 +113,142 @@ class Converter_Module_Posts extends Converter_Module
 		flush();
 
 		// Rebuild thread counters, forum counters, user post counters, last post* and thread username
+		$this->rebuild_thread_counters();
+		$this->rebuild_forum_counters();
+		$this->rebuild_user_counters();
+	}
+
+	private function rebuild_thread_counters()
+	{
+		global $db, $output, $import_session, $lang;
+
 		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid != 0");
 		$num_imported_threads = $db->fetch_field($query, "count");
 		$last_percent = 0;
 
-		if($import_session['counters_cleanup_start'] < $num_imported_threads)
-		{
-			$this->debug->log->trace1("Rebuilding thread counters");
-
-			$progress = $import_session['counters_cleanup_start'];
-			$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_cleanup_start']), 'limit' => 1000));
-			while($thread = $db->fetch_array($query))
-			{
-				rebuild_thread_counters($thread['tid']);
-
-				++$progress;
-
-				if(($progress % 5) == 0)
-				{
-					if(($progress % 100) == 0)
-					{
-						check_memory();
-					}
-					$percent = round(($progress/$num_imported_threads)*100, 1);
-					if($percent != $last_percent)
-					{
-						$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
-					}
-					$last_percent = $percent;
-				}
-			}
-
-			$import_session['counters_cleanup_start'] += $progress;
-
-			if($import_session['counters_cleanup_start'] >= $num_imported_threads)
-			{
-				$this->debug->log->trace1("Finished rebuilding thread counters");
-				$import_session['counters_cleanup'] = 0;
-				echo $lang->done;
-				flush();
-				return;
-			}
-			$import_session['counters_cleanup'] = 1;
+		if($import_session['counters_cleanup_start'] >= $num_imported_threads) {
 			return;
 		}
 
-		if($import_session['counters_cleanup_start'] >= $num_imported_threads)
+		$this->debug->log->trace1("Rebuilding thread counters");
+
+		$progress = $import_session['counters_cleanup_start'];
+		$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_cleanup_start']), 'limit' => 1000));
+		while($thread = $db->fetch_array($query))
 		{
-			$this->debug->log->trace1("Rebuilding forum counters");
-			echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
-			flush();
+			rebuild_thread_counters($thread['tid']);
 
-			$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid != 0");
-			$num_imported_forums = $db->fetch_field($query, "count");
-			$progress = 0;
+			++$progress;
 
-			$query = $db->simple_select("forums", "fid", "import_fid != 0", array('order_by' => 'fid', 'order_dir' => 'asc'));
-			while($forum = $db->fetch_array($query))
+			if(($progress % 5) == 0)
 			{
-				rebuild_forum_counters($forum['fid']);
-				++$progress;
-				$output->update_progress_bar(round((($progress/$num_imported_forums)*50), 1)+100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
-			}
-
-			$output->update_progress_bar(150);
-
-			$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
-			while($forum = $db->fetch_array($query))
-			{
-				$fids[] = $forum['fid'];
-			}
-
-			if(isset($fids) && is_array($fids))
-			{
-				$fids = implode(',', $fids);
-			}
-
-			if(!empty($fids))
-			{
-				$fids = " AND fid NOT IN($fids)";
-			}
-			else
-			{
-				$fids = "";
-			}
-
-			$this->debug->log->trace1("Rebuilding user counters");
-			echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
-			flush();
-
-			$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
-			$num_imported_users = $db->fetch_field($query, "count");
-			$progress = $last_percent = 0;
-
-			$query = $db->simple_select("users", "uid", "import_uid != 0");
-			while($user = $db->fetch_array($query))
-			{
-				$query2 = $db->simple_select("posts", "COUNT(*) AS post_count", "uid='{$user['uid']}' AND visible > 0{$fids}");
-				$num_posts = $db->fetch_field($query2, "post_count");
-				$db->free_result($query2);
-				$db->update_query("users", array("postnum" => intval($num_posts)), "uid='{$user['uid']}'");
-
-				++$progress;
-				$percent = round((($progress/$num_imported_users)*50)+150, 1);
+				if(($progress % 100) == 0)
+				{
+					check_memory();
+				}
+				$percent = round(($progress/$num_imported_threads)*100, 1);
 				if($percent != $last_percent)
 				{
-					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
 				}
 				$last_percent = $percent;
 			}
-			// TODO: recount user posts doesn't seem to work
-
-			$output->update_progress_bar(200, $lang->please_wait);
-
-			echo "{$lang->done}.<br />";
-			flush();
-
-			sleep(3);
 		}
+
+		$import_session['counters_cleanup_start'] += $progress;
+
+		if($import_session['counters_cleanup_start'] >= $num_imported_threads)
+		{
+			$this->debug->log->trace1("Finished rebuilding thread counters");
+			$import_session['counters_cleanup'] = 0;
+			echo $lang->done;
+			flush();
+			return;
+		}
+		$import_session['counters_cleanup'] = 1;
+		return;
+	}
+
+	private function rebuild_forum_counters()
+	{
+		global $db, $output, $lang;
+
+		$this->debug->log->trace1("Rebuilding forum counters");
+		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
+		flush();
+
+		$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid != 0");
+		$num_imported_forums = $db->fetch_field($query, "count");
+		$progress = 0;
+
+		$query = $db->simple_select("forums", "fid", "import_fid != 0",
+			array('order_by' => 'fid', 'order_dir' => 'asc'));
+		while ($forum = $db->fetch_array($query)) {
+			rebuild_forum_counters($forum['fid']);
+			++$progress;
+			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100,
+				$lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
+		}
+	}
+
+	private function rebuild_user_counters()
+	{
+		global $db, $output, $lang;
+
+		$output->update_progress_bar(150);
+
+		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
+		while($forum = $db->fetch_array($query))
+		{
+			$fids[] = $forum['fid'];
+		}
+
+		if(isset($fids) && is_array($fids))
+		{
+			$fids = implode(',', $fids);
+		}
+
+		if(!empty($fids))
+		{
+			$fids = " AND fid NOT IN($fids)";
+		}
+		else
+		{
+			$fids = "";
+		}
+
+		$this->debug->log->trace1("Rebuilding user counters");
+		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
+		flush();
+
+		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
+		$num_imported_users = $db->fetch_field($query, "count");
+		$progress = $last_percent = 0;
+
+		$query = $db->simple_select("users", "uid", "import_uid != 0");
+		while($user = $db->fetch_array($query))
+		{
+			$query2 = $db->simple_select("posts", "COUNT(*) AS post_count", "uid='{$user['uid']}' AND visible > 0{$fids}");
+			$num_posts = $db->fetch_field($query2, "post_count");
+			$db->free_result($query2);
+			$db->update_query("users", array("postnum" => intval($num_posts)), "uid='{$user['uid']}'");
+
+			++$progress;
+			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+		// TODO: recount user posts doesn't seem to work
+
+		$output->update_progress_bar(200, $lang->please_wait);
+
+		echo "{$lang->done}.<br />";
+		flush();
+
+		sleep(3);
 	}
 
 	// For some reason this module is initialized seperatly so we need to add an empty function here

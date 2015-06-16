@@ -817,6 +817,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	echo "<br /><br />\n{$lang->please_wait} <meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
 	exit;
 }
+// TODO: theoretically we don't need this and can simply redirect back to index.php here as the "module" part hasn't been removed yet
 elseif($import_session['counters_cleanup'])
 {
 	$debug->log->event("Show the counters cleanup page");
