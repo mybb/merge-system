@@ -73,22 +73,17 @@ class Cache_Handler
 	/**
 	 * Cache for poll ids
 	 */
-	var $cache_pollids = array();
+	var $cache_pollids;
 
 	/**
 	 * Cache for poll votes
 	 */
-	var $cache_pollvotes = array();
-
-	/**
-	 * Cache for event ids
-	 */
-	var $cache_eids = array();
+	var $cache_pollvotes;
 
 	/**
 	 * Cache for post information
 	 */
-	var $cache_posts = array();
+	var $cache_posts;
 
 	/**
 	 * Get an array of data needed for attachments from the posts table
@@ -550,7 +545,7 @@ class Cache_Handler
 		{
 			$events[$event['import_eid']] = $event['eid'];
 		}
-		$this->cache_eids = $events;
+		$this->cache_events = $events;
 		$db->free_result($query);
 
 		return $events;
