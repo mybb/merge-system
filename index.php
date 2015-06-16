@@ -817,33 +817,6 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	echo "<br /><br />\n{$lang->please_wait} <meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
 	exit;
 }
-// TODO: theoretically we don't need this and can simply redirect back to index.php here as the "module" part hasn't been removed yet
-elseif($import_session['counters_cleanup'])
-{
-	$debug->log->event("Show the counters cleanup page");
-
-	define("BACK_BUTTON", false);
-
-	// Get the converter up.
-	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
-	$class_name = strtoupper($import_session['board'])."_Converter";
-
-	$board = new $class_name;
-
-	require_once MERGE_ROOT.'resources/class_converter_module.php';
-	require_once MERGE_ROOT.'resources/modules/posts.php';
-	$module = new Converter_Module_Posts($board);
-
-	$module->counters_cleanup();
-
-	update_import_session();
-
-	// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
-	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
-	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
-	echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
-	exit;
-}
 // Otherwise that means we've selected a module to run or we're in one
 elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 {
@@ -969,14 +942,6 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		if(isset($module))
 		{
 			$module->cleanup();
-		}
-
-		// Once we finish with posts we always recount and update lastpost info, etc.
-		if($import_session['module'] == "import_posts")
-		{
-			/** @var Converter_Module_Posts $module */
-			$debug->log->trace2("Running import_posts counters cleanup.");
-			$module->counters_cleanup();
 		}
 
 		// Check to see if our module is in the 'resume modules' array still and remove it if so.

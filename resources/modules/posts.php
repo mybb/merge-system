@@ -7,7 +7,7 @@
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-class Converter_Module_Posts extends Converter_Module
+abstract class Converter_Module_Posts extends Converter_Module
 {
 	public $default_values = array(
 		'tid' => 0,
@@ -98,7 +98,7 @@ class Converter_Module_Posts extends Converter_Module
 	 * Rebuild counters, and lastpost information right after importing posts
 	 *
 	 */
-	public function counters_cleanup()
+	public function cleanup()
 	{
 		global $output, $lang;
 
@@ -126,14 +126,14 @@ class Converter_Module_Posts extends Converter_Module
 		$num_imported_threads = $db->fetch_field($query, "count");
 		$last_percent = 0;
 
-		if($import_session['counters_cleanup_start'] >= $num_imported_threads) {
+		if($import_session['counters_threads_start'] >= $num_imported_threads) {
 			return;
 		}
 
 		$this->debug->log->trace1("Rebuilding thread counters");
 
-		$progress = $import_session['counters_cleanup_start'];
-		$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_cleanup_start']), 'limit' => 1000));
+		$progress = $import_session['counters_threads_start'];
+		$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
 			rebuild_thread_counters($thread['tid']);
@@ -155,18 +155,24 @@ class Converter_Module_Posts extends Converter_Module
 			}
 		}
 
-		$import_session['counters_cleanup_start'] += $progress;
+		$import_session['counters_threads_start'] += $progress;
 
-		if($import_session['counters_cleanup_start'] >= $num_imported_threads)
+		if($import_session['counters_threads_start'] >= $num_imported_threads)
 		{
 			$this->debug->log->trace1("Finished rebuilding thread counters");
-			$import_session['counters_cleanup'] = 0;
 			echo $lang->done;
 			flush();
-			return;
 		}
-		$import_session['counters_cleanup'] = 1;
-		return;
+
+		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
+		if(!headers_sent())
+		{
+			header("Location: index.php");
+		}
+		else
+		{
+			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
+		}
 	}
 
 	private function rebuild_forum_counters()
@@ -181,21 +187,27 @@ class Converter_Module_Posts extends Converter_Module
 		$num_imported_forums = $db->fetch_field($query, "count");
 		$progress = 0;
 
-		$query = $db->simple_select("forums", "fid", "import_fid != 0",
-			array('order_by' => 'fid', 'order_dir' => 'asc'));
+		$query = $db->simple_select("forums", "fid", "import_fid != 0", array('order_by' => 'fid', 'order_dir' => 'asc'));
 		while ($forum = $db->fetch_array($query)) {
 			rebuild_forum_counters($forum['fid']);
 			++$progress;
-			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100,
-				$lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
+			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
+		}
+
+		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
+		if(!headers_sent())
+		{
+			header("Location: index.php");
+		}
+		else
+		{
+			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
 		}
 	}
 
 	private function rebuild_user_counters()
 	{
 		global $db, $output, $lang;
-
-		$output->update_progress_bar(150);
 
 		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
 		while($forum = $db->fetch_array($query))
@@ -243,18 +255,11 @@ class Converter_Module_Posts extends Converter_Module
 		}
 		// TODO: recount user posts doesn't seem to work
 
-		$output->update_progress_bar(200, $lang->please_wait);
+		$output->update_progress_bar(100, $lang->please_wait);
 
 		echo "{$lang->done}.<br />";
 		flush();
-
-		sleep(3);
 	}
-
-	// For some reason this module is initialized seperatly so we need to add an empty function here
-	function convert_data($data) {}
-	function fetch_total() {}
-	function import() {}
 }
 
 
