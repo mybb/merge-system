@@ -115,7 +115,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 		// Rebuild thread counters, forum counters, user post counters, last post* and thread username
 		$this->rebuild_thread_counters();
 		$this->rebuild_forum_counters();
-		$this->rebuild_user_counters();
+		$this->rebuild_user_post_counters();
+		$this->rebuild_user_thread_counters();
 	}
 
 	private function rebuild_thread_counters()
@@ -136,6 +137,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
+			// Updates "replies", "unapprovedposts", "deletedposts" and firstpost/lastpost data
 			rebuild_thread_counters($thread['tid']);
 
 			++$progress;
@@ -177,7 +179,11 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 	private function rebuild_forum_counters()
 	{
-		global $db, $output, $lang;
+		global $db, $output, $lang, $import_session;
+
+		if(isset($import_session['counters_forum'])) {
+			return;
+		}
 
 		$this->debug->log->trace1("Rebuilding forum counters");
 		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
@@ -189,10 +195,13 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		$query = $db->simple_select("forums", "fid", "import_fid != 0", array('order_by' => 'fid', 'order_dir' => 'asc'));
 		while ($forum = $db->fetch_array($query)) {
+			// TODO: From the code this should also update the lastpost data - which isn't done
 			rebuild_forum_counters($forum['fid']);
 			++$progress;
 			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 		}
+
+		$import_session['counters_forum'] = 1;
 
 		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
 		if(!headers_sent())
@@ -205,9 +214,13 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 	}
 
-	private function rebuild_user_counters()
+	private function rebuild_user_post_counters()
 	{
-		global $db, $output, $lang;
+		global $db, $output, $lang, $import_session;
+
+		if(isset($import_session['counters_user_posts'])) {
+			return;
+		}
 
 		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
 		while($forum = $db->fetch_array($query))
@@ -240,7 +253,13 @@ abstract class Converter_Module_Posts extends Converter_Module
 		$query = $db->simple_select("users", "uid", "import_uid != 0");
 		while($user = $db->fetch_array($query))
 		{
-			$query2 = $db->simple_select("posts", "COUNT(*) AS post_count", "uid='{$user['uid']}' AND visible > 0{$fids}");
+			$query2 = $db->query("
+				SELECT COUNT(p.pid) AS post_count
+				FROM ".TABLE_PREFIX."posts p
+				LEFT JOIN ".TABLE_PREFIX."threads t ON (t.tid=p.tid)
+				WHERE p.uid='{$user['uid']}' AND t.visible > 0 AND p.visible > 0{$fids}
+			");
+
 			$num_posts = $db->fetch_field($query2, "post_count");
 			$db->free_result($query2);
 			$db->update_query("users", array("postnum" => intval($num_posts)), "uid='{$user['uid']}'");
@@ -253,12 +272,102 @@ abstract class Converter_Module_Posts extends Converter_Module
 			}
 			$last_percent = $percent;
 		}
-		// TODO: recount user posts doesn't seem to work
+		// TODO: recount user posts doesn't seem to work though it's the same code as in the acp
 
 		$output->update_progress_bar(100, $lang->please_wait);
 
 		echo "{$lang->done}.<br />";
 		flush();
+
+		$import_session['counters_user_posts'] = 1;
+
+		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
+		if(!headers_sent())
+		{
+			header("Location: index.php");
+		}
+		else
+		{
+			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
+		}
+	}
+
+	// TODO: langstrings
+	private function rebuild_user_thread_counters()
+	{
+		global $db, $output, $lang, $import_session;
+
+		if(isset($import_session['counters_user_threads'])) {
+			return;
+		}
+
+		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
+		while($forum = $db->fetch_array($query))
+		{
+			$fids[] = $forum['fid'];
+		}
+
+		if(isset($fids) && is_array($fids))
+		{
+			$fids = implode(',', $fids);
+		}
+
+		if(!empty($fids))
+		{
+			$fids = " AND fid NOT IN($fids)";
+		}
+		else
+		{
+			$fids = "";
+		}
+
+		$this->debug->log->trace1("Rebuilding user thread counters");
+		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
+		flush();
+
+		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
+		$num_imported_users = $db->fetch_field($query, "count");
+		$progress = $last_percent = 0;
+
+		$query = $db->simple_select("users", "uid", "import_uid != 0");
+		while($user = $db->fetch_array($query))
+		{
+			$query2 = $db->query("
+				SELECT COUNT(t.tid) AS thread_count
+				FROM ".TABLE_PREFIX."threads t
+				WHERE t.uid='{$user['uid']}' AND t.visible > 0 AND t.closed NOT LIKE 'moved|%'{$fids}
+			");
+			$num_threads = $db->fetch_field($query2, "thread_count");
+			$db->free_result($query2);
+			$db->update_query("users", array("threadnum" => (int)$num_threads), "uid='{$user['uid']}'");
+
+
+			++$progress;
+			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+		// TODO: recount user posts doesn't seem to work though it's the same code as in the acp
+
+		$output->update_progress_bar(100, $lang->please_wait);
+
+		echo "{$lang->done}.<br />";
+		flush();
+
+		$import_session['counters_user_threads'] = 1;
+
+		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
+		if(!headers_sent())
+		{
+			header("Location: index.php");
+		}
+		else
+		{
+			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
+		}
 	}
 }
 
