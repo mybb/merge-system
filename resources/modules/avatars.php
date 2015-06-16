@@ -152,7 +152,13 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			$import_session['uploads_avatars_test'] = 0;
 		}
 
-		// TODO: we can't check every single avatar here but we could try to check at least whether the directory is readable
+		if(!check_url_exists($mybb->input['avatarspath'])) {
+			$this->debug->log->error("Avatar directory not readable");
+			// TODO: langstring
+			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>'.$lang->attmodule_notread2;
+			$this->is_errors = true;
+			$import_session['uploads_avatars_test'] = 0;
+		}
 	}
 
 	function after_insert($unconverted_data, $converted_data, $aid)
