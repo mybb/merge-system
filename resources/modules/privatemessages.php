@@ -101,7 +101,6 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 		return $pmid;
 	}
 
-	// TODO: langstrings
 	public function cleanup()
 	{
 		global $db, $output, $lang;
@@ -115,7 +114,6 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 		$output->construct_progress_bar();
 
 		echo $lang->module_post_rebuild_counters;
-
 		flush();
 
 		$query = $db->simple_select("users", "uid", 'import_uid > 0');
@@ -130,14 +128,14 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 			$percent = round((($progress/$num_imported_users)*50)+150, 1);
 			if($percent != $last_percent)
 			{
-				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
 			}
 			$last_percent = $percent;
 		}
 
 		$output->update_progress_bar(100, $lang->please_wait);
 
-		echo "{$lang->done}.<br />";
+		echo $lang->done;
 		flush();
 	}
 }

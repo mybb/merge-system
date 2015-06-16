@@ -164,13 +164,14 @@ $l['progress_none_left_settings'] = "There are no {1} to update. Please press ne
 $l['import_successfully'] = "Successfully imported {1}.";
 
 $l['module_post_rebuilding'] = "Rebuilding Counters";
-$l['module_post_rebuild_counters'] = "<br />\nRebuilding thread, forum, and statistic counters...(This may take a while)<br /><br />\n
-<br />\nRebuilding thread counters... ";
+$l['module_post_rebuild_counters'] = "<br />\nRebuilding internal counters...(This may take a while)<br />";
+$l['module_post_rebuilding_thread'] = "Rebuilding thread counters...";
 $l['module_post_thread_counter'] = "Rebuilding counters for thread #{1}";
 $l['module_post_rebuilding_forum'] = "Rebuilding forum counters...";
 $l['module_post_forum_counter'] = "Rebuilding counters for forum #{1}";
-$l['module_post_rebuilding_user'] = "Rebuilding user counters...";
+$l['module_post_rebuilding_user_post'] = "Rebuilding user post counters...";
 $l['module_post_user_counter'] = "Rebuilding counters for user #{1}";
+$l['module_post_rebuilding_user_thread'] = "Rebuilding user thread counters...";
 
 $l['module_settings_updating'] = "Updating settings {1}";
 

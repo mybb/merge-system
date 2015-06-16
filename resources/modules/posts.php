@@ -132,6 +132,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 
 		$this->debug->log->trace1("Rebuilding thread counters");
+		echo $lang->module_post_rebuilding_thread;
+		flush();
 
 		$progress = $import_session['counters_threads_start'];
 		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
@@ -178,7 +180,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 
 		$this->debug->log->trace1("Rebuilding forum counters");
-		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
+		echo $lang->module_post_rebuilding_forum;
 		flush();
 
 		$query = $db->simple_select("forums", "fid", "import_fid > 0");
@@ -191,6 +193,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 			++$progress;
 			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 		}
+
+		echo $lang->done;
 
 		$this->redirect('counters_forum');
 	}
@@ -224,7 +228,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 
 		$this->debug->log->trace1("Rebuilding user counters");
-		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
+		echo $lang->module_post_rebuilding_user_post;
 		flush();
 
 		$query = $db->simple_select("users", "uid", "import_uid > 0");
@@ -256,13 +260,12 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		$output->update_progress_bar(100, $lang->please_wait);
 
-		echo "{$lang->done}.<br />";
+		echo $lang->done;
 		flush();
 
 		$this->redirect('counters_user_posts');
 	}
 
-	// TODO: langstrings
 	private function rebuild_user_thread_counters()
 	{
 		global $db, $output, $lang, $import_session;
@@ -292,7 +295,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 
 		$this->debug->log->trace1("Rebuilding user thread counters");
-		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
+		echo $lang->module_post_rebuilding_user_thread;
 		flush();
 
 		$query = $db->simple_select("users", "uid", "import_uid > 0");
@@ -323,10 +326,12 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		$output->update_progress_bar(100, $lang->please_wait);
 
-		echo "{$lang->done}.<br />";
+		echo $lang->done;
 		flush();
 
-		$this->redirect('counters_users_threads');
+		// Not needed as this is the latest rebuilding so we need to continue the normal code
+		// If a new counter function is called after this we'd need to uncomment this
+//		$this->redirect('counters_users_threads');
 	}
 
 	private function redirect($finished = "")
