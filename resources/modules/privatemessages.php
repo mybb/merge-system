@@ -100,6 +100,47 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 
 		return $pmid;
 	}
+
+	// TODO: langstrings
+	public function cleanup()
+	{
+		global $db, $output, $lang;
+
+		require_once MYBB_ROOT."inc/functions_user.php";
+
+		$output->print_header($lang->module_post_rebuilding);
+
+		$this->debug->log->trace0("Rebuilding private message counters");
+
+		$output->construct_progress_bar();
+
+		echo $lang->module_post_rebuild_counters;
+
+		flush();
+
+		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
+		$num_imported_users = $db->fetch_field($query, "count");
+		$progress = $last_percent = 0;
+
+		$query = $db->simple_select("users", "uid", 'import_uid > 0', array('order_by' => 'uid', 'order_dir' => 'asc'));
+		while($user = $db->fetch_array($query))
+		{
+			update_pm_count($user['uid']);
+
+			++$progress;
+			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+
+		$output->update_progress_bar(100, $lang->please_wait);
+
+		echo "{$lang->done}.<br />";
+		flush();
+	}
 }
 
 
