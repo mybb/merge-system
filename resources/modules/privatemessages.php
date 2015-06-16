@@ -125,7 +125,7 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 			update_pm_count($user['uid']);
 
 			++$progress;
-			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			$percent = round(($progress/$num_imported_users)*100, 1);
 			if($percent != $last_percent)
 			{
 				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
@@ -133,10 +133,28 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 			$last_percent = $percent;
 		}
 
-		$output->update_progress_bar(100, $lang->please_wait);
+		$output->update_progress_bar(100);
 
-		// TODO: Update the "pmnotice" column for all recipients
-		// if($rec['pmnotice'] == 1) $rec['pmnotice'] = 2
+		// Number of users which want pm notices and have unread pms
+		$query = $db->simple_select('users', 'uid', 'import_uid > 0 AND pmnotice = 1 AND unreadpms > 0');
+		$to_update = $db->num_rows($query);
+		$progress = $last_percent = 0;
+
+		while($user = $db->fetch_array($query))
+		{
+			$db->update_query('users', array('pmnotice' => 2), "uid={$user['uid']}");
+
+			++$progress;
+			$percent = round(($progress/$to_update)*100+100, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+
+		$output->update_progress_bar(200, $lang->please_wait);
+
 		echo $lang->done;
 		flush();
 	}
