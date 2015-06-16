@@ -150,7 +150,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 				{
 					check_memory();
 				}
-				$percent = round(($progress/$num_imported_threads)*100, 1);
+				$percent = round(($progress/$num_imported_threads)*200, 1);
 				if($percent != $last_percent)
 				{
 					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
@@ -191,7 +191,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			// TODO: From the code this should also update the lastpost data - which isn't done
 			rebuild_forum_counters($forum['fid']);
 			++$progress;
-			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
+			$output->update_progress_bar(round(($progress / $num_imported_forums) * 200, 1), $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 		}
 
 		echo $lang->done;
@@ -249,7 +249,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$db->update_query("users", array("postnum" => (int)$num_posts), "uid='{$user['uid']}'");
 
 			++$progress;
-			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
 				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
@@ -315,7 +315,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 
 			++$progress;
-			$percent = round((($progress/$num_imported_users)*50)+150, 1);
+			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
 				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
@@ -341,6 +341,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$import_session[$finished] = 1;
 		}
 
+		update_import_session();
+
 		if(!headers_sent())
 		{
 			header("Location: index.php");
@@ -349,6 +351,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		{
 			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
 		}
+		exit;
 	}
 }
 

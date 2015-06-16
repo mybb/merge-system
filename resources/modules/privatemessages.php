@@ -135,6 +135,8 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 
 		$output->update_progress_bar(100, $lang->please_wait);
 
+		// TODO: Update the "pmnotice" column for all recipients
+		// if($rec['pmnotice'] == 1) $rec['pmnotice'] = 2
 		echo $lang->done;
 		flush();
 	}
