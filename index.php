@@ -835,7 +835,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	$output->update_progress_bar(200);
 
-	echo "done.<br />\n";
+	echo $lang->done."<br />\n";
 	flush();
 
 	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.

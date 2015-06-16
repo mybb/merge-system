@@ -118,11 +118,10 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 
 		flush();
 
-		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
-		$num_imported_users = $db->fetch_field($query, "count");
+		$query = $db->simple_select("users", "uid", 'import_uid > 0');
+		$num_imported_users = $db->num_rows($query);
 		$progress = $last_percent = 0;
 
-		$query = $db->simple_select("users", "uid", 'import_uid > 0', array('order_by' => 'uid', 'order_dir' => 'asc'));
 		while($user = $db->fetch_array($query))
 		{
 			update_pm_count($user['uid']);

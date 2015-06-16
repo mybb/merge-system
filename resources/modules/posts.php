@@ -123,7 +123,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 	{
 		global $db, $output, $import_session, $lang;
 
-		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid != 0");
+		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid > 0");
 		$num_imported_threads = $db->fetch_field($query, "count");
 		$last_percent = 0;
 
@@ -134,7 +134,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		$this->debug->log->trace1("Rebuilding thread counters");
 
 		$progress = $import_session['counters_threads_start'];
-		$query = $db->simple_select("threads", "tid", "import_tid != 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
+		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
 			// Updates "replies", "unapprovedposts", "deletedposts" and firstpost/lastpost data
@@ -166,15 +166,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			flush();
 		}
 
-		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
-		if(!headers_sent())
-		{
-			header("Location: index.php");
-		}
-		else
-		{
-			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
-		}
+		$this->redirect();
 	}
 
 	private function rebuild_forum_counters()
@@ -189,11 +181,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_forum} ";
 		flush();
 
-		$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid != 0");
-		$num_imported_forums = $db->fetch_field($query, "count");
+		$query = $db->simple_select("forums", "fid", "import_fid > 0");
+		$num_imported_forums = $db->num_rows($query);
 		$progress = 0;
 
-		$query = $db->simple_select("forums", "fid", "import_fid != 0", array('order_by' => 'fid', 'order_dir' => 'asc'));
 		while ($forum = $db->fetch_array($query)) {
 			// TODO: From the code this should also update the lastpost data - which isn't done
 			rebuild_forum_counters($forum['fid']);
@@ -201,17 +192,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$output->update_progress_bar(round((($progress / $num_imported_forums) * 50), 1) + 100, $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 		}
 
-		$import_session['counters_forum'] = 1;
-
-		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
-		if(!headers_sent())
-		{
-			header("Location: index.php");
-		}
-		else
-		{
-			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
-		}
+		$this->redirect('counters_forum');
 	}
 
 	private function rebuild_user_post_counters()
@@ -246,11 +227,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
 		flush();
 
-		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
-		$num_imported_users = $db->fetch_field($query, "count");
+		$query = $db->simple_select("users", "uid", "import_uid > 0");
+		$num_imported_users = $db->num_rows($query);
 		$progress = $last_percent = 0;
 
-		$query = $db->simple_select("users", "uid", "import_uid != 0");
 		while($user = $db->fetch_array($query))
 		{
 			$query2 = $db->query("
@@ -262,7 +242,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 			$num_posts = $db->fetch_field($query2, "post_count");
 			$db->free_result($query2);
-			$db->update_query("users", array("postnum" => intval($num_posts)), "uid='{$user['uid']}'");
+			$db->update_query("users", array("postnum" => (int)$num_posts), "uid='{$user['uid']}'");
 
 			++$progress;
 			$percent = round((($progress/$num_imported_users)*50)+150, 1);
@@ -279,17 +259,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo "{$lang->done}.<br />";
 		flush();
 
-		$import_session['counters_user_posts'] = 1;
-
-		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
-		if(!headers_sent())
-		{
-			header("Location: index.php");
-		}
-		else
-		{
-			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
-		}
+		$this->redirect('counters_user_posts');
 	}
 
 	// TODO: langstrings
@@ -325,11 +295,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo "{$lang->done}. <br />{$lang->module_post_rebuilding_user} ";
 		flush();
 
-		$query = $db->simple_select("users", "COUNT(*) as count", "import_uid != 0");
-		$num_imported_users = $db->fetch_field($query, "count");
+		$query = $db->simple_select("users", "uid", "import_uid > 0");
+		$num_imported_users = $db->num_rows($query);
 		$progress = $last_percent = 0;
 
-		$query = $db->simple_select("users", "uid", "import_uid != 0");
 		while($user = $db->fetch_array($query))
 		{
 			$query2 = $db->query("
@@ -357,9 +326,16 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo "{$lang->done}.<br />";
 		flush();
 
-		$import_session['counters_user_threads'] = 1;
+		$this->redirect('counters_users_threads');
+	}
 
-		// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
+	private function redirect($finished = "")
+	{
+		if(!empty($finished)) {
+			global $import_session;
+			$import_session[$finished] = 1;
+		}
+
 		if(!headers_sent())
 		{
 			header("Location: index.php");
