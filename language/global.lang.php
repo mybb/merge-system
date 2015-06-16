@@ -181,13 +181,16 @@ $l['module_attachment_not_found'] = "Error could not find the attachment (ID: {1
 $l['module_attachment_thumbnail_error'] = "Error transfering the attachment thumbnail (ID: {1})";
 $l['module_attachment_thumbnail_not_found'] = "Error could not find the attachment thumbnail (ID: {1})";
 
-$l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
-$l['attmodule_chmod'] = "chmod";
-$l['attmodule_notwritable2'] = " permissions to allow it to be written to.";
 $l['attmodule_ipadress'] = "You may not use \"localhost\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
 $l['attmodule_ipadress2'] = "You may not use \"127.0.0.1\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
-$l['attmodule_notread'] = "The attachments could not be read. Please adjust the ";
-$l['attmodule_notread2'] = " permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file.";
+
+$l['module_avatar_link'] = "Please type in the link to your {1} avatar directory";
+$l['module_avatar_label'] = "Link (URL) to your forum avatar directory";
+$l['module_avatar_error'] = "Error transfering the avatar (ID: {1})";
+$l['module_avatar_not_found'] = "Error could not find the avatar (ID: {1})";
+
+$l['upload_not_writeable'] = 'The uploads directory ({1}) is not writable. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be written to.';
+$l['download_not_readable'] = 'The directory could not be read. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file.';
 
 $l['removing_table'] = "Removing {1} table.";
 $l['removing_columns'] = "Removing columns {1} from table {2}";

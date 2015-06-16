@@ -87,7 +87,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 	public function check_avatar_dir_perms()
 	{
-		global $import_session, $output, $lang;
+		global $import_session, $output, $lang, $mybb;
 
 		if($import_session['total_avatars'] <= 0)
 		{
@@ -103,8 +103,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			if(!$uploadswritable)
 			{
 				$this->debug->log->error("Avatars directory is not writable");
-				// TODO: Does that language string match?
-				$this->errors[] = $lang->attmodule_notwritable.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>';
+				$this->errors[] = $lang->sprintf($lang->upload_not_writeable, 'uploads/avatar/');
 				@fclose($uploadswritable);
 				$output->print_error_page();
 			}
@@ -154,8 +153,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 		if(!check_url_exists($mybb->input['avatarspath'])) {
 			$this->debug->log->error("Avatar directory not readable");
-			// TODO: langstring
-			$this->errors[] = $lang->attmodule_notread.'<a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">'.$lang->attmodule_chmod.'</a>'.$lang->attmodule_notread2;
+			$this->errors[] = $lang->download_not_readable;
 			$this->is_errors = true;
 			$import_session['uploads_avatars_test'] = 0;
 		}
@@ -180,8 +178,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			}
 			else
 			{
-				// TODO: langstring
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
+				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_avatar_error, $aid));
 			}
 			@fclose($avatar);
 
@@ -189,8 +186,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		}
 		else
 		{
-			// TODO: Langstring
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
+			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_avatar_not_found, $aid));
 		}
 	}
 
@@ -198,12 +194,11 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	{
 		global $import_session, $lang;
 
-		// TODO: langstring
 		echo '<tr>
-<th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
+<th colspan="2" class="first last">'.$lang->sprintf($lang->module_avatar_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
-<td><label for="avatarspath"> '.$lang->module_attachment_label.':</label></td>
+<td><label for="avatarspath"> '.$lang->module_avatar_label.':</label></td>
 <td width="50%"><input type="text" name="avatarspath" id="avatarspath" value="'.$import_session['avatarspath'].'" style="width: 95%;" /></td>
 </tr>';
 	}
