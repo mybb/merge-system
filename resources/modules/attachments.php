@@ -251,7 +251,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 
 		if(!isset($this->thread_cache[$converted_data['pid']])) {
-			$query = $db->simple_select("posts", "tid", "pid='{$converted_data['pid']}");
+			$query = $db->simple_select("posts", "tid", "pid={$converted_data['pid']}");
 			$this->thread_cache[$converted_data['pid']] = $db->fetch_field($query, "tid");
 		}
 		// TODO: This may not work with SQLite/PgSQL
