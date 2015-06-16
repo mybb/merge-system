@@ -23,12 +23,14 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function get_avatar_path()
 	{
+		global $import_session;
 		$query = $this->old_db->simple_select("settings", "value", "name = 'bburl'", array('limit' => 1));
 		$bburl = $this->old_db->fetch_field($query, 'value');
 		$this->old_db->free_result($query);
 
 		$query = $this->old_db->simple_select("settings", "value", "name = 'avataruploadpath'", array('limit' => 1));
-		$uploadspath = str_replace('./', $bburl.'/', $this->old_db->fetch_field($query, 'value'));
+		$import_session['relative_avatar_path'] = $this->old_db->fetch_field($query, 'value'); // Needed later again to generate raw filenames
+		$uploadspath = str_replace('./', $bburl.'/', $import_session['relative_avatar_path']);
 		$this->old_db->free_result($query);
 
 		return $uploadspath;
@@ -38,7 +40,7 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("users", "*", "avatars!='", array('limit_start' => $this->trackers['start_attachments'], 'limit' => $import_session['attachments_per_screen']));
+		$query = $this->old_db->simple_select("users", "*", "avatar!=''", array('limit_start' => $this->trackers['start_avatars'], 'limit' => $import_session['avatars_per_screen']));
 		while($avatar = $this->old_db->fetch_array($query))
 		{
 			$this->insert($avatar);
@@ -75,7 +77,7 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 		// Get number of users with avatar
 		if(!isset($import_session['total_avatars']))
 		{
-			$query = $this->old_db->simple_select("users", "COUNT(*) as count", "avatar!='");
+			$query = $this->old_db->simple_select("users", "COUNT(*) as count", "avatar!=''");
 			$import_session['total_avatars'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
@@ -87,7 +89,7 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 	{
 		global $import_session;
 
-		return ltrim(str_replace($import_session['avatarspath'], '', $avatar['avatar']), '/');
+		return ltrim(str_replace($import_session['relative_avatar_path'], '', $avatar['avatar']), '/');
 	}
 }
 

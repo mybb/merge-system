@@ -171,7 +171,11 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		$data_file = merge_fetch_remote_file($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 		if(!empty($data_file))
 		{
-			$avatar = @fopen(str_replace('./', $mybb->settings['bburl'].'/', $converted_data['avatar']), 'w');
+			if(substr($converted_data['avatar'], 0, 2) == "./" || substr($converted_data['avatar'], 0, 3) == "../")
+			{
+				$converted_data['avatar'] = MYBB_ROOT.$converted_data['avatar'];
+			}
+			$converted_data['avatar'] = my_substr($converted_data['avatar'], 0, strpos($converted_data['avatar'], '?'));$avatar = fopen($converted_data['avatar'], 'w');
 			if($avatar)
 			{
 				@fwrite($avatar, $data_file);
@@ -182,7 +186,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			}
 			@fclose($avatar);
 
-			@my_chmod(str_replace('./', $mybb->settings['bburl'].'/', $converted_data['avatar']), '0777');
+			@my_chmod($converted_data['avatar'], '0777');
 		}
 		else
 		{

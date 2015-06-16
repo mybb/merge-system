@@ -43,6 +43,13 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 		/** @var array $field_info */
 		static $field_info;
 
+		// Avatars have a special module
+		$ignore = array(
+			'avatar',
+			'avatartype',
+			'avatardimensions',
+		);
+
 		if(!isset($field_info))
 		{
 			// Get columns so we avoid any 'unknown column' errors
@@ -53,6 +60,10 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 
 		foreach($field_info as $key => $field)
 		{
+			if(in_array($field['Field'], $ignore)) {
+				continue;
+			}
+
 			if($field['Extra'] == 'auto_increment')
 			{
 				if($db->type != "sqlite")
