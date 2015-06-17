@@ -151,7 +151,16 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			$import_session['uploads_avatars_test'] = 0;
 		}
 
-		if(!check_url_exists($mybb->input['avatarspath'])) {
+		if(strpos($import_session['avatarspath'], '../') !== false || my_substr($import_session['avatarspath'], 0, 1) == '/' || my_substr($import_session['avatarspath'], 1, 1) == ':')
+		{
+			$readable = @is_readable($import_session['avatarspath']);
+		}
+		else
+		{
+			$readable = check_url_exists($import_session['avatarspath']);
+		}
+
+		if(!$readable) {
 			$this->debug->log->error("Avatar directory not readable");
 			$this->errors[] = $lang->download_not_readable;
 			$import_session['uploads_avatars_test'] = 0;
@@ -171,6 +180,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		}
 
 		// Transfer avatar
+		$this->debug->log->error($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 		$data_file = merge_fetch_remote_file($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 		if(!empty($data_file))
 		{

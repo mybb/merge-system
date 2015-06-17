@@ -89,7 +89,8 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 	{
 		global $import_session;
 
-		return ltrim(str_replace($import_session['relative_avatar_path'], '', $avatar['avatar']), '/');
+		$filename = ltrim(str_replace($import_session['relative_avatar_path'], '', $avatar['avatar']), '/');
+		return my_substr($filename, 0, strpos($filename, '?'));
 	}
 }
 

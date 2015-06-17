@@ -175,7 +175,7 @@ $l['module_post_user_counter'] = "Rebuilding counters for user #{1}";
 $l['module_settings_updating'] = "Updating settings {1}";
 
 $l['module_attachment_link'] = "Please type in the link to your {1} forum attachment directory";
-$l['module_attachment_label'] = "Link (URL) to your forum attachment directory";
+$l['module_attachment_label'] = "Link (URL) to your forum attachment directory<br /><span class='smalltext'>If possible use a relative or absolute path. Note that the <b>merge</b> directory is used as working directory</span>";
 $l['module_attachment_error'] = "Error transfering the attachment (ID: {1})";
 $l['module_attachment_not_found'] = "Error could not find the attachment (ID: {1})";
 $l['module_attachment_thumbnail_error'] = "Error transfering the attachment thumbnail (ID: {1})";
@@ -185,7 +185,7 @@ $l['attmodule_ipadress'] = "You may not use \"localhost\" in the URL. Please use
 $l['attmodule_ipadress2'] = "You may not use \"127.0.0.1\" in the URL. Please use your Internet IP Address (Please make sure Port 80 is open on your firewall and router).";
 
 $l['module_avatar_link'] = "Please type in the link to your {1} avatar directory";
-$l['module_avatar_label'] = "Link (URL) to your forum avatar directory";
+$l['module_avatar_label'] = "Link (URL) to your forum avatar directory<br /><span class='smalltext'>If possible use a relative or absolute path. Note that the <b>merge</b> directory is used as working directory</span>";
 $l['module_avatar_error'] = "Error transfering the avatar (ID: {1})";
 $l['module_avatar_not_found'] = "Error could not find the avatar (ID: {1})";
 

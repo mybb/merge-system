@@ -643,8 +643,9 @@ function merge_fetch_remote_file($url, $post_data=array())
 		$post_body = ltrim($post_body, '&');
 	}
 
-	// Use this method if we have a relative or absolute path as our url
-	if(my_substr($url, 0, 1) == '.' || my_substr($url, 0, 1) == '/' || my_substr($url, 1, 2) == ':\\')
+	// Use fopen if we have an internal path
+	// Internal pathes start either with a '.' (relative), a '/' (UNIX) or 'X:\' where X can be anything. Also Windows can be used with a slash instead of a backslash
+	if(my_substr($url, 0, 1) == '.' || my_substr($url, 0, 1) == '/' || my_substr($url, 1, 2) == ':\\' || my_substr($url, 1, 2) == ':/')
 	{
 		@clearstatcache();
 		if(is_readable($url))
