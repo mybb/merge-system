@@ -706,23 +706,47 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 
 	delete_import_fields();
 
+	$cache->update_attachtypes();
+	$output->update_progress_bar(10);
+
 	$cache->update_stats();
+	$output->update_progress_bar(20);
+
+	$cache->update_most_replied_threads();
 	$output->update_progress_bar(30);
 
+	$cache->update_most_viewed_threads();
+	$output->update_progress_bar(40);
+
 	$cache->update_usergroups();
-	$output->update_progress_bar(60);
+	$output->update_progress_bar(50);
 
 	$cache->update_forums();
-	$output->update_progress_bar(90);
+	$output->update_progress_bar(60);
+
+	$cache->update_banned();
+	$output->update_progress_bar(70);
 
 	$cache->update_forumpermissions();
-	$output->update_progress_bar(120);
+	$output->update_progress_bar(80);
+
+	$cache->update_birthdays();
+	$output->update_progress_bar(90);
 
 	$cache->update_moderators();
-	$output->update_progress_bar(150);
+	$output->update_progress_bar(100);
 
 	$cache->update_usertitles();
-	$output->update_progress_bar(180);
+	$output->update_progress_bar(110);
+
+	$cache->update_awaitingactivation();
+	$output->update_progress_bar(120);
+
+	$cache->update_forumsdisplay();
+	$output->update_progress_bar(130);
+
+	$cache->update_groupleaders();
+	$output->update_progress_bar(140);
 
 	// Replaces orphaned attachment codes with "[ATTACHMENT NOT FOUND]"
 	$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o%'");
@@ -803,44 +827,20 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 		merge_fetch_remote_file("http://community.mybb.com/merge_stats.php", $post_data);
 	}
 
+	$output->update_progress_bar(180);
+
 	$import_session['allow_anonymous_info'] = 0;
 
 	update_import_session();
 
 	$output->update_progress_bar(200);
 
-	echo "done.<br />\n";
+	echo $lang->done."<br />\n";
 	flush();
 
 	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
 	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
 	echo "<br /><br />\n{$lang->please_wait} <meta http-equiv=\"refresh\" content=\"2; url=index.php?action=completed\">";
-	exit;
-}
-elseif($import_session['counters_cleanup'])
-{
-	$debug->log->event("Show the counters cleanup page");
-
-	define("BACK_BUTTON", false);
-
-	// Get the converter up.
-	require_once MERGE_ROOT."boards/{$import_session['board']}.php";
-	$class_name = strtoupper($import_session['board'])."_Converter";
-
-	$board = new $class_name;
-
-	require_once MERGE_ROOT.'resources/class_converter_module.php';
-	require_once MERGE_ROOT.'resources/modules/posts.php';
-	$module = new Converter_Module_Posts($board);
-
-	$module->counters_cleanup();
-
-	update_import_session();
-
-	// Now that all of that is taken care of, refresh the page to continue on to whatever needs to be done next.
-	// We cannot do a header() redirect here because on some servers with gzip or zlib auto compressing content, it creates an  Internal Server Error.
-	// Who knows why. Maybe it wants to send the content to the browser after it trys and redirects?
-	echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
 	exit;
 }
 // Otherwise that means we've selected a module to run or we're in one
@@ -968,14 +968,6 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		if(isset($module))
 		{
 			$module->cleanup();
-		}
-
-		// Once we finish with posts we always recount and update lastpost info, etc.
-		if($import_session['module'] == "import_posts")
-		{
-			/** @var Converter_Module_Posts $module */
-			$debug->log->trace2("Running import_posts counters cleanup.");
-			$module->counters_cleanup();
 		}
 
 		// Check to see if our module is in the 'resume modules' array still and remove it if so.

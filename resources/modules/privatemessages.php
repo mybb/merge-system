@@ -91,6 +91,73 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 
 		return $pmid;
 	}
+
+	/**
+	 * Update user counters
+	 */
+	public function cleanup()
+	{
+		global $db, $output, $lang;
+
+		// Notify the user of what we're doing here
+
+		$output->print_header($lang->module_post_rebuilding);
+
+		$this->debug->log->trace0("Rebuilding private message counters");
+
+		$output->construct_progress_bar();
+
+		echo $lang->module_post_rebuild_counters;
+		flush();
+
+		// Update imported users
+		$query = $db->simple_select("users", "uid", 'import_uid > 0');
+		$num_imported_users = $db->num_rows($query);
+		$progress = $last_percent = 0;
+
+		while($user = $db->fetch_array($query))
+		{
+			// Updates the total and unread counters
+			update_pm_count($user['uid']);
+
+			++$progress;
+			// 200 is maximum but as this function is split into two parts we use 100 here as maximum
+			$percent = round(($progress/$num_imported_users)*100, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+
+		// We've finished half of the function
+		$output->update_progress_bar(100);
+
+		// Number of users which want pm notices and have unread pms and are imported
+		$query = $db->simple_select('users', 'uid', 'import_uid > 0 AND pmnotice = 1 AND unreadpms > 0');
+		$to_update = $db->num_rows($query);
+		$progress = $last_percent = 0;
+
+		while($user = $db->fetch_array($query))
+		{
+			// Simply changing the pmnotice to 2 will work
+			$db->update_query('users', array('pmnotice' => 2), "uid={$user['uid']}");
+
+			++$progress;
+			// 200 is maximum, half of this has been done before. So use 100 as maximum but add the previous 100
+			$percent = round(($progress/$to_update)*100+100, 1);
+			if($percent != $last_percent)
+			{
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
+			}
+			$last_percent = $percent;
+		}
+
+		$output->update_progress_bar(200, $lang->please_wait);
+
+		echo $lang->done;
+		flush();
+	}
 }
 
 

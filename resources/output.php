@@ -995,6 +995,10 @@ END;
 		$this->_progress_bar_constructed = 1;
 	}
 
+	/**
+	 * @param int $left The progress. NOTE: 200 is maximum and NOT 100!!!
+	 * @param string $status_message
+	 */
 	function update_progress_bar($left, $status_message="")
 	{
 		if($this->_last_left == $left && empty($status_message))
