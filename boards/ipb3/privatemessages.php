@@ -45,7 +45,6 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data = array();
 
 		// Invision Power Board 3 values
-		$insert_data['import_pmid'] = $data['msg_id'];
 		$insert_data['fromid'] = $this->get_import->uid($data['msg_author_id']);
 		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "message_topics", "privatemessages");
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['msg_post'])), "message_posts", "privatemessages");
@@ -95,7 +94,6 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		}
 
 		$edata = $this->prepare_insert_array($insert_data);
-		unset($edata['import_pmid']);
 		$db->insert_query("privatemessages", $edata);
 
 		// Some more magic: get the map data for every recip and insert all except the last - we need the data for it but don't insert!
@@ -125,7 +123,6 @@ class IPB3_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if($count < $num)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}

@@ -202,25 +202,13 @@ function delete_import_fields($text=true)
 	}
 	$db->drop_table("trackers");
 
-	if($text == true)
-	{
-		$output->update_progress_bar(0, $lang->sprintf($lang->removing_table, TABLE_PREFIX."post_trackers"));
-	}
-	$db->drop_table("post_trackers");
-
-	if($text == true)
-	{
-		$output->update_progress_bar(0, $lang->sprintf($lang->removing_table, TABLE_PREFIX."privatemessage_trackers"));
-	}
-	$db->drop_table("privatemessage_trackers");
-
 	$drop_list = array(
 		"users" => array('import_uid', 'import_usergroup', 'import_additionalgroups', 'import_displaygroup'),
 		"forums" => array('import_fid', 'import_pid'),
 		"threads" => array('import_tid', 'import_uid', 'import_poll', 'import_firstpost'),
+		"posts" => array('import_pid', 'import_uid'),
 		"polls" => array('import_pid', 'import_tid'),
 		"usergroups" => array('import_gid'),
-		"events" => array('import_eid'),
 		"attachments" => array('import_aid'),
 	);
 
@@ -272,8 +260,7 @@ function create_import_fields($text=true)
 	// First clear all.
 	delete_import_fields(false);
 
-	if($text == true)
-	{
+	if($text == true) {
 		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."trackers"));
 	}
 
@@ -284,40 +271,14 @@ function create_import_fields($text=true)
 	  KEY count (count)
 	) ENGINE=MyISAM;");
 
-	if($text == true)
-	{
-		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."post_trackers"));
-	}
-
-	$db->write_query("CREATE TABLE ".TABLE_PREFIX."post_trackers (
-	  pid int NOT NULL default '0',
-	  import_pid int NOT NULL default '0',
-	  import_uid int NOT NULL default '0',
-	  PRIMARY KEY (pid),
-	  KEY import_pid (import_pid),
-	  KEY import_uid (import_uid)
-	) ENGINE=MyISAM;");
-
-	if($text == true)
-	{
-		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."privatemessage_trackers"));
-	}
-
-	$db->write_query("CREATE TABLE ".TABLE_PREFIX."privatemessage_trackers (
-	  pmid int NOT NULL default '0',
-	  import_pmid int NOT NULL default '0',
-	  PRIMARY KEY (pmid),
-	  KEY import_pmid (import_pmid)
-	) ENGINE=MyISAM;");
-
 	$add_list = array(
 		"int" => array(
 			"users" => array('import_uid', 'import_usergroup', 'import_displaygroup'),
 			"forums" => array('import_fid', 'import_pid'),
 			"threads" => array('import_tid', 'import_uid', 'import_poll', 'import_firstpost'),
+			"posts" => array('import_pid', 'import_uid'),
 			"polls" => array('import_pid', 'import_tid'),
 			"usergroups" => array('import_gid'),
-			"events" => array('import_eid'),
 			"attachments" => array('import_aid'),
 		),
 		"text" => array(

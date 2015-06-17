@@ -37,7 +37,6 @@ class VBULLETIN4_Converter_Module_Events extends Converter_Module_Events {
 		$insert_data = array();
 
 		// vBulletin 4 values
-		$insert_data['import_eid'] = $data['eventid'];
 		$insert_data['name'] = encode_to_utf8($data['title'], "event", "events");
 		$insert_data['description'] = encode_to_utf8($this->bbcode_parser->convert($data['event']), "event", "events");
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
