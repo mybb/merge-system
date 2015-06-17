@@ -233,7 +233,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		if(!empty($fids))
 		{
-			$fids = " AND fid NOT IN($fids)";
+			$fids = " AND p.fid NOT IN($fids)";
 		}
 		else
 		{
@@ -300,7 +300,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		if(!empty($fids))
 		{
-			$fids = " AND fid NOT IN($fids)";
+			$fids = " AND t.fid NOT IN($fids)";
 		}
 		else
 		{
