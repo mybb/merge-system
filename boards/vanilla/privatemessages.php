@@ -67,7 +67,6 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			}
 		}
 
-		$insert_data['import_pmid'] = $data['MessagegID'];
 		$insert_data['fromid'] = $this->get_import->uid($data['InsertUserID']);
 		$insert_data['recipients'] = serialize(array('to' => $recip));
 		if(!empty($data['Subject']))
@@ -103,7 +102,6 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			if(count($to_send) > 1)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 
@@ -131,7 +129,6 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 			if($key < count($to_send))
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}

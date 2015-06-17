@@ -118,7 +118,6 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		if(count($to_send) > 0)
 		{
 			$data = $this->prepare_insert_array($insert_data);
-			unset($data['import_pmid']);
 			$db->insert_query("privatemessages", $data);
 		}
 
@@ -149,7 +148,6 @@ class WBB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if($key < count($to_send)-1)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}

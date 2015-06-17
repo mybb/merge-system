@@ -39,7 +39,6 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 		$insert_data = array();
 
 		// phpBB 3 values
-		$insert_data['import_pmid'] = $data['msg_id'];
 		$insert_data['fromid'] = $this->get_import->uid($data['author_id']);
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['message_subject']), "privmsgs", "privatemessages");
 		$insert_data['dateline'] = $data['message_time'];
@@ -105,7 +104,6 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
 			$edata = $this->prepare_insert_array($insert_data);
-			unset($edata['import_pmid']);
 			$db->insert_query("privatemessages", $edata);
 		}
 
@@ -137,7 +135,6 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			if($count < $num)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}

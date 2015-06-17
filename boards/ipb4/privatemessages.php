@@ -45,7 +45,6 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data = array();
 
 		// Invision Power Board 4 values
-		$insert_data['import_pmid'] = $data['msg_id'];
 		$insert_data['fromid'] = $this->get_import->uid($data['msg_author_id']);
 		$insert_data['subject'] = $data['mt_title'];
 		// For some reason PMs are surrounded by new lines. Trimming them may break a few PMs but better than all
@@ -92,7 +91,6 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if(count($to_send) > 0)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}
@@ -116,7 +114,6 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if($key < count($to_send)-1)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}

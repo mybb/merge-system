@@ -10,13 +10,13 @@
 class Converter_Module_Posts extends Converter_Module
 {
 	public $default_values = array(
+		'import_uid' => 0,
 		'tid' => 0,
 		'replyto' => 0,
 		'subject' => '',
 		'username' => '',
 		'fid' => 0,
 		'uid' => 0,
-		'import_uid' => 0,
 		'dateline' => 0,
 		'message' => '',
 		'ipaddress' => '',
@@ -33,11 +33,12 @@ class Converter_Module_Posts extends Converter_Module
 	);
 
 	public $integer_fields = array(
+		'import_pid',
+		'import_uid',
 		'tid',
 		'replyto',
 		'fid',
 		'uid',
-		'import_uid',
 		'dateline',
 		'includesig',
 		'smilieoff',
@@ -69,19 +70,10 @@ class Converter_Module_Posts extends Converter_Module
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
 		$insert_array = $this->prepare_insert_array($data);
 
-		unset($insert_array['import_pid']);
-		unset($insert_array['import_uid']);
-
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
 		$db->insert_query("posts", $insert_array);
 		$pid = $db->insert_id();
-
-		$db->insert_query("post_trackers", array(
-			'pid' => intval($pid),
-			'import_pid' => intval($data['import_pid']),
-			'import_uid' => intval($data['import_uid'])
-		));
 
 		$this->get_import->cache_posts[$data['import_pid']] = $pid;
 

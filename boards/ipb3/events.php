@@ -37,7 +37,6 @@ class IPB3_Converter_Module_Events extends Converter_Module_Events {
 		$insert_data = array();
 
 		// Invision Power Board 3 values
-		$insert_data['import_eid'] = $data['event_id'];
 		$insert_data['name'] = encode_to_utf8($data['event_title'], "cal_events", "events");
 		$insert_data['uid'] = $this->get_import->uid($data['event_member_id']);
 		$insert_data['dateline'] = $data['event_lastupdated'];
