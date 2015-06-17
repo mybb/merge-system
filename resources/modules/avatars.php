@@ -154,14 +154,17 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		if(!check_url_exists($mybb->input['avatarspath'])) {
 			$this->debug->log->error("Avatar directory not readable");
 			$this->errors[] = $lang->download_not_readable;
-			$this->is_errors = true;
 			$import_session['uploads_avatars_test'] = 0;
+		}
+
+		if(!empty($this->errors)) {
+			$this->is_errors = true;
 		}
 	}
 
 	function after_insert($unconverted_data, $converted_data, $aid)
 	{
-		global $mybb, $import_session, $lang;
+		global $import_session, $lang;
 
 		if($converted_data['avatartype'] != AVATAR_TYPE_UPLOAD) {
 			return;

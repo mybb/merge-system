@@ -219,8 +219,11 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		{
 			$this->debug->log->error("Not enough attachments could be read: ".(($readable/$total)*100)."%");
 			$this->errors[] = $lang->download_not_readable;
-			$this->is_errors = true;
 			$import_session['uploads_test'] = 0;
+		}
+
+		if(!empty($this->errors)) {
+			$this->is_errors = true;
 		}
 	}
 
