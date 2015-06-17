@@ -102,6 +102,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 	{
 		global $output, $lang;
 
+		// General output and our progress bar can be constructed here
 		$output->print_header($lang->module_post_rebuilding);
 
 		$this->debug->log->trace0("Rebuilding thread, forum, and statistic counters");
@@ -119,14 +120,19 @@ abstract class Converter_Module_Posts extends Converter_Module
 		$this->rebuild_user_thread_counters();
 	}
 
+	/**
+	 * Rebuild all thread counters
+	 */
 	private function rebuild_thread_counters()
 	{
 		global $db, $output, $import_session, $lang;
 
+		// Total number of imported threads is needed for percentage
 		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid > 0");
 		$num_imported_threads = $db->fetch_field($query, "count");
 		$last_percent = 0;
 
+		// Have we finished already (redirects...)?
 		if($import_session['counters_threads_start'] >= $num_imported_threads) {
 			return;
 		}
@@ -135,21 +141,26 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo $lang->module_post_rebuilding_thread;
 		flush();
 
+		// Get all threads for this page (1000 per page)
 		$progress = $import_session['counters_threads_start'];
-		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => intval($import_session['counters_threads_start']), 'limit' => 1000));
+		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['counters_threads_start'], 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
 			// Updates "replies", "unapprovedposts", "deletedposts" and firstpost/lastpost data
 			rebuild_thread_counters($thread['tid']);
 
+			// Now inform the user
 			++$progress;
 
+			// Code comes from Dylan, probably has a reason, simply leave it there
 			if(($progress % 5) == 0)
 			{
 				if(($progress % 100) == 0)
 				{
 					check_memory();
 				}
+
+				// 200 is maximum for the progress bar so *200 and not *100
 				$percent = round(($progress/$num_imported_threads)*200, 1);
 				if($percent != $last_percent)
 				{
@@ -159,6 +170,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			}
 		}
 
+		// Add progress to internal counter and display a notice if we've finished
 		$import_session['counters_threads_start'] += $progress;
 
 		if($import_session['counters_threads_start'] >= $num_imported_threads)
@@ -168,13 +180,18 @@ abstract class Converter_Module_Posts extends Converter_Module
 			flush();
 		}
 
+		// Always redirect back to this page
 		$this->redirect();
 	}
 
+	/**
+	 * Rebuild forum counters
+	 */
 	private function rebuild_forum_counters()
 	{
 		global $db, $output, $lang, $import_session;
 
+		// We've already finished this (redirects...)
 		if(isset($import_session['counters_forum'])) {
 			return;
 		}
@@ -183,19 +200,21 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo $lang->module_post_rebuilding_forum;
 		flush();
 
+		// Only update imported forums
 		$query = $db->simple_select("forums", "fid", "import_fid > 0");
 		$num_imported_forums = $db->num_rows($query);
 		$progress = 0;
 
 		while ($forum = $db->fetch_array($query)) {
-			// TODO: From the code this should also update the lastpost data - which isn't done
 			rebuild_forum_counters($forum['fid']);
 			++$progress;
+			// 200 is maximum and not 100
 			$output->update_progress_bar(round(($progress / $num_imported_forums) * 200, 1), $lang->sprintf($lang->module_post_forum_counter, $forum['fid']));
 		}
 
 		echo $lang->done;
 
+		// Redirect back to this page but remember that this function has been called
 		$this->redirect('counters_forum');
 	}
 
@@ -203,10 +222,12 @@ abstract class Converter_Module_Posts extends Converter_Module
 	{
 		global $db, $output, $lang, $import_session;
 
+		// We've already finished this (redirects...)
 		if(isset($import_session['counters_user_posts'])) {
 			return;
 		}
 
+		// Building the usepostcount part of the query
 		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
 		while($forum = $db->fetch_array($query))
 		{
@@ -231,12 +252,14 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo $lang->module_post_rebuilding_user_post;
 		flush();
 
+		// Only update imported users
 		$query = $db->simple_select("users", "uid", "import_uid > 0");
 		$num_imported_users = $db->num_rows($query);
 		$progress = $last_percent = 0;
 
 		while($user = $db->fetch_array($query))
 		{
+			// This query is from the ACP
 			$query2 = $db->query("
 				SELECT COUNT(p.pid) AS post_count
 				FROM ".TABLE_PREFIX."posts p
@@ -249,6 +272,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$db->update_query("users", array("postnum" => (int)$num_posts), "uid='{$user['uid']}'");
 
 			++$progress;
+			// 200 is maximum and not 100
 			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
@@ -256,24 +280,21 @@ abstract class Converter_Module_Posts extends Converter_Module
 			}
 			$last_percent = $percent;
 		}
-		// TODO: recount user posts doesn't seem to work though it's the same code as in the acp
 
-		$output->update_progress_bar(100, $lang->please_wait);
+		$output->update_progress_bar(200, $lang->please_wait);
 
 		echo $lang->done;
 		flush();
 
+		// Redirect back to this page but remember that this function has been called
 		$this->redirect('counters_user_posts');
 	}
 
 	private function rebuild_user_thread_counters()
 	{
-		global $db, $output, $lang, $import_session;
+		global $db, $output, $lang;
 
-		if(isset($import_session['counters_user_threads'])) {
-			return;
-		}
-
+		// Building the usepostcount part of the query
 		$query = $db->simple_select("forums", "fid", "usepostcounts = 0");
 		while($forum = $db->fetch_array($query))
 		{
@@ -298,12 +319,14 @@ abstract class Converter_Module_Posts extends Converter_Module
 		echo $lang->module_post_rebuilding_user_thread;
 		flush();
 
+		// Only update the imported users
 		$query = $db->simple_select("users", "uid", "import_uid > 0");
 		$num_imported_users = $db->num_rows($query);
 		$progress = $last_percent = 0;
 
 		while($user = $db->fetch_array($query))
 		{
+			// Query from the acp
 			$query2 = $db->query("
 				SELECT COUNT(t.tid) AS thread_count
 				FROM ".TABLE_PREFIX."threads t
@@ -315,6 +338,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 
 			++$progress;
+			// 200 is maximum and not 100
 			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
@@ -322,9 +346,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 			}
 			$last_percent = $percent;
 		}
-		// TODO: recount user posts doesn't seem to work though it's the same code as in the acp
 
-		$output->update_progress_bar(100, $lang->please_wait);
+		$output->update_progress_bar(200, $lang->please_wait);
 
 		echo $lang->done;
 		flush();
@@ -336,13 +359,16 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 	private function redirect($finished = "")
 	{
+		// Do we want to save that we've finished function?
 		if(!empty($finished)) {
 			global $import_session;
 			$import_session[$finished] = 1;
 		}
 
+		// Make sure we save changed imports
 		update_import_session();
 
+		// Redirect back here - parameters are saved in the session
 		if(!headers_sent())
 		{
 			header("Location: index.php");
@@ -351,6 +377,8 @@ abstract class Converter_Module_Posts extends Converter_Module
 		{
 			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
 		}
+
+		// Stop here!
 		exit;
 	}
 }
