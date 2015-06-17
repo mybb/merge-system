@@ -102,7 +102,7 @@ class SMF_Converter_Module_Posts extends Converter_Module_Posts {
 		// Is this the first post in a thread? Update the reply to value in the thread
 		if($insert_data['replyto'] != 0)
 		{
-			$db->update_query("threads", array('replyto' => $this->get_import->pid($data['ID_MSG'])), "tid='{$insert_data['tid']}'");
+			$db->update_query("threads", array('firstpost' => $this->get_import->pid($data['ID_MSG'])), "tid='{$insert_data['tid']}'");
 		}
 	}
 
