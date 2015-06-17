@@ -10,7 +10,6 @@
 abstract class Converter_Module_Events extends Converter_Module
 {
 	public $default_values = array(
-		'import_eid' => 0,
 		'cid' => 0,
 		'uid' => 0,
 		'name' => '',
@@ -27,7 +26,6 @@ abstract class Converter_Module_Events extends Converter_Module
 	);
 	
 	public $integer_fields = array(
-		'import_eid',
 		'cid',
 		'uid',
 		'visible',

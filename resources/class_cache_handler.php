@@ -51,11 +51,6 @@ class Cache_Handler
 	var $cache_usernames;
 
 	/**
-	 * Cache for the new Events
-	 */
-	var $cache_events;
-
-	/**
 	 * Cache for the new Attachments
 	 */
 	var $cache_attachments;
@@ -531,43 +526,6 @@ class Cache_Handler
 	}
 
 	/**
-	 * Get an array of imported events (e.x. array vBulletin event id => MyBB event id)
-	 *
-	 * @return array
-	 */
-	function cache_events()
-	{
-		global $db;
-
-		$query = $db->simple_select("events", "eid, import_eid", "import_eid>0");
-		$events = array();
-		while($event = $db->fetch_array($query))
-		{
-			$events[$event['import_eid']] = $event['eid'];
-		}
-		$this->cache_events = $events;
-		$db->free_result($query);
-
-		return $events;
-	}
-
-	/**
-	 * Get the MyBB event ID of an old EID. (e.x. vBulletin event id)
-	 *
-	 * @param int $old_eid Event ID used before import
-	 * @return int Event ID in MyBB
-	 */
-	function eid($old_eid)
-	{
-		if(!is_array($this->cache_events))
-		{
-			$this->cache_events();
-		}
-
-		return $this->cache_events[$old_eid];
-	}
-
-	/**
 	 * Get an array of imported posts (e.x. array vBulletin post id => MyBB post id)
 	 *
 	 * @return array|false
@@ -576,12 +534,7 @@ class Cache_Handler
 	{
 		global $db;
 
-		if(!$db->table_exists("post_trackers"))
-		{
-			return false;
-		}
-
-		$query = $db->simple_select("post_trackers", "pid, import_pid");
+		$query = $db->simple_select("posts", "pid, import_pid", 'import_pid>0');
 		$posts = array();
 		while($post = $db->fetch_array($query))
 		{

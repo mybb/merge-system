@@ -40,7 +40,6 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 	function convert_data($data)
 	{
 		// vBulletin 4 values
-		$insert_data['import_pmid'] = $data['pmid'];
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
 		if($data['folderid'] == -1)

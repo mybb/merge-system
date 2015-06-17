@@ -64,7 +64,6 @@ class MYBB_Converter_Module_Events extends Converter_Module_Events {
 		}
 
 		// MyBB 1.8 values
-		$insert_data['import_eid'] = $data['eid'];
 
 		return $insert_data;
 	}

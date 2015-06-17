@@ -40,7 +40,6 @@ class SMF_Converter_Module_Events extends Converter_Module_Events {
 		$insert_data = array();
 
 		// SMF values
-		$insert_data['import_eid'] = $data['ID_EVENT'];
 		$insert_data['uid'] = $this->get_import->uid($data['ID_MEMBER']);
 		$insert_data['name'] = $data['title'];
 

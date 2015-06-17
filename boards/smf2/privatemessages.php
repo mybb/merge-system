@@ -43,7 +43,6 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data = array();
 
 		// SMF values
-		$insert_data['import_pmid'] = $data['id_pm'];
 		$insert_data['fromid'] = $this->get_import->uid($data['id_member_from']);
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "personal_messages", "privatemessages");
 		$insert_data['dateline'] = $data['msgtime'];
@@ -94,7 +93,6 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if(count($to_send) > 0)
 			{
 				$edata = $this->prepare_insert_array($insert_data);
-				unset($edata['import_pmid']);
 				$db->insert_query("privatemessages", $edata);
 			}
 		}
@@ -121,7 +119,6 @@ class SMF2_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			if($key < count($to_send)-1)
 			{
 				$data = $this->prepare_insert_array($insert_data);
-				unset($data['import_pmid']);
 				$db->insert_query("privatemessages", $data);
 			}
 		}
