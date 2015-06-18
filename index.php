@@ -968,6 +968,11 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		if(isset($module))
 		{
 			$module->cleanup();
+
+			// If we haven't imported anything check whether we can mark other modules as run too
+			if($module->fetch_total() == 0) {
+				$module->mark_dependencies_as_run();
+			}
 		}
 
 		// Check to see if our module is in the 'resume modules' array still and remove it if so.

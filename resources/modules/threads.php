@@ -63,6 +63,11 @@ abstract class Converter_Module_Threads extends Converter_Module
 		'deletetime',
 	);
 
+	var $mark_as_run_modules = array(
+		'polls',
+		'posts',
+	);
+
 	/**
 	 * Insert thread into database
 	 *

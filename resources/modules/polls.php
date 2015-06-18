@@ -36,6 +36,10 @@ abstract class Converter_Module_Polls extends Converter_Module
 		'public',
 	);
 
+	var $mark_as_run_modules = array(
+		'pollvotes',
+	);
+
 	/**
 	 * Insert poll into database
 	 *

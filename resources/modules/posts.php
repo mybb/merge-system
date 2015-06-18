@@ -48,6 +48,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		'visible',
 	);
 
+	var $mark_as_run_modules = array(
+		'attachments',
+	);
+
 	/**
 	 * Insert post into database
 	 *
