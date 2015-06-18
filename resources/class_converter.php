@@ -259,6 +259,10 @@ abstract class Converter
 
 					sleep(2);
 
+					// TODO: This seems to be the only/best place to run the checks for #123
+					// Best would probably be a function in this class which uses a variable which is overwritten in the board classes
+					// Structure for array would be array('old_table' => array('new_table' => array('column1', 'column2')))
+
 					$import_session['flash_message'] = $lang->database_success;
 					return true;
 				}

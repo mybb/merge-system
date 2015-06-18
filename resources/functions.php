@@ -1015,9 +1015,17 @@ define('SQL_LONGTEXT', 4294967295);
  */
 function get_length_info($table, $old_database=false)
 {
+	global $import_session;
+
+	$index = 'old_length';
 	if(!($old_database instanceof DB_Base)) {
 		global $db;
 		$old_database = $db;
+		$index = 'mybb_length';
+	}
+
+	if(isset($import_session[$index][$table])) {
+		return $import_session[$index][$table];
 	}
 
 	$lengthinfo = array();
@@ -1039,6 +1047,8 @@ function get_length_info($table, $old_database=false)
 
 		$lengthinfo[$field['Field']] = $length;
 	}
+
+	$import_session[$index][$table] = $lengthinfo;
 
 	return $lengthinfo;
 }
