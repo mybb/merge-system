@@ -28,11 +28,7 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 		$query = $this->old_db->simple_select("boards", "*", "", array('limit_start' => $this->trackers['start_forums'], 'limit' => $import_session['forums_per_screen']));
 		while($forum = $this->old_db->fetch_array($query))
 		{
-			$fid = $this->insert($forum);
-
-			// Update our internal cache
-			$this->get_import->cache_fids[$forum['id_board']] = $fid;
-			$this->get_import->cache_fids_f[$forum['id_board']] = $fid;
+			$this->insert($forum);
 		}
 	}
 

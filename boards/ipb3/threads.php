@@ -21,6 +21,13 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 		'default_per_screen' => 1000,
 	);
 
+	// TODO: #123
+	/*
+	var $tobechecked = array(
+		'subject',
+	);
+	 */
+
 	function import()
 	{
 		global $import_session;
@@ -43,10 +50,6 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_firstpost'] = $data['topic_firstpost'];
 		$insert_data['dateline'] = $data['start_date'];
 		$insert_data['subject'] = encode_to_utf8($data['title'], "topics", "threads");
-		if(strlen($insert_data['subject']) > 120)
-		{
-			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
-		}
 		$insert_data['uid'] = $this->get_import->uid($data['starter_id']);
 		$insert_data['import_uid'] = $data['starter_id'];
 		$insert_data['views'] = $data['views'];
@@ -72,14 +75,6 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 			$seperator = ', ';
 		}
 		$this->old_db->free_result($query);
-
-		$insert_data['attachmentcount'] = '';
-		if($pids != '')
-		{
-			$query = $this->old_db->simple_select("attachments", "COUNT(*) as attach_count", "attach_rel_id IN ($pids) AND attach_rel_module = 'post'");
-			$insert_data['attachmentcount'] = $this->old_db->fetch_field($query, "attach_count");
-			$this->old_db->free_result($query);
-		}
 
 		$insert_data['import_poll'] = $data['poll_state'];
 

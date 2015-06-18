@@ -21,6 +21,13 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 		'default_per_screen' => 1000,
 	);
 
+	// TODO: #123
+	/*
+	var $tobechecked = array(
+		'subject',
+	);
+	 */
+
 	function import()
 	{
 		global $import_session;
@@ -43,10 +50,6 @@ class VBULLETIN3_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_firstpost'] = $data['firstpostid'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['title']), "thread", "threads");
-		if(strlen($insert_data['subject']) > 120)
-		{
-			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
-		}
 		$insert_data['import_poll'] = $data['pollid'];
 		$insert_data['uid'] = $this->get_import->uid($data['postuserid']);
 		$insert_data['import_uid'] = $data['postuserid'];

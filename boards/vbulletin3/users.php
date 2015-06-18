@@ -25,6 +25,13 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		'default_per_screen' => 1000,
 	);
 
+	// TODO: #123
+	/*
+	var $tobechecked = array(
+		'icq',
+	);
+	 */
+
 	function import()
 	{
 		global $import_session;
@@ -88,7 +95,7 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$insert_data['birthday'] = $data['birthday'];
 		}
-		$insert_data['icq'] = substr($data['icq'], 0, 10);
+		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);

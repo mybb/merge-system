@@ -22,6 +22,13 @@ class IPB3_Converter_Module_Posts extends Converter_Module_Posts {
 		'check_table_type' => 'posts',
 	);
 
+	// TODO: #123
+	/*
+	var $tobechecked = array(
+		'subject',
+	);
+	 */
+
 	function import()
 	{
 		global $import_session;
@@ -49,10 +56,6 @@ class IPB3_Converter_Module_Posts extends Converter_Module_Posts {
 		else
 		{
 			$insert_data['subject'] = encode_to_utf8($thread['title'], "topics", "posts");
-		}
-		if(strlen($insert_data['subject']) > 120)
-		{
-			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
 		}
 		if($data['queued'] == 0)
 		{
