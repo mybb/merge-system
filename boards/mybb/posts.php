@@ -72,7 +72,7 @@ class MYBB_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
-		$insert_data['username'] = $this->get_import->username($data['uid']);
+		$insert_data['username'] = $this->get_import->username($data['uid'], $data['username']);
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "posts", "posts");
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "posts", "posts");
 
