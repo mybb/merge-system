@@ -25,13 +25,6 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 		'default_per_screen' => 1000,
 	);
 
-	// TODO: #123
-	/*
-	var $tobechecked = array(
-		'icq',
-	);
-	 */
-
 	function import()
 	{
 		global $import_session;

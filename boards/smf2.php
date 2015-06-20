@@ -88,6 +88,14 @@ class SMF2_Converter extends Converter
 		3 => MYBB_MODS, // Moderators
 	);
 
+	var $column_length_to_check = array(
+		'polls' => array(
+			'polls' => array(
+				'question' => 'question'
+			)
+		)
+	);
+
 	var $get_post_cache = array();
 
 	/**

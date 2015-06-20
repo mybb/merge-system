@@ -21,13 +21,6 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		'default_per_screen' => 1000,
 	);
 
-	// TODO: #123
-	/*
-	var $tobechecked = array(
-		'subject',
-	);
-	 */
-
 	function import()
 	{
 		global $import_session;

@@ -22,13 +22,6 @@ class VBULLETIN4_Converter_Module_Posts extends Converter_Module_Posts {
 		'check_table_type' => 'post',
 	);
 
-	// TODO: #123
-	/*
-	var $tobechecked = array(
-		'message',
-	);
-	 */
-
 	function import()
 	{
 		global $import_session;

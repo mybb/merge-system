@@ -21,13 +21,6 @@ class IPB3_Converter_Module_Threads extends Converter_Module_Threads {
 		'default_per_screen' => 1000,
 	);
 
-	// TODO: #123
-	/*
-	var $tobechecked = array(
-		'subject',
-	);
-	 */
-
 	function import()
 	{
 		global $import_session;

@@ -25,13 +25,6 @@ class SMF2_Converter_Module_Polls extends Converter_Module_Polls {
 
 	var $cache_get_poll_thread = array();
 
-	// TODO: #123
-	/*
-	var $tobechecked = array(
-		'question',
-	);
-	 */
-
 	function import()
 	{
 		global $import_session, $db;
