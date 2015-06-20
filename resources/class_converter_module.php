@@ -61,6 +61,11 @@ abstract class Converter_Module
 	var $is_errors = false;
 
 	/**
+	 * @var array
+	 */
+	var $mark_as_run_modules = array();
+
+	/**
 	 * @param Converter $converter_class
 	 */
 	public function __construct($converter_class)
@@ -260,6 +265,28 @@ abstract class Converter_Module
 	 * Called after "finish" is called. Except that the same
 	 */
 	function cleanup() {}
+
+	/**
+	 * Mark any dependencies as run if we haven't imported anything
+	 */
+	function mark_dependencies_as_run()
+	{
+		global $import_session;
+		foreach($this->mark_as_run_modules as $module) {
+			$module_name = str_replace(array("import_", ".", ".."), "", $module);
+			$import_session['completed'][] = 'import_'.$module_name;
+			$import_session['disabled'][] = 'import_'.$module_name;
+
+			require_once MERGE_ROOT."resources/modules/{$module_name}.php";
+			require_once MERGE_ROOT."boards/{$import_session['board']}/{$module_name}.php";
+
+			$importer_class_name = strtoupper($import_session['board'])."_Converter_Module_".ucfirst($module_name);
+
+			/** @var Converter_Module $moduleClass */
+			$moduleClass = new $importer_class_name($this->board);
+			$moduleClass->mark_dependencies_as_run();
+		}
+	}
 
 }
 

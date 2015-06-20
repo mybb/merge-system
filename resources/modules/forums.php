@@ -77,6 +77,12 @@ abstract class Converter_Module_Forums extends Converter_Module
 		'defaultdatecut',
 	);
 
+	var $mark_as_run_modules = array(
+		'forumperms',
+		'threads',
+		'moderators',
+	);
+
 	/**
 	 * Insert forum into database
 	 *
