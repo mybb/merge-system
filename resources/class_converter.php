@@ -109,6 +109,15 @@ abstract class Converter
 	var $parser_class;
 
 	/**
+	 * An array of columns that should be checked against the length of our database.
+	 *
+	 * Form: array('old_table' => array('our_table' => array('old_column' => 'new_column')));
+	 *
+	 * @var array
+	 */
+	var $column_length_to_check = array();
+
+	/**
 	 * Class constructor
 	 */
 	function __construct()
@@ -259,9 +268,7 @@ abstract class Converter
 
 					sleep(2);
 
-					// TODO: This seems to be the only/best place to run the checks for #123
-					// Best would probably be a function in this class which uses a variable which is overwritten in the board classes
-					// Structure for array would be array('old_table' => array('new_table' => array('column1', 'column2')))
+					$this->check_column_length();
 
 					$import_session['flash_message'] = $lang->database_success;
 					return true;
@@ -349,6 +356,31 @@ abstract class Converter
 		$output->print_footer();
 
 		return false;
+	}
+
+	/**
+	 * Checks an array of columns whether their value fits in our database (#123)
+	 */
+	function check_column_length() {
+		global $db;
+
+		// Structure for array is: array('old_table' => array('new_table' => array(array('old_column' => 'new_column2'))))
+
+		foreach($this->column_length_to_check as $old_table => $t1) {
+			foreach($t1 as $new_table => $columns) {
+				$columnLength = get_length_info($new_table);
+
+				foreach($columns as $old_column => $new_column) {
+					// First: get the length of the largest entry
+					$query = "SELECT LENGTH({$old_column}) as length FROM ".OLD_TABLE_PREFIX."{$old_table} ORDER BY length DESC LIMIT 1";
+					$length = $db->fetch_field($db->query($query), 'length');
+
+					if($length > $columnLength[$new_column]) {
+						// TODO: this is an invalid entry
+					}
+				}
+			}
+		}
 	}
 
 	/**
