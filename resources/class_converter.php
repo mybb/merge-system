@@ -362,10 +362,37 @@ abstract class Converter
 	 * Checks an array of columns whether their value fits in our database (#123)
 	 */
 	function check_column_length() {
-		global $db;
+		global $db, $output, $lang;
+
+		// We need the total number of columns to check to  show our progress bar
+		$total_checks = 0;
+
+		foreach($this->column_length_to_check as $old_table => $t1) {
+			foreach ($t1 as $new_table => $columns) {
+				foreach ($columns as $old_column => $new_column) {
+					$total_checks++;
+				}
+			}
+		}
+
+		if($total_checks == 0) {
+			return;
+		}
+
+		$this->db_connect();
+
+		$output->construct_progress_bar();
+
+		// TODO: langstring
+		echo $lang->module_post_rebuild_counters;
+		flush();
+
+		$progress = $last_percent = 0;
+
 
 		// Structure for array is: array('old_table' => array('new_table' => array(array('old_column' => 'new_column2'))))
 
+		$invalid_columns = array();
 		foreach($this->column_length_to_check as $old_table => $t1) {
 			foreach($t1 as $new_table => $columns) {
 				$columnLength = get_length_info($new_table);
@@ -373,14 +400,43 @@ abstract class Converter
 				foreach($columns as $old_column => $new_column) {
 					// First: get the length of the largest entry
 					$query = "SELECT LENGTH({$old_column}) as length FROM ".OLD_TABLE_PREFIX."{$old_table} ORDER BY length DESC LIMIT 1";
-					$length = $db->fetch_field($db->query($query), 'length');
+					$length = $this->old_db->fetch_field($this->old_db->query($query), 'length');
 
 					if($length > $columnLength[$new_column]) {
-						// TODO: this is an invalid entry
+						$invalid_columns[$new_table][$new_column] = $length;
 					}
+
+					++$progress;
+					// 200 is maximum
+					$percent = round(($progress/$total_checks)*200, 1);
+					if($percent != $last_percent)
+					{
+						// TODO: langstrings
+						$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
+					}
+					$last_percent = $percent;
 				}
 			}
 		}
+
+		$output->update_progress_bar(200, $lang->please_wait);
+
+		if(empty($invalid_columns)) {
+			// Everything will fit
+			echo $lang->done;
+		} else {
+			// Show an error
+			// TODO: Proper error, simply debugging info here
+			foreach($invalid_columns as $new_table => $t1) {
+				echo "<b>{$new_table}:</b><br />";
+				foreach($t1 as $new_column => $length) {
+					echo $new_column.": ".$length."<br />";
+				}
+				echo "<br />";
+			}
+			exit;
+		}
+		flush();
 	}
 
 	/**

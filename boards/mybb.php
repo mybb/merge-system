@@ -86,5 +86,14 @@ class MYBB_Converter extends Converter
 		6 => MYBB_MODS, // Mods
 		7 => MYBB_BANNED, // Banned
 	);
+
+	// TODO: just for debugging here, of course it's useless to check mybb => mybb merges
+	var $column_length_to_check = array(
+		'users' => array(
+			'users' => array(
+				'icq' => 'icq'
+			)
+		)
+	);
 }
 
