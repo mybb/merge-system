@@ -272,7 +272,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
-				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
 			}
 			$last_percent = $percent;
 		}
@@ -338,7 +338,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 			$percent = round(($progress/$num_imported_users)*200, 1);
 			if($percent != $last_percent)
 			{
-				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_forum_counter, $user['uid']));
+				$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
 			}
 			$last_percent = $percent;
 		}
