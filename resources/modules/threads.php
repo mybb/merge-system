@@ -86,7 +86,7 @@ abstract class Converter_Module_Threads extends Converter_Module
 		$data = $this->convert_data($data);
 
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
-		$insert_array = $this->prepare_insert_array($data);
+		$insert_array = $this->prepare_insert_array($data, 'threads');
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 

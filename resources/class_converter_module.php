@@ -135,12 +135,18 @@ abstract class Converter_Module
 	 * Fills an array of insert data with default MyBB values if they were not specified
 	 *
 	 * @param array $values
+	 * @param bool|string $table In which table the array will be inserted. Used to determine the length
 	 *
 	 * @return array
 	 */
-	public function prepare_insert_array($values)
+	public function prepare_insert_array($values, $table=false)
 	{
 		global $db;
+
+		$column_length = array();
+		if($table !== false) {
+			$column_length = get_length_info($table);
+		}
 
 		$data = array_merge($this->default_values, $values);
 		$insert_array = array();
@@ -158,6 +164,15 @@ abstract class Converter_Module
 			else
 			{
 				$insert_array[$key] = $db->escape_string($value);
+			}
+
+			if(isset($column_length[$key]) && my_strlen($insert_array[$key]) > $column_length[$key]) {
+				if(is_int($insert_array[$key])) {
+					// TODO: check whether int(10) really can save "9999999999" as maximum
+					$insert_array[$key] = (int)str_repeat('9', $column_length[$key]);
+				} else {
+					$insert_array[$key] = my_substr($insert_array[$key], 0, $column_length[$key]-3)."...";
+				}
 			}
 		}
 

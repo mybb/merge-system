@@ -103,7 +103,7 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			$insert_data['readtime'] = 0;
 			$insert_data['folder'] = PM_FOLDER_OUTBOX;
 
-			$edata = $this->prepare_insert_array($insert_data);
+			$edata = $this->prepare_insert_array($insert_data, 'privatemessages');
 			$db->insert_query("privatemessages", $edata);
 		}
 
@@ -134,7 +134,7 @@ class PHPBB3_Converter_Module_Privatemessages extends Converter_Module_Privateme
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($count < $num)
 			{
-				$data = $this->prepare_insert_array($insert_data);
+				$data = $this->prepare_insert_array($insert_data, 'privatemessages');
 				$db->insert_query("privatemessages", $data);
 			}
 		}

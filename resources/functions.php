@@ -1013,27 +1013,20 @@ define('SQL_LONGTEXT', 4294967295);
  * Returns an array of length informations about one table
  *
  * @param string $table Which table should be checked
- * @param bool|DB_Base $old_database If not set the mybb database will be used, otherwise this one
+ * @param bool $cache Whether or not the array should be cached. Default is true
  *
  * @return array
  */
-function get_length_info($table, $old_database=false)
+function get_length_info($table, $cache=true)
 {
-	global $import_session;
+	global $import_session, $db;
 
-	$index = 'old_length';
-	if(!($old_database instanceof DB_Base)) {
-		global $db;
-		$old_database = $db;
-		$index = 'mybb_length';
-	}
-
-	if(isset($import_session[$index][$table])) {
-		return $import_session[$index][$table];
+	if(isset($import_session['column_length'][$table]) && $cache) {
+		return $import_session['column_length'][$table];
 	}
 
 	$lengthinfo = array();
-	$fieldinfo = $old_database->show_fields_from($table);
+	$fieldinfo = $db->show_fields_from($table);
 
 	foreach($fieldinfo as $field) {
 		if($field['Type'] == 'tinytext') {
@@ -1052,7 +1045,9 @@ function get_length_info($table, $old_database=false)
 		$lengthinfo[$field['Field']] = $length;
 	}
 
-	$import_session[$index][$table] = $lengthinfo;
+	if($cache) {
+		$import_session['column_length'][$table] = $lengthinfo;
+	}
 
 	return $lengthinfo;
 }

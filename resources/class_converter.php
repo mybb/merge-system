@@ -395,7 +395,7 @@ abstract class Converter
 		$invalid_columns = array();
 		foreach($this->column_length_to_check as $old_table => $t1) {
 			foreach($t1 as $new_table => $columns) {
-				$columnLength = get_length_info($new_table);
+				$columnLength = get_length_info($new_table, false);
 
 				foreach($columns as $old_column => $new_column) {
 					// First: get the length of the largest entry
