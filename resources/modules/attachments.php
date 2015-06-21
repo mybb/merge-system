@@ -244,6 +244,21 @@ abstract class Converter_Module_Attachments extends Converter_Module
 			@fclose($attachrs);
 
 			@my_chmod($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], '0777');
+
+			if($import_session['attachments_create_thumbs']) {
+				require_once MYBB_ROOT."inc/functions_image.php";
+				$ext = my_strtolower(my_substr(strrchr($converted_data['filename'], "."), 1));
+				if($ext == "gif" || $ext == "png" || $ext == "jpg" || $ext == "jpeg" || $ext == "jpe")
+				{
+					$thumbname = str_replace(".attach", "_thumb.$ext", $converted_data['attachname']);
+					$thumbnail = generate_thumbnail($mybb->settings['uploadspath'].$converted_data['attachname'], $mybb->settings['uploadspath'], $thumbname, $mybb->settings['attachthumbh'], $mybb->settings['attachthumbw']);
+					if($thumbnail['code'] == 4)
+					{
+						$thumbnail['filename'] = "SMALL";
+					}
+					$db->update_query("attachments", array("thumbnail" => $thumbnail['filename']), "aid='{$aid}'");
+				}
+			}
 		}
 		else
 		{
@@ -262,6 +277,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	{
 		global $import_session, $lang;
 
+		// TODO: Add yes/no radiobutton for thumbnails
 		echo '<tr>
 <th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
