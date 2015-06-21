@@ -57,6 +57,11 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		// Always check whether we can write to our own directory first
 		$this->check_attachments_dir_perms();
 
+		if(isset($mybb->input['attachments_create_thumbs']))
+		{
+			$import_session['attachments_create_thumbs'] = $mybb->input['attachments_create_thumbs'];
+		}
+
 		// Do we still need to set the uploads path?
 		if(!isset($import_session['uploadspath']))
 		{
@@ -247,6 +252,21 @@ abstract class Converter_Module_Attachments extends Converter_Module
 			@fclose($attachrs);
 
 			@my_chmod($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], '0777');
+
+			if($import_session['attachments_create_thumbs']) {
+				require_once MYBB_ROOT."inc/functions_image.php";
+				$ext = my_strtolower(my_substr(strrchr($converted_data['filename'], "."), 1));
+				if($ext == "gif" || $ext == "png" || $ext == "jpg" || $ext == "jpeg" || $ext == "jpe")
+				{
+					$thumbname = str_replace(".attach", "_thumb.$ext", $converted_data['attachname']);
+					$thumbnail = generate_thumbnail($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], $mybb->settings['uploadspath'], $thumbname, $mybb->settings['attachthumbh'], $mybb->settings['attachthumbw']);
+					if($thumbnail['code'] == 4)
+					{
+						$thumbnail['filename'] = "SMALL";
+					}
+					$db->update_query("attachments", array("thumbnail" => $thumbnail['filename']), "aid='{$aid}'");
+				}
+			}
 		}
 		else
 		{
@@ -265,7 +285,22 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	{
 		global $import_session, $lang;
 
+		$yes_thumb_check = 'checked="checked"';
+		$no_thumb_check = '';
+		if(isset($import_session['attachments_create_thumbs']) && !$import_session['attachments_create_thumbs']) {
+			$yes_thumb_check = '';
+			$no_thumb_check = 'checked="checked"';
+		}
+
 		echo '<tr>
+<th colspan="2" class="first last">'.$lang->module_attachment_create_thumbnail.'</th>
+</tr>
+<tr>
+<td>'.$lang->module_attachment_create_thumbnail.'<br /><span class="smalltext">'.$lang->module_attachment_create_thumbnail_note.'</span></td>
+<td width="50%"><input type="radio" name="attachments_create_thumbs" id="thumb_yes" value="1" '.$yes_thumb_check.'/> <label for="thumb_yes">'.$lang->yes.'</label>
+<input type="radio" name="attachments_create_thumbs" id="thumb_no" value="0" '.$no_thumb_check.' /> <label for="thumb_no">'.$lang->no.'</label> </td>
+</tr>
+<tr>
 <th colspan="2" class="first last">'.$lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname).':</th>
 </tr>
 <tr>
