@@ -95,38 +95,6 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $mybb, $import_session, $lang;
-
-		if($data['thumbnail'])
-		{
-			// Transfer attachment thumbnail
-			$attachment_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].$data['thumbnail']);
-
-			if(!empty($attachment_thumbnail_file))
-			{
-				$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], 'w');
-				if($attachrs)
-				{
-					@fwrite($attachrs, $attachment_thumbnail_file);
-				}
-				else
-				{
-					$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_thumbnail_error, $aid));
-				}
-				@fclose($attachrs);
-				@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], '0777');
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_thumbnail_found, $aid));
-			}
-		}
-
-		parent::after_insert($data, $insert_data, $aid);
-	}
-
 	function fetch_total()
 	{
 		global $import_session;

@@ -182,8 +182,8 @@ $l['module_attachment_link'] = "Please type in the link to your {1} forum attach
 $l['module_attachment_label'] = "Link (URL) to your forum attachment directory";
 $l['module_attachment_error'] = "Error transfering the attachment (ID: {1})";
 $l['module_attachment_not_found'] = "Error could not find the attachment (ID: {1})";
-$l['module_attachment_thumbnail_error'] = "Error transfering the attachment thumbnail (ID: {1})";
-$l['module_attachment_thumbnail_not_found'] = "Error could not find the attachment thumbnail (ID: {1})";
+$l['module_attachment_create_thumbnail'] = 'Automatically create thumbnails for transferred images';
+$l['module_attachment_create_thumbnail_note'] = 'Note that thumbnails need to be recreated if the settings for thumbnail size are changed. If you haven\'t run the settings module yet or plan to change those settings you should set this to no.';
 
 $l['attmodule_notwritable'] = "The uploads directory (uploads/) is not writable. Please adjust the ";
 $l['attmodule_chmod'] = "chmod";

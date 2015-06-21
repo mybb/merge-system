@@ -141,44 +141,6 @@ class SMF2_Converter_Module_Attachments extends Converter_Module_Attachments {
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
-	{
-		global $import_session, $mybb, $db, $lang;
-
-		// Transfer attachment thumbnail
-		if($data['id_thumb'] != 0)
-		{
-			// Transfer attachment thumbnail
-			$query = $this->old_db->simple_select("attachments", "*", "id_attach = '{$data['id_thumb']}'");
-			$data['thumb_file_name'] = $data['id_thumb']."_".$this->old_db->fetch_field($query, "file_hash");
-
-			$this->old_db->free_result($query);
-
-			$attachment_thumbnail_file = merge_fetch_remote_file($import_session['uploadspath'].'/'.$data['thumb_file_name']);
-
-			if(!empty($attachment_thumbnail_file))
-			{
-				$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], 'w');
-				if($attachrs)
-				{
-					@fwrite($attachrs, $attachment_thumbnail_file);
-				}
-				else
-				{
-					$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_thumbnail_error, $aid));
-				}
-				@fclose($attachrs);
-				@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['thumbnail'], '0777');
-			}
-			else
-			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_thumbnail_found, $aid));
-			}
-		}
-
-		parent::after_insert($data, $insert_data, $aid);
-	}
-
 	function get_import_attach_filename($aid)
 	{
 		if(array_key_exists($aid, $this->cache_attach_filenames))

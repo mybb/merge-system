@@ -144,7 +144,26 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 	}
 
 	// Overwrite parent function. As the full path is saved we don't need to ask for it
-	function print_attachments_per_screen_page() {}
+	function print_attachments_per_screen_page()
+	{
+		global $import_session, $lang;
+
+		$yes_thumb_check = 'checked="checked"';
+		$no_thumb_check = '';
+		if(isset($import_session['attachments_create_thumbs']) && !$import_session['attachments_create_thumbs']) {
+			$yes_thumb_check = '';
+			$no_thumb_check = 'checked="checked"';
+		}
+
+		echo '<tr>
+<th colspan="2" class="first last">'.$lang->module_attachment_create_thumbnail.'</th>
+</tr>
+<tr>
+<td>'.$lang->module_attachment_create_thumbnail.'<br /><span class="smalltext">'.$lang->module_attachment_create_thumbnail_note.'</span></td>
+<td width="50%"><input type="radio" name="attachments_create_thumbs" id="thumb_yes" value="1" '.$yes_thumb_check.'/> <label for="thumb_yes">'.$lang->yes.'</label>
+<input type="radio" name="attachments_create_thumbs" id="thumb_no" value="0" '.$no_thumb_check.' /> <label for="thumb_no">'.$lang->no.'</label> </td>
+</tr>';
+	}
 }
 
 
