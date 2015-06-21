@@ -362,7 +362,7 @@ abstract class Converter
 	 * Checks an array of columns whether their value fits in our database (#123)
 	 */
 	function check_column_length() {
-		global $db, $output, $lang;
+		global $output, $lang, $import_session;
 
 		// We need the total number of columns to check to  show our progress bar
 		$total_checks = 0;
@@ -383,8 +383,7 @@ abstract class Converter
 
 		$output->construct_progress_bar();
 
-		// TODO: langstring
-		echo $lang->module_post_rebuild_counters;
+		echo $lang->column_length_check;
 		flush();
 
 		$progress = $last_percent = 0;
@@ -411,8 +410,7 @@ abstract class Converter
 					$percent = round(($progress/$total_checks)*200, 1);
 					if($percent != $last_percent)
 					{
-						// TODO: langstrings
-						$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_user_counter, $user['uid']));
+						$output->update_progress_bar($percent, $lang->sprintf($lang->column_length_checking, $old_column, $old_table));
 					}
 					$last_percent = $percent;
 				}
@@ -421,20 +419,33 @@ abstract class Converter
 
 		$output->update_progress_bar(200, $lang->please_wait);
 
-		if(empty($invalid_columns)) {
-			// Everything will fit
-			echo $lang->done;
-		} else {
+		echo $lang->done;
+
+		if(!empty($invalid_columns)) {
 			// Show an error
-			// TODO: Proper error, simply debugging info here
+
+			$error = "<b>{$lang->error_column_length_desc}</b><br />";
 			foreach($invalid_columns as $new_table => $t1) {
-				echo "<b>{$new_table}:</b><br />";
+				$error .= $lang->sprintf($lang->error_column_length_table, $new_table)."<br />";
 				foreach($t1 as $new_column => $length) {
-					echo $new_column.": ".$length."<br />";
+					$error .= $lang->sprintf($lang->error_column_length, $new_column, $length)."<br />";
 				}
-				echo "<br />";
 			}
-			exit;
+
+			// We need to mark the db_configuration module as run to make sure the "next" button redirects to the module list
+
+			// Check to see if our module is in the 'resume modules' array still and remove it if so.
+			$key = array_search($import_session['module'], $import_session['resume_module']);
+			if(isset($key))
+			{
+				unset($import_session['resume_module'][$key]);
+			}
+
+			// Add our module to the completed list and clear it from the current running module field.
+			$import_session['completed'][] = $import_session['module'];
+			$import_session['module'] = '';
+
+			$output->print_error($error);
 		}
 		flush();
 	}
