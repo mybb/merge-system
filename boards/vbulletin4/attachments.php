@@ -23,8 +23,15 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 	function pre_setup()
 	{
+		global $mybb, $import_session;
+
 		// No need for an upload path, vb saves the complete file(!!!) in the database
 		$this->check_attachments_dir_perms();
+
+		if(isset($mybb->input['attachments_create_thumbs']))
+		{
+			$import_session['attachments_create_thumbs'] = $mybb->input['attachments_create_thumbs'];
+		}
 	}
 
 	function import()
