@@ -111,7 +111,7 @@ abstract class Converter_Module_Forums extends Converter_Module
 		// Update internal array caches
 		$this->get_import->cache_fids[$insert_array['import_fid']] = $fid; // TODO: Fix?
 
-		if($data['type'] == "f")
+		if($insert_array['type'] == "f")
 		{
 			$this->get_import->cache_fids_f[$insert_array['import_fid']] = $fid; // TODO: Fix?
 		}

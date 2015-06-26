@@ -91,14 +91,12 @@ class IPB3_Converter extends Converter {
 	var $supported_databases = array("mysql");
 
 	var $column_length_to_check = array(
-		'posts' => array(
-			'posts' => array(
-				'subject' => 'subject'
-			)
-		),
 		'topics' => array(
 			'threads' => array(
-				'subject' => 'subject'
+				'title' => 'subject'
+			),
+			'posts' => array(
+				'title' => 'subject'
 			)
 		)
 	);
