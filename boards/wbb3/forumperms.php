@@ -118,7 +118,7 @@ class WBB3_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			$tperm['gid'] = $gid;
 
 			// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
-			$insert_array = $this->prepare_insert_array($tperm);
+			$insert_array = $this->prepare_insert_array($tperm, 'forumpermissions');
 			$db->insert_query("forumpermissions", $insert_array);
 		}
 	}

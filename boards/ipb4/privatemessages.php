@@ -90,7 +90,7 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 			if(count($to_send) > 0)
 			{
-				$data = $this->prepare_insert_array($insert_data);
+				$data = $this->prepare_insert_array($insert_data, 'privatemessages');
 				$db->insert_query("privatemessages", $data);
 			}
 		}
@@ -113,7 +113,7 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)
 			{
-				$data = $this->prepare_insert_array($insert_data);
+				$data = $this->prepare_insert_array($insert_data, 'privatemessages');
 				$db->insert_query("privatemessages", $data);
 			}
 		}

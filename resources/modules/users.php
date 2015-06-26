@@ -194,7 +194,7 @@ abstract class Converter_Module_Users extends Converter_Module
 		}
 
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
-		$insert_array = $this->prepare_insert_array($data);
+		$insert_array = $this->prepare_insert_array($data, 'users');
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 

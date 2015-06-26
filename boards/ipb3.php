@@ -90,6 +90,17 @@ class IPB3_Converter extends Converter {
 	 */
 	var $supported_databases = array("mysql");
 
+	var $column_length_to_check = array(
+		'topics' => array(
+			'threads' => array(
+				'title' => 'subject'
+			),
+			'posts' => array(
+				'title' => 'subject'
+			)
+		)
+	);
+
 	function db_connect()
 	{
 		parent::db_connect();

@@ -41,10 +41,6 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 		$thread = $this->get_thread($data['threadid']);
 		$insert_data['fid'] = $this->get_import->fid($thread['forumid']);
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($thread['title']), "thread", "posts");
-		if(strlen($insert_data['subject']) > 120)
-		{
-			$insert_data['subject'] = substr($insert_data['subject'], 0, 117)."...";
-		}
 		if($data['visible'] == 2)
 		{
 			// "deleted" is visible=2 in vB, and visible=-1 in MyBB
@@ -59,10 +55,6 @@ class VBULLETIN3_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['pagetext']), "post", "posts");
-		if(strlen($insert_data['message']) > 65535)
-		{
-			$insert_data['message'] = substr($insert_data['message'], 0, 65532)."...";
-		}
 		$insert_data['ipaddress'] = $data['ipaddress'];
 		$edit = $this->get_editlog($data['postid']);
 		$insert_data['edituid'] = $this->get_import->uid($edit['userid']);

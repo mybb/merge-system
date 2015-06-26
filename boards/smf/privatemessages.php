@@ -92,7 +92,7 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 
 			if(count($to_send) > 0)
 			{
-				$edata = $this->prepare_insert_array($insert_data);
+				$edata = $this->prepare_insert_array($insert_data, 'privatemessages');
 				$db->insert_query("privatemessages", $edata);
 			}
 		}
@@ -118,7 +118,7 @@ class SMF_Converter_Module_Privatemessages extends Converter_Module_Privatemessa
 			// The last pm will be inserted by the main method, so we only insert x-1 here
 			if($key < count($to_send)-1)
 			{
-				$data = $this->prepare_insert_array($insert_data);
+				$data = $this->prepare_insert_array($insert_data, 'privatemessages');
 				$db->insert_query("privatemessages", $data);
 			}
 		}

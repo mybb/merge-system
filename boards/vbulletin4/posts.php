@@ -47,11 +47,6 @@ class VBULLETIN4_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['username'] = $this->get_import->username($insert_data['import_uid'], $data['username']);
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['pagetext']), "post", "posts");
-		// This looks ugly and it is, but vb saves the message as mediumtext while we save it as text so vb's messages can have more characteres than we're able to save
-		if(strlen($insert_data['message']) > 65535)
-		{
-			$insert_data['message'] = substr($insert_data['message'], 0, 65532)."...";
-		}
 		$insert_data['ipaddress'] = my_inet_pton($data['ipaddress']);
 		$edit = $this->get_editlog($data['postid']);
 		$insert_data['edituid'] = $this->get_import->uid($edit['userid']);

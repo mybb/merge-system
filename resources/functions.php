@@ -1005,3 +1005,50 @@ function get_timezone($zone)
 	return $h;
 }
 
+define('SQL_TINYTEXT', 255);
+define('SQL_TEXT', 65535);
+define('SQL_MEDIUMTEXT', 16777215);
+define('SQL_LONGTEXT', 4294967295);
+
+/**
+ * Returns an array of length informations about one table
+ *
+ * @param string $table Which table should be checked
+ * @param bool $cache Whether or not the array should be cached. Default is true
+ *
+ * @return array
+ */
+function get_length_info($table, $cache=true)
+{
+	global $import_session, $db;
+
+	if(isset($import_session['column_length'][$table]) && $cache) {
+		return $import_session['column_length'][$table];
+	}
+
+	$lengthinfo = array();
+	$fieldinfo = $db->show_fields_from($table);
+
+	foreach($fieldinfo as $field) {
+		if($field['Type'] == 'tinytext') {
+			$length = SQL_TINYINT;
+		} elseif($field['Type'] == 'text' || $field['Type'] == 'blob') {
+			$length = SQL_TEXT;
+		} elseif($field['Type'] == 'mediumtext' || $field['Type'] == 'mediumblob') {
+			$length = SQL_MEDIUMTEXT;
+		} elseif($field['Type'] == 'longtext' || $field['Type'] == 'longblob') {
+			$length = SQL_LONGTEXT;
+		} else {
+			preg_match('#\(([0-9]*)\)#', $field['Type'], $matches);
+			$length = (int)$matches[1];
+		}
+
+		$lengthinfo[$field['Field']] = $length;
+	}
+
+	if($cache) {
+		$import_session['column_length'][$table] = $lengthinfo;
+	}
+
+	return $lengthinfo;
+}

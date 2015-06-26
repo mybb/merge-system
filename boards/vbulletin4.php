@@ -93,6 +93,19 @@ class VBULLETIN4_Converter extends Converter
 	 * vB only supports MySQL
 	 */
 	var $supported_databases = array("mysql");
+
+	var $column_length_to_check = array(
+		'post' => array(
+			'posts' => array(
+				'pagetext' => 'message'
+			)
+		),
+		'user' => array(
+			'users' => array(
+				'icq' => 'icq'
+			)
+		)
+	);
 }
 
 

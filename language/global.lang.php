@@ -147,6 +147,9 @@ $l['database_details'] = "Please enter the database details for your installatio
 $l['wbb_installationnumber'] = "Installationnumber";
 $l['wbb_installationnumber_desc'] = "Which was the installationnumber you selected when installing?";
 
+$l['column_length_check'] = 'Checking whether all data fits in the MyBB database...';
+$l['column_length_checking'] = 'Checking column {1} in table {2}';
+
 $l['per_screen_config'] = "Options Configuration";
 $l['per_screen'] = "Please select how many {1} to import at a time";
 $l['per_screen_label'] = "{1} to import at a time";
@@ -230,6 +233,9 @@ $l['error_database_wrong_table'] = "The {1} database could not be found in '{2}'
 $l['error_database_list'] = "There seems to be one or more errors with the database configuration information that you supplied";
 $l['error_database_continue'] = "Once the above are corrected, continue with the conversion.";
 $l['error_database_non_supported'] = 'Unfortunately it seems that your server doesn\'t support any of the required database extensions';
+$l['error_column_length_desc'] = 'The old database contains data which can\'t be merged automatically. A detailed description of the issue can be found in <a href="http://docs.mybb.com/1.8/merge/column-length-check/">the official documentation</a>.';
+$l['error_column_length_table'] = 'In the <b>{1}</b> table the following columns contain data that will be stripped';
+$l['error_column_length'] = '- {1} (Maximum length: {2})';
 
 $l['loginconvert_title'] = "MyBB Merge System - Setup Password Conversion";
 $l['loginconvert_message'] = "			<div class=\"error\">\n

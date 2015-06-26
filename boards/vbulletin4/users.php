@@ -25,6 +25,13 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		'default_per_screen' => 1000,
 	);
 
+	// TODO: #123
+	/*
+	var $tobechecked = array(
+		'icq',
+	);
+	 */
+
 	function import()
 	{
 		global $import_session;
@@ -71,8 +78,7 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 			list($bmonth, $bday, $byear) = explode("-", $data['birthday']);
 			$insert_data['birthday'] = $bday."-".$bmonth."-".$byear;
 		}
-		// Don't ask me why some guys insert an ICQ number with more than 9 characters, but we need to avoid sql errors...
-		$insert_data['icq'] = substr($data['icq'], 0, 10);
+		$insert_data['icq'] = $data['icq'];
 		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['skype'] = $data['skype'];

@@ -109,6 +109,15 @@ abstract class Converter
 	var $parser_class;
 
 	/**
+	 * An array of columns that should be checked against the length of our database.
+	 *
+	 * Form: array('old_table' => array('our_table' => array('old_column' => 'new_column')));
+	 *
+	 * @var array
+	 */
+	var $column_length_to_check = array();
+
+	/**
 	 * Class constructor
 	 */
 	function __construct()
@@ -259,6 +268,8 @@ abstract class Converter
 
 					sleep(2);
 
+					$this->check_column_length();
+
 					$import_session['flash_message'] = $lang->database_success;
 					return true;
 				}
@@ -345,6 +356,98 @@ abstract class Converter
 		$output->print_footer();
 
 		return false;
+	}
+
+	/**
+	 * Checks an array of columns whether their value fits in our database (#123)
+	 */
+	function check_column_length() {
+		global $output, $lang, $import_session;
+
+		// We need the total number of columns to check to  show our progress bar
+		$total_checks = 0;
+
+		foreach($this->column_length_to_check as $old_table => $t1) {
+			foreach ($t1 as $new_table => $columns) {
+				foreach ($columns as $old_column => $new_column) {
+					$total_checks++;
+				}
+			}
+		}
+
+		if($total_checks == 0) {
+			return;
+		}
+
+		$this->db_connect();
+
+		$output->construct_progress_bar();
+
+		echo $lang->column_length_check;
+		flush();
+
+		$progress = $last_percent = 0;
+
+
+		// Structure for array is: array('old_table' => array('new_table' => array(array('old_column' => 'new_column2'))))
+
+		$invalid_columns = array();
+		foreach($this->column_length_to_check as $old_table => $t1) {
+			foreach($t1 as $new_table => $columns) {
+				$columnLength = get_length_info($new_table, false);
+
+				foreach($columns as $old_column => $new_column) {
+					// First: get the length of the largest entry
+					$query = "SELECT LENGTH({$old_column}) as length FROM ".OLD_TABLE_PREFIX."{$old_table} ORDER BY length DESC LIMIT 1";
+					$length = $this->old_db->fetch_field($this->old_db->query($query), 'length');
+
+					if($length > $columnLength[$new_column]) {
+						$invalid_columns[$new_table][$new_column] = $length;
+					}
+
+					++$progress;
+					// 200 is maximum
+					$percent = round(($progress/$total_checks)*200, 1);
+					if($percent != $last_percent)
+					{
+						$output->update_progress_bar($percent, $lang->sprintf($lang->column_length_checking, $old_column, $old_table));
+					}
+					$last_percent = $percent;
+				}
+			}
+		}
+
+		$output->update_progress_bar(200, $lang->please_wait);
+
+		echo $lang->done;
+
+		if(!empty($invalid_columns)) {
+			// Show an error
+
+			$error = "<b>{$lang->error_column_length_desc}</b><br />";
+			foreach($invalid_columns as $new_table => $t1) {
+				$error .= $lang->sprintf($lang->error_column_length_table, $new_table)."<br />";
+				foreach($t1 as $new_column => $length) {
+					$error .= $lang->sprintf($lang->error_column_length, $new_column, $length)."<br />";
+				}
+			}
+
+			// We need to mark the db_configuration module as run to make sure the "next" button redirects to the module list
+
+			// Check to see if our module is in the 'resume modules' array still and remove it if so.
+			$key = array_search($import_session['module'], $import_session['resume_module']);
+			if(isset($key))
+			{
+				unset($import_session['resume_module'][$key]);
+			}
+
+			// Add our module to the completed list and clear it from the current running module field.
+			$import_session['completed'][] = $import_session['module'];
+			$import_session['module'] = '';
+
+			$output->print_error($error);
+		}
+		flush();
 	}
 
 	/**
