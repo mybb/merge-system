@@ -166,7 +166,7 @@ abstract class Converter_Module
 				$insert_array[$key] = $db->escape_string($value);
 			}
 
-			if(isset($column_length[$key]) && mb_strlen($insert_array[$key]) > $column_length[$key]) {
+			if(isset($column_length[$key]) && mb_strlen($insert_array[$key]) > $column_length[$key] && (!isset($this->binary_fields) || !in_array($key, $this->binary_fields))) {
 				if(is_int($insert_array[$key])) {
 					// TODO: check whether int(10) really can save "9999999999" as maximum
 					$insert_array[$key] = (int)str_repeat('9', $column_length[$key]);
