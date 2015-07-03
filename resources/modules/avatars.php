@@ -226,6 +226,67 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	 * @return bool|string
 	 */
 	abstract function generate_raw_filename($avatar);
+
+	/**
+	 * Generates the MyBB friendly gravatar url for an email and with a specified default
+	 *
+	 * @param string $email
+	 * @param string $default
+	 * @return string
+	 */
+	function get_gravatar_url($email, $default='mm')
+	{
+		global $mybb;
+
+		// If user image does not exist, or is a higher rating, use the mystery man
+		$email = md5($email);
+
+		if(!$mybb->settings['maxavatardims'])
+		{
+			$mybb->settings['maxavatardims'] = '100x100'; // Hard limit of 100 if there are no limits
+		}
+
+		// Because Gravatars are square, hijack the width
+		list($maxwidth, $maxheight) = explode("x", my_strtolower($mybb->settings['maxavatardims']));
+		$maxheight = (int)$maxwidth;
+
+		// Rating?
+		$types = array('g', 'pg', 'r', 'x');
+		$rating = $mybb->settings['useravatarrating'];
+
+		if(!in_array($rating, $types))
+		{
+			$rating = 'g';
+		}
+
+		$s = "?s={$maxheight}&r={$rating}&d={$default}";
+
+		return "http://www.gravatar.com/avatar/{$email}{$s}";
+	}
+
+	/**
+	 * Check whether the email has an associated gravatar
+	 *
+	 * @param string $email
+	 * @return bool
+	 */
+	function check_gravatar_exists($email)
+	{
+		$headers = @get_headers($this->get_gravatar_url($email, '404'));
+
+		$status = 0;
+		if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
+		{
+			$status = $matches[1];
+		}
+
+		if($status >= 200 & $status < 300)
+		{
+			return true;
+		}
+
+		return false;
+	}
 }
 
 

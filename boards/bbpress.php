@@ -47,6 +47,7 @@ class BBPRESS_Converter extends Converter
 						 "import_forums" => array("name" => "Forums", "dependencies" => "db_configuration,import_users"),
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
+						 "import_avatars" => array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 						);
 
 	/**
