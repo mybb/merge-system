@@ -24,25 +24,6 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 		'email_column' => 'email',
 		'default_per_screen' => 1000,
 	);
-	
-	function pre_setup()
-	{
-		global $import_session;
-		
-		if(!isset($import_session['avatar_directory']))
-		{
-			$query = $this->old_db->simple_select("config", "conf_value, conf_name", "conf_name = 'o_avatars_dir' OR conf_name = 'o_base_url'");
-			if($this->old_db->fetch_field($query, 'conf_name') == 'o_avatar_dir')
-			{
-				$import_session['avatar_directory'] = $this->old_db->fetch_field($query, 'conf_value');
-			}
-			else
-			{
-				$import_session['main_directory'] = $this->old_db->fetch_field($query, 'conf_value');
-			}
-			$this->old_db->free_result($query);
-		}
-	}
 
 	function import()
 	{
