@@ -287,6 +287,35 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 		return false;
 	}
+
+	/**
+	 * Generates the correct avatar name for an uploaded avatar
+	 *
+	 * @param array|int $user Either an user array or the user id (in the MyBB database)
+	 * @param string $avatar Either the full file name or only the extension (jpg, png, ...)
+	 *
+	 * @return string
+	 */
+	function get_upload_avatar_name($user, $avatar)
+	{
+		global $mybb;
+
+		if(is_array($user) && !empty($user['uid']))
+		{
+			$user = $user['uid'];
+		}
+
+		$user = (int)$user;
+
+		if($user <= 0)
+		{
+			die('Invalid user specified for "get_upload_avatar_name"');
+		}
+
+		$ext = get_extension($avatar);
+
+		return $mybb->settings['avataruploadpath'] . "/avatar_{$user}.{$ext}?dateline=".TIME_NOW;
+	}
 }
 
 

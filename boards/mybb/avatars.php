@@ -61,7 +61,7 @@ class MYBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 		if($insert_data['avatartype'] == AVATAR_TYPE_UPLOAD) {
 			$ext = get_extension(my_substr($data['avatar'], 1)); // Need to substr here as relative paths are saved
 			$ext = my_substr($ext, 0, strrpos($ext, '?')); // Remove the query string
-			$insert_data['avatar'] = $mybb->settings['avataruploadpath'] . "/avatar_{$insert_data['uid']}.{$ext}?dateline=".TIME_NOW;
+			$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $ext);
 		} else {
 			// Remote or gravatar can be copied without problems (we could update the dateline here though but we're lazy)
 			$insert_data['avatar'] = $data['avatar'];

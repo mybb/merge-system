@@ -55,8 +55,7 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 		$insert_data['uid'] = $this->get_import->uid($data['id']);
 
 		if(($avatar = $this->generate_raw_filename($data)) != '') {
-			$ext = get_extension($avatar);
-			$insert_data['avatar'] = $mybb->settings['avataruploadpath'] . "/avatar_{$insert_data['uid']}.{$ext}?dateline=".TIME_NOW;
+			$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $avatar);
 
 			$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
 
