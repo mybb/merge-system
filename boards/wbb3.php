@@ -59,6 +59,7 @@ class WBB3_Converter extends Converter
 						 "import_pollvotes" => array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						 "import_privatemessages" => array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
+						 "import_avatars" => array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 						 "import_attachments" => array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 						);
 
