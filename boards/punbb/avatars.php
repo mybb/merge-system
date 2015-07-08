@@ -13,7 +13,11 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
+define('FORUM_AVATAR_GIF', 1);
+define('FORUM_AVATAR_JPG', 2);
+define('FORUM_AVATAR_PNG', 3);
+
+class PUNBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
 		'friendly_name' => 'users',
@@ -23,12 +27,8 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function get_avatar_path()
 	{
-		$query = $this->old_db->simple_select('config', 'conf_value', "conf_name='o_base_url'");
-		$uploadspath = $this->old_db->fetch_field($query, 'conf_value')."/";
-		$this->old_db->free_result($query);
-
 		$query = $this->old_db->simple_select('config', 'conf_value', "conf_name='o_avatars_dir'");
-		$uploadspath .= $this->old_db->fetch_field($query, 'conf_value');
+		$uploadspath = $this->old_db->fetch_field($query, 'conf_value');
 		$this->old_db->free_result($query);
 
 		return $uploadspath;
@@ -38,7 +38,7 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("users", "*", "username != 'Guest'", array('limit_start' => $this->trackers['start_avatars'], 'limit' => $import_session['avatars_per_screen']));
+		$query = $this->old_db->simple_select("users", "*", "username != 'Guest' AND avatar > 0", array('limit_start' => $this->trackers['start_avatars'], 'limit' => $import_session['avatars_per_screen']));
 		while($avatar = $this->old_db->fetch_array($query))
 		{
 			$this->insert($avatar);
@@ -47,21 +47,16 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data, $import_session;
+		global $insert_data;
 
 		$insert_data = array();
 
 		// MyBB 1.8 values
 		$insert_data['uid'] = $this->get_import->uid($data['id']);
 
-		if(($avatar = $this->generate_raw_filename($data)) != '') {
-			$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $avatar);
-
-			$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
-
-			$img_size = getimagesize($import_session['avatarspath'].$avatar);
-			$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
-		}
+		$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $this->generate_raw_filename($data));
+		$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
+		$insert_data['avatardimensions'] = "{$data['avatar_height']}|{$data['avatar_width']}";
 
 		return $insert_data;
 	}
@@ -73,7 +68,7 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 		// Get number of users with avatar
 		if(!isset($import_session['total_avatars']))
 		{
-			$query = $this->old_db->simple_select("users", "COUNT(*) as count", "username != 'Guest'");
+			$query = $this->old_db->simple_select("users", "COUNT(*) as count", "username != 'Guest' AND avatar > 0");
 			$import_session['total_avatars'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
@@ -83,20 +78,14 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function generate_raw_filename($avatar)
 	{
-		global $import_session;
-
-		$filetypes = array('jpg', 'gif', 'png');
-
-		foreach ($filetypes as $cur_type)
-		{
-			$path = $import_session['avatarspath'].$avatar['id'].'.'.$cur_type;
-
-			if (check_url_exists($path))
-			{
-				return $avatar['id'].'.'.$cur_type;
-			}
+		switch($avatar['avatar']) {
+			case FORUM_AVATAR_GIF:
+				return $avatar['id'].".gif";
+			case FORUM_AVATAR_JPG:
+				return $avatar['id'].".jpg";
+			case FORUM_AVATAR_PNG:
+				return $avatar['id'].".png";
 		}
-
 		return '';
 	}
 }

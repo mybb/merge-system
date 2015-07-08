@@ -51,6 +51,7 @@ class PUNBB_Converter extends Converter
 						 "import_threads" => array("name" => "Threads", "dependencies" => "db_configuration,import_forums"),
 						 "import_posts" => array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 						 "import_settings" => array("name" => "Settings", "dependencies" => "db_configuration"),
+						 "import_avatars" => array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 						);
 
 	/**
