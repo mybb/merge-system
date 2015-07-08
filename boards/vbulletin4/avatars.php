@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
+class VBULLETIN4_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
 		'friendly_name' => 'customavatar',
