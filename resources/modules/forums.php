@@ -127,6 +127,96 @@ abstract class Converter_Module_Forums extends Converter_Module
 	{
 		return str_replace('&amp;', '&', $text);
 	}
+
+	function cleanup()
+	{
+		global $db;
+
+		$query = $db->simple_select('forums', '*', "type='f' AND pid=0 AND import_fid > 0");
+
+		if($db->num_rows($query) > 0)
+		{
+			$cat = array(
+				"name"			=> "{$this->board->plain_bbname} imported forums",
+				"type"			=> "c",
+				"description"	=> "This forums were imported from your {$this->board->plain_bbname} installation",
+				"pid"			=> 0,
+				"parentlist"	=> "1",
+				"rules"			=> "",
+				"active"		=> 1,
+				"open"			=> 1,
+			);
+			// No "input", so no need to escape
+			$cid = $db->insert_query("forums", $cat);
+			$db->update_query("forums", array("parentlist" => $this->make_mybb_parent_list($cid)), "fid='{$cid}'");
+
+			while($forum = $db->fetch_array($query))
+			{
+				// Update the parentlists
+				$db->update_query("forums", array("pid" => $cid), "fid='{$forum['fid']}'");
+				$db->update_query("forums", array("parentlist" => $this->make_mybb_parent_list($forum['fid'], ",", true)), "fid='{$forum['fid']}'");
+
+				// Rebuild the parentlist of all of the subforums of this forum
+				switch($db->type)
+				{
+					case "sqlite":
+					case "pgsql":
+						$query = $db->simple_select("forums", "fid", "','||parentlist||',' LIKE '%,{$forum['fid']},%'");
+						break;
+					default:
+						$query = $db->simple_select("forums", "fid", "CONCAT(',',parentlist,',') LIKE '%,{$forum['fid']},%'");
+				}
+
+				while($child = $db->fetch_array($query))
+				{
+					$db->update_query("forums", array("parentlist" => $this->make_mybb_parent_list($child['fid'])), "fid='{$child['fid']}'");
+				}
+			}
+		}
+	}
+
+	/**
+	 * Builds a CSV parent list for a particular forum.
+	 *
+	 * @param int $fid The forum ID
+	 * @param string $navsep Optional separator - defaults to comma for CSV list
+	 * @return string The built parent list
+	 */
+	function make_mybb_parent_list($fid, $navsep=",", $drop_cache=false)
+	{
+		global $mypforumcache, $db;
+
+		if(!$mypforumcache || $drop_cache)
+		{
+			$mypforumcache = array();
+			$query = $db->simple_select("forums", "name, fid, pid", "", array("order_by" => "disporder, pid"));
+			while($forum = $db->fetch_array($query))
+			{
+				$mypforumcache[$forum['fid']][$forum['pid']] = $forum;
+			}
+		}
+
+		reset($mypforumcache);
+		reset($mypforumcache[$fid]);
+		$navigation = '';
+
+		foreach($mypforumcache[$fid] as $key => $forum)
+		{
+			if($fid == $forum['fid'])
+			{
+				if($mypforumcache[$forum['pid']])
+				{
+					$navigation = $this->make_mybb_parent_list($forum['pid'], $navsep).$navigation;
+				}
+
+				if($navigation)
+				{
+					$navigation .= $navsep;
+				}
+				$navigation .= $forum['fid'];
+			}
+		}
+		return $navigation;
+	}
+
 }
-
-
