@@ -94,6 +94,8 @@ class WBB4_Converter_Module_Forums extends Converter_Module_Forums {
 		{
 			$db->update_query("forums", array('pid' => $forum['updatefid'], 'parentlist' => make_parent_list($forum['import_fid'])), "fid='{$forum['fid']}'", 1);
 		}
+
+		parent::cleanup();
 	}
 }
 

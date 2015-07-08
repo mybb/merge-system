@@ -84,6 +84,8 @@ class SMF_Converter_Module_Forums extends Converter_Module_Forums {
 		{
 			$db->update_query("forums", array('parentlist' => make_parent_list_pid($forum['fid'])), "fid='{$forum['fid']}'", 1);
 		}
+
+		parent::cleanup();
 	}
 }
 
