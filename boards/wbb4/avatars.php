@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class WBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
+class WBB4_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
 		'friendly_name' => 'user',
@@ -23,20 +23,19 @@ class WBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function get_avatar_path()
 	{
-		$query = $this->old_db->simple_select(WCF_PREFIX."option", "optionValue", "optionName='page_url' AND optionValue!=''");
-		$uploadspath = $this->old_db->fetch_field($query, "optionValue") . "/wcf/images/avatars/";
-		$this->old_db->free_result($query);
-		return $uploadspath;
+		$query = $this->old_db->simple_select(WCF_PREFIX."application", "domainName,domainPath", "isPrimary='1'");
+		$data = $this->old_db->fetch_array($query);
+		return "http://".$data['domainName'].$data['domainPath']."wcf/images/avatars/";
 	}
 
 	function import()
 	{
 		global $import_session;
 
-		$query = $this->old_db->query("SELECT u.userID, u.gravatar, u.avatarID, a.avatarExtension, a.width, a.height
+		$query = $this->old_db->query("SELECT u.userID, u.email, u.enableGravatar, u.avatarID, a.avatarExtension, a.width, a.height, a.fileHash
 			FROM ".WCF_PREFIX."user u
-			LEFT JOIN ".WCF_PREFIX."avatar a ON (a.avatarID=u.avatarID)
-			WHERE u.avatarID > 0 OR u.gravatar != ''
+			LEFT JOIN ".WCF_PREFIX."user_avatar a ON (a.avatarID=u.avatarID)
+			WHERE u.avatarID > 0 OR u.enableGravatar = 1
 			LIMIT {$this->trackers['start_avatars']}, {$import_session['avatars_per_screen']}");
 		while($avatar = $this->old_db->fetch_array($query))
 		{
@@ -53,10 +52,10 @@ class WBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 		// MyBB 1.8 values
 		$insert_data['uid'] = $this->get_import->uid($data['userID']);
 
-		if(!empty($data['gravatar']))
+		if($data['enableGravatar'])
 		{
 			$insert_data['avatartype'] = AVATAR_TYPE_GRAVATAR;
-			$insert_data['avatar'] = $this->get_gravatar_url($data['gravatar']);
+			$insert_data['avatar'] = $this->get_gravatar_url($data['email']);
 
 			if(!$mybb->settings['maxavatardims'])
 			{
@@ -83,7 +82,7 @@ class WBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 		// Get number of users with avatar
 		if(!isset($import_session['total_avatars']))
 		{
-			$query = $this->old_db->simple_select(WCF_PREFIX."user", "COUNT(*) as count", "avatarID > 0 OR gravatar != ''");
+			$query = $this->old_db->simple_select(WCF_PREFIX."user", "COUNT(*) as count", "avatarID > 0 OR enableGravatar != ''");
 			$import_session['total_avatars'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}
@@ -93,6 +92,7 @@ class WBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function generate_raw_filename($avatar)
 	{
-		return "avatar-{$avatar['avatarID']}.{$avatar['avatarExtension']}";
+		$dir = substr($avatar['fileHash'], 0, 2);
+		return "{$dir}/{$avatar['avatarID']}-{$avatar['fileHash']}.{$avatar['avatarExtension']}";
 	}
 }
