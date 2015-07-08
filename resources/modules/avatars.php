@@ -51,7 +51,14 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	{
 		global $db, $output;
 
-		$this->debug->log->datatrace('$data', $data);
+		// vB saves files in the database but we don't want them in the log
+		$deb = $data;
+		if(!empty($deb['filedata']) || !empty($deb['filedata_thumb']))
+		{
+			$deb['filedata'] = "[Skipped]";
+			$deb['filedata_thumb'] = "[Skipped]";
+		}
+		$this->debug->log->datatrace('$data', $deb);
 
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
 
@@ -189,7 +196,8 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			{
 				$converted_data['avatar'] = MYBB_ROOT.$converted_data['avatar'];
 			}
-			$converted_data['avatar'] = my_substr($converted_data['avatar'], 0, strpos($converted_data['avatar'], '?'));$avatar = fopen($converted_data['avatar'], 'w');
+			$converted_data['avatar'] = my_substr($converted_data['avatar'], 0, strpos($converted_data['avatar'], '?'));
+			$avatar = @fopen($converted_data['avatar'], 'w');
 			if($avatar)
 			{
 				@fwrite($avatar, $data_file);
