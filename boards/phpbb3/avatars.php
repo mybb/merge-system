@@ -16,7 +16,7 @@ if(!defined("IN_MYBB"))
 class PHPBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
-		'friendly_name' => 'users',
+		'friendly_name' => 'avatars',
 		'progress_column' => 'user_id',
 		'default_per_screen' => 20,
 	);
@@ -57,7 +57,7 @@ class PHPBB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data, $mybb;
+		global $mybb;
 
 		$insert_data = array();
 

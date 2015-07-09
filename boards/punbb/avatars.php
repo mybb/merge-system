@@ -20,7 +20,7 @@ define('FORUM_AVATAR_PNG', 3);
 class PUNBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
-		'friendly_name' => 'users',
+		'friendly_name' => 'avatars',
 		'progress_column' => 'id',
 		'default_per_screen' => 20,
 	);
@@ -47,8 +47,6 @@ class PUNBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data;
-
 		$insert_data = array();
 
 		// MyBB 1.8 values

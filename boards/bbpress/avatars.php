@@ -58,8 +58,6 @@ class BBPRESS_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data;
-
 		$insert_data = array();
 
 		// MyBB 1.8 values

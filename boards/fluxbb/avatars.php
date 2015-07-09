@@ -16,7 +16,7 @@ if(!defined("IN_MYBB"))
 class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
-		'friendly_name' => 'users',
+		'friendly_name' => 'avatars',
 		'progress_column' => 'id',
 		'default_per_screen' => 20,
 	);
@@ -47,7 +47,7 @@ class FLUXBB_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data, $import_session;
+		global $import_session;
 
 		$insert_data = array();
 

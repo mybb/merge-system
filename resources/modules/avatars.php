@@ -94,7 +94,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 	public function check_avatar_dir_perms()
 	{
-		global $import_session, $output, $lang, $mybb;
+		global $import_session, $output, $lang;
 
 		if($import_session['total_avatars'] <= 0)
 		{
@@ -187,8 +187,6 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		}
 
 		// Transfer avatar
-		// TODO: REMOVE
-		$this->debug->log->error($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 		$data_file = merge_fetch_remote_file($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 		if(!empty($data_file))
 		{

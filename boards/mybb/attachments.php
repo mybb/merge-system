@@ -49,7 +49,7 @@ class MYBB_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	function convert_data($data)
 	{
-		global $db, $insert_data;
+		global $db;
 		/** @var array $field_info */
 		static $field_info;
 

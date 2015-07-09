@@ -16,7 +16,7 @@ if(!defined("IN_MYBB"))
 class VBULLETIN4_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	var $settings = array(
-		'friendly_name' => 'customavatar',
+		'friendly_name' => 'avatars',
 		'progress_column' => 'userid',
 		'default_per_screen' => 20,
 	);
@@ -42,8 +42,6 @@ class VBULLETIN4_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $insert_data;
-
 		$insert_data = array();
 
 		// MyBB 1.8 values
