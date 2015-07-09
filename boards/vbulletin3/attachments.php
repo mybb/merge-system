@@ -13,6 +13,10 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+define('ATTACH_AS_DB', 0);
+define('ATTACH_AS_FILES_OLD', 1);
+define('ATTACH_AS_FILES_NEW', 2);
+
 class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachments {
 
 	var $settings = array(
@@ -21,17 +25,36 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		'default_per_screen' => 20,
 	);
 
+	public $test_table = "attachment";
+
+	public $path_column = "attachmentid,userid";
+
+	var $attach_storage;
+
 	function pre_setup()
 	{
 		global $mybb, $import_session;
 
-		// No need for an upload path, vb saves the complete file(!!!) in the database
-		$this->check_attachments_dir_perms();
+		$query = $this->old_db->simple_select('setting', 'value', "varname='attachfile'");
+		$this->attach_storage = $this->old_db->fetch_field($query, 'value');
+		$this->old_db->free_result($query);
 
-		if(isset($mybb->input['attachments_create_thumbs']))
+		// File is saved in the database, no need for an uploadspath!
+		if($this->attach_storage == ATTACH_AS_DB)
 		{
-			$import_session['attachments_create_thumbs'] = $mybb->input['attachments_create_thumbs'];
+			$import_session['uploadspath'] = '';
+			unset($mybb->input['uploadspath']);
 		}
+
+		parent::pre_setup();
+	}
+
+	function get_upload_path()
+	{
+		$query = $this->old_db->simple_select('setting', 'value', "varname='attachpath'");
+		$uploadspath = $this->old_db->fetch_field($query, 'value');
+		$this->old_db->free_result($query);
+		return $uploadspath;
 	}
 
 	function import()
@@ -101,7 +124,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	}
 
 	/**
-	 * Get the raw file data. vBulletin saves the full data in the database!
+	 * Get the raw file data. vBulletin saves the full data in the database by default!
 	 *
 	 * @param array $unconverted_data
 	 *
@@ -109,7 +132,11 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 	 */
 	function get_file_data($unconverted_data)
 	{
-		return $unconverted_data['filedata'];
+		if($this->attach_storage == ATTACH_AS_DB)
+		{
+			return $unconverted_data['filedata'];
+		}
+		return parent::get_file_data($unconverted_data);
 	}
 
 	/**
@@ -144,8 +171,60 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 		return $import_session['total_attachments'];
 	}
 
-	// No need for an upload path, vb saves the complete file(!!!) in the database
-	function get_upload_path() {}
+	/**
+	 * Original function from vB 3, modified for our needs
+	 *
+	 * @param array $attachment
+	 * @return string
+	 */
+	function generate_raw_filename($attachment)
+	{
+		if ($this->attach_storage == ATTACH_AS_FILES_NEW) // expanded paths
+		{
+			$path = implode('/', preg_split('//', $attachment['userid'],  -1, PREG_SPLIT_NO_EMPTY));
+		}
+		else
+		{
+			$path = $attachment['userid'];
+		}
+
+		$path .= '/' . $attachment['attachmentid'] . '.attach';
+
+		return $path;
+	}
+
+	function print_attachments_per_screen_page()
+	{
+		global $import_session, $lang;
+
+		$yes_thumb_check = 'checked="checked"';
+		$no_thumb_check = '';
+		if(isset($import_session['attachments_create_thumbs']) && !$import_session['attachments_create_thumbs']) {
+			$yes_thumb_check = '';
+			$no_thumb_check = 'checked="checked"';
+		}
+
+		echo '<tr>
+<th colspan="2" class="first last">'.$lang->module_attachment_create_thumbnail.'</th>
+</tr>
+<tr>
+<td>'.$lang->module_attachment_create_thumbnail.'<br /><span class="smalltext">'.$lang->module_attachment_create_thumbnail_note.'</span></td>
+<td width="50%"><input type="radio" name="attachments_create_thumbs" id="thumb_yes" value="1" '.$yes_thumb_check.'/> <label for="thumb_yes">'.$lang->yes.'</label>
+<input type="radio" name="attachments_create_thumbs" id="thumb_no" value="0" '.$no_thumb_check.' /> <label for="thumb_no">'.$lang->no.'</label> </td>
+</tr>';
+
+		if($this->attach_storage != ATTACH_AS_DB)
+		{
+			echo '
+<tr>
+<th colspan="2" class="first last">' . $lang->sprintf($lang->module_attachment_link, $this->board->plain_bbname) . ':</th>
+</tr>
+<tr>
+<td><label for="uploadspath"> ' . $lang->module_attachment_label . ':</label></td>
+<td width="50%"><input type="text" name="uploadspath" id="uploadspath" value="' . $import_session['uploadspath'] . '" style="width: 95%;" /></td>
+</tr>';
+		}
+	}
 }
 
 

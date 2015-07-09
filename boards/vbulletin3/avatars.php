@@ -21,19 +21,47 @@ class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
 		'default_per_screen' => 20,
 	);
 
+	var $use_filesystem;
+
 	function pre_setup()
 	{
-		// No need for an upload path, vb saves the complete file(!!!) in the database
-		$this->check_avatar_dir_perms();
+		global $mybb, $import_session;
+
+		$query = $this->old_db->simple_select('setting', 'value', "varname='usefileavatar'");
+		$this->use_filesystem = $this->old_db->fetch_field($query, 'value');
+		$this->old_db->free_result($query);
+
+		// File is saved in the database, no need for an uploadspath!
+		if(!$this->use_filesystem)
+		{
+			$import_session['avatarspath'] = '';
+			unset($mybb->input['avatarspath']);
+		}
+
+		parent::pre_setup();
 	}
 
-	function get_avatar_path() {}
+	function get_avatar_path()
+	{
+		$query = $this->old_db->simple_select('setting', 'value', "varname='bburl'");
+		$uploadspath = $this->old_db->fetch_field($query, 'value') . '/';
+		$this->old_db->free_result($query);
+
+		$query = $this->old_db->simple_select('setting', 'value', "varname='avatarurl'");
+		$uploadspath .= $this->old_db->fetch_field($query, 'value');
+		$this->old_db->free_result($query);
+
+		return $uploadspath;
+	}
 
 	function import()
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("customavatar", "*", "", array('limit_start' => $this->trackers['start_avatars'], 'limit' => $import_session['avatars_per_screen']));
+		$query = $this->old_db->query("SELECT a.*, u.avatarrevision AS revision
+			FROM ".OLD_TABLE_PREFIX."customavatar a
+			LEFT JOIN ".OLD_TABLE_PREFIX."user u ON (u.userid = a.userid)
+			LIMIT {$this->trackers['start_avatars']}, {$import_session['avatars_per_screen']}");
 		while($avatar = $this->old_db->fetch_array($query))
 		{
 			$this->insert($avatar);
@@ -70,7 +98,7 @@ class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
 	}
 
 	/**
-	 * Get the raw file data. vBulletin saves the full data in the database!
+	 * Get the raw file data. vBulletin saves the full data in the database by default!
 	 *
 	 * @param array $unconverted_data
 	 *
@@ -78,13 +106,24 @@ class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
 	 */
 	function get_file_data($unconverted_data)
 	{
-		return $unconverted_data['filedata'];
+		if(!$this->use_filesystem)
+		{
+			return $unconverted_data['filedata'];
+		}
+		return parent::get_file_data($unconverted_data);
 	}
 
 	function generate_raw_filename($avatar)
 	{
-		return $avatar['filename'];
+		// Yep, gif is hardcoded
+		return "avatar" . $avatar['userid'] . "_" . $avatar['revision'] . ".gif";
 	}
 
-	function print_avatars_per_screen_page() {}
+	function print_avatars_per_screen_page()
+	{
+		if($this->use_filesystem)
+		{
+			parent::print_avatars_per_screen_page();
+		}
+	}
 }
