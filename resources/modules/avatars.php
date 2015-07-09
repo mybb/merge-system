@@ -180,15 +180,15 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 	function after_insert($unconverted_data, $converted_data, $aid)
 	{
-		global $import_session, $lang;
+		global $lang;
 
 		if($converted_data['avatartype'] != AVATAR_TYPE_UPLOAD) {
 			return;
 		}
 
 		// Transfer avatar
-		$data_file = merge_fetch_remote_file($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
-		if(!empty($data_file))
+		$file_data = $this->get_file_data($unconverted_data);
+		if(!empty($file_data))
 		{
 			if(substr($converted_data['avatar'], 0, 2) == "./" || substr($converted_data['avatar'], 0, 3) == "../")
 			{
@@ -198,7 +198,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			$avatar = @fopen($converted_data['avatar'], 'w');
 			if($avatar)
 			{
-				@fwrite($avatar, $data_file);
+				@fwrite($avatar, $file_data);
 			}
 			else
 			{
@@ -212,6 +212,19 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		{
 			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_avatar_not_found, $aid));
 		}
+	}
+
+	/**
+	 * Get the raw file data. Usually it tries to fetch a remote file using "generate_raw_filename"
+	 *
+	 * @param array $unconverted_data
+	 *
+	 * @return string
+	 */
+	function get_file_data($unconverted_data)
+	{
+		global $import_session;
+		return merge_fetch_remote_file($import_session['avatarspath'].$this->generate_raw_filename($unconverted_data));
 	}
 
 	function print_avatars_per_screen_page()

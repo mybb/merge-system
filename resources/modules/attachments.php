@@ -237,13 +237,13 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		global $mybb, $import_session, $lang, $db;
 
 		// Transfer attachment
-		$data_file = merge_fetch_remote_file($import_session['uploadspath'].$this->generate_raw_filename($unconverted_data));
-		if(!empty($data_file))
+		$file_data = $this->get_file_data($unconverted_data);
+		if(!empty($file_data))
 		{
 			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], 'w');
 			if($attachrs)
 			{
-				@fwrite($attachrs, $data_file);
+				@fwrite($attachrs, $file_data);
 			}
 			else
 			{
@@ -279,6 +279,19 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		}
 		// TODO: This may not work with SQLite/PgSQL
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$this->thread_cache[$converted_data['pid']]."'");
+	}
+
+	/**
+	 * Get the raw file data. Usually it tries to fetch a remote file using "generate_raw_filename"
+	 *
+	 * @param array $unconverted_data
+	 *
+	 * @return string
+	 */
+	function get_file_data($unconverted_data)
+	{
+		global $import_session;
+		return merge_fetch_remote_file($import_session['uploadspath'].$this->generate_raw_filename($unconverted_data));
 	}
 
 	function print_attachments_per_screen_page()

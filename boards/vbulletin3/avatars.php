@@ -69,27 +69,16 @@ class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
 		return $import_session['total_avatars'];
 	}
 
-	function after_insert($data, $insert_data, $aid)
+	/**
+	 * Get the raw file data. vBulletin saves the full data in the database!
+	 *
+	 * @param array $unconverted_data
+	 *
+	 * @return string
+	 */
+	function get_file_data($unconverted_data)
 	{
-		global $lang;
-
-		// Transfer avatar
-		if(substr($insert_data['avatar'], 0, 2) == "./" || substr($insert_data['avatar'], 0, 3) == "../")
-		{
-			$insert_data['avatar'] = MYBB_ROOT.$insert_data['avatar'];
-		}
-		$insert_data['avatar'] = my_substr($insert_data['avatar'], 0, strpos($insert_data['avatar'], '?'));
-		$file = @fopen($insert_data['avatar'], 'w');
-		if($file)
-		{
-			@fwrite($file, $data['filedata']);
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-		}
-		@fclose($file);
-		@my_chmod($insert_data['avatar'], '0777');
+		return $unconverted_data['filedata'];
 	}
 
 	function generate_raw_filename($avatar)

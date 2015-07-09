@@ -111,37 +111,16 @@ class VBULLETIN4_Converter_Module_Attachments extends Converter_Module_Attachmen
 		return $insert_data;
 	}
 
-	function after_insert($data, $insert_data, $aid)
+	/**
+	 * Get the raw file data. vBulletin saves the full data in the database!
+	 *
+	 * @param array $unconverted_data
+	 *
+	 * @return string
+	 */
+	function get_file_data($unconverted_data)
 	{
-		global $mybb, $lang, $import_session, $db;
-
-		// Transfer attachments
-		$file = @fopen($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], 'w');
-		if($file)
-		{
-			@fwrite($file, $data['filedata']);
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
-		}
-		@fclose($file);
-		@my_chmod($mybb->settings['uploadspath'].'/'.$insert_data['attachname'], '0777');
-
-		if($import_session['attachments_create_thumbs']) {
-			require_once MYBB_ROOT."inc/functions_image.php";
-			$ext = my_strtolower(my_substr(strrchr($insert_data['filename'], "."), 1));
-			if($ext == "gif" || $ext == "png" || $ext == "jpg" || $ext == "jpeg" || $ext == "jpe")
-			{
-				$thumbname = str_replace(".attach", "_thumb.$ext", $insert_data['attachname']);
-				$thumbnail = generate_thumbnail($mybb->settings['uploadspath'].$insert_data['attachname'], $mybb->settings['uploadspath'], $thumbname, $mybb->settings['attachthumbh'], $mybb->settings['attachthumbw']);
-				if($thumbnail['code'] == 4)
-				{
-					$thumbnail['filename'] = "SMALL";
-				}
-				$db->update_query("attachments", array("thumbnail" => $thumbnail['filename']), "aid='{$aid}'");
-			}
-		}
+		return $unconverted_data['file_data'];
 	}
 
 	/**
