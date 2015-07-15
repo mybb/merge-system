@@ -30,7 +30,17 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 	 */
 	function convert($text, $uid=0, $pid=0)
 	{
-		$text = str_replace(array(':'.$uid, '[/*:m]', '[/list:o]', '[/list:u]'), array('', '', '[/list]', '[/list]'), utf8_unhtmlentities($text));
+		$text = utf8_unhtmlentities($text);
+
+		if(!empty($uid))
+		{
+			$text = str_replace(":{$uid}", '', $text);
+		}
+
+		$text = str_replace(array('[/*:m]', '[/list:o]', '[/list:u]'), array('', '[/list]', '[/list]'), $text);
+
+		// Smilies are saved as img code, with comments before and after. Remove that stuff.
+		$text = preg_replace("#<!-- s(.*?) --><img src=\"{SMILIES_PATH}(.*?)\" alt=\"(.*?)\" (.*?) /><!-- s(.*?) -->#i", "$1", $text);
 
 		// Resett attachment counter
 		$this->pid = $pid;
