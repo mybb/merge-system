@@ -26,7 +26,7 @@ class IPB3_Converter_Module_Moderators extends Converter_Module_Moderators {
 		global $import_session, $db;
 
 		$query = $this->old_db->query("
-			SELECT mr.*, IF(mr.is_group = 1, m.id, mr.member_id) as member_id
+			SELECT mr.*, IF(mr.is_group = 1, m.member_id, mr.member_id) as member_id
 			FROM ".OLD_TABLE_PREFIX."moderators mr
 			LEFT JOIN ".OLD_TABLE_PREFIX."members m ON(mr.group_id = m.mgroup)
 			LIMIT {$this->trackers['start_moderators']}, {$import_session['moderators_per_screen']}
