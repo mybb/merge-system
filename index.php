@@ -31,8 +31,8 @@ define("SKIP_ADMIN_CHECK", 0);
  *********** DON'T TOUCH ANYTHING ELSE HERE ***********
  ******************************************************/
 
-$merge_version = "1.8.5";
-$version_code = 1805;
+$merge_version = "1.8.6";
+$version_code = 1806;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
