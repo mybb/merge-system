@@ -111,6 +111,14 @@ abstract class Converter_Module_Attachments extends Converter_Module
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
+		// An orphaned attachment which isn't associated with any post. We can't handle those for several reasons so trick them
+		if($insert_array['pid'] < 1)
+		{
+			$this->increment_tracker('attachments');
+			$output->print_progress('end');
+			return 0;
+		}
+
 		$db->insert_query("attachments", $insert_array);
 		$aid = $db->insert_id();
 
@@ -165,7 +173,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	{
 		global $mybb, $import_session, $lang;
 
-		if($import_session['total_attachments'] <= 0)
+		if($import_session['total_attachments'] <= 0 || SKIP_ATTACHMENT_FILES)
 		{
 			return;
 		}
@@ -237,40 +245,43 @@ abstract class Converter_Module_Attachments extends Converter_Module
 		global $mybb, $import_session, $lang, $db;
 
 		// Transfer attachment
-		$file_data = $this->get_file_data($unconverted_data);
-		if(!empty($file_data))
+		if(!SKIP_ATTACHMENT_FILES)
 		{
-			$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], 'w');
-			if($attachrs)
+			$file_data = $this->get_file_data($unconverted_data);
+			if(!empty($file_data))
 			{
-				@fwrite($attachrs, $file_data);
+				$attachrs = @fopen($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], 'w');
+				if($attachrs)
+				{
+					@fwrite($attachrs, $file_data);
+				}
+				else
+				{
+					$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
+				}
+				@fclose($attachrs);
+
+				@my_chmod($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], '0777');
+
+				if($import_session['attachments_create_thumbs']) {
+					require_once MYBB_ROOT."inc/functions_image.php";
+					$ext = my_strtolower(my_substr(strrchr($converted_data['filename'], "."), 1));
+					if($ext == "gif" || $ext == "png" || $ext == "jpg" || $ext == "jpeg" || $ext == "jpe")
+					{
+						$thumbname = str_replace(".attach", "_thumb.$ext", $converted_data['attachname']);
+						$thumbnail = generate_thumbnail($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], $mybb->settings['uploadspath'], $thumbname, $mybb->settings['attachthumbh'], $mybb->settings['attachthumbw']);
+						if($thumbnail['code'] == 4)
+						{
+							$thumbnail['filename'] = "SMALL";
+						}
+						$db->update_query("attachments", array("thumbnail" => $thumbnail['filename']), "aid='{$aid}'");
+					}
+				}
 			}
 			else
 			{
-				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_error, $aid));
+				$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
 			}
-			@fclose($attachrs);
-
-			@my_chmod($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], '0777');
-
-			if($import_session['attachments_create_thumbs']) {
-				require_once MYBB_ROOT."inc/functions_image.php";
-				$ext = my_strtolower(my_substr(strrchr($converted_data['filename'], "."), 1));
-				if($ext == "gif" || $ext == "png" || $ext == "jpg" || $ext == "jpeg" || $ext == "jpe")
-				{
-					$thumbname = str_replace(".attach", "_thumb.$ext", $converted_data['attachname']);
-					$thumbnail = generate_thumbnail($mybb->settings['uploadspath'].'/'.$converted_data['attachname'], $mybb->settings['uploadspath'], $thumbname, $mybb->settings['attachthumbh'], $mybb->settings['attachthumbw']);
-					if($thumbnail['code'] == 4)
-					{
-						$thumbnail['filename'] = "SMALL";
-					}
-					$db->update_query("attachments", array("thumbnail" => $thumbnail['filename']), "aid='{$aid}'");
-				}
-			}
-		}
-		else
-		{
-			$this->board->set_error_notice_in_progress($lang->sprintf($lang->module_attachment_not_found, $aid));
 		}
 
 		if(!isset($this->thread_cache[$converted_data['pid']])) {
@@ -297,6 +308,17 @@ abstract class Converter_Module_Attachments extends Converter_Module
 	function print_attachments_per_screen_page()
 	{
 		global $import_session, $lang;
+
+		if(SKIP_ATTACHMENT_FILES)
+		{
+			echo '<tr>
+	<th colspan="2" class="first last">Files disabled</th>
+</tr>
+<tr>
+	<td colspan="2" style="text-align: center"><b>Note:</b> Copying files has been disabled</td>
+</tr>';
+			return;
+		}
 
 		$yes_thumb_check = 'checked="checked"';
 		$no_thumb_check = '';
