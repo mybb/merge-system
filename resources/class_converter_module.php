@@ -289,6 +289,12 @@ abstract class Converter_Module
 		global $import_session;
 		foreach($this->mark_as_run_modules as $module) {
 			$module_name = str_replace(array("import_", ".", ".."), "", $module);
+
+			// This board doesn't have that specific module so skip it
+			if(!file_exists(MERGE_ROOT."boards/{$import_session['board']}/{$module_name}.php")) {
+				continue;
+			}
+
 			$import_session['completed'][] = 'import_'.$module_name;
 			$import_session['disabled'][] = 'import_'.$module_name;
 
