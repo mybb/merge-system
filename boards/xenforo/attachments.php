@@ -21,7 +21,7 @@ class XENFORO_Converter_Module_Attachments extends Converter_Module_Attachments 
 		'default_per_screen' => 20,
 	);
 
-	public $path_colum = "attachment_id, data_id";
+	public $path_column = "attachment_id, data_id";
 
 	public $test_table = "attachment";
 
