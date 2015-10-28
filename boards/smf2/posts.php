@@ -79,15 +79,15 @@ class SMF2_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 
 		// Get edit name
+		$insert_data['edituid'] = 0;
 		if(!empty($data['modified_name']))
 		{
-			$query = $db->simple_select("users", "uid", "username='".$db->escape_string($data['modified_name'])."'", array('limit' => 1));
-			$insert_data['edituid'] = $db->fetch_field($query, "uid");
-			$db->free_result($query);
-		}
-		else
-		{
-			$insert_data['edituid'] = 0;
+			$query = $this->old_db->simple_select('members', 'id_member', "member_name='".$this->old_db->escape_string($data['modified_name'])."'");
+			if($this->old_db->num_rows($query) == 1)
+			{
+				$insert_data['edituid'] = $this->get_import->uid($this->old_db->fetch_field($query, 'id_member'));
+			}
+			$this->old_db->free_result($query);
 		}
 
 		$insert_data['edittime'] = $data['modified_time'];
