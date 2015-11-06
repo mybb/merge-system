@@ -33,8 +33,8 @@ define("SKIP_ATTACHMENT_FILES", 0);
  *********** DON'T TOUCH ANYTHING ELSE HERE ***********
  ******************************************************/
 
-$merge_version = "1.8.6";
-$version_code = 1806;
+$merge_version = "1.8.7";
+$version_code = 1807;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
