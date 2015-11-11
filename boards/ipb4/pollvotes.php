@@ -57,7 +57,7 @@ class IPB4_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 			// We're not going to insert the latest, the insert method will handle that one
 			if($key < count($choices)-1)
 			{
-				$insert_array = $this->prepare_insert_array($insert_data. 'pollvotes');
+				$insert_array = $this->prepare_insert_array($insert_data, 'pollvotes');
 				$db->insert_query("pollvotes", $insert_array);
 			}
 		}
