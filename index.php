@@ -27,7 +27,10 @@ define("SKIP_ENCODING_DETECTION", 0);
 // Normally there isn't a need to turn this off but just in case you can disable the admin checks here
 define("SKIP_ADMIN_CHECK", 0);
 // Only used in debug to reduce the time waiting for the attachment module
-define("SKIP_ATTACHMENT_FILES", 0);
+define("SKIP_ATTACHMENT_FILES", 1);
+define("SKIP_AVATAR_FILES", SKIP_ATTACHMENT_FILES);
+// Also used in debug to avoid waiting for the recount functions
+define("SKIP_RECOUNTS", 0);
 
 /******************************************************
  *********** DON'T TOUCH ANYTHING ELSE HERE ***********

@@ -21,7 +21,7 @@ global $valid_login_types, $utf8_recheck;
 $valid_login_types = array(
 	"vb3"		=> "vb",		// Module isn't supported anymore, but old merges may require it
 	"vb4"		=> "vb",
-	"vb5"		=> "vb",		// Not yet supported but as vb doesn't change their hashing...
+	"vb5"		=> "vb5",
 	"ipb2"		=> "ipb",		// Module isn't supported anymore, but old merges may require it
 	"ipb3"		=> "ipb",
 	"ipb4"		=> "ipb4",
@@ -205,6 +205,16 @@ function loginconvert_convert(&$login)
 function check_vb($password, $user)
 {
 	if(md5(md5($password).$user['passwordconvertsalt']) == $user['passwordconvert'] || md5($password.$user['passwordconvertsalt']) == $user['passwordconvert'])
+	{
+		return true;
+	}
+
+	return false;
+}
+
+function check_vb5($password, $user)
+{
+	if ($user['passwordconvert'] == crypt($password, $user['passwordconvert']))
 	{
 		return true;
 	}

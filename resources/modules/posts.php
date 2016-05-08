@@ -76,6 +76,14 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 
+		// An orphaned post which isn't associated with any thread. We can't handle those for several reasons so trick them
+		if($insert_array['tid'] < 1)
+		{
+			$this->increment_tracker('posts');
+			$output->print_progress('end');
+			return 0;
+		}
+
 		$db->insert_query("posts", $insert_array);
 		$pid = $db->insert_id();
 
@@ -97,6 +105,11 @@ abstract class Converter_Module_Posts extends Converter_Module
 	public function cleanup()
 	{
 		global $output, $lang;
+
+		if(SKIP_RECOUNTS)
+		{
+			return;
+		}
 
 		// General output and our progress bar can be constructed here
 		$output->print_header($lang->module_post_rebuilding);

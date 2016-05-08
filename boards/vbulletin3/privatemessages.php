@@ -55,6 +55,15 @@ class VBULLETIN3_Converter_Module_Privatemessages extends Converter_Module_Priva
 		$touserarray = unserialize($data['touserarray']);
 		$recipients = array();
 
+		// vB has some problems with serialized data. They use strlen (eg "s:1:ü") though PHP uses the byte count (so "s:2:ü")
+		// As PHP notices that and declares the data as invalid we need to try to decode the serialized data (which indirectly forces PHP to use the strlen)
+		// However afterwards we need to properly encode all elements again, otherwise we'd get other issues again
+		if(!is_array($touserarray))
+		{
+			$touserarray = unserialize(utf8_decode($data['touserarray']));
+			array_walk_recursive($touserarray, create_function('&$value, $key', '$value = utf8_encode($value);'));
+		}
+
 		// This is the original check in vB
 		foreach($touserarray AS $key => $item)
 		{

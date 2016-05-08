@@ -99,6 +99,11 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 	{
 		global $db, $output, $lang;
 
+		if(SKIP_RECOUNTS)
+		{
+			return;
+		}
+
 		// Notify the user of what we're doing here
 
 		$output->print_header($lang->module_post_rebuilding);

@@ -130,7 +130,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	{
 		global $mybb, $import_session, $lang;
 
-		if($import_session['total_avatars'] <= 0)
+		if($import_session['total_avatars'] <= 0 || SKIP_AVATAR_FILES)
 		{
 			return;
 		}
@@ -182,7 +182,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	{
 		global $lang;
 
-		if($converted_data['avatartype'] != AVATAR_TYPE_UPLOAD) {
+		if($converted_data['avatartype'] != AVATAR_TYPE_UPLOAD || SKIP_AVATAR_FILES) {
 			return;
 		}
 
@@ -230,6 +230,17 @@ abstract class Converter_Module_Avatars extends Converter_Module
 	function print_avatars_per_screen_page()
 	{
 		global $import_session, $lang;
+
+		if(SKIP_AVATAR_FILES)
+		{
+			echo '<tr>
+	<th colspan="2" class="first last">Files disabled</th>
+</tr>
+<tr>
+	<td colspan="2" style="text-align: center"><b>Note:</b> Copying files has been disabled</td>
+</tr>';
+			return;
+		}
 
 		echo '<tr>
 <th colspan="2" class="first last">'.$lang->sprintf($lang->module_avatar_link, $this->board->plain_bbname).':</th>

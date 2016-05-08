@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
+class VBULLETIN5_Converter_Module_Privatemessages extends Converter_Module_Privatemessages {
 
 	var $settings = array(
 		'friendly_name' => 'private messages',
@@ -39,7 +39,7 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 	function convert_data($data)
 	{
-		// vBulletin 4 values
+		// vBulletin 5 values
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['fromid'] = $this->get_import->uid($data['fromuserid']);
 		if($data['folderid'] == -1)
