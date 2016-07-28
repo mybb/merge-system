@@ -193,8 +193,8 @@ $l['module_avatar_label'] = "Link (URL) to your forum avatar directory<br /><spa
 $l['module_avatar_error'] = "Error transfering the avatar (ID: {1})";
 $l['module_avatar_not_found'] = "Error could not find the avatar (ID: {1})";
 
-$l['upload_not_writeable'] = 'The uploads directory ({1}) is not writable. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be written to.';
-$l['download_not_readable'] = 'The directory could not be read. Please adjust the <a href="http://docs.mybb.com/CHMOD_Files.html" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file.';
+$l['upload_not_writeable'] = 'The uploads directory ({1}) is not writable. Please adjust the <a href="http://docs.mybb.com/1.8/administration/security/file-permissions/" target="_blank">chmod</a> permissions to allow it to be written to.';
+$l['download_not_readable'] = 'The directory could not be read. Please adjust the <a href="http://docs.mybb.com/1.8/administration/security/file-permissions/" target="_blank">chmod</a> permissions to allow it to be read from and ensure the URL is correct. If you are still experiencing issues, please try the full system path instead of a URL (ex: /var/www/htdocs/path/to/your/old/forum/uploads/ or C:/path/to/your/old/forum/upload/). Also ensure access isn\'t being blocked by a htaccess file.';
 
 $l['removing_table'] = "Removing {1} table.";
 $l['removing_columns'] = "Removing columns {1} from table {2}";
