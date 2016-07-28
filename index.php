@@ -620,7 +620,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	$attachmentswritable = @fopen(MYBB_ROOT.'uploads/test.write', 'w');
 	if(!$attachmentswritable)
 	{
-		$errors['attachments_check'] = $lang->requirementspage_chmoduploads.' <a href="http://docs.mybb.com/1.8/install/#file-permissions" target="_blank">'.$lang->requirementspage_chmod.'</a>'.$lang->requirementspage_chmoduploads;
+		$errors['attachments_check'] = $lang->requirementspage_chmoduploads.' <a href="http://docs.mybb.com/1.8/administration/security/file-permissions/" target="_blank">'.$lang->requirementspage_chmod.'</a>'.$lang->requirementspage_chmoduploads;
 		$checks['attachments_check_status'] = '<span class="fail"><strong>'.$lang->requirementspage_notwritable.'</strong></span>';
 		@fclose($attachmentswritable);
 		$debug->log->trace0("Attachments directory not writable");
