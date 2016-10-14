@@ -46,6 +46,7 @@ abstract class Converter_Module_Categories extends Converter_Module
 		'defaultdatecut' => 0,
 		'defaultsortby' => '',
 		'defaultsortorder' => '',
+
 	);
 
 	public $integer_fields = array(
