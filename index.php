@@ -36,8 +36,8 @@ define("SKIP_RECOUNTS", 0);
  *********** DON'T TOUCH ANYTHING ELSE HERE ***********
  ******************************************************/
 
-$merge_version = "1.8.7";
-$version_code = 1807;
+$merge_version = "1.8.8";
+$version_code = 1808;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
