@@ -73,7 +73,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 			$insert_data['thumbnail'] = '';
 		}
 
-		$posthash = $this->get_import->post_attachment_details($data['postid']);
+		$posthash = $this->get_import->post_attachment_details($data['contentid']);
 		$insert_data['pid'] = $posthash['pid'];
 		if($posthash['posthash'])
 		{
