@@ -95,7 +95,7 @@ class Cache_Handler
 			return $this->cache_post_attachment_details[$old_pid];
 		}
 
-		$query = $db->simple_select("posts", "tid, uid, pid", "pid = '".$this->pid($old_pid)."'");
+		$query = $db->simple_select("posts", "tid, uid, pid", "import_pid = '".$this->pid($old_pid)."'");
 		$details = $db->fetch_array($query);
 		$db->free_result($query);
 
