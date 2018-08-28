@@ -71,7 +71,6 @@ class SMF_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['birthday'] = date("j-n-Y", strtotime($data['birthdate']));
 		}
 		$insert_data['icq'] = $data['ICQ'];
-		$insert_data['aim'] = $data['AIM'];
 		$insert_data['yahoo'] = $data['YIM'];
 		$insert_data['hideemail'] = $data['hideEmail'];
 		$insert_data['invisible'] = int_to_01($data['showOnline']);
