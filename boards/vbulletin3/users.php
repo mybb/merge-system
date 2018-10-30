@@ -89,7 +89,6 @@ class VBULLETIN3_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['birthday'] = $data['birthday'];
 		}
 		$insert_data['icq'] = $data['icq'];
-		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['style'] = 0;

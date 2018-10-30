@@ -97,7 +97,6 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 
 		$insert_data['birthday'] = $birthday;
 		$insert_data['icq'] = $data['user_icq'];
-		$insert_data['aim'] = $data['user_aim'];
 		$insert_data['yahoo'] = $data['user_yim'];
 		$insert_data['hideemail'] = $data['user_allow_viewemail'];
 		$insert_data['invisible'] = int_to_01($data['user_allow_viewonline']);

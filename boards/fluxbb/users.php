@@ -58,7 +58,6 @@ class FLUXBB_Converter_Module_Users extends Converter_Module_Users {
 
 		$insert_data['lastpost'] = (int)$data['last_post'];
 		$insert_data['icq'] = $data['icq'];
-		$insert_data['aim'] = $data['aim'];
 		$insert_data['yahoo'] = $data['yahoo'];
 		$insert_data['hideemail'] = $data['email_setting'];
 		$insert_data['allownotices'] = $data['notify_with_post'];
