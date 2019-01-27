@@ -77,7 +77,7 @@ class VBULLETIN3_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 		$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $data['filename']);
 		$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
-		$insert_data['avatardimensions'] = "{$data['height']}|{$data['width']}";
+		$insert_data['avatardimensions'] = "{$data['width']}|{$data['height']}";
 
 		return $insert_data;
 	}
