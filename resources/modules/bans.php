@@ -1,14 +1,14 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2014 MyBB Group, All Rights Reserved
+ * Copyright 2019 MyBB Group, All Rights Reserved
  *
  * Author: Brad Veryard (https://github.com/veryard)
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
  */
 
-abstract class Converted_Module_Bans extends Converter_Module
+abstract class Converter_Module_Bans extends Converter_Module
 {
     public $default_values = array(
         'uid' => 0,

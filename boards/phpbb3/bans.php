@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2014 MyBB Group, All Rights Reserved
+ * Copyright 2019 MyBB Group, All Rights Reserved
  *
  * Author: Brad Veryard (https://github.com/veryard)
  * Website: http://www.mybb.com
@@ -12,7 +12,7 @@ if(!defined('IN_MYBB')) {
     die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-class PHPBB3_Converter_Module_Bans extends Converted_Module_Bans
+class PHPBB3_Converter_Module_Bans extends Converter_Module_Bans
 {
     public $settings = array(
         'friendly_name' => 'bans',
