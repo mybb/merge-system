@@ -110,7 +110,7 @@ class VBULLETIN3_Converter_Module_Attachments extends Converter_Module_Attachmen
 
 		$insert_data['uid'] = $this->get_import->uid($data['userid']);
 		$insert_data['filename'] = $data['filename'];
-		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['dateline'].".attach";
+		$insert_data['attachname'] = "post_".$insert_data['uid']."_".$data['dateline']."_".$data['attachmentid'].".attach";
 		$insert_data['filesize'] = $data['filesize'];
 		$insert_data['downloads'] = $data['counter'];
 		$insert_data['visible'] = $data['visible'];
