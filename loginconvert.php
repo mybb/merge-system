@@ -37,6 +37,7 @@ $valid_login_types = array(
 	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
 	"vanilla"	=> "vanilla",
 	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
+	"dz"		=> "discuz",	// Discuz!
 );
 
 // Array of login types for which we need to handle utf8 issues
