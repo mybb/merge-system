@@ -417,12 +417,12 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
 
 		// Do we have bad characters? (i.e. db/table encoding set to UTF-8 but string is actually ISO)
-		if(my_strlen($converted_str) < my_strlen($text))
+		if(dz_my_strlen($converted_str) < dz_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
 		{
 			// Was our database/tables set to UTF-8 encoding and the data actually in iso encoding?
 			// Stop trying to confuse us!!
 			$converted_str = iconv("iso-8859-1", fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
-			if(my_strlen($converted_str) >= my_strlen($text))
+			if(dz_my_strlen($converted_str) >= dz_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
 			{
 				return $converted_str;
 			}
@@ -433,6 +433,51 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 	}
 
 	return $text;
+}
+
+/**
+ * Checks for the length of a string, mb strings accounted for.
+ * 
+ * Added here replacing the original my_strlen() function in MyBB, 
+ * to deal with problematic converting of Chinese characters.
+ *
+ * @param string $string The string to check the length of.
+ * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
+ * @return int The length of the string.
+ */
+function dz_my_strlen($string, $encoding = '')
+{
+	global $lang;
+	
+	$string = preg_replace("#&\#([0-9]+);#", "-", $string);
+	
+	if(strtolower($lang->settings['charset']) == "utf-8")
+	{
+		// Get rid of any excess RTL and LTR override for they are the workings of the devil
+		$string = str_replace(dec_to_utf8(8238), "", $string);
+		$string = str_replace(dec_to_utf8(8237), "", $string);
+		
+		// Remove dodgy whitespaces
+		$string = str_replace(chr(0xCA), "", $string);
+	}
+	$string = trim($string);
+	
+	if(function_exists("mb_strlen"))
+	{
+		// When counting Chinese characters in GBK encoding, mb_strlen() acts weird without
+		// an encoding parameter, i.e., using internal encoding, if it's UTF-8.
+		if(!isset($encoding) || empty($encoding))
+		{
+			$encoding = mb_internal_encoding();
+		}
+		$string_length = mb_strlen($string, $encoding);
+	}
+	else
+	{
+		$string_length = strlen($string);
+	}
+	
+	return $string_length;
 }
 
 /**
@@ -456,6 +501,32 @@ function fetch_iconv_encoding($mysql_encoding)
 		default:
 			return $mysql_encoding[0];
     }
+}
+
+/**
+ * Converts the given MySQL encoding to a PHP mbstring usable encoding
+ *
+ * @param string $mysql_encoding The MySQL encoding
+ * @return string The mbstring encoding
+ */
+function fetch_mbstring_encoding($mysql_encoding)
+{
+	$mysql_encoding = explode("_", $mysql_encoding);
+	switch($mysql_encoding[0])
+	{
+		case "utf8":
+		case "utf8mb4":
+			return "UTF-8";
+			break;
+		case "latin1":
+			return "ISO-8859-1";
+			break;
+		case "gbk":
+			return "GB2312";
+			break;
+		default:
+			return strtoupper($mysql_encoding[0]);
+	}
 }
 
 /**

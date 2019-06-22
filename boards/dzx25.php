@@ -6,7 +6,8 @@
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
  *
- * Contact @yuliu in GitHub if you need assistance.
+ * Refer to the wiki in GitHub if you need assistance:
+ * https://github.com/yuliu/mybb-merge-system/wiki
  */
 
 // Disallow direct access to this file for security reasons
@@ -14,6 +15,13 @@ if(!defined("IN_MYBB"))
 {
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
+
+/*************************************
+ *********** Configuration ***********
+ *************************************/
+// Convert thread class from Discuz! to thread prefixes in MyBB without setting any permission on forum using and group using.
+// If its value is true, the converter will require dependencies of the import of forums and usergroups. Otherwise, no dependency is required.
+define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 
 class DZX25_Converter extends Converter
 {
@@ -51,7 +59,7 @@ class DZX25_Converter extends Converter
 			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
 			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
-			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration,import_forums,import_usergroups"),	// Customed converter module
+			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration"),	// Customed converter module
 			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
 			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 			"import_pollvotes"			=> array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
@@ -100,15 +108,20 @@ class DZX25_Converter extends Converter
 	);
 	
 	var $column_length_to_check = array(
-			'[placeholder]old_table' => array(
-					'[placeholder]our_table' => array(
-							'[placeholder]old_column' => '[placeholder]new_column'
-					)
-			)
+
 	);
 	
 	var $get_post_cache = array();
 	
+	function __construct()
+	{
+		parent::__construct();
+		
+		if(defined("DZX25_CONVERTER_THREADCLASS_DEPS") && DZX25_CONVERTER_THREADCLASS_DEPS && isset($this->modules))
+		{
+			$this->modules['import_threadprefixes']['dependencies'] = 'db_configuration,import_forums,import_usergroups';
+		}
+	}
 }
 
 
