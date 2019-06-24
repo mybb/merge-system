@@ -2,8 +2,8 @@
 This folder dedicates to converting and merging the well-known Chinese forum software Discuz! **X2.5** database to an existing installation of MyBB.
 
 # Supported forum software versions:
-MyBB >= **1.8.20**
-Discuz! **X2.5** Release **20121101** upto **20171001**
+MyBB >= **1.8.20**\
+Discuz! **X2.5** Release **20121101** upto **20171001**\
 UCenter **1.6.0** Release **20110501** upto **20170101**
 
 # About converting users and their profiles:

@@ -4,10 +4,10 @@ This is a development brach of **basic** converter from the well-known Discuz! *
 This dedicated converter has not been much tested, some problems could break the merging process. Submit a issue if you encounter any unsucessful job with this converter.
 
 # Converter requirement:
-PHP version >= 5.2 (I have tested it with PHP 5.3)
-MySQL Server version >= 5.1 (I have tested it with MySQL Server 5.1.41)
-Minimum supported MyBB version is **1.8.20**
-Discuz! **X2.5** Release **20121101** upto **20171001**
+PHP version >= 5.2 (I have tested it with PHP 5.3)\
+MySQL Server version >= 5.1 (I have tested it with MySQL Server 5.1.41)\
+Minimum supported MyBB version is **1.8.20**\
+Discuz! **X2.5** Release **20121101** upto **20171001**\
 UCenter **1.6.0** Release **20110501** upto **20170101**
 
 # License

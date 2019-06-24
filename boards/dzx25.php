@@ -99,12 +99,14 @@ class DZX25_Converter extends Converter
 			1 => MYBB_ADMINS, // Administrators
 			2 => MYBB_SMODS, // Super Moderators
 			3 => MYBB_MODS, // Mods
-			4 => MYBB_BANNED, // Banned from posting
-			5 => MYBB_BANNED, // Banned from viewing forums
-			6 => MYBB_BANNED, // Banned from visiting whole site
+			4 => MYBB_BANNED, // Discuz!: Banned from posting
+			5 => MYBB_BANNED, // Discuz!: Banned from viewing forums
+			6 => MYBB_BANNED, // Discuz!: Banned from visiting whole site
 			7 => MYBB_GUESTS, // Guests
 			8 => MYBB_AWAITING, // Awaiting Activation
-			9 => MYBB_REGISTERED, // Registered
+			////////// Discuz! normal user groups starts here, you may comment following lines ///////////
+			9 => MYBB_REGISTERED, // Registered, Discuz!: any user in this group usually has a negative credit (like post number), so some permissions are denied
+			10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user
 	);
 	
 	var $column_length_to_check = array(
