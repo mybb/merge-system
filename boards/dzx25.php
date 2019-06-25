@@ -22,6 +22,7 @@ if(!defined("IN_MYBB"))
 // Convert thread class from Discuz! to thread prefixes in MyBB without setting any permission on forum using and group using.
 // If its value is true, the converter will require dependencies of the import of forums and usergroups. Otherwise, no dependency is required.
 define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
+//define("DZX25_CONVERTER_USERS_LASTTIME", 1390492800);
 
 class DZX25_Converter extends Converter
 {
@@ -56,7 +57,8 @@ class DZX25_Converter extends Converter
 			"db_configuration"			=> array("name" => "Database Configuration", "dependencies" => ""),
 			"import_settings"			=> array("name" => "Settings", "dependencies" => "db_configuration"),
 			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
-			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
+			"import_ucusers"			=> array("name" => "UCenter Users", "dependencies" => "db_configuration", "class_depencencies" => "users"),
+			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_ucusers,import_usergroups"),
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
 			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
 			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration"),	// Customed converter module
@@ -81,7 +83,7 @@ class DZX25_Converter extends Converter
 	 *
 	 * @var String
 	 */
-	var $check_table = "common_member";
+	var $check_table = "common_member,pm_members";
 	
 	/**
 	 * The table prefix we suggest to use

@@ -239,10 +239,23 @@ abstract class Converter
 				{
 					// Need to check if it is actually installed here
 					$this->old_db->set_table_prefix($config_data['tableprefix']);
-
-					if(isset($this->check_table) && !empty($this->check_table) && !$this->old_db->table_exists($this->check_table))
+					
+					// Modified to allow different table prefix to be set before a module run.
+					if(isset($this->check_table) && !empty($this->check_table))
 					{
-						$errors[] = $lang->sprintf($lang->error_database_wrong_table, $this->plain_bbname, $config_data['dbname']);
+						$table_not_found = true;
+						foreach(explode(',', $this->check_table) as $value)
+						{
+							if($this->old_db->table_exists($value))
+							{
+								$table_not_found = false;
+								break;
+							}
+						}
+						if($table_not_found)
+						{
+							$errors[] = $lang->sprintf($lang->error_database_wrong_table, $this->plain_bbname, $config_data['dbname']);
+						}
 					}
 				}
 

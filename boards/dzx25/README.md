@@ -7,9 +7,15 @@ Discuz! **X2.5** Release **20121101** upto **20171001**\
 UCenter **1.6.0** Release **20110501** upto **20170101**
 
 # About converting users and their profiles:
-Basic user data in Discuz! X2.5 reside in two places, the Discuz! forum itself tables and the UCenter tables, since an instance of UCenter is essentially installed or an existing one is used when installing Discuz! X2.5.
+Basic user data in Discuz! X2.5 reside in two places, the Discuz! forum tables itself and the UCenter tables, since an instance of UCenter is essentially installed or an existing one is used when installing Discuz! X2.5.
 
 If you have two or more Discuz! installed linking to the same UCenter instance, and you wish to convert & merge all these Discuz! into a MyBB installation, you should probably convert the users stored in UCenter first, and then merge any existing user in those Discuz! forums. Yes, there could be no such users in a Discuz! but surely they're users of yours.
+
+The **correct** steps of converting users should be:
+1. Regardless where you are, reconfigure database connection info for UCenter. It's OK to change database configuration now. Remember to check prefix of UCenter tables: in default Discuz! X2.5 installation, the table prefix of UCenter is `dz_ucenter_`.
+1. Run `import_ucusers` module to migrate user data stored in UCenter.
+1. Revert database connection info back to Discuz!.
+1. Continue with other user modules to update user infomation.
 
 # Supported modules:
 Almost all modules that are supported by the original [MyBB Merge System](https://github.com/mybb/merge-system) can be used at this time, including:
@@ -34,6 +40,8 @@ Some useful and kinda easy-to-import data, which are not supported by the origin
 1. import_profilefields, Extended User Profile Fields (at least those supported by MyBB naively)
 1. import_userfields, Extended User Profile Infos
 1. import_buddies, Buddies
+1. import_ucusers, Users in UCenter
+1. import_userpermission, User permissions
 
 # Not supported modules:
 1. categories

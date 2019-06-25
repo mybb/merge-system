@@ -8,7 +8,7 @@
  */
 
 $load_timer = microtime(true);
-
+error_reporting(E_ALL);
 header('Content-type: text/html; charset=utf-8');
 @set_time_limit(0);
 @ini_set('display_errors', true);
@@ -878,7 +878,18 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
 		require_once MERGE_ROOT.'resources/class_converter_module.php';
-		require_once MERGE_ROOT."resources/modules/{$module_name}.php";
+		// Modified to allow customed import_ modules based on MyBB Merge System's internal base abstract class.
+		if(isset($board->modules[$import_session['module']]['class_depencencies']))
+		{
+			foreach(explode(',', $board->modules[$import_session['module']]['class_depencencies']) as $classname)
+			{
+				require_once MERGE_ROOT."resources/modules/{$classname}.php";
+			}
+		}
+		else
+		{
+			require_once MERGE_ROOT."resources/modules/{$module_name}.php";
+		}
 		require_once MERGE_ROOT."boards/{$import_session['board']}/{$module_name}.php";
 
 		$importer_class_name = strtoupper($import_session['board'])."_Converter_Module_".ucfirst($module_name);
