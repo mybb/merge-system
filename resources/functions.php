@@ -445,7 +445,7 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
  * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
  * @return int The length of the string.
  */
-function dz_my_strlen($string, $encoding = '')
+function dz_my_strlen($string, $mb_encoding = "")
 {
 	global $lang;
 	
@@ -466,11 +466,11 @@ function dz_my_strlen($string, $encoding = '')
 	{
 		// When counting Chinese characters in GBK encoding, mb_strlen() acts weird without
 		// an encoding parameter, i.e., using internal encoding, if it's UTF-8.
-		if(!isset($encoding) || empty($encoding))
+		if(!isset($mb_encoding) || empty($mb_encoding))
 		{
-			$encoding = mb_internal_encoding();
+			$mb_encoding = mb_internal_encoding();
 		}
-		$string_length = mb_strlen($string, $encoding);
+		$string_length = mb_strlen($string, $mb_encoding);
 	}
 	else
 	{
@@ -488,17 +488,17 @@ function dz_my_strlen($string, $encoding = '')
  * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
  * @return string The lowered string.
  */
-function dz_my_strtolower($string, $encoding = '')
+function dz_my_strtolower($string, $mb_encoding = "")
 {
 	if(function_exists("mb_strtolower"))
 	{
 		// When counting Chinese characters in GBK encoding, mb_strlen() acts weird without
 		// an encoding parameter, i.e., using internal encoding, if it's UTF-8.
-		if(!isset($encoding) || empty($encoding))
+		if(!isset($mb_encoding) || empty($mb_encoding))
 		{
-			$encoding = mb_internal_encoding();
+			$mb_encoding = mb_internal_encoding();
 		}
-		$string = mb_strtolower($string, $encoding);
+		$string = mb_strtolower($string, $mb_encoding);
 	}
 	else
 	{
@@ -553,7 +553,7 @@ function fetch_mbstring_encoding($mysql_encoding)
 			return "ISO-8859-1";
 			break;
 		case "gbk":
-			return "GB2312";	// Change to "GB18030" if you experience any problematic Chinese character converting, also requiring PHP >= 5.4.0
+			return "GB18030";	// Change to "GB18030" if you experience any problematic Chinese character converting, also requiring PHP >= 5.4.0. Otherwise, use "GB2312" instead.
 			break;
 		default:
 			return strtoupper($mysql_encoding[0]);

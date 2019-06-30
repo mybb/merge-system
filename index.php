@@ -879,7 +879,8 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 
 		require_once MERGE_ROOT.'resources/class_converter_module.php';
 		// Modified to allow customed import_ modules based on MyBB Merge System's internal base abstract class.
-		if(isset($board->modules[$import_session['module']]['class_depencencies']))
+		// A string "__none__" means the converter's module is directly derived from class Converter_Module.
+		if(isset($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] != "__none__")
 		{
 			foreach(explode(',', $board->modules[$import_session['module']]['class_depencencies']) as $classname)
 			{

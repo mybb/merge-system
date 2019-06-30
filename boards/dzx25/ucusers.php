@@ -19,10 +19,9 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 			'friendly_name' => 'ucusers',
 			'progress_column' => 'uid',
 			'encode_table' => 'members',
-			'postnum_column' => 'posts',	// UCenter has no such data, just set it to 0.
 			'username_column' => 'username',
 			'email_column' => 'email',
-			'default_per_screen' => 1000,
+			'default_per_screen' => 3000,
 	);
 	
 	/**
@@ -37,9 +36,13 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 		// Alter some default values.
 		if(defined("DZX25_CONVERTER_USERS_LASTTIME"))
 		{
-			$default_values['lastactive'] = DZX25_CONVERTER_USERS_LASTTIME;
-			$default_values['lastvisit'] = DZX25_CONVERTER_USERS_LASTTIME;
+			$this->default_values['lastactive'] = DZX25_CONVERTER_USERS_LASTTIME;
+			$this->default_values['lastvisit'] = DZX25_CONVERTER_USERS_LASTTIME;
 		}
+		$this->default_values['classicpostbit'] = 1;
+		$this->default_values['subscriptionmethod'] = 0;	// Changed from 2 to 0 to perform no email being sent by subscriptions.
+		$this->default_values['pmnotify'] = 0;	// Changed from 1 to 0 to not notifying by email.
+		$this->default_values['pmfolders'] = '0**$%%$1**$%%$2**$%%$3**$%%$4**';	// From 1820, 0 => Inbox, 1 => Unread, 2 => Sent, 3 => Draft, 4 => trash
 	}
 	
 	function import()
@@ -60,8 +63,12 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 		
 		// Discuz! UCenter values
 		$insert_data['import_uid'] = $data['uid'];
-		$insert_data['username'] = encode_to_utf8($data['username'], "members", "users");
-		$insert_data['email'] = $data['email'];
+		$insert_data['username'] = encode_to_utf8($data['username'], $this->settings['encode_table'], "users");
+		// We have user input Chinese characters in the email field.
+		$insert_data['email'] = encode_to_utf8($data['email'], $this->settings['encode_table'], "users");
+		$insert_data['regdate'] = $data['regdate'];
+		$insert_data['lastactive'] = $data['lastlogintime'] == 0 ? $data['regdate'] : $data['lastlogintime'];
+		$insert_data['lastvisit'] = $data['lastlogintime'] == 0 ? $data['regdate'] : $data['lastlogintime'];
 		if(substr($data['regip'], 0, 1) == "M" || substr($data['regip'], 0, 1) == "h")
 		{
 			// Manully added user or user ip is hidden.
@@ -71,9 +78,7 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 		{
 			$insert_data['regip'] = my_inet_pton($data['regip']);
 		}
-		$insert_data['regdate'] = $data['regdate'];
-		$insert_data['lastactive'] = $data['lastlogintime'] == 0 ? $data['regdate'] : $data['lastlogintime'];
-		$insert_data['lastvisit'] = $data['lastlogintime'] == 0 ? $data['regdate'] : $data['lastlogintime'];
+		$insert_data['lastip'] = my_inet_pton($data['lastloginip']);
 		
 		$insert_data['passwordconvert'] = $data['password'];
 		$insert_data['passwordconvertsalt'] = $data['salt'];
@@ -113,7 +118,7 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 			return false;
 		}
 		
-		++$this->total_users;
+		//++$this->total_users;
 		++$this->total_ucusers;
 		
 		$this->debug->log->datatrace('$data', $data);
@@ -158,12 +163,12 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 	public function check_for_duplicates(&$user)
 	{
 		global $db, $output, $import_session;
-		
-		if(!$this->total_users)
+
+		if(!$this->total_ucusers)
 		{
 			// Count the total number of users so we can generate a unique id if we have a duplicate user
 			$query = $db->simple_select("users", "COUNT(*) as totalusers");
-			$this->total_users = $db->fetch_field($query, "totalusers");
+			$this->total_ucusers = $db->fetch_field($query, "totalusers");
 			$db->free_result($query);
 		}
 		
@@ -178,20 +183,22 @@ class DZX25_Converter_Module_Ucusers extends Converter_Module_Users {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate_user['username']) == strtolower($username) || dz_my_strtolower($duplicate_user['username']) == strtolower($encoded_username))
+		if(strtolower($duplicate_user['username']) == strtolower($username) || dz_my_strtolower($duplicate_user['username']) == dz_my_strtolower($encoded_username))
 		{
-			if($user[$this->settings['email_column']] == $duplicate_user['email'])
+			// Have to check email in UTF-8 format also.
+			$encoded_email = encode_to_utf8($user[$this->settings['email_column']], $this->settings['encode_table'], "users");
+			$email_pos = empty($duplicate_user['email']) ? 0 : strpos($encoded_email, $duplicate_user['email']);
+			if($encoded_email == $duplicate_user['email'] || ($email_pos !== false && $email_pos == 0))
 			{
 				$output->print_progress("start");
 				$output->print_progress("merge_user", array('import_uid' => $user[$this->settings['progress_column']], 'duplicate_uid' => $duplicate_user['uid']));
 				
-				$db->update_query("users", array('import_uid' => $user[$this->settings['progress_column']], 'postnum' => $duplicate_user['postnum']+$user[$this->settings['postnum_column']]), "uid = '{$duplicate_user['uid']}'");
-				
+				// No more actions since user data in UCenter is just very basic.
 				return false;
 			}
 			else
 			{
-				$user[$this->settings['username_column']] = $duplicate_user['username']."_".$import_session['board']."_import".$this->total_users;
+				$user[$this->settings['username_column']] = $duplicate_user['username']."_".$import_session['board']."_import".$this->total_ucusers;
 			}
 		}
 		

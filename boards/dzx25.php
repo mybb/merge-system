@@ -23,6 +23,11 @@ if(!defined("IN_MYBB"))
 // If its value is true, the converter will require dependencies of the import of forums and usergroups. Otherwise, no dependency is required.
 define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 //define("DZX25_CONVERTER_USERS_LASTTIME", 1390492800);
+// Overwrite some user data when importing more than one Discuz!.
+// If set to false, user profiles will contain data mostly from the first converted Discuz!. User's last status, such as lastvisit, lastactivity, etc., will still be overwriten with very recent values.
+define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
+// If set to false, user groups will contain values from the first converted Discuz!.
+define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
 
 class DZX25_Converter extends Converter
 {
@@ -58,20 +63,20 @@ class DZX25_Converter extends Converter
 			"import_settings"			=> array("name" => "Settings", "dependencies" => "db_configuration"),
 			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
 			"import_ucusers"			=> array("name" => "UCenter Users", "dependencies" => "db_configuration", "class_depencencies" => "users"),
-			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_ucusers,import_usergroups"),
+			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
 			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
-			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration"),	// Customed converter module
+			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => 0),	// Customed converter module
 			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
 			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 			"import_pollvotes"			=> array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
 			"import_posts"				=> array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
 			"import_privatemessages"	=> array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
 			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
-			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users"),	// Customed converter module
-			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration"),	// Customed converter module
-			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields"),	// Customed converter module
-			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users"),	// Customed converter module
+			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customed converter module
+			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
+			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "users"),	// Customed converter module
+			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),	// Customed converter module
 /*			"import_events"				=> array("name" => "Calendar Events", "dependencies" => "db_configuration,import_posts"),
 */			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 			"import_attachments"		=> array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
@@ -106,9 +111,9 @@ class DZX25_Converter extends Converter
 			6 => MYBB_BANNED, // Discuz!: Banned from visiting whole site
 			7 => MYBB_GUESTS, // Guests
 			8 => MYBB_AWAITING, // Awaiting Activation
-			////////// Discuz! normal user groups starts here, you may comment following lines ///////////
-			9 => MYBB_REGISTERED, // Registered, Discuz!: any user in this group usually has a negative credit (like post number), so some permissions are denied
-			10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user
+			/* Discuz! normal user groups starts here, uncomment following lines and add more to convert all non-privileged or banned/awaiting user to MYBB_REGISTERED. */
+//			9 => MYBB_REGISTERED, // Registered, Discuz!: any user in this group usually has a negative credit (like post number), so some permissions are denied
+//			10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user
 	);
 	
 	var $column_length_to_check = array(

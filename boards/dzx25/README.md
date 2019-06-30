@@ -11,6 +11,8 @@ Basic user data in Discuz! X2.5 reside in two places, the Discuz! forum tables i
 
 If you have two or more Discuz! installed linking to the same UCenter instance, and you wish to convert & merge all these Discuz! into a MyBB installation, you should probably convert the users stored in UCenter first, and then merge any existing user in those Discuz! forums. Yes, there could be no such users in a Discuz! but surely they're users of yours.
 
+**Important note about `email`:** in UCenter 1.6.0 (20170101) that comes with the latest version of Discuz! X2.5 (20170101), the `email` field is stored in a `CHAR/32` field in table `members`, which is far less than the length of the same purpose field using a `CHAR/40` one in table `common_member` in Discuz!. The converter tries its best to find the full email, but maybe fails.
+
 The **correct** steps of converting users should be:
 1. Regardless where you are, reconfigure database connection info for UCenter. It's OK to change database configuration now. Remember to check prefix of UCenter tables: in default Discuz! X2.5 installation, the table prefix of UCenter is `dz_ucenter_`.
 1. Run `import_ucusers` module to migrate user data stored in UCenter.
