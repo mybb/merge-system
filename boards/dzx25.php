@@ -28,6 +28,71 @@ define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
 // If set to false, user groups will contain values from the first converted Discuz!.
 define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
+/*****
+ * Convert any user profilefield to MyBB? Settings are:
+ * 'fid':        profilefield's target field id in MyBB table `userfields`
+ *               -1: don't convert this field
+ *                0: need to insert a new profile field
+ *               any positive integer: existing `fid` in `userfields`
+ * 'old_table':  profilefield's in which Discuz! table?
+ * 'old_column': profilefield's column
+ */
+$DZ_USER_PROFILEFIELDS = array(
+		0 => array(
+				'name' => 'location',
+				'fid' => 1,
+				'old_table' => 'common_member_profile',
+				'old_column' => 'address',
+				),
+		1 => array(
+				'name' => 'bio',
+				'fid' => 2,
+				'old_table' => 'common_member_profile',
+				'old_column' => 'bio',
+		),
+		2 => array(
+				'name' => 'gender',
+				'fid' => 3,
+				'old_table' => 'common_member_profile',
+				'old_column' => 'gender',
+		),
+		3 => array(
+				'name' => 'credits',
+				'fid' => 0,
+				'old_table' => 'common_member',
+				'old_column' => 'credits',
+		),
+		4 => array(
+				'name' => 'extcredits',
+				'fid' => 0,
+				// Definition of extcredits_[1~8] comes from `extcredits` in `common_setting`.
+				'old_def_table' => 'common_setting',
+				'old_table' => 'common_member_count',
+				'old_column' => 'extcredits',
+		),
+		5 => array(
+				'name' => 'digestposts',
+				'fid' => 0,
+				'old_table' => 'common_member_count',
+				'old_column' => 'digestposts',
+		),
+		6 => array(
+				'name' => 'qq',
+				'fid' => 0,
+				'old_table' => 'common_member_profile',
+				'old_column' => 'qq',
+		),
+		7 => array(
+				'name' => 'medals',
+				'fid' => 0,
+				// Definition of medals comes from `forum_medal`.
+				'old_def_table' => 'forum_medal',
+				'old_table' => 'common_member_field_forum',
+				'old_column' => 'medals',
+/*				'old_table' => 'common_member_medal',
+				'old_column' => 'medalid',
+*/		),
+);
 
 class DZX25_Converter extends Converter
 {

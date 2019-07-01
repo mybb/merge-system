@@ -887,6 +887,10 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 				require_once MERGE_ROOT."resources/modules/{$classname}.php";
 			}
 		}
+		else if($board->modules[$import_session['module']]['class_depencencies'] == "__none__")
+		{
+			// TODO: Do nothing?
+		}
 		else
 		{
 			require_once MERGE_ROOT."resources/modules/{$module_name}.php";
