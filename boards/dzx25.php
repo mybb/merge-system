@@ -38,31 +38,33 @@ define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
  * 'old_column': profilefield's column
  */
 $DZ_USER_PROFILEFIELDS = array(
+		// Should be started at index 0 and don't change any index to make import progress working right.
 		0 => array(
 				'name' => 'location',
 				'fid' => 1,
 				'old_table' => 'common_member_profile',
 				'old_column' => 'address',
 				),
-		1 => array(
+		array(
 				'name' => 'bio',
 				'fid' => 2,
 				'old_table' => 'common_member_profile',
 				'old_column' => 'bio',
 		),
-		2 => array(
-				'name' => 'gender',
+		array(
+				'name' => 'sex',
 				'fid' => 3,
 				'old_table' => 'common_member_profile',
 				'old_column' => 'gender',
 		),
-		3 => array(
+		////////////// Any MyBB predefined user profilefiled should be added before this comment line.
+		array(
 				'name' => 'credits',
 				'fid' => 0,
 				'old_table' => 'common_member',
 				'old_column' => 'credits',
 		),
-		4 => array(
+		array(
 				'name' => 'extcredits',
 				'fid' => 0,
 				// Definition of extcredits_[1~8] comes from `extcredits` in `common_setting`.
@@ -70,19 +72,19 @@ $DZ_USER_PROFILEFIELDS = array(
 				'old_table' => 'common_member_count',
 				'old_column' => 'extcredits',
 		),
-		5 => array(
+		array(
 				'name' => 'digestposts',
 				'fid' => 0,
 				'old_table' => 'common_member_count',
 				'old_column' => 'digestposts',
 		),
-		6 => array(
+		array(
 				'name' => 'qq',
 				'fid' => 0,
 				'old_table' => 'common_member_profile',
 				'old_column' => 'qq',
 		),
-		7 => array(
+		array(
 				'name' => 'medals',
 				'fid' => 0,
 				// Definition of medals comes from `forum_medal`.
@@ -140,7 +142,7 @@ class DZX25_Converter extends Converter
 			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
 			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customed converter module
 			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
-			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "users"),	// Customed converter module
+			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customed converter module
 			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),	// Customed converter module
 /*			"import_events"				=> array("name" => "Calendar Events", "dependencies" => "db_configuration,import_posts"),
 */			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),

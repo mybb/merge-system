@@ -61,7 +61,9 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 			'allowvideocode',
 	);
 	
-	public $total_profilefields = 0;
+	public $dz_extcredits = array();
+	
+	public $dz_medals = array();
 	
 	/**
 	 * Insert user profilefield into database
@@ -87,8 +89,8 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 		
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 		
-		$fid = $db->insert_query("profilefields", $insert_array);
-		//$fid = $db->insert_id();
+		$db->insert_query("profilefields", $insert_array);
+		$fid = $db->insert_id();
 		
 		if($increment)
 		{
@@ -120,7 +122,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 				}
 				if($profilefield['name'] == 'extcredits')
 				{
-					if(empty($import_session['dz_extcredits']))
+					if(empty($this->dz_extcredits))
 					{
 						$query = $this->old_db->simple_select("common_setting", "skey,svalue", "skey = 'extcredits'");
 						$result_query = $this->old_db->fetch_field($query, "svalue");
@@ -132,19 +134,19 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 							$result = unserialize(stripslashes($result_query));
 						}
 						
-						$import_session['dz_extcredits'] = $result;
+						$this->dz_extcredits = $result;
 						foreach($result as $key => $value)
 						{
 							if(!empty($value['title']))
 							{
-								$import_session['dz_extcredits'][$key]['title'] = encode_to_utf8($value['title'], $profilefield['old_def_table'], "profilefields");
+								$this->dz_extcredits[$key]['title'] = encode_to_utf8($value['title'], $profilefield['old_def_table'], "profilefields");
 							}
 						}
 						
 					}
-					$rows = count($import_session['dz_extcredits']);
+					$rows = count($this->dz_extcredits);
 					$inserted = 0;
-					foreach($import_session['dz_extcredits'] as $id => $value)
+					foreach($this->dz_extcredits as $id => $value)
 					{
 						$insert_data = array(
 								'fieldkey' => $profilefield['name'],
@@ -158,25 +160,25 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 							$insert_data['increment'] = true;
 						}
 						$fid = $this->insert($insert_data);
-						$import_session['dz_userprofilefields'][$profilefield['name'].$id] = $fid;
+						$import_session['dz_userprofilefields'][$profilefield['name'].'$##$'.$id] = $fid;
 					}
 				}
 				else if($profilefield['name'] == 'medals')
 				{
-					if(empty($import_session['dz_medals']))
+					if(empty($this->dz_medals))
 					{
 						$query = $this->old_db->simple_select("forum_medal", "medalid,name,description,available");
 						while($medal = $this->old_db->fetch_array($query))
 						{
 							$medal_encode_name = encode_to_utf8($medal['name'], $profilefield['old_def_table'], "profilefields");
 							$medal_encode_description = encode_to_utf8($medal['description'], $profilefield['old_def_table'], "profilefields");
-							$import_session['dz_medals'][] = array('id' => $medal['medalid'], 'name' => $medal_encode_name, 'description' => $medal_encode_description, 'available' => $medal['available']);
+							$this->dz_medals[] = array('id' => $medal['medalid'], 'name' => $medal_encode_name, 'description' => $medal_encode_description, 'available' => $medal['available']);
 						}
 						$this->old_db->free_result($query);
 					}
-					$rows = count($import_session['dz_medals']);
+					$rows = count($this->dz_medals);
 					$inserted = 0;
-					foreach($import_session['dz_medals'] as $value)
+					foreach($this->dz_medals as $value)
 					{
 						$insert_data = array(
 								'fieldkey' => $profilefield['name'],
@@ -188,7 +190,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 							$insert_data['increment'] = true;
 						}
 						$fid = $this->insert($insert_data);
-						$import_session['dz_userprofilefields'][$profilefield['name'].$value['id']] = $fid;
+						$import_session['dz_userprofilefields'][$profilefield['name'].'$##$'.$value['id']] = $fid;
 					}
 				}
 				else
