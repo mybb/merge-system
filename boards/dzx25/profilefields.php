@@ -128,11 +128,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 						$result_query = $this->old_db->fetch_field($query, "svalue");
 						$this->old_db->free_result($query);
 						
-						$result = unserialize($result_query);
-						if($result === false)
-						{
-							$result = unserialize(stripslashes($result_query));
-						}
+						$result = dz_unserialize($result_query);
 						
 						$this->dz_extcredits = $result;
 						foreach($result as $key => $value)
@@ -333,6 +329,16 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 			$sql_query = rtrim($sql_query, ',');
 			$db->write_query($sql_query);
 		}
+	}
+	
+	function dz_unserialize($str)
+	{
+		$result = unserialize($str);
+		if($result === false)
+		{
+			$result = unserialize(stripslashes($str));
+		}
+		return $result;
 	}
 }
 

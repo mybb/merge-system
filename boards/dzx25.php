@@ -132,7 +132,7 @@ class DZX25_Converter extends Converter
 			"import_ucusers"			=> array("name" => "UCenter Users", "dependencies" => "db_configuration", "class_depencencies" => "users"),
 			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
-			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums"),
+			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
 			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
 			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
 			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
