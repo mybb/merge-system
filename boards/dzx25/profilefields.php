@@ -128,7 +128,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 						$result_query = $this->old_db->fetch_field($query, "svalue");
 						$this->old_db->free_result($query);
 						
-						$result = dz_unserialize($result_query);
+						$result = $this->dz_unserialize($result_query);
 						
 						$this->dz_extcredits = $result;
 						foreach($result as $key => $value)

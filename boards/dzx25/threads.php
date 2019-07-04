@@ -24,8 +24,17 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 	function import()
 	{
 		global $import_session;
-		
-		$query = $this->old_db->simple_select("forum_thread", "*", "", array('order_by' => 'firstpostid', 'order_dir' => 'ASC', 'limit_start' => $this->trackers['start_threads'], 'limit' => $import_session['threads_per_screen']));
+
+		$query = $this->old_db->query("
+			SELECT
+				thread.*,
+				post.pid AS pid
+			FROM ".OLD_TABLE_PREFIX."forum_thread AS thread
+				LEFT JOIN ".OLD_TABLE_PREFIX."forum_post AS post
+					ON (post.tid = thread.tid AND post.first = 1)
+			ORDER BY thread.tid ASC
+			LIMIT ".$this->trackers['start_threads'].", ".$import_session['threads_per_screen']
+				);
 		while($thread = $this->old_db->fetch_array($query))
 		{
 			$this->insert($thread);
@@ -38,28 +47,28 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		
 		// Discuz! values
 		$insert_data['import_tid'] = $data['tid'];
+		$insert_data['import_uid'] = $data['authorid'];
+		$insert_data['import_firstpost'] = $data['pid'];
+		$insert_data['import_poll'] = $data['tid'];
+		
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['subject']), "forum_thread", "threads");
 		if($data['typeid'])
 		{
 			$insert_data['prefix'] = $this->get_import->threadprefix($data['typeid']);
 		}
-		$insert_data['poll'] = $data['special'] == 1 ? -1 : 0;
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
-		$insert_data['import_uid'] = $data['authorid'];
 		$insert_data['dateline'] = $data['dateline'];
-		//$insert_data['import_firstpost'] = $data['firstpostid'];
-		//$insert_data['import_poll'] = $data['pollid'];
 		$insert_data['views'] = $data['views'];
 		$insert_data['replies'] = $data['replies'];
 		if($data['closed'] == 1)
 		{
-			$insert_data['closed'] = 1;
+			$insert_data['closed'] = '1';
 		}
 		else if($data['closed'] != 0)
 		{
 			// A moved thread leaves a trail.
-			$insert_data['closed'] = -1;
+			$insert_data['closed'] = 'moved|'.$this->get_import->tid($data['closed']);
 		}
 		
 		if($data['displayorder'] > 0)
@@ -87,7 +96,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		// Get number of threads
 		if(!isset($import_session['forum_thread']))
 		{
-			$query = $this->old_db->simple_select("thread", "COUNT(*) as count");
+			$query = $this->old_db->simple_select("forum_thread", "COUNT(*) as count");
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

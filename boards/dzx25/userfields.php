@@ -89,9 +89,6 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		{
 			// Storing the mybbufid of a userfield to be updated.
 			$ufid = $insert_array['ufid'];
-		}
-		if(isset($insert_array['ufid']))
-		{
 			unset($insert_array['ufid']);
 		}
 		
@@ -124,7 +121,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		
 		$insert_data = array();
 		
-		$uid = $this->get_import->uid($data['uid']);
+		$uid = $this->get_import->uid(intval($data['uid']));
 		
 		// Check existing user profile field record.
 		$this->ufid_found = $this->check_existing_record($uid);
