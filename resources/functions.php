@@ -210,6 +210,7 @@ function delete_import_fields($text=true)
 		"polls" => array('import_pid', 'import_tid'),
 		"usergroups" => array('import_gid'),
 		"attachments" => array('import_aid'),
+		"threadprefixes" => array('import_pids'),
 	);
 
 	$increment = 200/(count($drop_list, COUNT_RECURSIVE)-count($drop_list));
@@ -283,6 +284,7 @@ function create_import_fields($text=true)
 		),
 		"text" => array(
 			"users" => array('passwordconvert', 'passwordconverttype', 'passwordconvertsalt', 'import_additionalgroups'),
+			"threadprefixes" => array('import_pids'),
 		),
 	);
 

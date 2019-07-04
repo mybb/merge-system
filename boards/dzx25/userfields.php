@@ -28,7 +28,6 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 	{
 		global $import_session;
 		
-		// Get members and their old counts/profiles.
 		$query = $this->old_db->query("
 			SELECT
 				member.uid AS uid,
@@ -89,8 +88,11 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		if($this->ufid_found)
 		{
 			// Storing the mybbufid of a userfield to be updated.
-			$ufid = $data['ufid'];
-			unset($data['ufid']);
+			$ufid = $insert_array['ufid'];
+		}
+		if(isset($insert_array['ufid']))
+		{
+			unset($insert_array['ufid']);
 		}
 		
 		if($this->ufid_found)

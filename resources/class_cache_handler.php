@@ -79,7 +79,12 @@ class Cache_Handler
 	 * Cache for post information
 	 */
 	var $cache_posts;
-
+	
+	/**
+	 * Cache for threadprefixes
+	 */
+	var $cache_threadprefixes;
+	
 	/**
 	 * Get an array of data needed for attachments from the posts table
 	 *
@@ -560,6 +565,47 @@ class Cache_Handler
 		}
 
 		return $this->cache_posts[$old_pid];
+	}
+	
+	/**
+	 * Get an array of imported threadprefixes (e.x. array Discuz! threadclass typeid => MyBB threadprefixes pid)
+	 *
+	 * @return array|false
+	 */
+	function cache_threadprefixes()
+	{
+		global $db;
+		
+		$query = $db->simple_select("threadprefixes", "pid, import_pids", "import_pids != '' || import_pids IS NOT NULL");
+		$prefixes = array();
+		while($prefix = $db->fetch_array($query))
+		{
+			$prefix_ids = explode(",", $prefix['import_pids']);
+			foreach($prefix_ids as $prefix_id)
+			{
+				$prefixes[empty($prefix_id) ? 0 : intval($prefix_id)] = $prefix['pid'];
+			}
+		}
+		$this->cache_threadprefixes = $prefixes;
+		$db->free_result($query);
+		
+		return $prefixes;
+	}
+	
+	/**
+	 * Get the MyBB threadprefix ID of an old threadprefix. (e.x. Discuz! threadclass typeid)
+	 *
+	 * @param int $old_pid Post ID used before import
+	 * @return int Post ID in MyBB
+	 */
+	function threadprefix($old_threadprefix)
+	{
+		if(!is_array($this->cache_threadprefixes))
+		{
+			$this->cache_threadprefixes();
+		}
+		
+		return $this->cache_threadprefixes[$old_threadprefix];
 	}
 }
 
