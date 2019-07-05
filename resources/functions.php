@@ -419,12 +419,12 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
 
 		// Do we have bad characters? (i.e. db/table encoding set to UTF-8 but string is actually ISO)
-		if(dz_my_strlen($converted_str) < dz_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
+		if(converter_my_strlen($converted_str) < converter_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
 		{
 			// Was our database/tables set to UTF-8 encoding and the data actually in iso encoding?
 			// Stop trying to confuse us!!
 			$converted_str = iconv("iso-8859-1", fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
-			if(dz_my_strlen($converted_str) >= dz_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
+			if(converter_my_strlen($converted_str) >= converter_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
 			{
 				return $converted_str;
 			}
@@ -447,7 +447,7 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
  * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
  * @return int The length of the string.
  */
-function dz_my_strlen($string, $mb_encoding = "")
+function converter_my_strlen($string, $mb_encoding = "")
 {
 	global $lang;
 	
@@ -490,7 +490,7 @@ function dz_my_strlen($string, $mb_encoding = "")
  * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
  * @return string The lowered string.
  */
-function dz_my_strtolower($string, $mb_encoding = "")
+function converter_my_strtolower($string, $mb_encoding = "")
 {
 	if(function_exists("mb_strtolower"))
 	{

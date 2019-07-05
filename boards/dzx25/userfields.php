@@ -336,7 +336,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		$query = $db->simple_select("profilefields", "fid,name", "name IN('".implode("','", array_column(array_values($profilefields_builtin), 'name'))."')", array('limit' => count($profilefields_builtin)));
 		while($result = $db->fetch_array($query))
 		{
-			$result_name = dz_my_strtolower($result['name']);
+			$result_name = converter_my_strtolower($result['name']);
 			if(array_key_exists($result_name, $profilefields_builtin))
 			{
 				$profilefields_builtin[$result_name]['fid'] = $result['fid'];

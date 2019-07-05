@@ -133,7 +133,7 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || dz_my_strtolower($user['username']) == dz_my_strtolower($encoded_username))
+		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
 		{
 			return $user['uid'];
 		}

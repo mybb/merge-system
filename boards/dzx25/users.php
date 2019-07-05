@@ -374,7 +374,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate_user['username']) == strtolower($username) || dz_my_strtolower($duplicate_user['username']) == dz_my_strtolower($encoded_username))
+		if(strtolower($duplicate_user['username']) == strtolower($username) || converter_my_strtolower($duplicate_user['username']) == converter_my_strtolower($encoded_username))
 		{
 			// Have to check email in UTF-8 format also.
 			$encoded_email = encode_to_utf8($insert_data[$this->settings['email_column']], $this->settings['encode_table'], "users");

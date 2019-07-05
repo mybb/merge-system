@@ -301,7 +301,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate['prefix']) == strtolower($name) || dz_my_strtolower($duplicate['prefix']) == dz_my_strtolower($encoded_name))
+		if(strtolower($duplicate['prefix']) == strtolower($name) || converter_my_strtolower($duplicate['prefix']) == converter_my_strtolower($encoded_name))
 		{
 			return $duplicate;
 		}
