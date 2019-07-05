@@ -208,6 +208,84 @@ class DZX25_Converter extends Converter
 		}
 		return $result;
 	}
+	
+	/**
+	 * Get the uid of a given username
+	 *
+	 * @param string $username of a user
+	 * @return int|bool The uid in MyBB or false if the username is not found.
+	 */
+	public function dz_get_uid($username, $encode_table = "")
+	{
+		global $db;
+		
+		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		
+		// Check for duplicate users
+		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
+		$query = $db->simple_select("users", "username,uid", $where, array('limit' => 1));
+		$user = $db->fetch_array($query);
+		$db->free_result($query);
+		
+		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
+		// If we used LOWER() function in the query the index wouldn't be used by MySQL
+		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		{
+			return $user['uid'];
+		}
+		
+		return false;
+	}
+	/**
+	 * Get the username of a given uid
+	 *
+	 * @param int $uid The uid of a user
+	 * @return string The username in MyBB or false if the uid is not found.
+	 */
+	public function dz_get_username($uid)
+	{
+		global $db;
+		
+		// Check for duplicate users
+		$query = $db->simple_select("users", "username", "uid = {$uid}", array('limit' => 1));
+		$username = $db->fetch_field($query, "username");
+		$db->free_result($query);
+		
+		if(empty($username))
+		{
+			return false;
+		}
+		
+		return $username;
+	}
+	
+	/**
+	 * Get the import_uid of a given username
+	 *
+	 * @param string $username of a user
+	 * @return int|bool The uid in old Discuz! DB or false if the username is not found.
+	 */
+	public function dz_get_import_uid($username, $encode_table = "")
+	{
+		global $db;
+		
+		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		
+		// Check for duplicate users
+		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
+		$query = $db->simple_select("users", "username,import_uid", $where, array('limit' => 1));
+		$user = $db->fetch_array($query);
+		$db->free_result($query);
+		
+		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
+		// If we used LOWER() function in the query the index wouldn't be used by MySQL
+		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		{
+			return $user['import_uid'];
+		}
+		
+		return false;
+	}
 }
 
 

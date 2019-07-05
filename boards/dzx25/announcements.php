@@ -91,7 +91,7 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 		$insert_data = array();
 		
 		// Discuz! values
-		$uid = $this->get_uid($data['author']);
+		$uid = $this->board->dz_get_uid($data['author']);
 		if($uid !== false)
 		{
 			$insert_data['uid'] = $uid;

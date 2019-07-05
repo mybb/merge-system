@@ -595,8 +595,8 @@ class Cache_Handler
 	/**
 	 * Get the MyBB threadprefix ID of an old threadprefix. (e.x. Discuz! threadclass typeid)
 	 *
-	 * @param int $old_pid Post ID used before import
-	 * @return int Post ID in MyBB
+	 * @param int $old_threadprefix Post prefixclass ID used before import
+	 * @return int Post prefix ID in MyBB
 	 */
 	function threadprefix($old_threadprefix)
 	{

@@ -21,6 +21,13 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 			'default_per_screen' => 1000,
 	);
 	
+	function __construct($converter_class)
+	{
+		parent::__construct($converter_class);
+		$this->default_values['closed'] = '';
+		unset($this->integer_fields['closed']);
+	}
+	
 	function import()
 	{
 		global $import_session;
@@ -55,20 +62,49 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['subject']), "forum_thread", "threads");
 		if($data['typeid'])
 		{
-			$insert_data['prefix'] = $this->get_import->threadprefix($data['typeid']);
+			$insert_data['prefix'] = $this->get_import->threadprefix(intval($data['typeid']));
 		}
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
+		if(empty($insert_data['uid']))
+		{
+			$insert_data['username'] = encode_to_utf8(utf8_unhtmlentities($data['author']), "forum_thread", "threads");
+		}
+		
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['views'] = $data['views'];
 		$insert_data['replies'] = $data['replies'];
-		if($data['closed'] == 1)
+		if(!empty($data['closed']))
 		{
-			$insert_data['closed'] = '1';
-		}
-		else if($data['closed'] != 0)
-		{
-			// A moved thread leaves a trail.
-			$insert_data['closed'] = 'moved|'.$this->get_import->tid($data['closed']);
+			if(intval($data['closed']) == 1)
+			{
+				$insert_data['closed'] = '1';
+			}
+			else
+			{
+				// A moved thread leaves a trail.
+				$insert_data['closed'] = 'moved|'.$this->get_import->tid($data['closed']);
+				
+				// Only need to set lastpost* info for a moved thread. Use MyBB rebuild & recount to recover this part of information.
+				$insert_data['lastpost'] = $data['lastpost'];
+				$lastpost_uid = $this->board->dz_get_uid($data['lastposter']);
+				if(!empty($lastpost_uid))
+				{
+					$insert_data['lastposteruid'] = $lastpost_uid;
+					$insert_data['lastposter'] = $this->board->dz_get_username($lastpost_uid);
+				}
+				else
+				{
+					$insert_data['lastposteruid'] = 0;
+					if(!empty($data['lastposter']))
+					{
+						$insert_data['lastposter'] = encode_to_utf8($data['lastposter'], "forum_thread", "threads");
+					}
+					else
+					{
+						$insert_data['lastposter'] = 'Unknown user';
+					}
+				}
+			}
 		}
 		
 		if($data['displayorder'] > 0)
