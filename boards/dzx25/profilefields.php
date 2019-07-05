@@ -61,9 +61,17 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 			'allowvideocode',
 	);
 	
+	public $dz_imported_msg = TIME_NOW;
+	
 	public $dz_extcredits = array();
 	
 	public $dz_medals = array();
+	
+	public function __construct($converter_class)
+	{
+		parent::__construct($converter_class);
+		$this->dz_imported_msg = "[imported_" . ($this->dz_imported_msg) . '_' . $this->board->bbname . '] ';
+	}
 	
 	/**
 	 * Insert user profilefield into database
@@ -128,7 +136,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 						$result_query = $this->old_db->fetch_field($query, "svalue");
 						$this->old_db->free_result($query);
 						
-						$result = $this->dz_unserialize($result_query);
+						$result = $this->board->dz_unserialize($result_query);
 						
 						$this->dz_extcredits = $result;
 						foreach($result as $key => $value)
@@ -213,6 +221,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 		if($data['fieldkey'] == 'credits')
 		{
 			$insert_data['name'] = "Discuz! Credits";
+			$insert_data['description'] = $this->dz_imported_msg . $insert_data['name'];
 			$insert_data['type'] = "text";
 			$insert_data['regex'] = '[0-9]*';
 			$insert_data['required'] = 0;
@@ -227,6 +236,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 			$dz_extcredit_id = $profilefield['id'];
 			$dz_extcredit_name = empty($profilefield['title']) ? '#'.$dz_extcredit_id : $profilefield['title'];
 			$insert_data['name'] = "Discuz! ExtCredits: " . $dz_extcredit_name;
+			$insert_data['description'] = $this->dz_imported_msg . $insert_data['name'] . ($profilefield['available'] == 1 ? ' (activated)' : ' (inactive)');
 			$insert_data['type'] = "text";
 			$insert_data['regex'] = '[0-9]*';
 			$insert_data['required'] = 0;
@@ -247,6 +257,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 		if($data['fieldkey'] == 'digestposts')
 		{
 			$insert_data['name'] = "Discuz! Digest Posts";
+			$insert_data['description'] = $this->dz_imported_msg . $insert_data['name'];
 			$insert_data['type'] = "text";
 			$insert_data['regex'] = '[0-9]*';
 			$insert_data['required'] = 0;
@@ -259,6 +270,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 		if($data['fieldkey'] == 'qq')
 		{
 			$insert_data['name'] = "QQ";
+			$insert_data['description'] = $this->dz_imported_msg . $insert_data['name'];
 			$insert_data['type'] = "text";
 			$insert_data['regex'] = '[1-9][0-9]*';
 			$insert_data['maxlength'] = 11;
@@ -269,9 +281,13 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 		{
 			$dz_medal_id = $profilefield['id'];
 			$dz_medal_name = empty($profilefield['name']) ? '#'.$dz_medal_id : $profilefield['name'];
-			$dz_medal_description = $profilefield['description'];
 			$insert_data['name'] = "Discuz! Medals: " . $dz_medal_name;
-			$insert_data['description'] = "Discuz! imported profilefield: " . $dz_medal_description;
+			$dz_medal_description = 'medal';
+			if(!empty($profilefield['description']))
+			{
+				$dz_medal_description .= ': ' . $profilefield['description'];
+			}
+			$insert_data['description'] = $this->dz_imported_msg . $dz_medal_description . ($profilefield['available'] == 1 ? ' (activated)' : ' (inactive)');
 			$insert_data['type'] = "checkbox";
 			$insert_data['required'] = 0;
 			$insert_data['registration'] = 0;
@@ -329,16 +345,6 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 			$sql_query = rtrim($sql_query, ',');
 			$db->write_query($sql_query);
 		}
-	}
-	
-	function dz_unserialize($str)
-	{
-		$result = unserialize($str);
-		if($result === false)
-		{
-			$result = unserialize(stripslashes($str));
-		}
-		return $result;
 	}
 }
 

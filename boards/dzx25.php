@@ -198,6 +198,16 @@ class DZX25_Converter extends Converter
 			$this->modules['import_threadprefixes']['dependencies'] = 'db_configuration,import_forums,import_usergroups';
 		}
 	}
+	
+	public function dz_unserialize($str)
+	{
+		$result = unserialize($str);
+		if($result === false)
+		{
+			$result = unserialize(stripslashes($str));
+		}
+		return $result;
+	}
 }
 
 

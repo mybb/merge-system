@@ -605,6 +605,11 @@ class Cache_Handler
 			$this->cache_threadprefixes();
 		}
 		
+		if(!isset($this->cache_threadprefixes[$old_threadprefix]) || $old_threadprefix == 0)
+		{
+			return 0;
+		}
+		
 		return $this->cache_threadprefixes[$old_threadprefix];
 	}
 }

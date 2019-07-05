@@ -376,7 +376,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 			$fid = $threadclass['fid'];
 			$query = $this->old_db->simple_select("forum_forumfield", "threadtypes", "fid = {$fid}", array('limit' => 1));
 			$result = $this->old_db->fetch_field($query, "threadtypes");
-			$result = $this->dz_unserialize($result);
+			$result = $this->board->dz_unserialize($result);
 			if($result['required'])
 			{
 				$dz_forums_threadclasses[$fid]['require_prefix'] = 1;
@@ -386,16 +386,6 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		}
 		
 		return $dz_forums_threadclasses;
-	}
-	
-	function dz_unserialize($str)
-	{
-		$result = unserialize($str);
-		if($result === false)
-		{
-			$result = unserialize(stripslashes($str));
-		}
-		return $result;
 	}
 }
 
