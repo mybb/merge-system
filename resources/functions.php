@@ -563,6 +563,69 @@ function fetch_mbstring_encoding($mysql_encoding)
 }
 
 /**
+ * Finds a table's encoding.
+ *
+ * @param string $table_name The table name.
+ * @param bool $old_table Optional, if it's a MyBB table, set it to false.
+ * @return string The encoding of this table.
+ */
+function fetch_table_encoding($table_name, $old_table = true)
+{
+	global $import_session, $db, $module;
+	
+	if($old_table)
+	{
+		$table_name = OLD_TABLE_PREFIX.$table_name;
+	}
+	else
+	{
+		$table_name = TABLE_PREFIX.$table_name;
+	}
+	
+	if($old_table && empty($import_session['table_charset_old'][$table_name]))
+	{
+		$old_old_db_table_prefix = $module->old_db->table_prefix;
+		$module->old_db->set_table_prefix('');
+		
+		$table = $module->old_db->show_create_table($table_name);
+		preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
+		$module->old_db->set_table_prefix($old_old_db_table_prefix);
+		
+		$import_session['table_charset_old'][$table_name] = $old_charset[1];
+	}
+	else if(!$old_table && empty($import_session['table_charset_new'][$table_name]))
+	{
+		$old_table_prefix = $db->table_prefix;
+		$db->set_table_prefix('');
+		
+		$table = $db->show_create_table($table_name);
+		preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
+		$db->set_table_prefix($old_table_prefix);
+		
+		$import_session['table_charset_new'][$table_name] = $new_charset[1];
+	}
+	
+	$mysql_encoding = $old_table ? $import_session['table_charset_old'][$table_name] : $import_session['table_charset_new'][$table_name];
+	
+	$mysql_encoding = explode("_", $mysql_encoding);
+	switch($mysql_encoding[0])
+	{
+		case "utf8":
+		case "utf8mb4":
+			return "UTF-8";
+			break;
+		case "latin1":
+			return "ISO-8859-1";
+			break;
+		case "gbk":
+			return "gbk";
+			break;
+		default:
+			return $mysql_encoding[0];
+	}
+}
+
+/**
  * Builds a CSV parent list for a particular forum.
  *
  * @param int $fid The forum ID

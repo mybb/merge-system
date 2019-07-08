@@ -144,7 +144,7 @@ class DZX25_Converter_Module_Settings extends Converter_Module_Settings {
 			}
 			
 			// Encode data to use UTF8, important fields including `closedreason`, `bbname`, `sitename`.
-			$value = encode_to_utf8(utf8_unhtmlentities($value), "common_setting", "settings");
+			$value = encode_to_utf8($value, "common_setting", "settings");
 			
 			$this->dz_update_setting($name, $value, $update);
 		}

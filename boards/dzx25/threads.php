@@ -18,7 +18,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 	var $settings = array(
 			'friendly_name' => 'threads',
 			'progress_column' => 'tid',
-			'default_per_screen' => 1000,
+			'default_per_screen' => 5000,
 	);
 	
 	function __construct($converter_class)
@@ -59,7 +59,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_poll'] = $data['tid'];
 		
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['subject']), "forum_thread", "threads");
+		$insert_data['subject'] = encode_to_utf8($data['subject'], "forum_thread", "threads");
 		if($data['typeid'])
 		{
 			$insert_data['prefix'] = $this->get_import->threadprefix(intval($data['typeid']));
@@ -67,7 +67,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
 		if(empty($insert_data['uid']))
 		{
-			$insert_data['username'] = encode_to_utf8(utf8_unhtmlentities($data['author']), "forum_thread", "threads");
+			$insert_data['username'] = encode_to_utf8($data['author'], "forum_thread", "threads");
 		}
 		
 		$insert_data['dateline'] = $data['dateline'];

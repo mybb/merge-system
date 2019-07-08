@@ -28,6 +28,8 @@ define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
 // If set to false, user groups will contain values from the first converted Discuz!.
 define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
+// If set to true, the converter will try to fix discuzcode problems.
+define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
 /*****
  * Convert any user profilefield to MyBB? Settings are:
  * 'fid':        profilefield's target field id in MyBB table `userfields`
@@ -285,6 +287,17 @@ class DZX25_Converter extends Converter
 		}
 		
 		return false;
+	}
+	/**
+	 * Get a table's encoding.
+	 *
+	 * @param string $table_name The table name.
+	 * @return string The encoding of this table.
+	 */
+	public function fetch_table_encoding($table_name)
+	{
+		$encoding = fetch_table_encoding($table_name);
+		return $encoding;
 	}
 }
 

@@ -88,6 +88,8 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 	
 	function convert_data($data)
 	{
+		global $import_session;
+		
 		$insert_data = array();
 		
 		// Discuz! values
@@ -96,8 +98,9 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 		{
 			$insert_data['uid'] = $uid;
 		}
-		$insert_data['subject'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['subject'])), $this->settings['encode_table'], "announcements");
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['message'])), $this->settings['encode_table'], "announcements");
+		$insert_data['subject'] = encode_to_utf8($data['subject'], $this->settings['encode_table'], "announcements");
+		$insert_data['message'] = encode_to_utf8($data['message'], $this->settings['encode_table'], "announcements");
+		$insert_data['message'] = $this->bbcode_parser->convert_post($insert_data['message'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 		$insert_data['startdate'] = $data['starttime'];
 		$insert_data['enddate'] = $data['endtime'];
 		

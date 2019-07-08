@@ -18,7 +18,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 	var $settings = array(
 			'friendly_name' => 'posts',
 			'progress_column' => 'pid',
-			'default_per_screen' => 1000,
+			'default_per_screen' => 5000,
 			'check_table_type' => 'forum_post',
 	);
 	
@@ -35,6 +35,8 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 	
 	function convert_data($data)
 	{
+		global $import_session;
+		
 		$insert_data = array();
 		
 		// Discuz! values.
@@ -43,7 +45,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['subject'] = encode_to_utf8(utf8_unhtmlentities($data['subject']), "forum_post", "posts");
+		$insert_data['subject'] = encode_to_utf8($data['subject'], "forum_post", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
 		if(!empty($insert_data['uid']))
 		{
@@ -51,10 +53,11 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 		else
 		{
-			$insert_data['username'] = encode_to_utf8(utf8_unhtmlentities($data['author']), "forum_post", "posts");
+			$insert_data['username'] = encode_to_utf8($data['author'], "forum_post", "posts");
 		}
 		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "forum_post", "posts");
+		$insert_data['message'] = encode_to_utf8($data['message'], "forum_post", "posts");
+		$insert_data['message'] = $this->bbcode_parser->convert_post($insert_data['message'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 		$insert_data['ipaddress'] = my_inet_pton($data['useip']);
 		$insert_data['includesig'] = $data['usesig'];
 		$insert_data['smilieoff'] = $data['allowsmilie'] == 1 ? 1 : 0;

@@ -123,6 +123,8 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 	
 	function convert_data($data)
 	{
+		global $import_session;
+		
 		$insert_data = array();
 		
 		// We don't update these fields for such a user: username, email, regdate, regip, passwordconvert, passwordconvertsalt, passwordconverttype.
@@ -257,7 +259,8 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 				$insert_data['birthday'] = "{$data['pbirthday']}-{$data['pbirthmonth']}-{$data['pbirthyear']}";
 			}
 			
-			$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['fsightml'])), "common_member_field_forum", "users");
+			$insert_data['signature'] = encode_to_utf8($data['fsightml'], "common_member_field_forum", "users");
+			$insert_data['signature'] = $this->bbcode_parser->convert_sig($insert_data['signature'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 			$insert_data['invisible'] = $data['sinvisible'];
 			$insert_data['receivefrombuddy'] = $data['onlyacceptfriendpm'];
 			$insert_data['timezone'] = $data['timeoffset'] = 9999 ? $this->setting_timezone : $data['timeoffset'];

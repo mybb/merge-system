@@ -51,7 +51,7 @@ class DZX25_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		// From table `common_usergroup`:
 		$insert_data['import_gid'] = $dxz_groupid;
 		$insert_data['type'] = 2;
-		$insert_data['title'] = encode_to_utf8(utf8_unhtmlentities($data['grouptitle']), "common_usergroup", "usergroups");
+		$insert_data['title'] = encode_to_utf8($data['grouptitle'], "common_usergroup", "usergroups");
 		$insert_data['description'] = 'Discuz! X2.5 imported group';
 		if(!empty($data['color']))
 		{

@@ -148,7 +148,8 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 					}
 					if($profilefield['name'] == 'bio')
 					{
-						$insert_data[$column] = encode_to_utf8($this->bbcode_parser->convert(utf8_unhtmlentities($data['bio'])), $this->settings['encode_table'], "userfields");
+						$insert_data[$column] = encode_to_utf8($data['bio'], $this->settings['encode_table'], "userfields");
+						$insert_data[$column] = $this->bbcode_parser->convert_sig($insert_data[$column], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 					}
 					if($profilefield['name'] == 'sex')
 					{
