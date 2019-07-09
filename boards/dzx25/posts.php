@@ -95,6 +95,49 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 	}
 	
+	function cleanup()
+	{
+		global $db;
+		
+		// Cache tread ids.
+		$tids = array();
+		$query = $db->simple_select("posts", "tid", "import_pid != 0");
+		while($post = $db->fetch_array($query))
+		{
+			$tids[] = $post['tid'];
+		}
+		$db->free_result($query);
+		
+		// Delete any thread that has no post in posts table, i.e., no its first post atleast.
+		$query = $db->simple_select("threads", "tid,closed", "import_tid != 0");
+		while($thread = $db->fetch_array($query))
+		{
+			$clean = false;
+			if(array_search($thread['tid'], $tids) === false)
+			{
+				$clean = true;
+				
+				// Check if this thread is assigned with a moved tid. Will not check this tid's validity.
+				if(!empty($thread['closed']) && strpos($thread['closed'], 'moved|') === 0)
+				{
+					$moved_tid = substr($thread['closed'], 6);
+					if(!empty($moved_tid) && $moved_tid == intval($moved_tid))
+					{
+						$clean = false;
+					}
+				}
+			}
+			
+			if($clean)
+			{
+				$db->delete_query("threads", "tid = {$thread['tid']}");
+			}
+		}
+		$db->free_result($query);
+		
+		parent::cleanup();
+	}
+	
 	function fetch_total()
 	{
 		global $import_session;

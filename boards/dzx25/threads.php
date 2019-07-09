@@ -25,7 +25,11 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 	{
 		parent::__construct($converter_class);
 		$this->default_values['closed'] = '';
-		unset($this->integer_fields['closed']);
+		$index = array_search('closed', $this->integer_fields);
+		if($index !== false)
+		{
+			array_splice($this->integer_fields, $index, 1);
+		}
 	}
 	
 	function import()

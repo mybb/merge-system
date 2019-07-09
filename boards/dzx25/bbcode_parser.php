@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2014 MyBB Group, All Rights Reserved
+ * Copyright 2019 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
@@ -76,6 +76,9 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	 */
 	function convert_sig($text, $encoding = 'utf-8')
 	{
+		// Strip unwanted html entities' attributes. Such as <img>'s onload=...
+		$text = $this->dz_fix_sightml($text);
+		
 		// Convert some of its HTML codes to bbcodes.
 		$text = $this->dz_html2bbcode($text);
 		
@@ -98,18 +101,9 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		$code_matches = array();
 		// This code is reserved and could break codes
 		$text = str_replace("[_mybb_dzx_converter_code_]\n", "[-mybb-dzx-converter-code-]\n", $text);
-		
-		preg_match_all("#\[(code|php)\](.*?)(\[/\\1\])+(\r\n?|\n?)#si", $text, $code_matches, PREG_SET_ORDER);
-		foreach($code_matches as $point => $part)
-		{
-			if(isset($part[3]))
-			{
-				$part[1] = "[".$part[1]."]";
-				$code_matches[$point][2] = substr_replace($part[0], "", strrpos($part[0], $part[3]), strlen($part[3]));
-				$code_matches[$point][2] = substr_replace($code_matches[$point][2], "", strpos($code_matches[$point][2], $part[1]), strlen($part[1]));
-			}
-		}
-		$text = preg_replace("#\[(code|php)\](.*?)(\[/\\1\])+(\r\n?|\n?)#si", "[_mybb_dzx_converter_code_]\n", $text);
+		// This pattern is copied from discuzcode() in Discuz! X2.5
+		preg_match_all("#\s?\[code\](.+?)\[\/code\]\s?#is", $text, $code_matches, PREG_SET_ORDER);
+		$text = preg_replace("#\s?\[code\](.+?)\[\/code\]\s?#is", "[_mybb_dzx_converter_code_]\n", $text);
 		
 		// Convert HTML entities to their characters.
 		$text = htmlentities($text);
@@ -154,19 +148,14 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		{
 			foreach($code_matches as $code_match)
 			{
-				if(my_strtolower($code_match[1]) == "code")
-				{
-					$code = $code_match[2];
-				}
-				elseif(my_strtolower($code_match[1]) == "php")
-				{
-					$code = $code_match[2];
-				}
+				$code = $code_match[1];
 				
 				// MyBB breaks parse when two or more [/code] are adjacent at line end.
 				// MyBB also breaks parse when [code] is nested.
 				// TODO: what to do?
 				//$code = str_replace("\n", "<mybb-code-newline>", $code);
+				
+				$code = '[code]' . $code . '[/code]';
 				$text = preg_replace("#\[_mybb_dzx_converter_code_]\n?#", $code, $text, 1);
 			}
 		}
@@ -178,15 +167,18 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	/**
 	 * Discuzcode allows nested code, for MyBB Parser to work, it's best to fix them by removing some.
 	 * And for converting any disuczcode that may be netsted, it also needs to be fixed. The following needs fix:
-	 * 		discuzcode				tag converted to HTML by Discuz! X2.5		tag by converter
-	 * 		'[i]'					<i>											<discuz_code_i>
-	 * 		'[i=s]'					<i class="pstatus">							<discuz_code_i>
-	 * 		'[b]'					<strong>									<discuz_code_b>
-	 * 		'[u]'					<u>											<discuz_code_u>
-	 * 		'[s]'					<strike>									<discuz_code_s>
-	 * 		'[size=$1(int px|pt)]'	<font style="font-size:$1">					<discuz_code_size_pxpt fontsize="$1">
-	 * 		'[size=$1]'				<font size="$1">							<discuz_code_size fontsize="$1">
-	 * 		'',
+	 * 		discuzcode				tag converted to HTML by Discuz! X2.5		?html tag by converter
+	 * 		'[i]'					i											discuz_code_i
+	 * 		'[i=s]'					i class="pstatus"							discuz_code_i
+	 * 		'[b]'					strong										discuz_code_b
+	 * 		'[u]'					u											discuz_code_u
+	 * 		'[s]'					strike										discuz_code_s
+	 * 		'[size=$1(int px|pt)]'	font style="font-size:$1"					discuz_code_size_pxpt fontsize="$1"
+	 * 		'[size=$1]'				font size="$1"								discuz_code_size fontsize="$1"
+	 * 
+	 * @param string $text The text needs to be fixed.
+	 * @param string $encoding The encoding of the $text.
+	 * @return string The fixed string.
 	 */
 	function dz_fix_discuzcode($text, $encoding = 'utf-8')
 	{
@@ -236,7 +228,20 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 						'remove_sub_tags' => 1,
 				),
 				array(
-						'regex' => "/\[size=(\d{1,2}(\.\d{1,2}+)?(px|pt)+?)\]/i",
+						'regex' => "#\[size=(\d{1,2}?)\]#i",
+						'discuzcode' => 'size',
+						'html_tag' => 'discuz_code_size',
+						'mybbcode' => 'size',
+						'allowed_attributes' => array(
+								array(
+										'attribute' => 'fontsize',
+										'handler_callback' => 'handle_html_size_value',
+								),
+						),
+						'remove_sub_tags' => 0,
+				),
+				array(
+						'regex' => "#\[size=(\d{1,2}(\.\d{1,2}+)?(px|pt)+?)\]#i",
 						'discuzcode' => 'size',
 						'html_tag' => 'discuz_code_size_pxpt',
 						'mybbcode' => 'size',
@@ -249,14 +254,14 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 						'remove_sub_tags' => 1,
 				),
 				array(
-						'regex' => "#\[size=(\d{1,2}?)\]#i",
-						'discuzcode' => 'size',
-						'html_tag' => 'discuz_code_size',
-						'mybbcode' => 'size',
+						'regex' => "#\[color=([\#\w]+?)\]#i",
+						'discuzcode' => 'color',
+						'html_tag' => 'discuz_code_color',
+						'mybbcode' => 'color',
 						'allowed_attributes' => array(
 								array(
-										'attribute' => 'fontsize',
-										'handler_callback' => 'handle_html_size_value',
+										'attribute' => 'fontcolor',
+										'handler_callback' => 'handle_html_color_value',
 								),
 						),
 						'remove_sub_tags' => 0,
@@ -349,7 +354,88 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		
 		return $text;
 	}
+
+	/**
+	 * Try to strip any html attribute that are not supported by MyBBCode. Mainly for `img` code in Discuz! 
+	 * user signature.
+	 * 
+	 * @param string $text The text needs to be fixed.
+	 * @param string $encoding The encoding of the $text.
+	 * @return string The fixed string.
+	 */
+	function dz_fix_sightml($text, $encoding = 'utf-8')
+	{
+		// Manipulating only on $html_text.
+		$html_text = $text;
 		
+		// Prepare html entities array.
+		$htmlentities = array(
+				array(
+						'discuzcode' => 'img',
+						'html_tag' => 'img',
+						'allowed_attributes' => array(
+								array(
+										'attribute' => 'src',
+										'handler_callback' => '',
+								),
+						),
+						'remove_sub_tags' => 0,
+						'no_closing_tag' => 1,
+				),
+		);
+		
+		// Convert any "\n" newline character to a codetag, preventing from DOM to strip it between html tags.
+		$html_text = str_replace("\n", "[_mybb_dzx_converter_newline_]", $html_text);
+		
+		// Convert need-to-fix discuz code into HTMLs.
+		$html_tags_to_fix = array();
+		foreach($htmlentities as $entity)
+		{
+			$html_tags_to_fix[$entity['html_tag']] = array(
+					'code' => $entity['discuzcode'],
+					'remove_sub_tags' => $entity['remove_sub_tags'],
+					'no_closing_tag' => $entity['no_closing_tag'],
+					'attributes' => array(),
+			);
+			
+			foreach($entity['allowed_attributes'] as $attribute)
+			{
+				$html_tags_to_fix[$entity['html_tag']]['attributes'][] = array(
+						'attribute' => $attribute['attribute'],
+						'handler' => $attribute['handler_callback'],
+				);
+			}
+		}
+		
+		// Fix any HTML parsing errors using DOM.
+		$html_text = '<_mybb_fix_html_>' . $html_text . '</_mybb_fix_html_>';
+		$doc = new DOMDocument();
+		$doc->preserveWhiteSpace = true;
+		libxml_use_internal_errors(true);
+		$doc->loadHTML('<?xml encoding="' . $encoding . '" ?>' . $html_text);
+		libxml_use_internal_errors(false);
+		
+		// Remove nested tags that are not naively supported by MyBB.
+		foreach($html_tags_to_fix as $html_tagname => $html_tag)
+		{
+			if($html_tag['remove_sub_tags'])
+			{
+				$this->dz_remove_nested_tags($doc, $doc->getElementsByTagName("_mybb_fix_html_")->item(0), $html_tagname, false, false);
+			}
+		}
+		
+		// Convert HTMLs back to MyBBCode while handling some attributes, if any handler is set.
+		$html_text = $this->dz_nested_tags_as_string($doc->getElementsByTagName("_mybb_fix_html_")->item(0), $html_tags_to_fix, 1);
+		
+		// Recover any "\n" character.
+		$html_text = str_replace("[_mybb_dzx_converter_newline_]", "\n", $html_text);
+		
+		$text = $html_text;
+		
+		return $text;
+	}
+	
+	
 	function dz_convert_html($text)
 	{
 		$text = parent::convert($text);
@@ -499,7 +585,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		$converts = array(
 				array(
 						'find' => "#\[color=(rgb\([\d\s,]+?\))\](.*?)\[/color\]#si",
-						'callback' => 'handle_color',
+						'callback' => 'handle_color_rgb',
 				),
 		);
 		
@@ -540,13 +626,13 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	}
 	
 	/**
-	 * Callback for color bbcode
+	 * Callback for color discuzcode using a RGB() value.
 	 *
 	 * @param array $matches
 	 *
 	 * @return string
 	 */
-	function handle_color($matches)
+	function handle_color_rgb($matches)
 	{
 		$color = '#';
 		$rgb_colors = array_filter(explode(",", substr(trim($matches[1]), 4, -1)));
@@ -661,6 +747,47 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				break;
 		}
 		return $size;
+	}
+	
+	/**
+	 * Callback for html color attribute.
+	 *
+	 * @param string $size
+	 *
+	 * @return string
+	 */
+	function handle_html_color_value($color)
+	{
+		if($color[0] != '#')
+		{
+			return $color;
+		}
+		
+		$color = ltrim($color, '#');
+		
+		if(strlen($color) < 3)
+		{
+			$color = '';
+		}
+		else if(strlen($color) == 4)
+		{
+			$color = $color . $color[2] . $color[3];
+		}
+		else if(strlen($color) == 5)
+		{
+			$color = $color . $color[4];
+		}
+		else if(strlen($color) > 6)
+		{
+			$color = substr($color, 0, 6);
+		}
+		
+		if(!empty($color))
+		{
+			$color = '#'. $color;
+		}
+		
+		return $color;
 	}
 	
 	/**
@@ -838,8 +965,10 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		}
 	}
 	
-	function dz_nested_tags_as_string($node, $tag_to_recover)
+	function dz_nested_tags_as_string($node, $tag_to_recover, $html = 0)
 	{
+		$tag_brace = $html ? '<>' : '[]';
+		
 		$text = '';
 		
 		$count = 0;
@@ -880,47 +1009,66 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 							if(!empty($attribute['handler']))
 							{
 								$value = call_user_func(array($this, $attribute['handler']), $value);
-								$value = $value === false ? '' : $value;
 							}
 							if($value !== false)
 							{
-								$extra .= $value . ",";
+								if($html)
+								{
+									$value = $attribute['attribute'] . '="' . $value . '"';
+								}
+								$extra .= $value . ($html ? " " : ",");
 							}
 						}
 					}
 				}
 				if(!empty($extra))
 				{
-					$extra = "=" . rtrim($extra, ",");
+					$extra = ($html ? " " : "=") . rtrim($extra, ", ");
 				}
-				$text .= "[" . $tag['code'] . $extra . "]";
+				if($html && isset($tag['no_closing_tag']) && $tag['no_closing_tag'])
+				{
+					$text .= $tag_brace[0] . $tag['code'] . $extra . ' /' . $tag_brace[1];
+				}
+				else
+				{
+					$text .= $tag_brace[0] . $tag['code'] . $extra . $tag_brace[1];
+				}
 			}
 			else
 			{
-				// Shouldn't go into this part in our DOM.
+				// Shouldn't go into this part in our DOM if $html is 0.
+				// Output them as originals.
 				$extra = '';
 				
-				foreach ($childNode->attributes as $attribute)
+				if($childNode->nodeType == XML_ELEMENT_NODE)
 				{
-					$name = $attribute->nodeName;
-					$value = $attribute->nodeValue;
-					$extra .= " " . $name . "=\"" . $value . "\"";
+					foreach ($childNode->attributes as $attribute)
+					{
+						$name = $attribute->nodeName;
+						$value = $attribute->nodeValue;
+						$extra .= " " . $name . "=\"" . $value . "\"";
+					}
 				}
-				$text .= "<_" . $tagName . "_" . $extra . ">";
+				$text .= $tag_brace[0] . $tagName . $extra . $tag_brace[1];
 			}
 			
 			if($childNode->hasChildNodes())
 			{
-				$text .= $this->dz_nested_tags_as_string($childNode, $tag_to_recover);
+				$text .= $this->dz_nested_tags_as_string($childNode, $tag_to_recover, $html);
+			}
+			
+			if($html && isset($tag['no_closing_tag']) && $tag['no_closing_tag'])
+			{
+				continue;
 			}
 			
 			if(is_array($tag) && !empty($tag))
 			{
-				$text .= "[/" . $tag['code'] . "]";
+				$text .= $tag_brace[0] . "/" . $tag['code'] . $tag_brace[1];
 			}
 			else
 			{
-				$text .= "</_" . $tagName . "_>";
+				$text .= $tag_brace[0] . "/" . $tagName . $tag_brace[1];
 			}
 		}
 		
@@ -1015,7 +1163,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	
 	function get_encoding($table_encoding)
 	{
-		switch($encoding)
+		switch($table_encoding)
 		{
 			case "utf8":
 			case "utf8mb4":
@@ -1025,7 +1173,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				return "iso-8859-1";
 				break;
 			default:
-				return $encoding;
+				return $table_encoding;
 		}
 	}
 }
