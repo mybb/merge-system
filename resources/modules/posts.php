@@ -112,7 +112,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		}
 
 		// General output and our progress bar can be constructed here
-		$output->print_header($lang->module_post_rebuilding);
+		if(!$output->doneheader)
+		{
+			$output->print_header($lang->module_post_rebuilding);
+		}
 
 		$this->debug->log->trace0("Rebuilding thread, forum, and statistic counters");
 
@@ -141,6 +144,10 @@ abstract class Converter_Module_Posts extends Converter_Module
 		$num_imported_threads = $db->fetch_field($query, "count");
 		$last_percent = 0;
 
+		if(!isset($import_session['counters_threads_start']))
+		{
+			$import_session['counters_threads_start'] = 0;
+		}
 		// Have we finished already (redirects...)?
 		if($import_session['counters_threads_start'] >= $num_imported_threads) {
 			return;

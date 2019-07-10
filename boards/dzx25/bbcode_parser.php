@@ -141,8 +141,6 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 			$text = $text_filterd === false ? $text : $text_filterd;
 		}
 		
-		$text = $this->dz_convert_media($text);
-		
 		// Now that we're done, if we split up any code tags, parse them and glue it all back together
 		if(count($code_matches) > 0)
 		{
@@ -311,7 +309,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				for($i = 0; $i < $count_attributes; $i++)
 				{
 					$capture = $i + 1;
-					$replace .= $code['allowed_attributes'][$i]['attribute'] . '="$' . $capture . ' "';
+					$replace .= $code['allowed_attributes'][$i]['attribute'] . '="$' . $capture . '" ';
 					$mybbcode_recover[$code['html_tag']]['attributes'][] = array(
 							'attribute' => $code['allowed_attributes'][$i]['attribute'],
 							'handler' => $code['allowed_attributes'][$i]['handler_callback'],
@@ -379,6 +377,20 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 										'handler_callback' => '',
 								),
 						),
+						'remove_sub_tags' => 0,
+						'no_closing_tag' => 1,
+				),
+				array(
+						'discuzcode' => 'br',
+						'html_tag' => 'br',
+						'allowed_attributes' => array(),
+						'remove_sub_tags' => 0,
+						'no_closing_tag' => 1,
+				),
+				array(
+						'discuzcode' => 'hr',
+						'html_tag' => 'hr',
+						'allowed_attributes' => array(),
 						'remove_sub_tags' => 0,
 						'no_closing_tag' => 1,
 				),
@@ -1077,6 +1089,8 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	
 	/***
 	 * Code from Discuz! X2.5. Convert HTMLs used in a user's signature to its equivalent bbcode.
+	 * Remove `\n`'s converting, resulting in any `\r` being replaced with empty strings. This doesn't
+	 * break HTML parsing, but save many contents that are only in bbcode from ill-formatted.
 	 */
 	function dz_html2bbcode($text)
 	{
@@ -1084,7 +1098,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		$html_s_exp = array(
 				"/\<div class=\"quote\"\>\<blockquote\>(.*?)\<\/blockquote\>\<\/div\>/is",
 				"/\<a href=\"(.+?)\".*?\<\/a\>/is",
-				"/(\r\n|\n|\r)/",
+				"/\r/",
 				"/<br.*>/siU",
 				"/[ \t]*\<img src=\"static\/image\/smiley\/comcom\/(.+?).gif\".*?\>[ \t]*/is",
 				"/\s*\<img src=\"(.+?)\".*?\>\s*/is"

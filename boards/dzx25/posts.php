@@ -95,49 +95,6 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 	}
 	
-	function cleanup()
-	{
-		global $db;
-		
-		// Cache tread ids.
-		$tids = array();
-		$query = $db->simple_select("posts", "tid", "import_pid != 0");
-		while($post = $db->fetch_array($query))
-		{
-			$tids[] = $post['tid'];
-		}
-		$db->free_result($query);
-		
-		// Delete any thread that has no post in posts table, i.e., no its first post atleast.
-		$query = $db->simple_select("threads", "tid,closed", "import_tid != 0");
-		while($thread = $db->fetch_array($query))
-		{
-			$clean = false;
-			if(array_search($thread['tid'], $tids) === false)
-			{
-				$clean = true;
-				
-				// Check if this thread is assigned with a moved tid. Will not check this tid's validity.
-				if(!empty($thread['closed']) && strpos($thread['closed'], 'moved|') === 0)
-				{
-					$moved_tid = substr($thread['closed'], 6);
-					if(!empty($moved_tid) && $moved_tid == intval($moved_tid))
-					{
-						$clean = false;
-					}
-				}
-			}
-			
-			if($clean)
-			{
-				$db->delete_query("threads", "tid = {$thread['tid']}");
-			}
-		}
-		$db->free_result($query);
-		
-		parent::cleanup();
-	}
-	
 	function fetch_total()
 	{
 		global $import_session;
@@ -151,6 +108,152 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 		
 		return $import_session['total_posts'];
+	}
+	
+	function cleanup()
+	{
+		global $output;
+		
+		// General output and our progress bar can be constructed here
+		$output->print_header("Threads cleanup, rebuild and recount");
+		$this->debug->log->trace0("Threads cleanup, rebuild and recount");
+		$output->construct_progress_bar();
+		echo "<br />\nCleaning threads and rebuild...(This may take a while)<br />";
+		
+		flush();
+		
+		$this->clean_nopost_thread();
+
+		parent::cleanup();
+	}
+	
+	private function clean_nopost_thread()
+	{
+		global $db, $output, $import_session, $lang;
+		
+		// Total number of imported threads is needed for percentage
+		$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid > 0");
+		$num_imported_threads = $db->fetch_field($query, "count");
+		$last_percent = 0;
+
+		// Have we finished already (redirects...)?
+		if(!isset($import_session['clean_threads_noposts_start']))
+		{
+			$import_session['clean_threads_noposts_start'] = 0;
+		}
+		if($import_session['clean_threads_noposts_start'] >= $num_imported_threads)
+		{
+			return;
+		}
+		
+		$this->debug->log->trace1("Clean any thread with no posts in it, searching for any");
+		echo "Clean any thread with no posts in it, searching for any...";
+		flush();
+		
+		if(!isset($import_session['threads_to_clean']))
+		{
+			$import_session['threads_to_clean'] = array();
+		}
+		
+		// Get all threads for this page (1000 per page)
+		$progress = $import_session['clean_threads_noposts_start'];
+		$query = $db->simple_select("threads", "tid,closed", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['clean_threads_noposts_start'], 'limit' => 1000));
+		while($thread = $db->fetch_array($query))
+		{
+			$clean = false;
+			
+			// Check if this thread has posts in table `posts`.
+			$check_query = $db->simple_select("posts", "COUNT(*) as count", "import_pid > 0 AND tid = {$thread['tid']}", array('limit' => 1));
+			if(empty($db->fetch_field($check_query, "count")))
+			{
+				// Maybe this thread will be deleted.
+				$clean = true;
+				
+				// Check if this thread is assigned with a moved tid. Will not check the moved tid's validity.
+				if(!empty($thread['closed']) && strpos($thread['closed'], 'moved|') === 0)
+				{
+					$moved_tid = substr($thread['closed'], 6);
+					if(!empty($moved_tid) && $moved_tid == intval($moved_tid))
+					{
+						// A moved thread with a looking good previous tid will survive.
+						$clean = false;
+					}
+				}
+			}
+			
+			if($clean)
+			{
+				// Add the target to an array, they will be purge after all their kinds are found.
+				$import_session['threads_to_clean'][] = $thread['tid'];
+			}
+			
+			// Now inform the user
+			++$progress;
+			
+			// Code comes from Dylan, probably has a reason, simply leave it there
+			if(($progress % 5) == 0)
+			{
+				if(($progress % 100) == 0)
+				{
+					check_memory();
+				}
+				
+				// 200 is maximum for the progress bar so *200 and not *100
+				$percent = round(($progress/$num_imported_threads)*200, 1);
+				if($percent != $last_percent)
+				{
+					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
+				}
+				$last_percent = $percent;
+			}
+		}
+
+		// Add progress to internal counter and display a notice if we've finished
+		$import_session['clean_threads_noposts_start'] += $progress;
+		
+		if($import_session['clean_threads_noposts_start'] >= $num_imported_threads)
+		{
+			
+			// Searching is finished, do purging job.
+			$this->debug->log->trace1("Deleting any thread with no posts in it");
+			for($i = 0; $i < count($import_session['threads_to_clean']);)
+			{
+				$db->delete_query("threads", "tid IN ('".implode("','", array_slice($import_session['threads_to_clean'], $i, 20))."')");
+				$this->debug->log->trace2("Threads deleted: ".implode(", ", array_slice($import_session['threads_to_clean'], $i, 20))."");
+				$i += 20;
+			}
+			$this->debug->log->trace1("Finished deleting threads with no posts");
+			echo $lang->done;
+			flush();
+		}
+		
+		// Always redirect back to this page
+		$this->redirect();
+	}
+	
+	private function redirect($finished = "")
+	{
+		// Do we want to save that we've finished function?
+		if(!empty($finished)) {
+			global $import_session;
+			$import_session[$finished] = 1;
+		}
+		
+		// Make sure we save changed imports
+		update_import_session();
+		
+		// Redirect back here - parameters are saved in the session
+		if(!headers_sent())
+		{
+			header("Location: index.php");
+		}
+		else
+		{
+			echo "<meta http-equiv=\"refresh\" content=\"0; url=index.php\">";;
+		}
+		
+		// Stop here!
+		exit;
 	}
 }
 

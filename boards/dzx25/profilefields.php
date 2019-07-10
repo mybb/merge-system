@@ -288,7 +288,7 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 				$dz_medal_description .= ': ' . $profilefield['description'];
 			}
 			$insert_data['description'] = $this->dz_imported_msg . $dz_medal_description . ($profilefield['available'] == 1 ? ' (activated)' : ' (inactive)');
-			$insert_data['type'] = "checkbox";
+			$insert_data['type'] = "checkbox\nOwned";
 			$insert_data['required'] = 0;
 			$insert_data['registration'] = 0;
 			$insert_data['postbit'] = 0;
