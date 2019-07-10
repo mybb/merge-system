@@ -158,7 +158,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		flush();
 
 		// Get all threads for this page (1000 per page)
-		$progress = $import_session['counters_threads_start'];
+		$progress = 0;
 		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['counters_threads_start'], 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
@@ -167,17 +167,18 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 			// Now inform the user
 			++$progress;
-
+			$progress_total = $progress + $import_session['counters_threads_start'];
+			
 			// Code comes from Dylan, probably has a reason, simply leave it there
-			if(($progress % 5) == 0)
+			if(($progress_total % 5) == 0)
 			{
-				if(($progress % 100) == 0)
+				if(($progress_total % 100) == 0)
 				{
 					check_memory();
 				}
 
 				// 200 is maximum for the progress bar so *200 and not *100
-				$percent = round(($progress/$num_imported_threads)*200, 1);
+				$percent = round(($progress_total/$num_imported_threads)*200, 1);
 				if($percent != $last_percent)
 				{
 					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));

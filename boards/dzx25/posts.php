@@ -115,10 +115,10 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		global $output;
 		
 		// General output and our progress bar can be constructed here
-		$output->print_header("Threads cleanup, rebuild and recount");
-		$this->debug->log->trace0("Threads cleanup, rebuild and recount");
+		$output->print_header("Threads and posts cleanup, rebuild and recount");
+		$this->debug->log->trace0("Threads and posts cleanup, rebuild and recount");
 		$output->construct_progress_bar();
-		echo "<br />\nCleaning threads and rebuild...(This may take a while)<br />";
+		echo "<br />\nCleaning threads and rebuild internal counters...(This may take a while)<br />";
 		
 		flush();
 		
@@ -146,8 +146,8 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 			return;
 		}
 		
-		$this->debug->log->trace1("Clean any thread with no posts in it, searching for any");
-		echo "Clean any thread with no posts in it, searching for any...";
+		$this->debug->log->trace1("Clean threads with no posts in it, searching for threads starting from #" . $import_session['clean_threads_noposts_start']);
+		echo "Clean threads with no posts in it, searching for any...";
 		flush();
 		
 		if(!isset($import_session['threads_to_clean']))
@@ -156,7 +156,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 		
 		// Get all threads for this page (1000 per page)
-		$progress = $import_session['clean_threads_noposts_start'];
+		$progress = 0;
 		$query = $db->simple_select("threads", "tid,closed", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['clean_threads_noposts_start'], 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
@@ -180,6 +180,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 					}
 				}
 			}
+			$db->free_result($check_query);
 			
 			if($clean)
 			{
@@ -189,20 +190,21 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 			
 			// Now inform the user
 			++$progress;
+			$progress_total = $progress + $import_session['clean_threads_noposts_start'];
 			
 			// Code comes from Dylan, probably has a reason, simply leave it there
-			if(($progress % 5) == 0)
+			if(($progress_total % 5) == 0)
 			{
-				if(($progress % 100) == 0)
+				if(($progress_total % 100) == 0)
 				{
 					check_memory();
 				}
 				
 				// 200 is maximum for the progress bar so *200 and not *100
-				$percent = round(($progress/$num_imported_threads)*200, 1);
+				$percent = round(($progress_total/$num_imported_threads)*200, 1);
 				if($percent != $last_percent)
 				{
-					$output->update_progress_bar($percent, $lang->sprintf($lang->module_post_thread_counter, $thread['tid']));
+					$output->update_progress_bar($percent, "Checking thread #" . $thread['tid'] . " for cleaning");
 				}
 				$last_percent = $percent;
 			}
@@ -213,9 +215,8 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		
 		if($import_session['clean_threads_noposts_start'] >= $num_imported_threads)
 		{
-			
 			// Searching is finished, do purging job.
-			$this->debug->log->trace1("Deleting any thread with no posts in it");
+			$this->debug->log->trace1("Deleting threads with no posts in it");
 			for($i = 0; $i < count($import_session['threads_to_clean']);)
 			{
 				$db->delete_query("threads", "tid IN ('".implode("','", array_slice($import_session['threads_to_clean'], $i, 20))."')");
