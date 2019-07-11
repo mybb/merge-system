@@ -30,6 +30,8 @@ define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
 define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
 // If set to true, the converter will try to fix discuzcode problems.
 define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+// If set to true, all mod permissions of imported moderators will be invalidated.
+define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
 /*****
  * Convert any user profilefield to MyBB? Settings are:
  * 'fid':        profilefield's target field id in MyBB table `userfields`
