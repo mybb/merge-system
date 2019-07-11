@@ -18,7 +18,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 	var $settings = array(
 			'friendly_name' => 'posts',
 			'progress_column' => 'pid',
-			'default_per_screen' => 5000,
+			'default_per_screen' => 3000,
 			'check_table_type' => 'forum_post',
 	);
 	

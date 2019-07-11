@@ -108,15 +108,11 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 		$usernames = array_unique(array_filter(explode("\t", $data['moderators'])));
 		foreach($usernames as $username)
 		{
-			$uid = $this->board->dz_get_uid($username);
-			if($uid !== false)
-			{
-				$prepare_insert_data[] = array(
-						'id' => $uid,
-						'fid' => $data['fid'],
-						'isgroup' => 0,
-				);
-			}
+			$prepare_insert_data[] = array(
+					'dz_username' => $username,
+					'dz_fid' => $data['fid'],
+					'dz_isgroup' => 0,
+			);
 		}
 		
 		return $prepare_insert_data;
@@ -163,7 +159,9 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 		$insert_data = array();
 
 		// Discuz! values
-		// Essential fields are already handled in the prepare function.
+		$insert_data['fid'] = $this->get_import->fid($data['dz_fid']);
+		$insert_data['id'] = $this->board->dz_get_uid($data['dz_username']);
+		$insert_data['isgroup'] = $data['dz_isgroup'];
 
 		return $insert_data;
 	}
