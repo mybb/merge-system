@@ -77,7 +77,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	function convert_sig($text, $encoding = 'utf-8')
 	{
 		// Strip unwanted html entities' attributes. Such as <img>'s onload=...
-		$text = $this->dz_fix_sightml($text);
+		$text = $this->dz_fix_sightml($text, $this->get_encoding($encoding));
 		
 		// Convert some of its HTML codes to bbcodes.
 		$text = $this->dz_html2bbcode($text);
@@ -113,7 +113,11 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		// And for converting any disuczcode to MyBB format, which may be netsted, it also needs to be fixed.
 		if(defined("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE") && DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE)
 		{
-			$text = $this->dz_fix_discuzcode($text, $encoding);
+			if($encoding == 'utf-8')
+			{
+				// PHP DOM only operate on UTF-8 contents.
+				$text = $this->dz_fix_discuzcode($text, $encoding);
+			}
 		}
 		
 		// Recover HTML code.
@@ -264,6 +268,19 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 						),
 						'remove_sub_tags' => 0,
 				),
+				array(
+						'regex' => "#\[font=([^a-z0-9 ,\-_'\"\]]+?[^\[\<]+?)\]#si",
+						'discuzcode' => 'font',
+						'html_tag' => 'discuz_code_font_nonen',
+						'mybbcode' => 'font',
+						'allowed_attributes' => array(
+								array(
+										'attribute' => 'fontface-nonen',
+										'handler_callback' => 'handle_html_fontface_nonen',
+								),
+						),
+						'remove_sub_tags' => 0,
+				),
 		);
 		
 		// Convert any "\n" newline character to a codetag, preventing from DOM to strip it between html tags.
@@ -281,10 +298,16 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 			{
 				$html_tags_to_remove[] = $code['html_tag'];
 			}
-			$mybbcode_recover[$code['html_tag']] = array(
-					'code' => $code['mybbcode'],
-					'remove_sub_tags' => $code['remove_sub_tags'],
-			);
+			if(!isset($mybbcode_recover[$code['html_tag']]))
+			{
+				$mybbcode_recover[$code['html_tag']] = array(
+						'code' => '',
+						'remove_sub_tags' => 0,
+				);
+			}
+			$mybbcode_recover[$code['html_tag']]['code'] = $code['mybbcode'];
+			$mybbcode_recover[$code['html_tag']]['remove_sub_tags'] = $code['remove_sub_tags'];
+			
 			if(empty($code['regex']))
 			{
 				$finds[] = "[". $code['discuzcode'] ."]";
@@ -327,6 +350,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		{
 			$html_text = str_replace($finds, $replaces, $html_text);
 		}
+		$html_tags_to_remove = array_unique($html_tags_to_remove);
 		
 		// Fix any HTML parsing errors using DOM.
 		$html_text = '<_mybb_fix_html_>' . $html_text . '</_mybb_fix_html_>';
@@ -363,6 +387,12 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	 */
 	function dz_fix_sightml($text, $encoding = 'utf-8')
 	{
+		if($encoding != 'utf-8')
+		{
+			// PHP DOM only operate on UTF-8 contents.
+			return $text;
+		}
+		
 		// Manipulating only on $html_text.
 		$html_text = $text;
 		
@@ -845,6 +875,67 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	}
 	
 	/**
+	 * Callback for html fontface attribute offfered with a non-English one. Works only with UTF-8 coded font name. Otherwise or the font name is not found in the function, default font will be set. Default fonts please see the converter class.
+	 *
+	 * @param string $fontface The font's official name used in OSes. Only UTF-8 coded name will be handled.
+	 *
+	 * @return string The font name in English.
+	 */
+	function handle_html_fontface_nonen($fontface)
+	{
+		$fontface_table = array(
+				// Both Windows and MacOS X
+				'标楷体' => 'DFKai-SB,BiauKai',
+				// Windows
+				'新细明体' => 'PMingLiU',
+				'细明体' => 'MingLiU',
+				'黑体' => 'SimHei',
+				'宋体' => 'SimSun',
+				'新宋体' => 'NSimSun',
+				'仿宋' => 'FangSong',
+				'楷体' => 'KaiTi',
+				'仿宋GB2312' => 'FangSong_GB2312',
+				'仿宋_GB2312' => 'FangSong_GB2312',
+				'楷体GB2312' => 'KaiTi_GB2312',
+				'楷体_GB2312' => 'KaiTi_GB2312',
+				'微软正黑体' => 'Microsoft JhengHei',
+				'微软雅黑' => 'Microsoft YaHei',
+				// MacOS X
+				'冬青黑体' => 'Hiragino Sans GB',
+				'华文细黑' => 'STHeiti Light',
+				'华文黑体' => 'STHeiti,Heiti SC',
+				'华文楷体' => 'STKaiti',
+				'华文宋体' => 'STSong',
+				'华文仿宋' => 'STFangsong',
+				'丽黑 Pro' => 'LiHei Pro Medium',
+				'丽宋 Pro' => 'LiSong Pro Light',
+				'苹果丽中黑' => 'Apple LiGothic Medium',
+				'苹果丽细宋' => 'Apple LiSung Light',
+				'苹方' => 'PingFang SC',
+		);
+		
+		$fontface = trim($fontface);
+		if(!empty($fontface) && array_key_exists($fontface, $fontface_table))
+		{
+			foreach(explode(",", $fontface_table[$fontface]) as $font);
+			{
+				$fontface = "'" . trim($font) . "', ";
+			}
+			$fontface = rtrim($fontface, ", ");
+		}
+		else if(defined("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS"))
+		{
+			$fontface = DXZ25_CONVERTER_PARSER_DEFAULT_FONTS;
+		}
+		else
+		{
+			$fontface = '';
+		}
+		
+		return $fontface;
+	}
+	
+	/**
 	 * Normally not needed, but some boards may call it so it's still here
 	 *
 	 * @param string $text
@@ -1177,6 +1268,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	
 	function get_encoding($table_encoding)
 	{
+		$table_encoding = strtolower($table_encoding);
 		switch($table_encoding)
 		{
 			case "utf8":

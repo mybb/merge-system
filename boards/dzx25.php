@@ -30,6 +30,8 @@ define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
 define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
 // If set to true, the converter will try to fix discuzcode problems.
 define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+// The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
+define("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS", "'Microsoft YaHei','PingFang SC',STXihei,'Droid Sans','WenQuanYi Micro Hei'");
 // If set to true, all mod permissions of imported moderators will be invalidated.
 define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
 /*****
