@@ -21,6 +21,8 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 		'default_per_screen' => 1000,
 	);
 	
+	var $dz_increment = false;
+	
 	// Override Merge System's default values.
 	public $default_values = array(
 			'fid' => 0,
@@ -145,10 +147,10 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 		$db->insert_query("moderators", $insert_array);
 		$mid = $db->insert_id();
 		
-		if($this->update_tracker)
+		if($this->dz_increment)
 		{
 			$this->increment_tracker('moderators');
-			$this->update_tracker = false;
+			$this->dz_increment = false;
 		}
 		
 		$output->print_progress("end");
