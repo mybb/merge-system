@@ -900,9 +900,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				'細明體' => 'MingLiU',
 				'新宋体' => 'NSimSun',
 				'仿宋GB2312' => 'FangSong_GB2312',
-				'仿宋_GB2312' => 'FangSong_GB2312',
 				'楷体GB2312' => 'KaiTi_GB2312',
-				'楷体_GB2312' => 'KaiTi_GB2312',
 				'微软正黑体' => 'Microsoft JhengHei',
 				'微軟正黑體' => 'Microsoft JhengHei',
 				'微软雅黑' => 'Microsoft YaHei',
@@ -933,7 +931,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				'蘋方' => 'PingFang',
 		);
 		
-		$fontface = str_replace(" ", "", trim($fontface));
+		$fontface = str_replace(array(" ", "_"), "", trim($fontface));
 		if(!empty($fontface) && array_key_exists($fontface, $fontface_table))
 		{
 			foreach(explode(",", $fontface_table[$fontface]) as $font);
