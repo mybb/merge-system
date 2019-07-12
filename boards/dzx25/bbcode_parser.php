@@ -886,19 +886,25 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		$fontface_table = array(
 				// Both Windows and MacOS X
 				'标楷体' => 'DFKai-SB,BiauKai',
+				'標楷體' => 'DFKai-SB,BiauKai',
+				'仿宋' => 'FangSong,Fang Song',
+				'黑体' => 'SimHei,Hei',
+				'楷体' => 'KaiTi,SimKai,Kai',
+				'宋体' => 'SimSun,Song',
 				// Windows
 				'新细明体' => 'PMingLiU',
+				'新细明体' => 'PMingLiU',
+				'微软新细明体' => 'PMingLiU',
+				'微軟新細明體' => 'PMingLiU',
 				'细明体' => 'MingLiU',
-				'黑体' => 'SimHei',
-				'宋体' => 'SimSun',
+				'細明體' => 'MingLiU',
 				'新宋体' => 'NSimSun',
-				'仿宋' => 'FangSong',
-				'楷体' => 'KaiTi',
 				'仿宋GB2312' => 'FangSong_GB2312',
 				'仿宋_GB2312' => 'FangSong_GB2312',
 				'楷体GB2312' => 'KaiTi_GB2312',
 				'楷体_GB2312' => 'KaiTi_GB2312',
 				'微软正黑体' => 'Microsoft JhengHei',
+				'微軟正黑體' => 'Microsoft JhengHei',
 				'微软雅黑' => 'Microsoft YaHei',
 				// MacOS X
 				'冬青黑体' => 'Hiragino Sans GB',
@@ -907,19 +913,32 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 				'华文楷体' => 'STKaiti',
 				'华文宋体' => 'STSong',
 				'华文仿宋' => 'STFangsong',
-				'丽黑 Pro' => 'LiHei Pro Medium',
-				'丽宋 Pro' => 'LiSong Pro Light',
-				'苹果丽中黑' => 'Apple LiGothic Medium',
-				'苹果丽细宋' => 'Apple LiSung Light',
-				'苹方' => 'PingFang SC',
+				'丽黑Pro' => 'LiHei Pro',
+				'俪黑Pro' => 'LiHei Pro',
+				'麗黑Pro' => 'LiHei Pro',
+				'儷黑Pro' => 'LiHei Pro',
+				'丽宋Pro' => 'LiSong Pro',
+				'俪宋Pro' => 'LiSong Pro',
+				'麗宋Pro' => 'LiSong Pro',
+				'儷宋Pro' => 'LiSong Pro',
+				'苹果丽中黑' => 'Apple LiGothic',
+				'苹果俪中黑' => 'Apple LiGothic',
+				'蘋果麗中黑' => 'Apple LiGothic',
+				'蘋果儷中黑' => 'Apple LiGothic',
+				'苹果丽细宋' => 'Apple LiSung',
+				'苹果俪细宋' => 'Apple LiSung',
+				'蘋果麗細宋' => 'Apple LiSung',
+				'蘋果儷細宋' => 'Apple LiSung',
+				'苹方' => 'PingFang',
+				'蘋方' => 'PingFang',
 		);
 		
-		$fontface = trim($fontface);
+		$fontface = str_replace(" ", "", trim($fontface));
 		if(!empty($fontface) && array_key_exists($fontface, $fontface_table))
 		{
 			foreach(explode(",", $fontface_table[$fontface]) as $font);
 			{
-				$fontface = "'" . trim($font) . "', ";
+				$fontface = trim($font) . ", ";
 			}
 			$fontface = rtrim($fontface, ", ");
 		}
