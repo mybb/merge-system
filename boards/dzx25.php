@@ -28,12 +28,33 @@ define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
 // If set to false, user groups will contain values from the first converted Discuz!.
 define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
+// If set to true, all mod permissions of imported moderators will be invalidated.
+define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
 // If set to true, the converter will try to fix discuzcode problems.
 define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
 // The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
 define("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
-// If set to true, all mod permissions of imported moderators will be invalidated.
-define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
+// /** Path for Discuz! X2.5 uploaded attachments. The folder of a Discuz! X2.5 uploaded attachements usually contains:
+//  * 	[dir] album (may not appear in early X2.5 versions)
+//  * 	[dir] block (may not appear in the final X2.5 version)
+//  * 	[dir] category (may not appear in early X2.5 versions)
+//  * 	[dir] common (may not appear in early X2.5 versions)
+//  * 	[dir] forum <---- This is the place where we will import the attachments.
+//  * 	[dir] group (may not appear in early X2.5 versions)
+//  * 	[dir] image (may not appear in the final X2.5 version)
+//  * 	[dir] portal
+//  * 	[dir] profile (may not appear in early X2.5 versions)
+//  * 	[dir] swfupload (may not appear in early X2.5 versions)
+//  * 	[dir] temp
+//  * The importer will check following path or URL defines in order. If one is not empty, the importer will use it as a path or URL to the old Discuz! X2.5 attachments root. Otherwise, it will get `attachdir` and `attachurl` from the Discuz! database. First check if `attachurl` starts with a http:// or https:// or ftp:// protocol. Use `attachurl` if true, or use `attachdir` if false.
+//  * Check this wiki page for more: https://github.com/yuliu/mybb-merge-system/wiki/import_attachments
+//  */ 
+// // The importer uses this define first, if it's not empty. It should be set to the Discuz! attachments root path that PHP can access, with a trailing slash. Path of a absolute or relative one is accepted. A path starts with `./` is considered relative to the MyBB Merge System. An example for this define is `../discuz/`
+// define("DXZ25_CONVERTER_DZX_UPLOAD_PATH", "");
+// // The importer then check this define if it's not empty. It should be set to the Discuz! attachments root URL that PHP can access, with a trailing slash. An example for this define is `http://your_domain/path/to/discuz/uploads/`
+// define("DXZ25_CONVERTER_DZX_UPLOAD_URL", "");
+// Re-check an attachment file's mime type using PHP mime_content_type after it has been stored in MyBB uploads. This action does rely on the PHP's ability, thus if you use an old version of PHP, better turn this define to false. 
+define("DXZ25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE", false);
 /*****
  * Convert any user profilefield to MyBB? Settings are:
  * 'fid':        profilefield's target field id in MyBB table `userfields`
@@ -136,22 +157,21 @@ class DZX25_Converter extends Converter
 			"import_settings"			=> array("name" => "Settings", "dependencies" => "db_configuration"),
 			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
 			"import_ucusers"			=> array("name" => "UCenter Users", "dependencies" => "db_configuration", "class_depencencies" => "users"),
+			"import_privatemessages"	=> array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
+			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),	// Customed converter module
 			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
+			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
+			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customed converter module
+			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customed converter module
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
 			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
+			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
 			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
 			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
 			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 			"import_pollvotes"			=> array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
 			"import_posts"				=> array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
-			"import_privatemessages"	=> array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
-			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
-			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customed converter module
-			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customed converter module
-			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customed converter module
-			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),	// Customed converter module
-/*			"import_events"				=> array("name" => "Calendar Events", "dependencies" => "db_configuration,import_posts"),
-*/			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
+			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 			"import_attachments"		=> array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
 			
 	);
