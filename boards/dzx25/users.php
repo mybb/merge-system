@@ -21,7 +21,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			'encode_table' => 'common_member',
 			'username_column' => 'username',
 			'email_column' => 'email',
-			'postnum_column' => 'posts',
+			'postnum_column' => 'cposts',
 			'default_per_screen' => 2000,
 	);
 	
@@ -30,11 +30,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 	 */
 	public $total_mybbusers = 0;
 	
-	public $table_column_exists = array(
-				'import_uid' => 0,
-			);
-	
-	public $ucuser_found = false;
+	public $user_found = false;
 	
 	// Timezone, will get from MyBB setting.
 	public $setting_timezone = 0;
@@ -62,11 +58,6 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		// Count the total number of users in our MyBB database.
 		$query = $db->simple_select("users", "COUNT(*) as totalusers");
 		$this->total_mybbusers = $db->fetch_field($query, "totalusers");
-		$db->free_result($query);
-		
-		// Check if we just have converted a UCenter users database.
-		$query = $db->query("SHOW COLUMNS FROM ". TABLE_PREFIX ."users LIKE 'import_uid'");
-		$this->table_column_exists['import_uid'] = $db->num_rows($query) ? 1 : 0;
 		$db->free_result($query);
 		
 		// Get timezone from MyBB setting.
@@ -127,28 +118,36 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		$insert_data = array();
 		
-		// We don't update these fields for such a user: username, email, regdate, regip, passwordconvert, passwordconvertsalt, passwordconverttype.
-		// $data: user data to import.
-		// $ucuser: array, ucenter user data; string, suggested username for duplicated user; false, new user.
-		// $insert_data: data to be queried.
+		/**
+		 * We don't update these fields for such a user: username, email, regdate, regip, passwordconvert, passwordconvertsalt, passwordconverttype.
+		 * $data: user data to import.
+		 * $mybb_user: array, ucenter user data; string, suggested username for duplicated user; false, new user.
+		 * $insert_data: data to be queried.
+		 */ 
 		
-		// Check if current user is a previously imported UCenter user.
-		$ucuser = $this->dz_get_ucuser($data);
+		// Given a username and email, check if current user is in our MyBB.
+		$mybb_user = $this->get_mybb_user($data);
 
-		if($this->ucuser_found)
+		if($this->user_found)
 		{
+			// Any field should be reserved, since base class may have set default values for them.
+			foreach($mybb_user as $key => $value)
+			{
+				$insert_data[$key] = $value;
+			}
+			
 			// Found the username and email in MyBB database, update its settings, permissions and profiles.
-			$insert_data['mybbuid'] = $ucuser['uid'];
+			$insert_data['mybbuid'] = $mybb_user['uid'];
 			$update_lastip = false;
 			
 			// Discuz! values starts here.
 			// Compare lastactive and lastvisit to see if any modification of these fields is needed.
-			if($ucuser['lastactive'] < $data['slastactivity'])
+			if($mybb_user['lastactive'] < $data['slastactivity'])
 			{
 				$insert_data['lastactive'] = $data['slastactivity'];
 				$update_lastip = true;
 			}
-			if($ucuser['lastvisit'] < $data['slastvisit'])
+			if($mybb_user['lastvisit'] < $data['slastvisit'])
 			{
 				$insert_data['lastvisit'] = $data['slastvisit'];
 				$update_lastip = true;
@@ -158,38 +157,29 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 				$insert_data['lastip'] = my_inet_pton($data['slastip']);
 				$update_lastip = true;
 			}
-			if($ucuser['lastpost'] < $data['slastpost'])
+			if($mybb_user['lastpost'] < $data['slastpost'])
 			{
 				$insert_data['lastpost'] = $data['slastpost'];
 			}
 			
 			// Cumulate posts and thread numbers.
-			$insert_data['postnum'] = $ucuser['postnum'] + $data['cposts'];
-			$insert_data['threadnum'] = $ucuser['threadnum'] + $data['cthreads'];
+			$insert_data['postnum'] += $data['cposts'];
+			$insert_data['threadnum'] += $data['cthreads'];
 			
-			
-			// These data should be reserved, since base class has default values for them.
-			$insert_data['username'] = $ucuser['username'];
-			$insert_data['email'] = $ucuser['email'];
-			$insert_data['regdate'] = $ucuser['regdate'];
-			$insert_data['regip'] = $ucuser['regip'];
-			$insert_data['passwordconvert'] = $ucuser['passwordconvert'];
-			$insert_data['passwordconvertsalt'] = $ucuser['passwordconvertsalt'];
-			$insert_data['passwordconverttype'] = $ucuser['passwordconverttype'];
-
-			// Overwrite `email` field since user data in UCenter may have a cut off.
-			$insert_data['email'] = encode_to_utf8($data['email'], "common_member", "users");
+			// Overwrite `email` field since user data in UCenter may have a cut off. The validation was done in get_mybb_user() function.
+			$insert_data['email'] = $this->board->encode_to_utf8($data['email'], "common_member", "users");
 		}
 		else
 		{
-			if($ucuser === false)
+			if($mybb_user === false)
 			{
 				// Given the username and email, no user is found in MyBB database, add it;
+				$insert_data['username'] = $this->board->encode_to_utf8($data['username'], "common_member", "users");
 			}
 			else
 			{
 				// It's a user with a duplicated username, add it.
-				$insert_data['username'] = $ucuser;
+				$insert_data['username'] = $mybb_user;
 			}
 			
 			// Discuz! values.
@@ -204,8 +194,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['lastpost'] = $data['slastpost'];
 			
 			// These data should be reserved, since base class has default values for them.
-			$insert_data['username'] = encode_to_utf8($data['username'], "common_member", "users");
-			$insert_data['email'] = encode_to_utf8($data['email'], "common_member", "users");
+			$insert_data['email'] = $this->board->encode_to_utf8($data['email'], "common_member", "users");
 			$insert_data['regdate'] = $data['regdate'];
 			$insert_data['lastactive'] = $data['lastactivity'] == 0 ? $data['regdate'] : $data['lastactivity'];
 			$insert_data['lastvisit'] = $data['lastvisit'] == 0 ? $data['regdate'] : $data['lastvisit'];
@@ -226,30 +215,30 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		// Import_ fields
 		$insert_data['import_uid'] = $data['uid'];
-		if($this->ucuser_found)
+		if($this->user_found)
 		{
-			$insert_data['import_usergroup'] = $ucuser['usergroup'];
-			$insert_data['import_additionalgroups'] = $ucuser['additionalgroups'];
+			$insert_data['import_usergroup'] = $mybb_user['usergroup'];
+			$insert_data['import_additionalgroups'] = $mybb_user['additionalgroups'];
 		}
 		
 		// Discuz! values
 		// Usergroup
-		if(!$this->ucuser_found || ($this->ucuser_found && $ucuser['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE") && DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE))
+		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE") && DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE))
 		{
 			$insert_data['usergroup'] = $this->board->get_gid($data['groupid']);
 			$insert_data['import_usergroup'] = $data['groupid'];
 			if($data['extgroupids'])
 			{
-				$addtional_groups = implode(",", explode("\t", $data['extgroupids']));
-				$insert_data['additionalgroups'] = $this->board->get_group_id($addtional_groups);
+				$addtional_groups = implode(",", array_unique(array_filter(explode("\t", $data['extgroupids']))));
+				$insert_data['additionalgroups'] = $this->board->get_group_id($addtional_groups, array(MYBB_ADMINS, MYBB_SMODS));
 				$insert_data['import_additionalgroups'] = $addtional_groups;
 			}
 		}
 		
 		// Other fields.
-		if(!$this->ucuser_found || ($this->ucuser_found && $ucuser['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE") && DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE))
+		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE") && DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE))
 		{
-			$insert_data['usertitle'] = encode_to_utf8($data['fcustomstatus'], "common_member_field_forum", "users");
+			$insert_data['usertitle'] = $this->board->encode_to_utf8($data['fcustomstatus'], "common_member_field_forum", "users");
 			$insert_data['website'] = $data['psite'];
 			$insert_data['icq'] = $data['picq'];
 			$insert_data['yahoo'] = $data['pyahoo'];
@@ -259,7 +248,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 				$insert_data['birthday'] = "{$data['pbirthday']}-{$data['pbirthmonth']}-{$data['pbirthyear']}";
 			}
 			
-			$insert_data['signature'] = encode_to_utf8($data['fsightml'], "common_member_field_forum", "users");
+			$insert_data['signature'] = $this->board->encode_to_utf8($data['fsightml'], "common_member_field_forum", "users");
 			$insert_data['signature'] = $this->bbcode_parser->convert_sig($insert_data['signature'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 			$insert_data['invisible'] = $data['sinvisible'];
 			$insert_data['receivefrombuddy'] = $data['onlyacceptfriendpm'];
@@ -267,7 +256,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			
 			$online_time = $data['coltimeh'] * 60 > $data['oltimem'] ? $data['coltimeh'] * 60 : $data['oltimem'];
 			$online_time *= 60;
-			if($this->ucuser_found || ($this->ucuser_found && $ucuser['timeonline'] < $online_time))
+			if(!$this->user_found || ($this->user_found && $mybb_user['timeonline'] < $online_time))
 			{
 				$insert_data['timeonline'] = $online_time;
 			}
@@ -303,6 +292,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		++$this->total_users;
 		++$this->total_mybbusers;
+		$this->user_found = false;
 		
 		$this->debug->log->datatrace('$data', $data);
 		
@@ -323,7 +313,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		}
 		
 		$uid = 0;
-		if($this->ucuser_found)
+		if($this->user_found)
 		{
 			// Storing the uid of a user to be updated.
 			$uid = $data['mybbuid'];
@@ -335,11 +325,12 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 		
-		if($this->ucuser_found)
+		if($this->user_found)
 		{
+			$output->print_progress("merge_user", array('import_uid' => $insert_array['import_uid'], 'duplicate_uid' => $uid));
+			
 			// Update a user record.
 			$db->update_query("users", $insert_array, "uid = '{$uid}'");
-			$this->ucuser_found = false;
 		}
 		else
 		{
@@ -350,24 +341,27 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		$this->increment_tracker('users');
 		
-		$output->print_progress("end");
+		if(!$this->user_found)
+		{
+			$output->print_progress("end");
+		}
 		
 		return $uid;
 	}
 	
 	/**
 	 * Check if a previously imported user match the crireria.
-	 * Will set $this->ucuser_found to true. After a update, this var should be set back to false.
+	 * Will set $this->user_found to true. After a update, this var should be set back to false.
 	 *
 	 * @param array $data The insert array going into the MyBB database
-	 * @return array|string|bool The user data found in previous imports of UCenter users, if any. Or the suggested username if a duplicated user is found. Or false if it's a new user, where it shouldn't occur.
+	 * @return array|string|bool The user data found in MyBB, if any. Or the suggested username if a duplicated user is found. Or false if it's a new user, where it shouldn't occur.
 	 */
-	public function dz_get_ucuser($insert_data)
+	public function get_mybb_user($user)
 	{
 		global $db, $import_session;
 		
-		$username = $insert_data[$this->settings['username_column']];
-		$encoded_username = encode_to_utf8($insert_data[$this->settings['username_column']], $this->settings['encode_table'], "users");
+		$username = $user[$this->settings['username_column']];
+		$encoded_username = $this->board->encode_to_utf8($user[$this->settings['username_column']], $this->settings['encode_table'], "users");
 		
 		// Check if the user, with duplicated username, exists in our MyBB database.
 		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
@@ -377,14 +371,16 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate_user['username']) == strtolower($username) || converter_my_strtolower($duplicate_user['username']) == converter_my_strtolower($encoded_username))
+		if(strtolower($duplicate_user['username']) == strtolower($username) || $this->board->converter_my_strtolower($duplicate_user['username']) == $this->board->converter_my_strtolower($encoded_username))
 		{
 			// Have to check email in UTF-8 format also.
-			$encoded_email = encode_to_utf8($insert_data[$this->settings['email_column']], $this->settings['encode_table'], "users");
-			$email_pos = empty($duplicate_user['email']) ? 0 : strpos($encoded_email, $duplicate_user['email']);
-			if($encoded_email == $duplicate_user['email'] || ($email_pos !== false && $email_pos == 0))
+			$encoded_email = $this->board->encode_to_utf8($user[$this->settings['email_column']], $this->settings['encode_table'], "users");
+			// If a user is imported from UCenter, he may have a cut-off email address as the email field in UCenter is CHAR(32).
+			$email_pos = empty($duplicate_user['email']) ? -1 : strpos($encoded_email, $duplicate_user['email']);
+			$email_length = strlen($duplicate_user['email']);
+			if($encoded_email == $duplicate_user['email'] || ($email_pos !== false && $email_pos == 0 && $email_length == 32))
 			{
-				$this->ucuser_found = true;
+				$this->user_found = true;
 				return $duplicate_user;
 			}
 			else

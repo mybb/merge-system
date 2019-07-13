@@ -19,62 +19,9 @@ if(!defined("IN_MYBB"))
 /*************************************
  *********** Configuration ***********
  *************************************/
-/** 
- * Convert thread class from Discuz! to thread prefixes in MyBB without setting any permission on forum using and group using.
- * If its value is true, the converter will require dependencies of the import of forums and usergroups. Otherwise, no dependency is required.
- */
-define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
-/**
- * Define of a user's last visit/active timestamp, if they're not provided in your old database.
- */
-//define("DZX25_CONVERTER_USERS_LASTTIME", 1390492800);
-/**
- * Overwrite some user data when importing more than one Discuz!.
- * If set to false, user profiles will contain data mostly from the first converted Discuz!. User's last status, such as lastvisit, lastactivity, etc., will still be overwriten with very recent values.
- */
-define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
-/**
- * If set to false, user groups will contain values from the first converted Discuz!.
- */
-define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
-/**
- * If set to true, all mod permissions of imported moderators will be invalidated.
- */
-define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
-/**
- * If set to true, the converter will try to fix discuzcode problems.
- */
-define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
-/**
- * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
- */
-define("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
-// /** Path for Discuz! X2.5 uploaded attachments. The folder of a Discuz! X2.5 uploaded attachements usually contains:
-//  * 	[dir] album (may not appear in early X2.5 versions)
-//  * 	[dir] block (may not appear in the final X2.5 version)
-//  * 	[dir] category (may not appear in early X2.5 versions)
-//  * 	[dir] common (may not appear in early X2.5 versions)
-//  * 	[dir] forum <---- This is the place where we will import the attachments.
-//  * 	[dir] group (may not appear in early X2.5 versions)
-//  * 	[dir] image (may not appear in the final X2.5 version)
-//  * 	[dir] portal
-//  * 	[dir] profile (may not appear in early X2.5 versions)
-//  * 	[dir] swfupload (may not appear in early X2.5 versions)
-//  * 	[dir] temp
-//  * The importer will check following path or URL defines in order. If one is not empty, the importer will use it as a path or URL to the old Discuz! X2.5 attachments root. Otherwise, it will get `attachdir` and `attachurl` from the Discuz! database. First check if `attachurl` starts with a http:// or https:// or ftp:// protocol. Use `attachurl` if true, or use `attachdir` if false.
-//  * Check this wiki page for more: https://github.com/yuliu/mybb-merge-system/wiki/import_attachments
-//  */ 
-// // The importer uses this define first, if it's not empty. It should be set to the Discuz! attachments root path that PHP can access, with a trailing slash. Path of a absolute or relative one is accepted. A path starts with `./` is considered relative to the MyBB Merge System. An example for this define is `../discuz/`
-// define("DXZ25_CONVERTER_DZX_UPLOAD_PATH", "");
-// // The importer then check this define if it's not empty. It should be set to the Discuz! attachments root URL that PHP can access, with a trailing slash. An example for this define is `http://your_domain/path/to/discuz/uploads/`
-// define("DXZ25_CONVERTER_DZX_UPLOAD_URL", "");
-/**
- * Re-check an attachment file's mime type using PHP mime_content_type after it has been stored in MyBB uploads. This action does rely on your PHP's ability, thus if you use an old version of PHP, better turn this define to false.
- */
-define("DXZ25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE", false);
+//define("UCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
 
-
-class DZX25_Converter extends Converter
+class UCENTER_Converter extends Converter
 {
 	
 	/**
@@ -82,14 +29,14 @@ class DZX25_Converter extends Converter
 	 *
 	 * @var string
 	 */
-	var $bbname = "Discuz! X2.5";
+	var $bbname = "Discuz! UCenter 1.6.0";
 	
 	/**
 	 * String of the plain bulletin board name
 	 *
 	 * @var string
 	 */
-	var $plain_bbname = "Discuz! X2.5";
+	var $plain_bbname = "Discuz! UCenter 1.6.0";
 	
 	/**
 	 * Whether or not this module requires the loginconvert.php plugin
@@ -105,21 +52,10 @@ class DZX25_Converter extends Converter
 	 */
 	var $modules = array(
 			"db_configuration"			=> array("name" => "Database Configuration", "dependencies" => ""),
-			"import_settings"			=> array("name" => "Settings", "dependencies" => "db_configuration"),
-			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
-			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
-			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
-			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customized converter module
-			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customized converter module
-			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
-			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
-			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
-			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
-			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
-			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
-			"import_pollvotes"			=> array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
-			"import_posts"				=> array("name" => "Posts", "dependencies" => "db_configuration,import_threads"),
-			"import_attachments"		=> array("name" => "Attachments", "dependencies" => "db_configuration,import_posts"),
+			"import_users"				=> array("name" => "UCenter Users", "dependencies" => "db_configuration"),
+			"import_privatemessages"	=> array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
+			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),
+			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 			
 	);
 	
@@ -128,14 +64,14 @@ class DZX25_Converter extends Converter
 	 *
 	 * @var String
 	 */
-	var $check_table = "common_member";
+	var $check_table = "pm_members";
 	
 	/**
 	 * The table prefix we suggest to use
 	 *
 	 * @var String
 	 */
-	var $prefix_suggestion = "dz_";
+	var $prefix_suggestion = "dz_uc_";
 	
 	/**
 	 * An array of smf -> mybb groups
@@ -151,92 +87,11 @@ class DZX25_Converter extends Converter
 			6 => MYBB_BANNED, // Discuz!: Banned from visiting whole site
 			7 => MYBB_GUESTS, // Guests
 			8 => MYBB_AWAITING, // Awaiting Activation
-			/* Discuz! normal user groups starts here, uncomment following lines and add more to convert all non-privileged or banned/awaiting user to MYBB_REGISTERED. */
-//			9 => MYBB_REGISTERED, // Registered, Discuz!: any user in this group usually has a negative credit (like post number), so some permissions are denied
-//			10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user
 	);
 	
 	var $column_length_to_check = array(
 
 	);
-	
-	var $get_post_cache = array();
-	
-	/*****
-	 * Convert any user profilefield to MyBB? Settings are:
-	 * 'fid':        profilefield's target field id in MyBB table `userfields`
-	 *               -1: don't convert this field
-	 *                0: need to insert a new profile field
-	 *               any positive integer: existing `fid` in `userfields`
-	 * 'old_table':  profilefield's in which Discuz! table?
-	 * 'old_column': profilefield's column
-	 */
-	var $DZ_USER_PROFILEFIELDS = array(
-			// Should be started at index 0 and don't change any index to make import progress working right.
-			0 => array(
-					'name' => 'location',
-					'fid' => 1,
-					'old_table' => 'common_member_profile',
-					'old_column' => 'address',
-			),
-			array(
-					'name' => 'bio',
-					'fid' => 2,
-					'old_table' => 'common_member_profile',
-					'old_column' => 'bio',
-			),
-			array(
-					'name' => 'sex',
-					'fid' => 3,
-					'old_table' => 'common_member_profile',
-					'old_column' => 'gender',
-			),
-			////////////// Any MyBB predefined user profilefiled should be added before this comment line.
-			array(
-					'name' => 'credits',
-					'fid' => 0,
-					'old_table' => 'common_member',
-					'old_column' => 'credits',
-			),
-			array(
-					'name' => 'extcredits',
-					'fid' => 0,
-					// Definition of extcredits_[1~8] comes from `extcredits` in `common_setting`.
-					'old_def_table' => 'common_setting',
-					'old_table' => 'common_member_count',
-					'old_column' => 'extcredits',
-			),
-			array(
-					'name' => 'digestposts',
-					'fid' => 0,
-					'old_table' => 'common_member_count',
-					'old_column' => 'digestposts',
-			),
-			array(
-					'name' => 'qq',
-					'fid' => 0,
-					'old_table' => 'common_member_profile',
-					'old_column' => 'qq',
-			),
-			array(
-					'name' => 'medals',
-					'fid' => 0,
-					// Definition of medals comes from `forum_medal`. `common_member_medal` contains granting medal lists.
-					'old_def_table' => 'forum_medal',
-					'old_table' => 'common_member_field_forum',
-					'old_column' => 'medals',
-			),
-	);
-	
-	function __construct()
-	{
-		parent::__construct();
-		
-		if(defined("DZX25_CONVERTER_THREADCLASS_DEPS") && DZX25_CONVERTER_THREADCLASS_DEPS && isset($this->modules))
-		{
-			$this->modules['import_threadprefixes']['dependencies'] = 'db_configuration,import_forums,import_usergroups';
-		}
-	}
 	
 	/**
 	 * Properly converts the encoding of a string based upon the old table to the new table to utf8 encoding, as best as we can
@@ -318,15 +173,15 @@ class DZX25_Converter extends Converter
 	}
 	
 	/**
-	 * Checks for the length of a string, mb strings accounted for.
-	 *
-	 * Added here replacing the original my_strlen() function in MyBB,
-	 * to deal with problematic converting of Chinese characters.
-	 *
-	 * @param string $string The string to check the length of.
-	 * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
-	 * @return int The length of the string.
-	 */
+	* Checks for the length of a string, mb strings accounted for.
+	*
+	* Added here replacing the original my_strlen() function in MyBB,
+	* to deal with problematic converting of Chinese characters.
+	*
+	* @param string $string The string to check the length of.
+	* @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
+	* @return int The length of the string.
+	*/
 	function converter_my_strlen($string, $mb_encoding = "")
 	{
 		global $lang;
@@ -447,7 +302,7 @@ class DZX25_Converter extends Converter
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
 		{
 			return $user['uid'];
 		}
@@ -504,16 +359,65 @@ class DZX25_Converter extends Converter
 		
 		return false;
 	}
+	
 	/**
-	 * Get a table's encoding.
+	 * Finds a table's encoding.
 	 *
 	 * @param string $table_name The table name.
+	 * @param bool $old_table Optional, if it's a MyBB table, set it to false.
 	 * @return string The encoding of this table.
 	 */
-	public function fetch_table_encoding($table_name)
+	function fetch_table_encoding($table_name, $old_table = true)
 	{
-		$encoding = fetch_table_encoding($table_name);
-		return $encoding;
+		global $import_session, $db, $module;
+		
+		if($old_table)
+		{
+			$table_name = OLD_TABLE_PREFIX.$table_name;
+		}
+		else
+		{
+			$table_name = TABLE_PREFIX.$table_name;
+		}
+		
+		if($old_table && empty($import_session['table_charset_old'][$table_name]))
+		{
+			$old_old_db_table_prefix = $module->old_db->table_prefix;
+			$module->old_db->set_table_prefix('');
+			
+			$table = $module->old_db->show_create_table($table_name);
+			preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
+			$module->old_db->set_table_prefix($old_old_db_table_prefix);
+			
+			$import_session['table_charset_old'][$table_name] = $old_charset[1];
+		}
+		else if(!$old_table && empty($import_session['table_charset_new'][$table_name]))
+		{
+			$old_table_prefix = $db->table_prefix;
+			$db->set_table_prefix('');
+			
+			$table = $db->show_create_table($table_name);
+			preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
+			$db->set_table_prefix($old_table_prefix);
+			
+			$import_session['table_charset_new'][$table_name] = $new_charset[1];
+		}
+		
+		$mysql_encoding = $old_table ? $import_session['table_charset_old'][$table_name] : $import_session['table_charset_new'][$table_name];
+		
+		$mysql_encoding = explode("_", $mysql_encoding);
+		switch($mysql_encoding[0])
+		{
+			case "utf8":
+			case "utf8mb4":
+				return "UTF-8";
+				break;
+			case "latin1":
+				return "ISO-8859-1";
+				break;
+			default:
+				return $mysql_encoding[0];
+		}
 	}
 }
 

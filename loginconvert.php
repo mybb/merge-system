@@ -37,9 +37,10 @@ $valid_login_types = array(
 	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
 	"vanilla"	=> "vanilla",
 	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
-	"dzx25"		=> "discuz",	// Discuz! X2.5, UCenter based user system.
-	"dzx33"		=> "discuz",	// Discuz! X3.3, UCenter based user system.
-	"dzx34"		=> "discuz",	// Discuz! X3.4, UCenter based user system.
+	"ucenter"	=> "ucenter",	// Discuz! X2.5, UCenter based user system.
+	"dzx25"		=> "ucenter",	// Discuz! X2.5, UCenter based user system.
+	"dzx33"		=> "ucenter",	// Discuz! X3.3, UCenter based user system.
+	"dzx34"		=> "ucenter",	// Discuz! X3.4, UCenter based user system.
 );
 
 // Array of login types for which we need to handle utf8 issues
@@ -447,6 +448,20 @@ function check_vanilla($password, $user)
 	}
 
 	return false;
+}
+
+function check_ucenter($password, $user)
+{
+	// UCenter is activated as of Discuz! X1(?). In Discuz! X2.5 and X3.x, they should be all using UCenter 1.6.0, in which the password and salt is handle in the same way.
+	// However, it is possible that a user is imported from Discuz! X2.5 (and upper version) but not in the UCenter. In this situation, there is no salt in Discuz! X.
+	$salt = $user['passwordconvertsalt'];
+	if(empty($salt))
+	{
+		// This user is not in any UCenter.
+		return md5($password) == $user['passwordconvert'];
+	}
+	
+	return md5(md5($password).$salt) == $user['passwordconvert'];
 }
 
 /************************************

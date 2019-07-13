@@ -210,7 +210,6 @@ function delete_import_fields($text=true)
 		"polls" => array('import_pid', 'import_tid'),
 		"usergroups" => array('import_gid'),
 		"attachments" => array('import_aid'),
-		"threadprefixes" => array('import_pids'),
 	);
 
 	$increment = 200/(count($drop_list, COUNT_RECURSIVE)-count($drop_list));
@@ -284,7 +283,6 @@ function create_import_fields($text=true)
 		),
 		"text" => array(
 			"users" => array('passwordconvert', 'passwordconverttype', 'passwordconvertsalt', 'import_additionalgroups'),
-			"threadprefixes" => array('import_pids'),
 		),
 	);
 
@@ -419,12 +417,12 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
 
 		// Do we have bad characters? (i.e. db/table encoding set to UTF-8 but string is actually ISO)
-		if(converter_my_strlen($converted_str) < converter_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
+		if(my_strlen($converted_str) < my_strlen($text))
 		{
 			// Was our database/tables set to UTF-8 encoding and the data actually in iso encoding?
 			// Stop trying to confuse us!!
 			$converted_str = iconv("iso-8859-1", fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//IGNORE', $text);
-			if(converter_my_strlen($converted_str) >= converter_my_strlen($text, fetch_mbstring_encoding($import_session['table_charset_old'][$old_table_name])))
+			if(my_strlen($converted_str) >= my_strlen($text))
 			{
 				return $converted_str;
 			}
@@ -435,79 +433,6 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
 	}
 
 	return $text;
-}
-
-/**
- * Checks for the length of a string, mb strings accounted for.
- * 
- * Added here replacing the original my_strlen() function in MyBB, 
- * to deal with problematic converting of Chinese characters.
- *
- * @param string $string The string to check the length of.
- * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
- * @return int The length of the string.
- */
-function converter_my_strlen($string, $mb_encoding = "")
-{
-	global $lang;
-	
-	$string = preg_replace("#&\#([0-9]+);#", "-", $string);
-	
-	if(strtolower($lang->settings['charset']) == "utf-8")
-	{
-		// Get rid of any excess RTL and LTR override for they are the workings of the devil
-		$string = str_replace(dec_to_utf8(8238), "", $string);
-		$string = str_replace(dec_to_utf8(8237), "", $string);
-		
-		// Remove dodgy whitespaces
-		$string = str_replace(chr(0xCA), "", $string);
-	}
-	$string = trim($string);
-	
-	if(function_exists("mb_strlen"))
-	{
-		// When counting Chinese characters in GBK encoding, mb_strlen() acts weird without
-		// an encoding parameter, i.e., using internal encoding, if it's UTF-8.
-		if(!isset($mb_encoding) || empty($mb_encoding))
-		{
-			$mb_encoding = mb_internal_encoding();
-		}
-		$string_length = mb_strlen($string, $mb_encoding);
-	}
-	else
-	{
-		$string_length = strlen($string);
-	}
-	
-	return $string_length;
-}
-
-
-/**
- * Lowers the case of a string, mb strings accounted for
- *
- * @param string $string The string to lower.
- * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
- * @return string The lowered string.
- */
-function converter_my_strtolower($string, $mb_encoding = "")
-{
-	if(function_exists("mb_strtolower"))
-	{
-		// When counting Chinese characters in GBK encoding, mb_strlen() acts weird without
-		// an encoding parameter, i.e., using internal encoding, if it's UTF-8.
-		if(!isset($mb_encoding) || empty($mb_encoding))
-		{
-			$mb_encoding = mb_internal_encoding();
-		}
-		$string = mb_strtolower($string, $mb_encoding);
-	}
-	else
-	{
-		$string = strtolower($string);
-	}
-	
-	return $string;
 }
 
 /**
@@ -528,101 +453,9 @@ function fetch_iconv_encoding($mysql_encoding)
 		case "latin1":
 			return "iso-8859-1";
 			break;
-		case "gbk":
-			return "gbk";
-			break;
 		default:
 			return $mysql_encoding[0];
     }
-}
-
-/**
- * Converts the given MySQL encoding to a PHP mbstring usable encoding
- *
- * @param string $mysql_encoding The MySQL encoding
- * @return string The mbstring encoding
- */
-function fetch_mbstring_encoding($mysql_encoding)
-{
-	$mysql_encoding = explode("_", $mysql_encoding);
-	switch($mysql_encoding[0])
-	{
-		case "utf8":
-		case "utf8mb4":
-			return "UTF-8";
-			break;
-		case "latin1":
-			return "ISO-8859-1";
-			break;
-		case "gbk":
-			return "GB18030";	// Change to "GB18030" if you experience any problematic Chinese character converting, also requiring PHP >= 5.4.0. Otherwise, use "GB2312" instead.
-			break;
-		default:
-			return strtoupper($mysql_encoding[0]);
-	}
-}
-
-/**
- * Finds a table's encoding.
- *
- * @param string $table_name The table name.
- * @param bool $old_table Optional, if it's a MyBB table, set it to false.
- * @return string The encoding of this table.
- */
-function fetch_table_encoding($table_name, $old_table = true)
-{
-	global $import_session, $db, $module;
-	
-	if($old_table)
-	{
-		$table_name = OLD_TABLE_PREFIX.$table_name;
-	}
-	else
-	{
-		$table_name = TABLE_PREFIX.$table_name;
-	}
-	
-	if($old_table && empty($import_session['table_charset_old'][$table_name]))
-	{
-		$old_old_db_table_prefix = $module->old_db->table_prefix;
-		$module->old_db->set_table_prefix('');
-		
-		$table = $module->old_db->show_create_table($table_name);
-		preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
-		$module->old_db->set_table_prefix($old_old_db_table_prefix);
-		
-		$import_session['table_charset_old'][$table_name] = $old_charset[1];
-	}
-	else if(!$old_table && empty($import_session['table_charset_new'][$table_name]))
-	{
-		$old_table_prefix = $db->table_prefix;
-		$db->set_table_prefix('');
-		
-		$table = $db->show_create_table($table_name);
-		preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
-		$db->set_table_prefix($old_table_prefix);
-		
-		$import_session['table_charset_new'][$table_name] = $new_charset[1];
-	}
-	
-	$mysql_encoding = $old_table ? $import_session['table_charset_old'][$table_name] : $import_session['table_charset_new'][$table_name];
-	
-	$mysql_encoding = explode("_", $mysql_encoding);
-	switch($mysql_encoding[0])
-	{
-		case "utf8":
-		case "utf8mb4":
-			return "UTF-8";
-			break;
-		case "latin1":
-			return "ISO-8859-1";
-			break;
-		case "gbk":
-			return "gbk";
-			break;
-		default:
-			return $mysql_encoding[0];
-	}
 }
 
 /**
