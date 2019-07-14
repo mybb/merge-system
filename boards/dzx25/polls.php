@@ -55,7 +55,7 @@ class DZX25_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['import_pid'] = $data['tid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
-		$insert_data['question'] = encode_to_utf8($data['subject'], "forum_thread", "threads");
+		$insert_data['question'] = $this->board->encode_to_utf8($data['subject'], "forum_thread", "threads");
 		$insert_data['dateline'] = $data['dateline'];
 		
 		$poll_choices = $this->get_poll_choices($data['tid']);
@@ -70,10 +70,7 @@ class DZX25_Converter_Module_Polls extends Converter_Module_Polls {
 			if($days > 0)
 			{
 				$days = $days / 86400;
-			}
-			if($days > 0)
-			{
-				$insert_data['timeout'] = $days;
+				$insert_data['timeout'] = $days > 0 ? $days : 1;
 			}
 		}
 		$insert_data['multiple'] = $data['multiple'];
@@ -82,10 +79,6 @@ class DZX25_Converter_Module_Polls extends Converter_Module_Polls {
 		if($data['multiple'] == 0)
 		{
 			$insert_data['maxoptions'] = 0;
-		}
-		else if($data['maxchoices'] == 0)
-		{
-			$insert_data['maxoptions'] = $insert_data['numoptions'];
 		}
 		else
 		{
@@ -118,7 +111,7 @@ class DZX25_Converter_Module_Polls extends Converter_Module_Polls {
 		");
 		while($vote_result = $this->old_db->fetch_array($query))
 		{
-			$vote_option = encode_to_utf8($vote_result['polloption'], "forum_polloption", "threads");
+			$vote_option = $this->board->encode_to_utf8($vote_result['polloption'], "forum_polloption", "threads");
 			$options .= $seperator.$this->old_db->escape_string($vote_option);
 			$votes .= $seperator.$vote_result['votes'];
 			++$options_count;

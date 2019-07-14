@@ -45,7 +45,7 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['subject'] = encode_to_utf8($data['subject'], "forum_post", "posts");
+		$insert_data['subject'] = $this->board->encode_to_utf8($data['subject'], "forum_post", "posts");
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
 		if(!empty($insert_data['uid']))
 		{
@@ -53,10 +53,10 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 		}
 		else
 		{
-			$insert_data['username'] = encode_to_utf8($data['author'], "forum_post", "posts");
+			$insert_data['username'] = $this->board->encode_to_utf8($data['author'], "forum_post", "posts");
 		}
 		$insert_data['dateline'] = $data['dateline'];
-		$insert_data['message'] = encode_to_utf8($data['message'], "forum_post", "posts");
+		$insert_data['message'] = $this->board->encode_to_utf8($data['message'], "forum_post", "posts");
 		$insert_data['message'] = $this->bbcode_parser->convert_post($insert_data['message'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 		$insert_data['ipaddress'] = my_inet_pton($data['useip']);
 		$insert_data['includesig'] = $data['usesig'];
@@ -155,9 +155,9 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 			$import_session['threads_to_clean'] = array();
 		}
 		
-		// Get all threads for this page (1000 per page)
+		// Get all threads for this page (3000 per page)
 		$progress = 0;
-		$query = $db->simple_select("threads", "tid,closed", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['clean_threads_noposts_start'], 'limit' => 1000));
+		$query = $db->simple_select("threads", "tid,closed", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['clean_threads_noposts_start'], 'limit' => 3000));
 		while($thread = $db->fetch_array($query))
 		{
 			$clean = false;

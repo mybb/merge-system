@@ -146,7 +146,6 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 		if($this->dz_increment)
 		{
 			$this->increment_tracker('moderators');
-			$this->dz_increment = false;
 		}
 		
 		$output->print_progress("end");

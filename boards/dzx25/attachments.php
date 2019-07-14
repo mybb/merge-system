@@ -30,6 +30,8 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 	 */
 	public $test_table = "forum_attachment_0";
 	
+	private $thread_cache = array();
+	
 	function get_upload_path()
 	{
 		// Get the default Discuz! attachment path/url. You should modify the path in this module's setting page.
@@ -76,7 +78,7 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 			$tableid = $attachment['tableid'];
 			if($tableid > 9 || $tableid < 0)
 			{
-				$this->debug->log->warning("import_attachments: wrong tableid '" . $tableid . "' of attachment aid #" . $attachment['aid']);
+				$this->debug->log->warning("import_attachments: wrong tableid '" . $tableid . "' of Discuz! attachment aid #" . $attachment['aid']);
 				$this->increment_tracker("attachments");
 				continue;
 			}
@@ -85,7 +87,7 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 			if(!$this->old_db->num_rows($query_attachment))
 			{
 				$this->old_db->free_result($query_attachment);
-				$this->debug->log->warning("import_attachments: wrong attachment aid #" . $attachment['aid'] . " in tableid '" . $tableid . "'");
+				$this->debug->log->warning("import_attachments: wrong Discuz! attachment aid #" . $attachment['aid'] . " in tableid '" . $tableid . "'");
 				$this->increment_tracker("attachments");
 				continue;
 			}
@@ -111,6 +113,13 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 		}
 	}
 	
+	public function insert($data)
+	{
+		parent::insert($data);
+		
+		flush();
+	}
+	
 	function convert_data($data)
 	{
 		$insert_data = array();
@@ -122,7 +131,7 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['pid'] = $post_details['pid'];
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
 		
-		$insert_data['filename'] = encode_to_utf8($data['filename'], $data['table_name'], "attachments");
+		$insert_data['filename'] = $this->board->encode_to_utf8($data['filename'], $data['table_name'], "attachments");
 		$insert_data['filesize'] = $data['filesize'];
 		
 		$month_dir = gmdate("Ym", $data['dateline']);

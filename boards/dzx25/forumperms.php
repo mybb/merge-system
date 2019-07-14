@@ -111,6 +111,8 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 		
 		if($data['import_gid'] == -1)
 		{
+			$output->print_progress("start");
+			$output->print_progress("end");
 			$this->increment_tracker('forumperms');
 			return;
 		}
@@ -263,7 +265,7 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	}
 	
 	/**
-	 * Cleanup any duplicated record of a same usergroup on the same forum.
+	 * Merge duplicated records of a same usergroup on the same forum.
 	 */
 	function cleanup()
 	{

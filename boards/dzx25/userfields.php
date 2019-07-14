@@ -72,6 +72,8 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 	{
 		global $db, $output;
 		
+		$this->ufid_found = false;
+		
 		$this->debug->log->datatrace('$data', $data);
 		
 		$output->print_progress("start", $data[$this->settings['progress_column']]);
@@ -97,9 +99,11 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 			// Update a ufid record.
 			if(defined("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE") && DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE)
 			{
+				$output->print_progress("merge_user", array('import_uid' => $ufid, 'duplicate_uid' => $ufid));
 				$db->update_query("userfields", $insert_array, "ufid = '{$ufid}'");
+				
+				$updated = true;
 			}
-			$this->ufid_found = false;
 		}
 		else
 		{
@@ -110,14 +114,19 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		
 		$this->increment_tracker('userfields');
 		
-		$output->print_progress("end");
+		if(!$this->ufid_found || !isset($updated))
+		{
+			$output->print_progress("end");
+		}
 		
 		return $ufid;
 	}
 	
 	function convert_data($data)
 	{
-		global $import_session, $DZ_USER_PROFILEFIELDS;
+		global $import_session;
+		
+		$DZ_USER_PROFILEFIELDS = $this->board->DZ_USER_PROFILEFIELDS;
 		
 		$insert_data = array();
 		
@@ -144,11 +153,11 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 					
 					if($profilefield['name'] == 'location')
 					{
-						$insert_data[$column] = encode_to_utf8($data['address'], $this->settings['encode_table'], "userfields");
+						$insert_data[$column] = $this->board->encode_to_utf8($data['address'], $this->settings['encode_table'], "userfields");
 					}
 					if($profilefield['name'] == 'bio')
 					{
-						$insert_data[$column] = encode_to_utf8($data['bio'], $this->settings['encode_table'], "userfields");
+						$insert_data[$column] = $this->board->encode_to_utf8($data['bio'], $this->settings['encode_table'], "userfields");
 						$insert_data[$column] = $this->bbcode_parser->convert_sig($insert_data[$column], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 					}
 					if($profilefield['name'] == 'sex')
@@ -278,7 +287,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 	
 	function fetch_total()
 	{
-		global $import_session, $DZ_USER_PROFILEFIELDS;
+		global $import_session;
 		
 		// Get number of members
 		if(!isset($import_session['total_userfields']))
@@ -290,7 +299,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		
 		$profilefields_to_import = 0;
 		$profilefields_builtin_to_import = 0;
-		foreach($DZ_USER_PROFILEFIELDS as $profilefield)
+		foreach($this->board->DZ_USER_PROFILEFIELDS as $profilefield)
 		{
 			if($profilefield['fid'] != -1)
 			{
@@ -325,7 +334,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 	
 	function pre_setup()
 	{
-		global $db, $DZ_USER_PROFILEFIELDS;
+		global $db;
 		
 		$profilefields_builtin = array(
 				'location' => array('name' => 'Location', 'fid' => -1),
@@ -337,7 +346,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		$query = $db->simple_select("profilefields", "fid,name", "name IN('".implode("','", array_column(array_values($profilefields_builtin), 'name'))."')", array('limit' => count($profilefields_builtin)));
 		while($result = $db->fetch_array($query))
 		{
-			$result_name = converter_my_strtolower($result['name']);
+			$result_name = $this->board->converter_my_strtolower($result['name']);
 			if(array_key_exists($result_name, $profilefields_builtin))
 			{
 				$profilefields_builtin[$result_name]['fid'] = $result['fid'];
@@ -345,15 +354,15 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		}
 		$db->free_result($query);
 		
-		// If this MyBB doesn't has any of the predefined profilefield, do not import it by setting `fid` in $DZ_USER_PROFILEFIELDS to -1.
+		// If this MyBB doesn't has any of the predefined profilefield, do not import it by setting `fid` in $this->board->DZ_USER_PROFILEFIELDS to -1.
 		// And also make the fid number correct, this will make sure the corresponding `userfields` column exists. 
 		for($i = 0; $i < count($profilefields_builtin); $i++)
 		{
 			foreach($profilefields_builtin as $profilefield_builtin_name => $profilefield_builtin_db_value)
 			{
-				if($DZ_USER_PROFILEFIELDS[$i]['name'] == $profilefield_builtin_name)
+				if($this->board->DZ_USER_PROFILEFIELDS[$i]['name'] == $profilefield_builtin_name)
 				{
-					$DZ_USER_PROFILEFIELDS[$i]['fid'] = $profilefield_builtin_db_value['fid'];
+					$this->board->DZ_USER_PROFILEFIELDS[$i]['fid'] = $profilefield_builtin_db_value['fid'];
 					break;
 				}
 			}

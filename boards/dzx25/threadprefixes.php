@@ -34,7 +34,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 	public $integer_fields = array(
 	);
 	
-	var $pid_found = false;
+	var $threadprefix_found = false;
 	
 	var $all_forums = array();
 	var $all_groups = array();
@@ -67,7 +67,9 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 	
 	public function insert($data)
 	{
-		global $db, $output;
+		global $db, $output, $import_session;
+		
+		$this->threadprefix_found = false;
 		
 		$this->debug->log->datatrace('$data', $data);
 		
@@ -82,24 +84,22 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		$this->debug->log->datatrace('$insert_array', $insert_array);
 		
 		$pid = 0;
-		if($this->pid_found)
+		if($this->threadprefix_found)
 		{
-			// Storing the mybbufid of a userfield to be updated.
+			// Storing the mybbufid of a userfield to be updated, and exclude some fields from being updated.
 			$pid = $insert_array['pid'];
+			unset($insert_array['pid']);
 			unset($insert_array['prefix']);
 			unset($insert_array['displaystyle']);
 		}
-		if(isset($insert_array['pid']))
-		{
-			unset($insert_array['pid']);
-		}
 		
+		$imported_threadprefix = $insert_array['import_pids'];
+		unset($insert_array['import_pids']);
 		
-		if($this->pid_found)
+		if($this->threadprefix_found)
 		{
 			// Update a record.
 			$db->update_query("threadprefixes", $insert_array, "pid = '{$pid}'");
-			$this->pid_found = false;
 		}
 		else
 		{
@@ -107,6 +107,12 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 			$db->insert_query("threadprefixes", $insert_array);
 			$pid = $db->insert_id();
 		}
+		
+		if(!isset($import_session['imported_threadprefix']))
+		{
+			$import_session['imported_threadprefix'] = array();
+		}
+		$import_session['imported_threadprefix'][$pid] = $imported_threadprefix;
 		
 		$this->increment_tracker('threadprefixes');
 		
@@ -120,11 +126,11 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		$insert_data = array();
 		
 		// Check existing user profile field record.
-		$this->pid_found = $this->check_existing_record($data['name']);
+		$this->threadprefix_found = $this->check_existing_record($data['name']);
 		
 		if(empty($this->dz_forums_threadclasses))
 		{
-			$this->dz_forums_threadclasses = $this->dz_cache_forums_threadclasses();
+			$this->dz_forums_threadclasses = $this->cache_dz_forums_threadclasses();
 		}
 		
 		if(empty($this->all_forums))
@@ -155,14 +161,14 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 			}
 		}
 		
-		if($this->pid_found !== false)
+		if($this->threadprefix_found !== false)
 		{
-			$insert_data['pid'] = $this->pid_found['pid'];
-			$insert_data['prefix'] = $this->pid_found['prefix'];
-			$insert_data['displaystyle'] = $this->pid_found['displaystyle'];
+			$insert_data['pid'] = $this->threadprefix_found['pid'];
+			$insert_data['prefix'] = $this->threadprefix_found['prefix'];
+			$insert_data['displaystyle'] = $this->threadprefix_found['displaystyle'];
 			if(array_search($insert_data['pid'], $this->all_forums) === false)
 			{
-				$insert_data['forums'] = $this->pid_found['forums'];
+				$insert_data['forums'] = $this->threadprefix_found['forums'];
 				if(defined("DZX25_CONVERTER_THREADCLASS_DEPS") && DZX25_CONVERTER_THREADCLASS_DEPS)
 				{
 					foreach($forums as $forum)
@@ -179,27 +185,27 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 				}
 				else
 				{
-					$pid_found_groups = $this->mod_usergroups;
-					foreach(explode(",", $this->pid_found['groups']) as $group)
+					$threadprefix_found_groups = $this->mod_usergroups;
+					foreach(explode(",", $this->threadprefix_found['groups']) as $group)
 					{
-						$pid_found_groups[] = $group;
+						$threadprefix_found_groups[] = $group;
 					}
-					$pid_found_groups = array_unique($pid_found_groups);
-					$insert_data['groups'] = implode(",", $pid_found_groups);
+					$threadprefix_found_groups = array_unique($threadprefix_found_groups);
+					$insert_data['groups'] = implode(",", $threadprefix_found_groups);
 				}
 			}
 			else
 			{
-				$insert_data['groups'] = $this->pid_found['groups'];
+				$insert_data['groups'] = $this->threadprefix_found['groups'];
 			}
 			
-			$insert_data['import_pids'] = implode(",", array_filter(array_unique(array_merge(explode(",", $this->pid_found['import_pids']), explode(",", $data['typeids'])))));
+			$insert_data['import_pids'] = implode(",", array_filter(array_unique(array_merge(explode(",", $this->threadprefix_found['import_pids']), explode(",", $data['typeids'])))));
 			
-			$this->pid_found = true;
+			$this->threadprefix_found = true;
 		}
 		else
 		{
-			$insert_data['prefix'] = encode_to_utf8($data['name'], $this->settings['encode_table'], "threadprefixes");
+			$insert_data['prefix'] = $this->board->encode_to_utf8($data['name'], $this->settings['encode_table'], "threadprefixes");
 			$insert_data['displaystyle'] = $insert_data['prefix'];
 			
 			if(defined("DZX25_CONVERTER_THREADCLASS_DEPS") && DZX25_CONVERTER_THREADCLASS_DEPS)
@@ -268,7 +274,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		
 		if(empty($this->dz_forums_threadclasses))
 		{
-			$this->dz_forums_threadclasses = $this->dz_cache_forums_threadclasses();
+			$this->dz_forums_threadclasses = $this->cache_dz_forums_threadclasses();
 		}
 		
 		// Update imported forums if it requires threadprefix.
@@ -277,7 +283,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 			if($threadclass['require_prefix'] == 1)
 			{
 				$fid = $this->get_import->fid($threadclass['fid']);
-				$db->update_query("forums", array('requireprefix' => 1), "fid = {$fid}");
+				$db->update_query("forums", array('requireprefix' => 1), "fid = '{$fid}'");
 			}
 		}
 	}
@@ -292,7 +298,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 	{
 		global $db;
 
-		$encoded_name = encode_to_utf8($name, $this->settings['encode_table'], "threadprefixes");
+		$encoded_name = $this->board->encode_to_utf8($name, $this->settings['encode_table'], "threadprefixes");
 		
 		$where = "prefix='".$db->escape_string($name)."' OR prefix='".$db->escape_string($encoded_name)."'";
 		$query = $db->simple_select("threadprefixes", "*", $where, array('limit' => 1));
@@ -301,7 +307,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate['prefix']) == strtolower($name) || converter_my_strtolower($duplicate['prefix']) == converter_my_strtolower($encoded_name))
+		if(strtolower($duplicate['prefix']) == strtolower($name) || $this->board->converter_my_strtolower($duplicate['prefix']) == $this->board->converter_my_strtolower($encoded_name))
 		{
 			return $duplicate;
 		}
@@ -345,7 +351,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 		return $mybb_threadprefixes_groups;
 	}
 	
-	function dz_cache_forums_threadclasses()
+	function cache_dz_forums_threadclasses()
 	{
 		$dz_forums_threadclasses = array();
 		

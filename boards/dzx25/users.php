@@ -225,13 +225,17 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		// Usergroup
 		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE") && DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE))
 		{
-			$insert_data['usergroup'] = $this->board->get_gid($data['groupid']);
 			$insert_data['import_usergroup'] = $data['groupid'];
+			$insert_data['usergroup'] = $this->board->get_gid($data['groupid']);
 			if($data['extgroupids'])
 			{
 				$addtional_groups = implode(",", array_unique(array_filter(explode("\t", $data['extgroupids']))));
-				$insert_data['additionalgroups'] = $this->board->get_group_id($addtional_groups, array(MYBB_ADMINS, MYBB_SMODS));
 				$insert_data['import_additionalgroups'] = $addtional_groups;
+				$insert_data['additionalgroups'] = $this->board->get_group_id($addtional_groups, array(MYBB_ADMINS, MYBB_SMODS, $insert_data['usergroup']));
+				if(!empty($insert_data['additionalgroups']))
+				{
+					unset($insert_data['additionalgroups']);
+				}
 			}
 		}
 		

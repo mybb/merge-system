@@ -19,9 +19,9 @@ if(!defined("IN_MYBB"))
 /*************************************
  *********** Configuration ***********
  *************************************/
-//define("UCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
+//define("DZUCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
 
-class UCENTER_Converter extends Converter
+class DZUCENTER_Converter extends Converter
 {
 	
 	/**
@@ -101,7 +101,7 @@ class UCENTER_Converter extends Converter
 	 * @param string $new_table_name The new table (e.x. MyBB's user table)
 	 * @return string The converted text in utf8 format
 	 */
-	function encode_to_utf8($text, $old_table_name, $new_table_name)
+	public function encode_to_utf8($text, $old_table_name, $new_table_name)
 	{
 		global $import_session, $db, $module;
 		
@@ -182,7 +182,7 @@ class UCENTER_Converter extends Converter
 	* @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
 	* @return int The length of the string.
 	*/
-	function converter_my_strlen($string, $mb_encoding = "")
+	public function converter_my_strlen($string, $mb_encoding = "")
 	{
 		global $lang;
 		
@@ -224,7 +224,7 @@ class UCENTER_Converter extends Converter
 	 * @param string $string The encoding of $string, see https://www.php.net/manual/en/mbstring.supported-encodings.php
 	 * @return string The lowered string.
 	 */
-	function converter_my_strtolower($string, $mb_encoding = "")
+	public function converter_my_strtolower($string, $mb_encoding = "")
 	{
 		if(function_exists("mb_strtolower"))
 		{
@@ -250,7 +250,7 @@ class UCENTER_Converter extends Converter
 	 * @param string $mysql_encoding The MySQL encoding
 	 * @return string The mbstring encoding
 	 */
-	function fetch_mbstring_encoding($mysql_encoding)
+	public function fetch_mbstring_encoding($mysql_encoding)
 	{
 		$mysql_encoding = explode("_", $mysql_encoding);
 		switch($mysql_encoding[0])
@@ -292,7 +292,7 @@ class UCENTER_Converter extends Converter
 	{
 		global $db;
 		
-		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
 		
 		// Check for duplicate users
 		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
@@ -342,7 +342,7 @@ class UCENTER_Converter extends Converter
 	{
 		global $db;
 		
-		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
 		
 		// Check for duplicate users
 		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
@@ -352,7 +352,7 @@ class UCENTER_Converter extends Converter
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
 		{
 			return $user['import_uid'];
 		}
@@ -367,7 +367,7 @@ class UCENTER_Converter extends Converter
 	 * @param bool $old_table Optional, if it's a MyBB table, set it to false.
 	 * @return string The encoding of this table.
 	 */
-	function fetch_table_encoding($table_name, $old_table = true)
+	public function fetch_table_encoding($table_name, $old_table = true)
 	{
 		global $import_session, $db, $module;
 		

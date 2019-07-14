@@ -112,7 +112,9 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 	
 	function import()
 	{
-		global $import_session, $DZ_USER_PROFILEFIELDS;
+		global $import_session;
+		
+		$DZ_USER_PROFILEFIELDS = $this->board->DZ_USER_PROFILEFIELDS;
 		
 		$idx = (int) $this->trackers['start_profilefields'];
 		for($i = $idx; $i <= $idx + $import_session['profilefields_per_screen']; $i++)
@@ -143,10 +145,9 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 						{
 							if(!empty($value['title']))
 							{
-								$this->dz_extcredits[$key]['title'] = encode_to_utf8($value['title'], $profilefield['old_def_table'], "profilefields");
+								$this->dz_extcredits[$key]['title'] = $this->board->encode_to_utf8($value['title'], $profilefield['old_def_table'], "profilefields");
 							}
 						}
-						
 					}
 					$rows = count($this->dz_extcredits);
 					$inserted = 0;
@@ -174,9 +175,9 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 						$query = $this->old_db->simple_select("forum_medal", "medalid,name,description,available");
 						while($medal = $this->old_db->fetch_array($query))
 						{
-							$medal_encode_name = encode_to_utf8($medal['name'], $profilefield['old_def_table'], "profilefields");
-							$medal_encode_description = encode_to_utf8($medal['description'], $profilefield['old_def_table'], "profilefields");
-							$this->dz_medals[] = array('id' => $medal['medalid'], 'name' => $medal_encode_name, 'description' => $medal_encode_description, 'available' => $medal['available']);
+							$medal_encoded_name = $this->board->encode_to_utf8($medal['name'], $profilefield['old_def_table'], "profilefields");
+							$medal_encoded_description = $this->board->encode_to_utf8($medal['description'], $profilefield['old_def_table'], "profilefields");
+							$this->dz_medals[] = array('id' => $medal['medalid'], 'name' => $medal_encoded_name, 'description' => $medal_encoded_description, 'available' => $medal['available']);
 						}
 						$this->old_db->free_result($query);
 					}
@@ -310,13 +311,13 @@ class DZX25_Converter_Module_Profilefields extends Converter_Module
 	
 	function fetch_total()
 	{
-		global $import_session, $DZ_USER_PROFILEFIELDS;
+		global $import_session;
 		
 		// Get number of profilefields to import.
 		if(!isset($import_session['total_profilefields']))
 		{
 			$import_session['total_profilefields'] = 0;
-			foreach($DZ_USER_PROFILEFIELDS as $value)
+			foreach($this->board->DZ_USER_PROFILEFIELDS as $value)
 			{
 				if($value['fid'] == 0)
 				{

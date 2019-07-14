@@ -24,6 +24,8 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 	function __construct($converter_class)
 	{
 		parent::__construct($converter_class);
+		
+		// Fix base class's issue.
 		$this->default_values['closed'] = '';
 		$index = array_search('closed', $this->integer_fields);
 		if($index !== false)
@@ -63,15 +65,15 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		$insert_data['import_poll'] = $data['tid'];
 		
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['subject'] = encode_to_utf8($data['subject'], "forum_thread", "threads");
+		$insert_data['subject'] = $this->board->encode_to_utf8($data['subject'], "forum_thread", "threads");
 		if($data['typeid'])
 		{
-			$insert_data['prefix'] = $this->get_import->threadprefix(intval($data['typeid']));
+			$insert_data['prefix'] = $this->board->threadprefix(intval($data['typeid']));
 		}
 		$insert_data['uid'] = $this->get_import->uid($data['authorid']);
 		if(empty($insert_data['uid']))
 		{
-			$insert_data['username'] = encode_to_utf8($data['author'], "forum_thread", "threads");
+			$insert_data['username'] = $this->board->encode_to_utf8($data['author'], "forum_thread", "threads");
 		}
 		
 		$insert_data['dateline'] = $data['dateline'];
@@ -101,7 +103,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 					$insert_data['lastposteruid'] = 0;
 					if(!empty($data['lastposter']))
 					{
-						$insert_data['lastposter'] = encode_to_utf8($data['lastposter'], "forum_thread", "threads");
+						$insert_data['lastposter'] = $this->board->encode_to_utf8($data['lastposter'], "forum_thread", "threads");
 					}
 					else
 					{

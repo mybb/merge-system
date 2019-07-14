@@ -882,10 +882,8 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		// A string "__none__" means the converter's module is directly derived from class Converter_Module.
 		if(isset($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] != "__none__")
 		{
-			foreach(explode(',', $board->modules[$import_session['module']]['class_depencencies']) as $classname)
-			{
-				require_once MERGE_ROOT."resources/modules/{$classname}.php";
-			}
+			$module_dep_classname = $board->modules[$import_session['module']]['class_depencencies'];
+			require_once MERGE_ROOT."resources/modules/{$module_dep_classname}.php";
 		}
 		else if($board->modules[$import_session['module']]['class_depencencies'] == "__none__")
 		{

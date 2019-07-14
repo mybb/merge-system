@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2014 MyBB Group, All Rights Reserved
+ * Copyright 2019 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
@@ -98,8 +98,8 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 		{
 			$insert_data['uid'] = $uid;
 		}
-		$insert_data['subject'] = encode_to_utf8($data['subject'], $this->settings['encode_table'], "announcements");
-		$insert_data['message'] = encode_to_utf8($data['message'], $this->settings['encode_table'], "announcements");
+		$insert_data['subject'] = $this->board->encode_to_utf8($data['subject'], $this->settings['encode_table'], "announcements");
+		$insert_data['message'] = $this->board->encode_to_utf8($data['message'], $this->settings['encode_table'], "announcements");
 		$insert_data['message'] = $this->bbcode_parser->convert_post($insert_data['message'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 		$insert_data['startdate'] = $data['starttime'];
 		$insert_data['enddate'] = $data['endtime'];
@@ -120,28 +120,6 @@ class DZX25_Converter_Module_Announcements extends Converter_Module {
 		}
 		
 		return $import_session['total_announcements'];
-	}
-	
-	function get_uid($username)
-	{
-		global $db;
-		
-		$encoded_username = encode_to_utf8($username, $this->settings['encode_table_users'], "users");
-		
-		// Check for duplicate users
-		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
-		$query = $db->simple_select("users", "username,uid", $where, array('limit' => 1));
-		$user = $db->fetch_array($query);
-		$db->free_result($query);
-		
-		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
-		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
-		{
-			return $user['uid'];
-		}
-		
-		return false;
 	}
 }
 

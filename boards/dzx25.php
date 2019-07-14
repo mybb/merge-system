@@ -111,10 +111,10 @@ class DZX25_Converter extends Converter
 			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customized converter module
+			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
 			"import_forumperms"			=> array("name" => "Forum Permissions", "dependencies" => "db_configuration,import_forums,import_usergroups"),
 			"import_moderators"			=> array("name" => "Moderators", "dependencies" => "db_configuration,import_forums,import_users"),
-			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_threads"			=> array("name" => "Threads", "dependencies" => "db_configuration,import_forums,import_users,import_threadprefixes"),
 			"import_polls"				=> array("name" => "Polls", "dependencies" => "db_configuration,import_threads"),
 			"import_pollvotes"			=> array("name" => "Poll Votes", "dependencies" => "db_configuration,import_polls"),
@@ -160,7 +160,10 @@ class DZX25_Converter extends Converter
 
 	);
 	
-	var $get_post_cache = array();
+	/**
+	 * Cache for threadprefixes
+	 */
+	var $cache_threadprefixes;
 	
 	/*****
 	 * Convert any user profilefield to MyBB? Settings are:
@@ -415,8 +418,72 @@ class DZX25_Converter extends Converter
 		}
 	}
 	
-	/////// reviewed here.
+	/**
+	 * Finds a table's encoding.
+	 *
+	 * @param string $table_name The table name.
+	 * @param bool $old_table Optional, if it's a MyBB table, set it to false.
+	 * @return string The encoding of this table.
+	 */
+	public function fetch_table_encoding($table_name, $old_table = true)
+	{
+		global $import_session, $db, $module;
+		
+		if($old_table)
+		{
+			$table_name = OLD_TABLE_PREFIX.$table_name;
+		}
+		else
+		{
+			$table_name = TABLE_PREFIX.$table_name;
+		}
+		
+		if($old_table && empty($import_session['table_charset_old'][$table_name]))
+		{
+			$old_old_db_table_prefix = $module->old_db->table_prefix;
+			$module->old_db->set_table_prefix('');
+			
+			$table = $module->old_db->show_create_table($table_name);
+			preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
+			$module->old_db->set_table_prefix($old_old_db_table_prefix);
+			
+			$import_session['table_charset_old'][$table_name] = $old_charset[1];
+		}
+		else if(!$old_table && empty($import_session['table_charset_new'][$table_name]))
+		{
+			$old_table_prefix = $db->table_prefix;
+			$db->set_table_prefix('');
+			
+			$table = $db->show_create_table($table_name);
+			preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
+			$db->set_table_prefix($old_table_prefix);
+			
+			$import_session['table_charset_new'][$table_name] = $new_charset[1];
+		}
+		
+		$mysql_encoding = $old_table ? $import_session['table_charset_old'][$table_name] : $import_session['table_charset_new'][$table_name];
+		
+		$mysql_encoding = explode("_", $mysql_encoding);
+		switch($mysql_encoding[0])
+		{
+			case "utf8":
+			case "utf8mb4":
+				return "UTF-8";
+				break;
+			case "latin1":
+				return "ISO-8859-1";
+				break;
+			default:
+				return $mysql_encoding[0];
+		}
+	}
 	
+	/**
+	 * Unserialize function specialized in Discuz! X2.5
+	 *
+	 * @param string $str The serialized string of an array.
+	 * @return mixed The unserialize array or other types of values.
+	 */
 	public function dz_unserialize($str)
 	{
 		$result = unserialize($str);
@@ -437,7 +504,7 @@ class DZX25_Converter extends Converter
 	{
 		global $db;
 		
-		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
 		
 		// Check for duplicate users
 		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
@@ -447,13 +514,14 @@ class DZX25_Converter extends Converter
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
 		{
 			return $user['uid'];
 		}
 		
 		return false;
 	}
+	
 	/**
 	 * Get the username of a given uid
 	 *
@@ -478,6 +546,56 @@ class DZX25_Converter extends Converter
 	}
 	
 	/**
+	 * Get an array of imported threadprefixes (e.x. array Discuz! threadclass typeid => MyBB threadprefixes pid)
+	 *
+	 * @return array|false
+	 */
+	function cache_threadprefixes()
+	{
+		global $import_session;
+		
+		$prefixes = array();
+		
+		if(isset($import_session['imported_threadprefix']))
+		{
+			foreach($import_session['imported_threadprefix'] as $pid => $imported_pids)
+			{
+				$prefix_ids = explode(",", $imported_pids);
+				foreach($prefix_ids as $prefix_id)
+				{
+					$prefixes[empty($prefix_id) ? 0 : $prefix_id] = $pid;
+				}
+			}
+		}
+		
+		return $prefixes;
+	}
+	
+	/**
+	 * Get the MyBB threadprefix ID of an old threadprefix. (e.x. Discuz! threadclass typeid)
+	 *
+	 * @param int $old_threadprefix Post prefixclass ID used before import
+	 * @return int Post prefix ID in MyBB
+	 */
+	public function threadprefix($old_threadprefix)
+	{
+		if(!is_array($this->cache_threadprefixes))
+		{
+			$this->cache_threadprefixes();
+		}
+		
+		if(!isset($this->cache_threadprefixes[$old_threadprefix]) || $old_threadprefix == 0)
+		{
+			return 0;
+		}
+		
+		return $this->cache_threadprefixes[$old_threadprefix];
+	}
+	
+	/////// reviewed here.
+	
+
+	/**
 	 * Get the import_uid of a given username
 	 *
 	 * @param string $username of a user
@@ -487,7 +605,7 @@ class DZX25_Converter extends Converter
 	{
 		global $db;
 		
-		$encoded_username = encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
 		
 		// Check for duplicate users
 		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
@@ -497,24 +615,15 @@ class DZX25_Converter extends Converter
 		
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || converter_my_strtolower($user['username']) == converter_my_strtolower($encoded_username))
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
 		{
 			return $user['import_uid'];
 		}
 		
 		return false;
 	}
-	/**
-	 * Get a table's encoding.
-	 *
-	 * @param string $table_name The table name.
-	 * @return string The encoding of this table.
-	 */
-	public function fetch_table_encoding($table_name)
-	{
-		$encoding = fetch_table_encoding($table_name);
-		return $encoding;
-	}
+	
+
 }
 
 

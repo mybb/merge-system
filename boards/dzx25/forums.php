@@ -51,8 +51,8 @@ class DZX25_Converter_Module_Forums extends Converter_Module_Forums {
 		// Discuz! values
 		$insert_data['import_fid'] = $data['fid'];
 		$insert_data['import_pid'] = $data['fup'];
-		$insert_data['name'] = encode_to_utf8($data['name'], "forum_forum", "forums");
-		$insert_data['description'] = encode_to_utf8($data['description'], "forum_forum", "forums");
+		$insert_data['name'] = $this->board->encode_to_utf8($data['name'], "forum_forum", "forums");
+		$insert_data['description'] = $this->board->encode_to_utf8($data['description'], "forum_forum", "forums");
 		$insert_data['linkto'] = $data['redirect'];
 		
 		if($data['type'] == 'group')
