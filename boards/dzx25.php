@@ -32,11 +32,11 @@ define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
  * Overwrite some user data when importing more than one Discuz!.
  * If set to false, user profiles will contain data mostly from the first converted Discuz!. User's last status, such as lastvisit, lastactivity, etc., will still be overwriten with very recent values.
  */
-define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", true);
+define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", false);
 /**
  * If set to false, user groups will contain values from the first converted Discuz!.
  */
-define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", true);
+define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", false);
 /**
  * If set to true, all mod permissions of imported moderators will be invalidated.
  */
@@ -49,25 +49,6 @@ define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
  * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
  */
 define("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
-// /** Path for Discuz! X2.5 uploaded attachments. The folder of a Discuz! X2.5 uploaded attachements usually contains:
-//  * 	[dir] album (may not appear in early X2.5 versions)
-//  * 	[dir] block (may not appear in the final X2.5 version)
-//  * 	[dir] category (may not appear in early X2.5 versions)
-//  * 	[dir] common (may not appear in early X2.5 versions)
-//  * 	[dir] forum <---- This is the place where we will import the attachments.
-//  * 	[dir] group (may not appear in early X2.5 versions)
-//  * 	[dir] image (may not appear in the final X2.5 version)
-//  * 	[dir] portal
-//  * 	[dir] profile (may not appear in early X2.5 versions)
-//  * 	[dir] swfupload (may not appear in early X2.5 versions)
-//  * 	[dir] temp
-//  * The importer will check following path or URL defines in order. If one is not empty, the importer will use it as a path or URL to the old Discuz! X2.5 attachments root. Otherwise, it will get `attachdir` and `attachurl` from the Discuz! database. First check if `attachurl` starts with a http:// or https:// or ftp:// protocol. Use `attachurl` if true, or use `attachdir` if false.
-//  * Check this wiki page for more: https://github.com/yuliu/mybb-merge-system/wiki/import_attachments
-//  */ 
-// // The importer uses this define first, if it's not empty. It should be set to the Discuz! attachments root path that PHP can access, with a trailing slash. Path of a absolute or relative one is accepted. A path starts with `./` is considered relative to the MyBB Merge System. An example for this define is `../discuz/`
-// define("DXZ25_CONVERTER_DZX_UPLOAD_PATH", "");
-// // The importer then check this define if it's not empty. It should be set to the Discuz! attachments root URL that PHP can access, with a trailing slash. An example for this define is `http://your_domain/path/to/discuz/uploads/`
-// define("DXZ25_CONVERTER_DZX_UPLOAD_URL", "");
 /**
  * Re-check an attachment file's mime type using PHP mime_content_type after it has been stored in MyBB uploads. This action does rely on your PHP's ability, thus if you use an old version of PHP, better turn this define to false.
  */
@@ -109,7 +90,7 @@ class DZX25_Converter extends Converter
 			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
 			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
 			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
-			"import_userfields"			=> array("name" => "Extended User Profile Infos", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customized converter module
+			"import_userfields"			=> array("name" => "Extended User Profile Information", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_threadprefixes"		=> array("name" => "Thread Prefixes", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_forums"				=> array("name" => "Forums", "dependencies" => "db_configuration"),
@@ -151,9 +132,15 @@ class DZX25_Converter extends Converter
 			6 => MYBB_BANNED, // Discuz!: Banned from visiting whole site
 			7 => MYBB_GUESTS, // Guests
 			8 => MYBB_AWAITING, // Awaiting Activation
-			/* Discuz! normal user groups starts here, uncomment following lines and add more to convert all non-privileged or banned/awaiting user to MYBB_REGISTERED. */
-//			9 => MYBB_REGISTERED, // Registered, Discuz!: any user in this group usually has a negative credit (like post number), so some permissions are denied
-//			10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user
+			/***
+			 * Discuz! normal user groups starts here, uncomment following lines 
+			 * and add more to convert all non-privileged or banned/awaiting user 
+			 * to MYBB_REGISTERED.
+			 * 9 => MYBB_REGISTERED, Registered, Discuz!: any user in this group usually has a negative credit, so some permissions are denied.
+			 * 10 => MYBB_REGISTERED, // Registered, Discuz!: a real normal registered user.
+			 */
+//			9 => MYBB_REGISTERED,
+//			10 => MYBB_REGISTERED,
 	);
 	
 	var $column_length_to_check = array(
@@ -592,9 +579,7 @@ class DZX25_Converter extends Converter
 		return $this->cache_threadprefixes[$old_threadprefix];
 	}
 	
-	/////// reviewed here.
-	
-
+	// Functions below are reserved for future use.
 	/**
 	 * Get the import_uid of a given username
 	 *
@@ -622,8 +607,6 @@ class DZX25_Converter extends Converter
 		
 		return false;
 	}
-	
-
 }
 
 

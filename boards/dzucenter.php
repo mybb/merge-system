@@ -19,6 +19,9 @@ if(!defined("IN_MYBB"))
 /*************************************
  *********** Configuration ***********
  *************************************/
+/**
+ * Define of a user's last visit/active timestamp, if they're not provided in your old database.
+ */
 //define("DZUCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
 
 class DZUCENTER_Converter extends Converter
@@ -270,96 +273,6 @@ class DZUCENTER_Converter extends Converter
 		}
 	}
 	
-	/////// reviewed here.
-	
-	public function dz_unserialize($str)
-	{
-		$result = unserialize($str);
-		if($result === false)
-		{
-			$result = unserialize(stripslashes($str));
-		}
-		return $result;
-	}
-	
-	/**
-	 * Get the uid of a given username
-	 *
-	 * @param string $username of a user
-	 * @return int|bool The uid in MyBB or false if the username is not found.
-	 */
-	public function dz_get_uid($username, $encode_table = "")
-	{
-		global $db;
-		
-		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
-		
-		// Check for duplicate users
-		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
-		$query = $db->simple_select("users", "username,uid", $where, array('limit' => 1));
-		$user = $db->fetch_array($query);
-		$db->free_result($query);
-		
-		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
-		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
-		{
-			return $user['uid'];
-		}
-		
-		return false;
-	}
-	/**
-	 * Get the username of a given uid
-	 *
-	 * @param int $uid The uid of a user
-	 * @return string The username in MyBB or false if the uid is not found.
-	 */
-	public function dz_get_username($uid)
-	{
-		global $db;
-		
-		// Check for duplicate users
-		$query = $db->simple_select("users", "username", "uid = {$uid}", array('limit' => 1));
-		$username = $db->fetch_field($query, "username");
-		$db->free_result($query);
-		
-		if(empty($username))
-		{
-			return false;
-		}
-		
-		return $username;
-	}
-	
-	/**
-	 * Get the import_uid of a given username
-	 *
-	 * @param string $username of a user
-	 * @return int|bool The uid in old Discuz! DB or false if the username is not found.
-	 */
-	public function dz_get_import_uid($username, $encode_table = "")
-	{
-		global $db;
-		
-		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
-		
-		// Check for duplicate users
-		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
-		$query = $db->simple_select("users", "username,import_uid", $where, array('limit' => 1));
-		$user = $db->fetch_array($query);
-		$db->free_result($query);
-		
-		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
-		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
-		{
-			return $user['import_uid'];
-		}
-		
-		return false;
-	}
-	
 	/**
 	 * Finds a table's encoding.
 	 *
@@ -418,6 +331,149 @@ class DZUCENTER_Converter extends Converter
 			default:
 				return $mysql_encoding[0];
 		}
+	}
+	
+	/**
+	 * Unserialize function specialized in Discuz! X2.5
+	 *
+	 * @param string $str The serialized string of an array.
+	 * @return mixed The unserialize array or other types of values.
+	 */
+	public function dz_unserialize($str)
+	{
+		$result = unserialize($str);
+		if($result === false)
+		{
+			$result = unserialize(stripslashes($str));
+		}
+		return $result;
+	}
+	
+	/**
+	 * Get the uid of a given username
+	 *
+	 * @param string $username of a user
+	 * @return int|bool The uid in MyBB or false if the username is not found.
+	 */
+	public function dz_get_uid($username, $encode_table = "")
+	{
+		global $db;
+		
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		
+		// Check for duplicate users
+		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
+		$query = $db->simple_select("users", "username,uid", $where, array('limit' => 1));
+		$user = $db->fetch_array($query);
+		$db->free_result($query);
+		
+		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
+		// If we used LOWER() function in the query the index wouldn't be used by MySQL
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
+		{
+			return $user['uid'];
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get the username of a given uid
+	 *
+	 * @param int $uid The uid of a user
+	 * @return string The username in MyBB or false if the uid is not found.
+	 */
+	public function dz_get_username($uid)
+	{
+		global $db;
+		
+		// Check for duplicate users
+		$query = $db->simple_select("users", "username", "uid = {$uid}", array('limit' => 1));
+		$username = $db->fetch_field($query, "username");
+		$db->free_result($query);
+		
+		if(empty($username))
+		{
+			return false;
+		}
+		
+		return $username;
+	}
+	
+	/**
+	 * Get an array of imported threadprefixes (e.x. array Discuz! threadclass typeid => MyBB threadprefixes pid)
+	 *
+	 * @return array|false
+	 */
+	function cache_threadprefixes()
+	{
+		global $import_session;
+		
+		$prefixes = array();
+		
+		if(isset($import_session['imported_threadprefix']))
+		{
+			foreach($import_session['imported_threadprefix'] as $pid => $imported_pids)
+			{
+				$prefix_ids = explode(",", $imported_pids);
+				foreach($prefix_ids as $prefix_id)
+				{
+					$prefixes[empty($prefix_id) ? 0 : $prefix_id] = $pid;
+				}
+			}
+		}
+		
+		return $prefixes;
+	}
+	
+	/**
+	 * Get the MyBB threadprefix ID of an old threadprefix. (e.x. Discuz! threadclass typeid)
+	 *
+	 * @param int $old_threadprefix Post prefixclass ID used before import
+	 * @return int Post prefix ID in MyBB
+	 */
+	public function threadprefix($old_threadprefix)
+	{
+		if(!is_array($this->cache_threadprefixes))
+		{
+			$this->cache_threadprefixes();
+		}
+		
+		if(!isset($this->cache_threadprefixes[$old_threadprefix]) || $old_threadprefix == 0)
+		{
+			return 0;
+		}
+		
+		return $this->cache_threadprefixes[$old_threadprefix];
+	}
+	
+	// Functions below are reserved for future use.
+	/**
+	 * Get the import_uid of a given username
+	 *
+	 * @param string $username of a user
+	 * @return int|bool The uid in old Discuz! DB or false if the username is not found.
+	 */
+	public function dz_get_import_uid($username, $encode_table = "")
+	{
+		global $db;
+		
+		$encoded_username = $this->encode_to_utf8($username, empty($encode_table) ? "common_member" : $encode_table, "users");
+		
+		// Check for duplicate users
+		$where = "username='".$db->escape_string($username)."' OR username='".$db->escape_string($encoded_username)."'";
+		$query = $db->simple_select("users", "username,import_uid", $where, array('limit' => 1));
+		$user = $db->fetch_array($query);
+		$db->free_result($query);
+		
+		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
+		// If we used LOWER() function in the query the index wouldn't be used by MySQL
+		if(strtolower($user['username']) == strtolower($username) || $this->converter_my_strtolower($user['username']) == $this->converter_my_strtolower($encoded_username))
+		{
+			return $user['import_uid'];
+		}
+		
+		return false;
 	}
 }
 

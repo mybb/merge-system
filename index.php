@@ -757,7 +757,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o%'");
 	while($post = $db->fetch_array($query))
 	{
-		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT NOT FOUND]", $post['message']);
+		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT_NOT_FOUND_\\1]", $post['message']);
 		$db->update_query("posts", array("message" => $db->escape_string($message)), "pid={$post['pid']}");
 	}
 

@@ -128,8 +128,16 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$insert_data['import_aid'] = $data['aid'];
 		
 		$post_details = $this->get_import->post_attachment_details($data['pid']);
-		$insert_data['pid'] = $post_details['pid'];
-		$insert_data['uid'] = $this->get_import->uid($data['uid']);
+		if(empty($post_details))
+		{
+			$insert_data['pid'] = 0;
+			$insert_data['uid'] = 0;
+		}
+		else
+		{
+			$insert_data['pid'] = $post_details['pid'];
+			$insert_data['uid'] = $post_details['uid'];
+		}
 		
 		$insert_data['filename'] = $this->board->encode_to_utf8($data['filename'], $data['table_name'], "attachments");
 		$insert_data['filesize'] = $data['filesize'];
