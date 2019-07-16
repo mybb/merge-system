@@ -379,10 +379,9 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		{
 			// Have to check email in UTF-8 format also.
 			$encoded_email = $this->board->encode_to_utf8($user[$this->settings['email_column']], $this->settings['encode_table'], "users");
-			// If a user is imported from UCenter, he may have a cut-off email address as the email field in UCenter is CHAR(32).
 			$email_pos = empty($duplicate_user['email']) ? -1 : strpos($encoded_email, $duplicate_user['email']);
 			$email_length = strlen($duplicate_user['email']);
-			if($encoded_email == $duplicate_user['email'] || ($email_pos !== false && $email_pos == 0 && $email_length == 32))
+			if($encoded_email == $duplicate_user['email'] || (defined("DZUCENTER_CONVERTER_USERS_FIX_EMAIL") && DZUCENTER_CONVERTER_USERS_FIX_EMAIL && $email_pos !== false && $email_pos == 0 && $email_length == 32))
 			{
 				$this->user_found = true;
 				return $duplicate_user;

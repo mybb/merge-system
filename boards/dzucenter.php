@@ -20,6 +20,10 @@ if(!defined("IN_MYBB"))
  *********** Configuration ***********
  *************************************/
 /**
+ * Try to find email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
+ */
+define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
+/**
  * Define of a user's last visit/active timestamp, if they're not provided in your old database.
  */
 //define("DZUCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
@@ -126,9 +130,11 @@ class DZUCENTER_Converter extends Converter
 			$module->old_db->set_table_prefix('');
 			
 			$table = $module->old_db->show_create_table($old_table_name);
+			$old_charset = array();
 			preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
 			
 			$table = $db->show_create_table($new_table_name);
+			$new_charset = array();
 			preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
 			
 			$db->set_table_prefix($old_table_prefix);
@@ -299,6 +305,7 @@ class DZUCENTER_Converter extends Converter
 			$module->old_db->set_table_prefix('');
 			
 			$table = $module->old_db->show_create_table($table_name);
+			$old_charset = array();
 			preg_match("#CHARSET=(\S*)#i", $table, $old_charset);
 			$module->old_db->set_table_prefix($old_old_db_table_prefix);
 			
@@ -310,6 +317,7 @@ class DZUCENTER_Converter extends Converter
 			$db->set_table_prefix('');
 			
 			$table = $db->show_create_table($table_name);
+			$new_charset = array();
 			preg_match("#CHARSET=(\S*)#i", $table, $new_charset);
 			$db->set_table_prefix($old_table_prefix);
 			

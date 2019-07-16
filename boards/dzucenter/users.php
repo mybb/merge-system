@@ -142,10 +142,9 @@ class DZUCENTER_Converter_Module_Users extends Converter_Module_Users {
 		{
 			// Have to check email in UTF-8 format also.
 			$encoded_email = $this->board->encode_to_utf8($user[$this->settings['email_column']], $this->settings['encode_table'], "users");
-			// In UCenter, a user may have a shorter email address as the email field is CHAR(32).
 			$email_pos = empty($duplicate_user['email']) ? -1 : strpos($duplicate_user['email'], $encoded_email);
 			$email_length = strlen($user[$this->settings['email_column']]);
-			if($encoded_email == $duplicate_user['email'] || ($email_pos !== false && $email_pos == 0 && $email_length == 32))
+			if($encoded_email == $duplicate_user['email'] || (defined("DZUCENTER_CONVERTER_USERS_FIX_EMAIL") && DZUCENTER_CONVERTER_USERS_FIX_EMAIL && $email_pos !== false && $email_pos == 0 && $email_length == 32))
 			{
 				$output->print_progress("start");
 				$output->print_progress("merge_user", array('import_uid' => $user[$this->settings['progress_column']], 'duplicate_uid' => $duplicate_user['uid']));
