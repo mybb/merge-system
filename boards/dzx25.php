@@ -19,6 +19,12 @@ if(!defined("IN_MYBB"))
 /*************************************
  *********** Configuration ***********
  *************************************/
+/**
+ * Set it to true, if you've already set up your MyBB forum settings, and then the `users` module will not require dependency 
+ * on the `settings` module. Otherwise a false value of this constant will cause overwriting some forum settings with values 
+ * from this import. The `users` module depends the correct setting of time zone of MyBB setting.
+ */
+define("DZX25_CONVERTER_MYBB_IS_SET", false);
 /** 
  * Convert thread class from Discuz! to thread prefixes in MyBB without setting any permission on forum using and group using.
  * If its value is true, the converter will require dependencies of the import of forums and usergroups. Otherwise, no dependency is required.
@@ -92,7 +98,7 @@ class DZX25_Converter extends Converter
 			"db_configuration"			=> array("name" => "Database Configuration", "dependencies" => ""),
 			"import_settings"			=> array("name" => "Settings", "dependencies" => "db_configuration"),
 			"import_usergroups"			=> array("name" => "Usergroups", "dependencies" => "db_configuration"),
-			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_settings,import_usergroups"),
+			"import_users"				=> array("name" => "Users", "dependencies" => "db_configuration,import_usergroups"),
 			"import_profilefields"		=> array("name" => "Extended User Profile Fields", "dependencies" => "db_configuration", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_userfields"			=> array("name" => "Extended User Profile Information", "dependencies" => "db_configuration,import_users,import_profilefields", "class_depencencies" => "__none__"),	// Customized converter module
 			"import_announcements"		=> array("name" => "Announcements", "dependencies" => "db_configuration,import_users", "class_depencencies" => "__none__"),	// Customized converter module
@@ -123,7 +129,7 @@ class DZX25_Converter extends Converter
 	var $prefix_suggestion = "dz_";
 	
 	/**
-	 * An array of smf -> mybb groups
+	 * An array of discuz -> mybb groups
 	 *
 	 * @var array
 	 */
@@ -229,6 +235,10 @@ class DZX25_Converter extends Converter
 		if(defined("DZX25_CONVERTER_THREADCLASS_DEPS") && DZX25_CONVERTER_THREADCLASS_DEPS && isset($this->modules))
 		{
 			$this->modules['import_threadprefixes']['dependencies'] = 'db_configuration,import_forums,import_usergroups';
+		}
+		if(defined("DZX25_CONVERTER_MYBB_IS_SET") && !DZX25_CONVERTER_MYBB_IS_SET && isset($this->modules))
+		{
+			$this->modules['import_users']['dependencies'] = 'db_configuration,import_settings,import_usergroups';
 		}
 	}
 	

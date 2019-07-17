@@ -81,7 +81,7 @@ class DZUCENTER_Converter extends Converter
 	var $prefix_suggestion = "dz_uc_";
 	
 	/**
-	 * An array of smf -> mybb groups
+	 * An array of ucenter -> mybb groups
 	 *
 	 * @var array
 	 */

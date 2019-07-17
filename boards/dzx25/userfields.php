@@ -97,13 +97,8 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		if($this->ufid_found)
 		{
 			// Update a ufid record.
-			if(defined("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE") && DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE)
-			{
-				$output->print_progress("merge_user", array('import_uid' => $ufid, 'duplicate_uid' => $ufid));
-				$db->update_query("userfields", $insert_array, "ufid = '{$ufid}'");
-				
-				$updated = true;
-			}
+			$output->print_progress("merge_user", array('import_uid' => $ufid, 'duplicate_uid' => $ufid));
+			$db->update_query("userfields", $insert_array, "ufid = '{$ufid}'");
 		}
 		else
 		{
@@ -114,7 +109,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 		
 		$this->increment_tracker('userfields');
 		
-		if(!$this->ufid_found || !isset($updated))
+		if(!$this->ufid_found)
 		{
 			$output->print_progress("end");
 		}
