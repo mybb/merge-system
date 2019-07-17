@@ -159,6 +159,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 		// Get all threads for this page (1000 per page)
 		$progress = 0;
+		$progress_total = $import_session['counters_threads_start'];
 		$query = $db->simple_select("threads", "tid", "import_tid > 0", array('order_by' => 'tid', 'order_dir' => 'asc', 'limit_start' => (int)$import_session['counters_threads_start'], 'limit' => 1000));
 		while($thread = $db->fetch_array($query))
 		{
@@ -167,7 +168,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 
 			// Now inform the user
 			++$progress;
-			$progress_total = $progress + $import_session['counters_threads_start'];
+			++$progress_total;
 			
 			// Code comes from Dylan, probably has a reason, simply leave it there
 			if(($progress_total % 5) == 0)
