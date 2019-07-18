@@ -315,7 +315,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 				$query = $db->simple_select("users", "uid,username", "import_uid > 0", array('limit_start' => $start, 'limit' => 1000));
 				while($user = $db->fetch_array($query))
 				{
-					$user['username'] = str_replace('\'', '\\\'',$user['username']);
+					$user['username'] = str_replace('\'', '\\\'', $user['username']);
 					$record = "\t\t\t\t\t";
 					$record .= "'{$user['username']}' => {$user['uid']}";
 					$redirector->write_record($record);

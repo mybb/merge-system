@@ -131,12 +131,75 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 		return $insert_data;
 	}
 	
+	function finish()
+	{
+		global $import_session, $db;
+		
+		// Generate redirect file for users module, if permitted.
+		if(defined("DZX25_CONVERTER_GENERATE_REDIRECT") && DZX25_CONVERTER_GENERATE_REDIRECT && !empty($import_session['DZX25_Redirect_Files_Path']) && $import_session['total_threads'])
+		{
+			// Check numbers of forums with import_fid > 0.
+			$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid > 0");
+			$total_imported_forums = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			// Check numbers of threads with import_tid > 0.
+			$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid > 0");
+			$total_imported_threads = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			require_once dirname(__FILE__). '/generate_redirect.php';
+			
+			$redirector = new DZX25_Redirect_Generator();
+			$redirector->generate_file('threads', $total_imported_forums + $total_imported_threads);
+			
+			$redirector->write_file("\t\t\t'forum' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_forums)
+			{
+				$count = 0;
+				$query = $db->simple_select("forums", "fid,import_fid", "import_fid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($forum = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$forum['import_fid']}' => {$forum['fid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			$redirector->write_file("\t\t\t'thread' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_threads)
+			{
+				$count = 0;
+				$query = $db->simple_select("threads", "tid,import_tid", "import_tid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($thread = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$thread['import_tid']}' => {$thread['tid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			
+			$redirector->finish_file();
+		}
+	}
+	
 	function fetch_total()
 	{
 		global $import_session;
 		
 		// Get number of threads
-		if(!isset($import_session['forum_thread']))
+		if(!isset($import_session['total_threads']))
 		{
 			$query = $this->old_db->simple_select("forum_thread", "COUNT(*) as count");
 			$import_session['total_threads'] = $this->old_db->fetch_field($query, 'count');

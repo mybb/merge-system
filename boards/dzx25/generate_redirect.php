@@ -143,7 +143,18 @@ class DZX25_Redirect_Generator
 		$this->file_open = true;
 		$this->module = $module;
 		
-		$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("{$this->module}", "{$total}"), $this->redirect_file_header));
+		if($this->module == 'attachments')
+		{
+			$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("forums, threads, attachments", "{$total}"), $this->redirect_file_header));
+		}
+		else if($this->module == 'threads')
+		{
+			$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("forums, threads", "{$total}"), $this->redirect_file_header));
+		}
+		else
+		{
+			$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("{$this->module}", "{$total}"), $this->redirect_file_header));
+		}
 		$this->write_file("\n\n");
 		$this->write_file($this->redirect_file_class_begin[$this->module]);
 		$this->write_file("\n");
@@ -192,7 +203,14 @@ class DZX25_Redirect_Generator
 		$this->write_file("\n\n");
 		$this->write_file($this->redirect_file_body[$this->module]);
 		$this->write_file("\n\n");
-		$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("{$this->module}", "{$this->counter}"), $this->redirect_file_footer));
+		if($this->module == 'threads')
+		{
+			$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("forums, {$this->module}", "{$this->counter}"), $this->redirect_file_footer));
+		}
+		else
+		{
+			$this->write_file(str_replace(array('{$MOD_NAME}', '{$TOTAL}'), array("{$this->module}", "{$this->counter}"), $this->redirect_file_footer));
+		}
 		
 		if($this->file_open)
 		{
@@ -266,6 +284,10 @@ function get_redirect_file_name()
 	$ret = array(
 			'index' => "index.php",
 			'users' => "home.php",
+			'forums' => "forum.php",
+			'threads' => "forum.php",
+			'attachments' => "forum.php",
+			'attachment_files' => "attachments.php",
 	);
 	return $ret;
 }
@@ -323,9 +345,79 @@ class DZX_Redirect_Users extends DZX_Redirect
 	{
 		return self::$redirect_base_url . "{$this->mybb_module}.php?action=profile&uid={$id}";
 	}
-	
+
 	public $records = array(
 BEGINUSERS;
+	
+	$class_begin["forums"] = <<<'BEGINFORUMS'
+class DZX_Redirect_Forums extends DZX_Redirect
+{
+	public function get_redirect($id, $dz_module_type = '')
+	{
+		return self::$redirect_base_url . "{$this->mybb_module}.php?fid={$id}";
+	}
+
+	public $records = array(
+BEGINFORUMS;
+	
+	$class_begin["threads"] = <<<'BEGINTHREADS'
+class DZX_Redirect_Forums extends DZX_Redirect
+{
+	public function get_redirect($id, $dz_module_type = '')
+	{
+		if($dz_module_type == 'forum')
+		{
+			return self::$redirect_base_url . "{$this->mybb_module}.php?fid={$id}";
+		}
+		else if($dz_module_type == 'thread')
+		{
+			return self::$redirect_base_url . "{$this->mybb_module}.php?tid={$id}";
+		}
+		else
+		{
+			return '';
+		}
+	}
+
+	public $records = array(
+BEGINTHREADS;
+	
+	$class_begin["attachments"] = <<<'BEGINATTACHMENTS'
+class DZX_Redirect_Forums extends DZX_Redirect
+{
+	public function get_redirect($id, $dz_module_type = '')
+	{
+		if($dz_module_type == 'forum')
+		{
+			return self::$redirect_base_url . "{$this->mybb_module}.php?fid={$id}";
+		}
+		else if($dz_module_type == 'thread')
+		{
+			return self::$redirect_base_url . "{$this->mybb_module}.php?tid={$id}";
+		}
+		else if($dz_module_type == 'attachment')
+		{
+			return self::$redirect_base_url . "{$this->mybb_module}.php?aid={$id}";
+		}
+		else
+		{
+			return '';
+		}
+	}
+			
+	public $records = array(
+BEGINATTACHMENTS;
+	
+	$class_begin["attachment_files"] = <<<'BEGINATTACHMENTFILES'
+class DZX_Redirect_AttachmentFiles extends DZX_Redirect
+{
+	public function get_redirect($id, $dz_module_type = '')
+	{
+		return self::$redirect_base_url . "{$this->mybb_module}.php?aid={$id}";
+	}
+			
+	public $records = array(
+BEGINATTACHMENTFILES;
 	
 	return $class_begin;
 }
@@ -343,7 +435,15 @@ END;
 	
 	$class_end["users"] = $common_end;
 	
-	return $class_end;
+	$class_end["forums"] = $common_end;
+	
+	$class_end["threads"] = $common_end;
+	
+	$class_end["attachments"] = $common_end;
+	
+	$class_end["attachment_files"] = $common_end;
+	
+return $class_end;
 }
 
 function get_redirect_file_body()
@@ -446,6 +546,219 @@ function corrent_encoding($str, $encoding = "GBK")
 	return $str;
 }
 BODYUSERS;
+	
+	$body["forums"] = <<<'BODYFORUMS'
+if($_SERVER['REQUEST_METHOD'] != "GET")
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+			
+$dzx_module = 'forum';
+$mybb_module = 'forumdisplay';
+			
+if(isset($_GET['gid']))
+{
+	$dz_id = $_GET['gid'];
+}
+						
+if(isset($_GET['fid']) && isset($_GET['mod']) && $_GET['mod'] == 'forumdisplay')
+{
+	$dz_id = $_GET['fid'];
+}
+
+if(isset($dz_id))
+{
+	$dz_id = intval($dz_id);
+	$mybb_redirector = new DZX_Redirect_Forums($mybb_module, $dzx_module);
+	$id = $mybb_redirector->get_id($dz_id);
+	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id);
+	DZX_Redirect_Forums::redirect($redirect_url);
+}
+else
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+BODYFORUMS;
+	
+	$body["threads"] = <<<'BODYTHREADS'
+if($_SERVER['REQUEST_METHOD'] != "GET")
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+			
+$mybb_module = '';
+			
+if(isset($_GET['gid']))
+{
+	$dzx_module = 'forum';
+	$dz_id = $_GET['gid'];
+	$mybb_module = 'forumdisplay';
+}
+			
+if(isset($_GET['fid']) && isset($_GET['mod']) && $_GET['mod'] == 'forumdisplay')
+{
+	$dzx_module = 'forum';
+	$dz_id = $_GET['fid'];
+	$mybb_module = 'forumdisplay';
+}
+			
+if(isset($_GET['tid']) && isset($_GET['mod']) && ($_GET['mod'] == 'viewthread' || $_GET['mod'] == 'redirect'))
+{
+	$dzx_module = 'thread';
+	$dz_id = $_GET['tid'];
+	$mybb_module = 'showthread';
+}
+			
+if(isset($dz_id))
+{
+	$dz_id = intval($dz_id);
+	$mybb_redirector = new DZX_Redirect_Forums($mybb_module, $dzx_module);
+	$id = $mybb_redirector->get_id($dz_id, $dzx_module);
+	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id, $dzx_module);
+	DZX_Redirect_Forums::redirect($redirect_url);
+}
+else
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+BODYTHREADS;
+
+	
+	$body["attachments"] = <<<'BODYATTACHMENTS'
+if($_SERVER['REQUEST_METHOD'] != "GET")
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+			
+$mybb_module = '';
+			
+if(isset($_GET['gid']))
+{
+	$dzx_module = 'forum';
+	$dz_id = $_GET['gid'];
+	$mybb_module = 'forumdisplay';
+}
+			
+if(isset($_GET['fid']) && isset($_GET['mod']) && $_GET['mod'] == 'forumdisplay')
+{
+	$dzx_module = 'forum';
+	$dz_id = $_GET['fid'];
+	$mybb_module = 'forumdisplay';
+}
+			
+if(isset($_GET['tid']) && isset($_GET['mod']) && ($_GET['mod'] == 'viewthread' || $_GET['mod'] == 'redirect'))
+{
+	$dzx_module = 'thread';
+	$dz_id = $_GET['tid'];
+	$mybb_module = 'showthread';
+}
+
+if(isset($_GET['aid']) && isset($_GET['mod']) && $_GET['mod'] == 'attachment')
+{
+	$dzx_module = 'attachment';
+	@list($_GET['aid'], , , , ) = explode('|', base64_decode($_GET['aid']));
+	$dz_id = $_GET['aid'];
+	$mybb_module = 'attachment';
+}
+			
+if(isset($dz_id))
+{
+	$dz_id = intval($dz_id);
+	$mybb_redirector = new DZX_Redirect_Forums($mybb_module, $dzx_module);
+	$id = $mybb_redirector->get_id($dz_id, $dzx_module);
+	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id, $dzx_module);
+	DZX_Redirect_Forums::redirect($redirect_url);
+}
+else
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+BODYATTACHMENTS;
+	
+	$body["attachment_files"] = <<<'BODYATTACHMENTFILESS'
+if($_SERVER['REQUEST_METHOD'] != "GET")
+{
+	DZX_Redirect::redirect();
+	die("Hacking attempt");
+}
+			
+$dzx_module = '';
+$mybb_module = 'attachment';
+			
+if(isset($_GET['attachment_filename']))
+{
+	$attachment_filename = $_GET['attachment_filename'];
+}
+			
+if(isset($attachment_filename))
+{
+	if(get_magic_quotes_gpc())
+	{
+		$attachment_filename = stripcslashes($attachment_filename);
+	}
+	$mybb_redirector = new DZX_Redirect_AttachmentFiles($mybb_module, $dzx_module);
+	$attachment_filename = corrent_encoding($attachment_filename, DZX_Redirect_AttachmentFiles::$encoding);
+	$id = $mybb_redirector->get_id($attachment_filename);
+	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id);
+	DZX_Redirect_AttachmentFiles::redirect($redirect_url);
+}
+else
+{
+	DZX_Redirect::redirect('');
+	die("Hacking attempt");
+}
+		
+function corrent_encoding($str, $encoding = "GBK")
+{
+	if(!function_exists("mb_detect_encoding"))
+	{
+		return $str;
+	}
+		
+	// mb_* don't support GBK, but its successor GB18030.
+	$encoding = strtoupper($encoding);
+	if($encoding == "GBK")
+	{
+		$encoding = "GB18030";
+	}
+		
+	// mb_* supported encodings.
+	$encodings = array(
+		"UTF-8",
+		"GB18030",
+		"GB2312",
+		"BIG5",
+		"ASCII",
+	);
+	$encoding_detected = mb_detect_encoding($str, $encodings, true);
+		
+	if($encoding_detected != $encoding)
+	{
+		if(function_exists("iconv"))
+		{
+			// In iconv, GB2312 is mostly equivalent to CP936.
+			if($encoding == "GB2312")
+			{
+				$encoding == "CP936";
+			}
+			if($encoding_detected == "GB2312")
+			{
+				$encoding_detected == "CP936";
+			}
+			$str = iconv($encoding_detected, $encoding, $str);
+			return $str;
+		}
+	}
+		
+	return $str;
+}
+BODYATTACHMENTFILESS;
 	
 	return $body;
 }

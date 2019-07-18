@@ -119,6 +119,40 @@ class DZX25_Converter_Module_Forums extends Converter_Module_Forums {
 			$db->update_query("forums", array('pid' => $pid), "fid='{$forum['fid']}'", 1);
 		}
 		$db->free_result($query);
+		
+		global $import_session;
+		
+		// Generate redirect file for users module, if permitted.
+		if(defined("DZX25_CONVERTER_GENERATE_REDIRECT") && DZX25_CONVERTER_GENERATE_REDIRECT && !empty($import_session['DZX25_Redirect_Files_Path']) && $import_session['total_forums'])
+		{
+			// Check numbers of forums with import_fid > 0.
+			$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid > 0");
+			$total_imported_forums = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			require_once dirname(__FILE__). '/generate_redirect.php';
+			
+			$redirector = new DZX25_Redirect_Generator();
+			$redirector->generate_file('forums', $total_imported_forums);
+			
+			$start = 0;
+			while($start < $total_imported_forums)
+			{
+				$count = 0;
+				$query = $db->simple_select("forums", "fid,import_fid", "import_fid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($forum = $db->fetch_array($query))
+				{
+					$record = "\t\t\t";
+					$record .= "'{$forum['import_fid']}' => {$forum['fid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			
+			$redirector->finish_file();
+		}
 	}
 	
 	/**

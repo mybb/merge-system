@@ -267,6 +267,124 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 		$db->write_query("UPDATE ".TABLE_PREFIX."threads SET attachmentcount = attachmentcount + 1 WHERE tid = '".$this->thread_cache[$converted_data['pid']]."'");
 	}
 	
+	function dz_get_attachment_fileurl($import_aid)
+	{
+		$query = $this->old_db->simple_select("forum_attachment", "tableid", "aid = '{$import_aid}'", array('limit' => 1));
+		$tableid = $this->old_db->fetch_field($query, "tableid");
+		$this->old_db->free_result($query);
+		
+		$query = $this->old_db->simple_select("forum_attachment_" . $tableid, "attachment", "aid = '{$import_aid}'", array('limit' => 1));
+		$attachment = $this->old_db->fetch_field($query, "attachment");
+		$this->old_db->free_result($query);
+		
+		if(empty($attachment))
+		{
+			return false;
+		}
+		return $attachment;
+	}
+	
+	function finish()
+	{
+		global $import_session, $db;
+		
+		// Generate redirect file for users module, if permitted.
+		if(defined("DZX25_CONVERTER_GENERATE_REDIRECT") && DZX25_CONVERTER_GENERATE_REDIRECT && !empty($import_session['DZX25_Redirect_Files_Path']) && $import_session['total_attachments'])
+		{
+			// Check numbers of forums with import_fid > 0.
+			$query = $db->simple_select("forums", "COUNT(*) as count", "import_fid > 0");
+			$total_imported_forums = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			// Check numbers of threads with import_tid > 0.
+			$query = $db->simple_select("threads", "COUNT(*) as count", "import_tid > 0");
+			$total_imported_threads = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			// Check numbers of attachments with import_tid > 0.
+			$query = $db->simple_select("attachments", "COUNT(*) as count", "import_aid > 0");
+			$total_imported_attachments = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			require_once dirname(__FILE__). '/generate_redirect.php';
+			
+			$redirector = new DZX25_Redirect_Generator();
+			$redirector->generate_file('attachments', $total_imported_forums + $total_imported_threads + $total_imported_attachments);
+			
+			$redirector->write_file("\t\t\t'forum' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_forums)
+			{
+				$count = 0;
+				$query = $db->simple_select("forums", "fid,import_fid", "import_fid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($forum = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$forum['import_fid']}' => {$forum['fid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			$redirector->write_file("\t\t\t'thread' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_threads)
+			{
+				$count = 0;
+				$query = $db->simple_select("threads", "tid,import_tid", "import_tid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($thread = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$thread['import_tid']}' => {$thread['tid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			$redirector->write_file("\t\t\t'attachment' => array(\n");
+			
+			$redirector_attfiles = new DZX25_Redirect_Generator();
+			$redirector_attfiles->generate_file('attachment_files', $total_imported_attachments);
+			
+			$start = 0;
+			while($start < $total_imported_attachments)
+			{
+				$count = 0;
+				$query = $db->simple_select("attachments", "aid,import_aid", "import_aid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($attachment = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$attachment['import_aid']}' => {$attachment['aid']}";
+					$redirector->write_record($record);
+					
+					// Attachment files.
+					$attachment_file = $this->dz_get_attachment_fileurl($attachment['import_aid']);
+					if($attachment_file !== false)
+					{
+						$attachment_file = str_replace('\'', '\\\'', $attachment_file);
+						$record_file = "\t\t\t";
+						$record_file .= "'{$attachment_file}' => {$attachment['aid']}";
+						$redirector_attfiles->write_record($record_file);
+					}
+					
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			
+			$redirector->finish_file();
+			$redirector_attfiles->finish_file();
+		}
+	}
+	
 	function fetch_total()
 	{
 		global $import_session;
