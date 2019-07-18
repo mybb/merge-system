@@ -54,6 +54,8 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 	
 	function pre_setup()
 	{
+		parent::pre_setup();
+		
 		global $db;
 		// Count the total number of users in our MyBB database.
 		$query = $db->simple_select("users", "COUNT(*) as totalusers");
@@ -267,6 +269,65 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		}
 		
 		return $insert_data;
+	}
+	
+	function finish()
+	{
+		global $import_session, $db;
+		
+		// Generate redirect file for users module, if permitted.
+		if(defined("DZX25_CONVERTER_GENERATE_REDIRECT") && DZX25_CONVERTER_GENERATE_REDIRECT && !empty($import_session['DZX25_Redirect_Files_Path']) && $import_session['total_users'])
+		{
+			// Check numbers of user with import_uid > 0. We can't handle that if some imported users have been merged multiple times in one converter's running.
+			$query = $db->simple_select("users", "COUNT(*) as count", "import_uid > 0");
+			$total_imported_users = $db->fetch_field($query, 'count');
+			$db->free_result($query);
+			
+			require_once dirname(__FILE__). '/generate_redirect.php';
+			
+			$redirector = new DZX25_Redirect_Generator();
+			$redirector->generate_file('users', $total_imported_users);
+			
+			$redirector->write_file("\t\t\t'uids' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_users)
+			{
+				$count = 0;
+				$query = $db->simple_select("users", "uid,import_uid", "import_uid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($user = $db->fetch_array($query))
+				{
+					$record = "\t\t\t\t\t";
+					$record .= "'{$user['import_uid']}' => {$user['uid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			$redirector->write_file("\t\t\t'usernames' => array(\n");
+			
+			$start = 0;
+			while($start < $total_imported_users)
+			{
+				$count = 0;
+				$query = $db->simple_select("users", "uid,username", "import_uid > 0", array('limit_start' => $start, 'limit' => 1000));
+				while($user = $db->fetch_array($query))
+				{
+					$user['username'] = str_replace('\'', '\\\'',$user['username']);
+					$record = "\t\t\t\t\t";
+					$record .= "'{$user['username']}' => {$user['uid']}";
+					$redirector->write_record($record);
+					$count++;
+				}
+				$start += $count;
+			}
+			@$db->free_result($query);
+			$redirector->write_file("\t\t\t),\n");
+			
+			$redirector->finish_file();
+		}
 	}
 	
 	function fetch_total()

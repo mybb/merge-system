@@ -20,6 +20,10 @@ if(!defined("IN_MYBB"))
  *********** Configuration ***********
  *************************************/
 /**
+ * Whether or not generate redirect handle files for old Discuz! X2.5.
+ */
+define("DZX25_CONVERTER_GENERATE_REDIRECT", true);
+/**
  * Set it to true, if you've already set up your MyBB forum settings, and then the `users` module will not require dependency 
  * on the `settings` module. Otherwise a false value of this constant will cause overwriting some forum settings with values 
  * from this import. The `users` module depends the correct setting of time zone of MyBB setting.
@@ -239,6 +243,53 @@ class DZX25_Converter extends Converter
 		if(defined("DZX25_CONVERTER_MYBB_IS_SET") && !DZX25_CONVERTER_MYBB_IS_SET && isset($this->modules))
 		{
 			$this->modules['import_users']['dependencies'] = 'db_configuration,import_settings,import_usergroups';
+		}
+		
+		// Whether or not generate redirect files.
+		if(defined("DZX25_CONVERTER_GENERATE_REDIRECT") && DZX25_CONVERTER_GENERATE_REDIRECT)
+		{
+			require_once dirname(__FILE__).'/dzx25/generate_redirect.php';
+			
+			global $import_session;
+			if(isset($import_session['DZX25_Redirect_Files_Path']))
+			{
+				DZX25_Redirect_Generator::$redirect_file_path = $import_session['DZX25_Redirect_Files_Path'];
+			}
+			else
+			{
+				$attachmentswritable = false;
+				$attachment_testfile_handle = @fopen(MYBB_ROOT.'uploads/test.write', 'w');
+				if(!$attachment_testfile_handle)
+				{
+					@fclose($attachment_testfile_handle);
+				}
+				else
+				{
+					$attachmentswritable = true;
+					@fclose($attachment_testfile_handle);
+					@my_chmod(MYBB_ROOT.'uploads/test.write', '0777');
+					@unlink(MYBB_ROOT.'uploads/test.write');
+				}
+				
+				// If we can put the redirect files under a folder in MyBB's attachment path.
+				if($attachmentswritable)
+				{
+					$time = time();
+					DZX25_Redirect_Generator::$redirect_file_path = MYBB_ROOT.'uploads/DZX25_Gen_redirect_'.$time;
+				}
+				else
+				{
+					DZX25_Redirect_Generator::$redirect_file_path = '';
+				}
+			}
+			
+			if(!empty(DZX25_Redirect_Generator::$redirect_file_path) && my_substr(DZX25_Redirect_Generator::$redirect_file_path, -1) != '/')
+			{
+				DZX25_Redirect_Generator::$redirect_file_path .= '/';
+			}
+			
+			// Save the full path even if it's empty.
+			$import_session['DZX25_Redirect_Files_Path'] = DZX25_Redirect_Generator::$redirect_file_path;
 		}
 	}
 	

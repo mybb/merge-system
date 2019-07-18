@@ -9,7 +9,7 @@
  * Overwrite this define with your MyBB's FULL URL.
  * @var string
  */
-define("MYBB_URL", "http://my.mybb.com");
+define("MYBB_URL", "http://mybb.ISITAUNAVAILABLEDOMAIN.com");
 /**
  * We output the $this->records data in UTF-8 encoding. All files generated are in UTF-8 format.
  * @var string
