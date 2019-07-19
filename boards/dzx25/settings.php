@@ -13,7 +13,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define(DZX25_USE_MIN_PWLEN, 6);
+define("DZX25_USE_MIN_PWLEN", 6);
 
 class DZX25_Converter_Module_Settings extends Converter_Module_Settings {
 	
