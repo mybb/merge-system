@@ -89,7 +89,7 @@ class DZUCENTER_Converter_Module_Users extends Converter_Module_Users {
 		
 		$insert_data['passwordconvert'] = $data['password'];
 		$insert_data['passwordconvertsalt'] = $data['salt'];
-		$insert_data['passwordconverttype'] = 'ucenter';
+		$insert_data['passwordconverttype'] = 'dzucenter';
 		
 		return $insert_data;
 	}
