@@ -258,7 +258,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['signature'] = $this->bbcode_parser->convert_sig($insert_data['signature'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 			$insert_data['invisible'] = $data['sinvisible'];
 			$insert_data['receivefrombuddy'] = $data['onlyacceptfriendpm'];
-			$insert_data['timezone'] = $data['timeoffset'] = 9999 ? $this->setting_timezone : $data['timeoffset'];
+			$insert_data['timezone'] = $data['timeoffset'] == 9999 ? $this->setting_timezone : $data['timeoffset'];
 			
 			$online_time = $data['coltimeh'] * 60 > $data['oltimem'] ? $data['coltimeh'] * 60 : $data['oltimem'];
 			$online_time *= 60;
