@@ -226,6 +226,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 	$import_stats = array(
 		'total_usergroups' => 'User Groups',
 		'total_users' => 'Users',
+		'total_bans'    => 'Bans',
 		'total_categories' => 'Categories',
 		'total_forums' => 'Forums',
 		'total_forumperms' => 'Forum Permissions',
@@ -905,7 +906,6 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 
 		// See how many we have to convert
 		$module->fetch_total();
-
 		// Check to see if perhaps we're finished already
 		if($module->board->check_if_done())
 		{
