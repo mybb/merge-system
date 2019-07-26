@@ -272,7 +272,8 @@ class DZUCENTER_Converter extends Converter
 				return "ISO-8859-1";
 				break;
 			case "gbk":
-				return "GB18030";	// Change to "GB18030" if you experience any problematic Chinese character converting, also requiring PHP >= 5.4.0. Otherwise, use "GB2312" instead.
+				// Use "GB18030" to cover all GBK encoded characters (requiring PHP >= 5.4.0). With PHP before 5.4.0, you can use either "EUC-CN" or "CP936" or "GB2312" instead.
+				return "GB18030";
 				break;
 			default:
 				return strtoupper($mysql_encoding[0]);
