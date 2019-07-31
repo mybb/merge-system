@@ -20,7 +20,7 @@ if(!defined("IN_MYBB"))
  *********** Configuration ***********
  *************************************/
 /**
- * Try to find email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
+ * Try to solve the email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
  */
 define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
 /**
@@ -97,7 +97,56 @@ class DZUCENTER_Converter extends Converter
 	);
 	
 	var $column_length_to_check = array(
-
+			'pm_messages_0' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_1' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_2' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_3' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_4' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_5' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_6' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_7' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_8' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
+			'pm_messages_9' => array(
+					'privatemessages' => array(
+							'message' => 'message',
+					),
+			),
 	);
 	
 	/**

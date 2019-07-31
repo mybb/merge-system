@@ -40,8 +40,8 @@ class DZUCENTER_Converter_Module_Users extends Converter_Module_Users {
 			$this->default_values['lastvisit'] = DZUCENTER_CONVERTER_USERS_LASTTIME;
 		}
 		$this->default_values['classicpostbit'] = 1;
-		$this->default_values['subscriptionmethod'] = 0;	// Changed from 2 to 0 to perform no email being sent by subscriptions.
-		$this->default_values['pmnotify'] = 0;	// Changed from 1 to 0 to not notifying by email.
+		$this->default_values['subscriptionmethod'] = 0;	// Changed from 2 to 0 to disable subscriptions by default.
+		$this->default_values['pmnotify'] = 0;	// Changed from 1 to 0 to disable email nofitifcations by default.
 		$this->default_values['pmfolders'] = '0**$%%$1**$%%$2**$%%$3**$%%$4**';	// From 1820, 0 => Inbox, 1 => Unread, 2 => Sent, 3 => Draft, 4 => trash
 	}
 	

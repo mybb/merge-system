@@ -35,7 +35,7 @@ define("DZX25_CONVERTER_MYBB_IS_SET", false);
  */
 define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 /**
- * Try to find email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
+ * Try to solve the email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
  */
 define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
 /**

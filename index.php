@@ -8,7 +8,7 @@
  */
 
 $load_timer = microtime(true);
-error_reporting(E_ALL);
+
 header('Content-type: text/html; charset=utf-8');
 @set_time_limit(0);
 @ini_set('display_errors', true);
@@ -758,7 +758,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	$query = $db->simple_select("posts", "pid,message", "message LIKE '%[attachment=o%'");
 	while($post = $db->fetch_array($query))
 	{
-		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT_NOT_FOUND_\\1]", $post['message']);
+		$message = preg_replace("#\[attachment=o([0-9]+)\]#i", "[ATTACHMENT NOT FOUND]", $post['message']);
 		$db->update_query("posts", array("message" => $db->escape_string($message)), "pid={$post['pid']}");
 	}
 
@@ -879,16 +879,17 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
 		require_once MERGE_ROOT.'resources/class_converter_module.php';
-		// Modified to allow customed import_ modules based on MyBB Merge System's internal base abstract class.
-		// A string "__none__" means the converter's module is directly derived from class Converter_Module.
-		if(isset($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] != "__none__")
+		// Allow customized import_ modules derived from MyBB Merge System's base abstract class.
+		// Use string "__none__" to directly derived from the Converter_Module class, or specify a base module's class name, or leave it empty/unset.
+		// This would be useful if you have difficulty having your job done for only one time in a module. But write your own module class with '__none__' class_depencencies would be better.
+		if(isset($board->modules[$import_session['module']]['class_depencencies']) && !empty($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] != "__none__")
 		{
 			$module_dep_classname = $board->modules[$import_session['module']]['class_depencencies'];
 			require_once MERGE_ROOT."resources/modules/{$module_dep_classname}.php";
 		}
 		else if($board->modules[$import_session['module']]['class_depencencies'] == "__none__")
 		{
-			// TODO: Do nothing?
+			// TODO: Do nothing? Yes, do nothing.
 		}
 		else
 		{

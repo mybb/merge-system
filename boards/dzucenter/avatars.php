@@ -17,7 +17,7 @@ class DZUCENTER_Converter_Module_Avatars extends Converter_Module_Avatars
 {
 	var $settings = array(
 			'friendly_name' => 'avatars',
-			'progress_column' => 'ID_MEMBER',
+			'progress_column' => 'uid',
 			'default_per_screen' => 20,
 	);
 	
