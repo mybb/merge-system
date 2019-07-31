@@ -27,6 +27,14 @@ define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
  * Define of a user's last visit/active timestamp, if they're not provided in your old database.
  */
 //define("DZUCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
+/**
+ * If set to true, the converter will try to fix discuzcode problems.
+ */
+define("DZUCENTER_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+/**
+ * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
+ */
+define("DZUCENTER_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
 
 class DZUCENTER_Converter extends Converter
 {
@@ -97,56 +105,6 @@ class DZUCENTER_Converter extends Converter
 	);
 	
 	var $column_length_to_check = array(
-			'pm_messages_0' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_1' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_2' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_3' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_4' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_5' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_6' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_7' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_8' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
-			'pm_messages_9' => array(
-					'privatemessages' => array(
-							'message' => 'message',
-					),
-			),
 	);
 	
 	/**

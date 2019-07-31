@@ -111,7 +111,7 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 		// Discuzcode allows nested code, and Discuz! depends user browser to make the content appear correct.
 		// For MyBB Parser to work, it's best to fix them by removing some nested code.
 		// And for converting any disuczcode to MyBB format, which may be netsted, it also needs to be fixed.
-		if(defined("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE") && DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE)
+		if(defined("DZUCENTER_CONVERTER_PARSER_FIX_DISCUZCODE") && DZUCENTER_CONVERTER_PARSER_FIX_DISCUZCODE)
 		{
 			if($encoding == 'utf-8')
 			{
@@ -940,9 +940,9 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 			}
 			$fontface = rtrim($fontface, ", ");
 		}
-		else if(defined("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS"))
+		else if(defined("DZUCENTER_CONVERTER_PARSER_DEFAULT_FONTS"))
 		{
-			$fontface = DXZ25_CONVERTER_PARSER_DEFAULT_FONTS;
+			$fontface = DZUCENTER_CONVERTER_PARSER_DEFAULT_FONTS;
 		}
 		else
 		{
