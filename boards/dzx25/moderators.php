@@ -56,7 +56,7 @@ class DZX25_Converter_Module_Moderators extends Converter_Module_Moderators {
 	function __construct($converter_class)
 	{
 		parent::__construct($converter_class);
-		if(defined("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS") && DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS)
+		if(defined("DZX25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS") && DZX25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS)
 		{
 			foreach($this->default_values as $key => $value)
 			{

@@ -490,7 +490,7 @@ else if(isset($dz_username))
 		$dz_username = stripcslashes($dz_username);
 	}
 	$mybb_redirector = new DZX_Redirect_Users($mybb_module, $dzx_module);
-	$dz_username = corrent_encoding($dz_username, DZX_Redirect_Users::$encoding);
+	$dz_username = correct_encoding($dz_username, DZX_Redirect_Users::$encoding);
 	$id = $mybb_redirector->get_id($dz_username, 'usernames');
 	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id);
 	DZX_Redirect_Users::redirect($redirect_url);
@@ -501,7 +501,7 @@ else
 	die("Hacking attempt");
 }
 
-function corrent_encoding($str, $encoding = "GBK")
+function correct_encoding($str, $encoding = "GBK")
 {
 	if(!function_exists("mb_detect_encoding"))
 	{
@@ -661,7 +661,7 @@ if(isset($_GET['tid']) && isset($_GET['mod']) && ($_GET['mod'] == 'viewthread' |
 if(isset($_GET['aid']) && isset($_GET['mod']) && $_GET['mod'] == 'attachment')
 {
 	$dzx_module = 'attachment';
-	@list($_GET['aid'], , , , ) = explode('|', base64_decode($_GET['aid']));
+	@list($_GET['aid'], $_GET['k'], $_GET['t'], $_GET['uid'], $_GET['tableid']) = explode('|', base64_decode($_GET['aid']));
 	$dz_id = $_GET['aid'];
 	$mybb_module = 'attachment';
 }
@@ -703,7 +703,7 @@ if(isset($attachment_filename))
 		$attachment_filename = stripcslashes($attachment_filename);
 	}
 	$mybb_redirector = new DZX_Redirect_AttachmentFiles($mybb_module, $dzx_module);
-	$attachment_filename = corrent_encoding($attachment_filename, DZX_Redirect_AttachmentFiles::$encoding);
+	$attachment_filename = correct_encoding($attachment_filename, DZX_Redirect_AttachmentFiles::$encoding);
 	$id = $mybb_redirector->get_id($attachment_filename);
 	$redirect_url = $id === false ? '' : $mybb_redirector->get_redirect($id);
 	DZX_Redirect_AttachmentFiles::redirect($redirect_url);
@@ -714,7 +714,7 @@ else
 	die("Hacking attempt");
 }
 		
-function corrent_encoding($str, $encoding = "GBK")
+function correct_encoding($str, $encoding = "GBK")
 {
 	if(!function_exists("mb_detect_encoding"))
 	{

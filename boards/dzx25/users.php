@@ -225,7 +225,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		
 		// Discuz! values
 		// Usergroup
-		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE") && DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE))
+		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DZX25_CONVERTER_USERS_GROUPS_OVERWRITE") && DZX25_CONVERTER_USERS_GROUPS_OVERWRITE))
 		{
 			$insert_data['import_usergroup'] = $data['groupid'];
 			$insert_data['usergroup'] = $this->board->get_gid($data['groupid']);
@@ -242,7 +242,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		}
 		
 		// Other fields.
-		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE") && DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE))
+		if(!$this->user_found || ($this->user_found && $mybb_user['usergroup'] == 0) || (defined("DZX25_CONVERTER_USERS_PROFILE_OVERWRITE") && DZX25_CONVERTER_USERS_PROFILE_OVERWRITE))
 		{
 			$insert_data['usertitle'] = $this->board->encode_to_utf8($data['fcustomstatus'], "common_member_field_forum", "users");
 			$insert_data['website'] = $data['psite'];

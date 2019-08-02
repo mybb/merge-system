@@ -46,27 +46,27 @@ define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
  * Overwrite some user data when importing more than one Discuz!.
  * If set to false, user profiles will contain data mostly from the first converted Discuz!. User's last status, such as lastvisit, lastactivity, etc., will still be overwriten with very recent values.
  */
-define("DXZ25_CONVERTER_USERS_PROFILE_OVERWRITE", false);
+define("DZX25_CONVERTER_USERS_PROFILE_OVERWRITE", false);
 /**
  * If set to false, user groups will contain values from the first converted Discuz!.
  */
-define("DXZ25_CONVERTER_USERS_GROUPS_OVERWRITE", false);
+define("DZX25_CONVERTER_USERS_GROUPS_OVERWRITE", false);
 /**
  * If set to true, all mod permissions of imported moderators will be invalidated.
  */
-define("DXZ25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
+define("DZX25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
 /**
  * If set to true, the converter will try to fix discuzcode problems.
  */
-define("DXZ25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+define("DZX25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
 /**
  * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
  */
-define("DXZ25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
+define("DZX25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
 /**
  * Re-check an attachment file's mime type using PHP mime_content_type after it has been stored in MyBB uploads. This action does rely on your PHP's ability, thus if you use an old version of PHP, better turn this define to false.
  */
-define("DXZ25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE", false);
+define("DZX25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE", false);
 
 
 class DZX25_Converter extends Converter
@@ -158,7 +158,89 @@ class DZX25_Converter extends Converter
 	);
 	
 	var $column_length_to_check = array(
-
+			'common_member_profile' => array(
+					'users' => array(
+							'icq' => 'icq',
+							'yahoo' => 'yahoo',
+							'site' => 'website',
+					),
+			),
+			'common_usergroup' => array(
+					'usergroups' => array(
+							'grouptitle' => 'title',
+							'color' => 'namestyle',
+					),
+			),
+			'forum_announcement' => array(
+					'announcements' => array(
+							'subject' => 'subject',
+					),
+			),
+			'forum_threadclass' => array(
+					'threadprefixes' => array(
+							'name' => 'prefix',
+					),
+			),
+			'forum_forumfield' => array(
+					'forums' => array(
+							'redirect' => 'linkto',
+					),
+			),
+			'forum_post' => array(
+					'posts' => array(
+							'message' => 'message',
+					),
+			),
+			'forum_attachment_0' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_1' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_2' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_3' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_4' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_5' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_6' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_7' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_8' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
+			'forum_attachment_9' => array(
+					'attachments' => array(
+							'filename' => 'filename',
+					),
+			),
 	);
 	
 	/**

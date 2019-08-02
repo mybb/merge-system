@@ -243,7 +243,7 @@ class DZX25_Converter_Module_Attachments extends Converter_Module_Attachments {
 					}
 				}
 				
-				if(defined("DXZ25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE") && DXZ25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE)
+				if(defined("DZX25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE") && DZX25_CONVERTER_DZX_UPLOAD_RECHECK_MIME_TYPE)
 				{
 					// Update attachment's mime_type.
 					$filetype = mime_content_type($mybb->settings['uploadspath'].'/'.$converted_data['attachname']);
