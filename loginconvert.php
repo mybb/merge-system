@@ -38,9 +38,9 @@ $valid_login_types = array(
 	"vanilla"	=> "vanilla",
 	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
 	"dzucenter"	=> "dzucenter",	// Discuz! UCenter.
-	"dzx25"		=> "dzucenter",	// Discuz! X2.5, UCenter based user system.
-	"dzx33"		=> "dzucenter",	// Discuz! X3.3, UCenter based user system.
-	"dzx34"		=> "dzucenter",	// Discuz! X3.4, UCenter based user system.
+	"dzx25"		=> "dzucenter",	// Discuz! X2.5, randomly generated password.
+	"dzx33"		=> "dzucenter",	// Discuz! X3.3, randomly generated password.
+	"dzx34"		=> "dzucenter",	// Discuz! X3.4, randomly generated password.
 );
 
 // Array of login types for which we need to handle utf8 issues
@@ -452,15 +452,15 @@ function check_vanilla($password, $user)
 
 function check_dzucenter($password, $user)
 {
-	// UCenter is activated as of Discuz! X1(?). In Discuz! X2.5 and X3.x, they should be all using UCenter 1.6.0, in which the password and salt is handle in the same way.
-	// However, it is possible that a user is imported from Discuz! X2.5 (and upper version) but not in the UCenter. In this situation, there is no salt in Discuz! X.
+	// Discuz! UCenter 1.6.0 is served as a user engine in Discuz! X2.5, X3, X3.1, X3.2, X3.3 and X3.4.
 	$salt = $user['passwordconvertsalt'];
 	if(empty($salt))
 	{
-		// This user is not in any UCenter.
-		return md5($password) == $user['passwordconvert'];
+		// If we have any duplicated user or user not appears in previously imported UCenter, there's no password salt for them. We can't handle their passwords since they are generated randomly. Better to let them contact forum administrators.
+		global $mybb;
+		// TODO: Is there an easy way to make the error translatable without adding a new language file?
+		redirect($mybb->settings['bburl']."/contact.php", "We're sorry but we couldn't recover your login information from the old forum data. Please contact forum administrators.", "Sorry!", true);
 	}
-	
 	return md5(md5($password).$salt) == $user['passwordconvert'];
 }
 
