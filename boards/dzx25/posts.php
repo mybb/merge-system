@@ -56,6 +56,11 @@ class DZX25_Converter_Module_Posts extends Converter_Module_Posts {
 			$insert_data['username'] = $this->board->encode_to_utf8($data['author'], "forum_post", "posts");
 		}
 		$insert_data['dateline'] = $data['dateline'];
+		if(empty($data['message']))
+		{
+			// Discuz! allows empty post content, in some very old versions. If a post content is empty, its subject should usually exist. 
+			$data['message'] = $data['subject'];
+		}
 		$insert_data['message'] = $this->board->encode_to_utf8($data['message'], "forum_post", "posts");
 		$insert_data['message'] = $this->bbcode_parser->convert_post($insert_data['message'], $import_session['encode_to_utf8'] ? 'utf-8' : $this->board->fetch_table_encoding($this->settings['encode_table']));
 		$insert_data['ipaddress'] = my_inet_pton($data['useip']);

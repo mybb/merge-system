@@ -22,17 +22,17 @@ if(!defined("IN_MYBB"))
 /**
  * Try to solve the email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
  */
-define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
+define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", false);
 /**
  * Define of a user's last visit/active timestamp, if they're not provided in your old database.
  */
 //define("DZUCENTER_CONVERTER_USERS_LASTTIME", 1390492800);
 /**
- * If set to true, the converter will try to fix discuzcode problems.
+ * If set to true, the converter will try to fix discuzcode problems. Set to false, if you want your contents untouched.
  */
-define("DZUCENTER_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+define("DZUCENTER_CONVERTER_PARSER_FIX_DISCUZCODE", false);
 /**
- * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
+ * The default fonts for [font=*] discuzcode containing a Chinese font name that can't be handled by MyBB naively. Comment this define if you want these [font=*] tags unchanged.
  */
 define("DZUCENTER_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
 
@@ -69,8 +69,8 @@ class DZUCENTER_Converter extends Converter
 			"db_configuration"			=> array("name" => "Database Configuration", "dependencies" => ""),
 			"import_users"				=> array("name" => "UCenter Users", "dependencies" => "db_configuration"),
 			"import_privatemessages"	=> array("name" => "Private Messages", "dependencies" => "db_configuration,import_users"),
-			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),
-			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
+/*			"import_buddies"			=> array("name" => "Buddies", "dependencies" => "db_configuration,import_users", "class_depencencies" => "users"),
+*/			"import_avatars"			=> array("name" => "Avatars", "dependencies" => "db_configuration,import_users"),
 			
 	);
 	

@@ -22,7 +22,7 @@ if(!defined("IN_MYBB"))
 /**
  * Whether or not generate redirect handle files for old Discuz! X2.5.
  */
-define("DZX25_CONVERTER_GENERATE_REDIRECT", true);
+define("DZX25_CONVERTER_GENERATE_REDIRECT", false);
 /**
  * Set it to true, if you've already set up your MyBB forum settings, and then the `users` module will not require dependency 
  * on the `settings` module. Otherwise a false value of this constant will cause overwriting some forum settings with values 
@@ -37,7 +37,7 @@ define("DZX25_CONVERTER_THREADCLASS_DEPS", true);
 /**
  * Try to solve the email's length problem? In UCenter, a user may have a shorter email address as the email field is CHAR(32), but in Discuz! X2.5 it's CHAR(40), and in MyBB it's VARCHAR(220).
  */
-define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", true);
+define("DZUCENTER_CONVERTER_USERS_FIX_EMAIL", false);
 /**
  * Define of a user's last visit/active timestamp, if they're not provided in your old database.
  */
@@ -56,11 +56,11 @@ define("DZX25_CONVERTER_USERS_GROUPS_OVERWRITE", false);
  */
 define("DZX25_CONVERTER_MODERS_INVALIDATE_ALL_PERMS", false);
 /**
- * If set to true, the converter will try to fix discuzcode problems.
+ * If set to true, the converter will try to fix discuzcode problems. Set to false, if you want your contents untouched.
  */
-define("DZX25_CONVERTER_PARSER_FIX_DISCUZCODE", true);
+define("DZX25_CONVERTER_PARSER_FIX_DISCUZCODE", false);
 /**
- * The default font name for [font=*] discuzcode of a Chinese font that can't be handled. Comment this define if you want unhandled font name tag to be get rid of.
+ * The default fonts for [font=*] discuzcode containing a Chinese font name that can't be handled by MyBB naively. Comment this define if you want these [font=*] tags unchanged.
  */
 define("DZX25_CONVERTER_PARSER_DEFAULT_FONTS", "Microsoft YaHei, PingFang, STXihei, Droid Sans, WenQuanYi Micro Hei");
 /**
