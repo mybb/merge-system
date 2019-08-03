@@ -19,7 +19,7 @@ class DZX25_Converter_Module_Userfields extends Converter_Module {
 			'friendly_name' => 'userfields',
 			'progress_column' => 'uid',
 			'encode_table' => 'common_member_profile',
-			'default_per_screen' => 2000,
+			'default_per_screen' => 1000,
 	);
 	
 	var $ufid_found = false;

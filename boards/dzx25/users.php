@@ -22,7 +22,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			'username_column' => 'username',
 			'email_column' => 'email',
 			'postnum_column' => 'cposts',
-			'default_per_screen' => 2000,
+			'default_per_screen' => 1000,
 	);
 	
 	/**
@@ -46,6 +46,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			$this->default_values['lastactive'] = DZX25_CONVERTER_USERS_LASTTIME;
 			$this->default_values['lastvisit'] = DZX25_CONVERTER_USERS_LASTTIME;
 		}
+		$this->default_values['dstcorrection'] = 2;
 		$this->default_values['classicpostbit'] = 1;
 		$this->default_values['subscriptionmethod'] = 0;	// Changed from 2 to 0 to perform no email being sent by subscriptions.
 		$this->default_values['pmnotify'] = 0;	// Changed from 1 to 0 to not notifying by email.
@@ -63,9 +64,17 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 		$db->free_result($query);
 		
 		// Get timezone from MyBB setting.
-		$query = $db->simple_select("settings", "name,value");
-		$this->setting_timezone = (int) $db->fetch_field($query, "timeoffset");
-		$db->free_result($query);
+		global $mybb;
+		if($mybb->settings['timezoneoffset'])
+		{
+			$this->setting_timezone = intval($mybb->settings['timezoneoffset']);
+		}
+		else
+		{
+			$query = $db->simple_select("settings", "name,value");
+			$this->setting_timezone = intval($db->fetch_field($query, "timezoneoffset"));
+			$db->free_result($query);
+		}
 	}
 	
 	function import()
@@ -259,6 +268,7 @@ class DZX25_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['invisible'] = $data['sinvisible'];
 			$insert_data['receivefrombuddy'] = $data['onlyacceptfriendpm'];
 			$insert_data['timezone'] = $data['timeoffset'] == 9999 ? $this->setting_timezone : $data['timeoffset'];
+			$insert_data['dstcorrection'] = $this->default_values['dstcorrection'];
 			
 			$online_time = $data['coltimeh'] * 60 > $data['oltimem'] ? $data['coltimeh'] * 60 : $data['oltimem'];
 			$online_time *= 60;

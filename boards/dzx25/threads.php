@@ -18,7 +18,7 @@ class DZX25_Converter_Module_Threads extends Converter_Module_Threads {
 	var $settings = array(
 			'friendly_name' => 'threads',
 			'progress_column' => 'tid',
-			'default_per_screen' => 5000,
+			'default_per_screen' => 1000,
 	);
 	
 	function __construct($converter_class)

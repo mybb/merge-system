@@ -18,7 +18,7 @@ class DZX25_Converter_Module_Polls extends Converter_Module_Polls {
 	var $settings = array(
 			'friendly_name' => 'polls',
 			'progress_column' => 'tid',
-			'default_per_screen' => 2000,
+			'default_per_screen' => 1000,
 	);
 	
 	var $cache_poll_choices = array();

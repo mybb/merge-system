@@ -19,7 +19,7 @@ class DZX25_Converter_Module_Threadprefixes extends Converter_Module {
 			'friendly_name' => 'threadprefixes',
 			'progress_column' => 'typeids',
 			'encode_table' => 'forum_threadclass',
-			'default_per_screen' => 2000,
+			'default_per_screen' => 1000,
 	);
 
 	public $default_values = array(

@@ -28,6 +28,7 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	var $dz_postattachperm;
 	var $dz_postimageperm;
 	
+	var $usergroups = array();
 	var $usergroup_perms = array();
 	
 	var $dz_increment = false;
@@ -37,20 +38,49 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	{
 		global $import_session;
 		
-		$query = $this->old_db->simple_select("forum_forumfield", "*", "", array('limit_start' => $this->trackers['start_forumperms'], 'limit' => $import_session['forumperms_per_screen']));
+		$query = $this->old_db->simple_select("forum_forumfield", "fid,viewperm,postperm,replyperm,getattachperm,postattachperm,postimageperm", "", array('limit_start' => $this->trackers['start_forumperms'], 'limit' => $import_session['forumperms_per_screen']));
 		while($perm = $this->old_db->fetch_array($query))
 		{
 			$this->dz_increment = false;
 			$perms_import_gids = $this->dz_prepare_insert($perm);
-			$rows = count($perms_import_gids);
-			for($i = 0; $i < $rows; $i++)
+			$perms_gids = array();
+			foreach($perms_import_gids as $import_gid)
 			{
-				if($i == $rows - 1)
+				if($import_gid == -1)
+				{
+					break;
+				}
+				$perms_gids[] = $this->board->get_gid($import_gid);
+			}
+			if(!empty($perms_gids))
+			{
+				$perms_gids = array_diff($this->usergroups, array_unique(array_filter($perms_gids)));
+			}
+			if(empty($perms_gids))
+			{
+				$perms_gids[] = -1;
+			}
+			$rows_count = count($perms_import_gids) + count($perms_gids);
+			$rows = 0;
+			foreach($perms_import_gids as $import_gid)
+			{
+				if(++$rows == $rows_count)
 				{
 					$this->dz_increment = true;
 				}
-				$perm['import_gid'] = $perms_import_gids[$i];
-				$this->insert($perm);
+				$permission = $perm;
+				$permission['import_gid'] = $import_gid;
+				$this->insert($permission);
+			}
+			foreach($perms_gids as $gid)
+			{
+				if(++$rows == $rows_count)
+				{
+					$this->dz_increment = true;
+				}
+				$permission = $perm;
+				$permission['gid'] = $gid;
+				$this->insert($permission);
 			}
 		}
 	}
@@ -109,7 +139,7 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	{
 		global $db, $output;
 		
-		if($data['import_gid'] == -1)
+		if($data['import_gid'] == -1 || $data['gid'] == -1)
 		{
 			$output->print_progress("start");
 			$output->print_progress("end");
@@ -144,12 +174,19 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	function convert_data($data)
 	{
 		$insert_data = array();
-		
-		$import_gid = $data['import_gid'];
-		
+
+		if(isset($data['gid']))
+		{
+			$import_gid = 0;
+		}
+		else
+		{
+			$import_gid = $data['import_gid'];
+		}
+
 		// Discuz! values.
 		$insert_data['fid'] = $this->get_import->fid($data['fid']);
-		$insert_data['gid'] = $this->board->get_gid(intval($import_gid));
+		$insert_data['gid'] = $import_gid ? $this->board->get_gid(intval($import_gid)) : $data['gid'];
 		
 		// Set usergroup's default values.
 		foreach($this->usergroup_perms[$insert_data['gid']] as $perm => $perm_val)
@@ -236,10 +273,11 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 	{
 		global $db;
 		
-		// Cache usergroup permissions
+		// Cache usergroups and usergroup permissions.
 		$query = $db->simple_select("usergroups", "*");
 		while($group = $db->fetch_array($query))
 		{
+			$this->usergroups[] = $group['gid'];
 			$this->usergroup_perms[$group['gid']] = array(
 					'canview' => $group['canview'],
 					'canviewthreads' => $group['canviewthreads'],
@@ -260,7 +298,7 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 					'canpostpolls' => $group['canpostpolls'],
 					'canvotepolls' => $group['canvotepolls'],
 					'cansearch' => $group['cansearch'],
-					);
+			);
 		}
 	}
 	
@@ -297,11 +335,11 @@ class DZX25_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			{
 				foreach($perm as $key => $value)
 				{
-					if($perm[$key] == 'pid' || $perm[$key] == 'fid' || $perm[$key] == 'gid')
+					if($key == 'pid' || $key == 'fid' || $key == 'gid')
 					{
 						continue;
 					}
-					if($perm[$value] == 1)
+					if($value == 1)
 					{
 						$perm_merge[$key] = 1;
 					}

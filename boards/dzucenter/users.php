@@ -21,7 +21,7 @@ class DZUCENTER_Converter_Module_Users extends Converter_Module_Users {
 			'encode_table' => 'members',
 			'username_column' => 'username',
 			'email_column' => 'email',
-			'default_per_screen' => 3000,
+			'default_per_screen' => 1000,
 	);
 	
 	/**
