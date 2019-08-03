@@ -882,14 +882,13 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 		// Allow customized import_ modules derived from MyBB Merge System's base abstract class.
 		// Use string "__none__" to directly derived from the Converter_Module class, or specify a base module's class name, or leave it empty/unset.
 		// This would be useful if you have difficulty having your job done for only one time in a module. But write your own module class with '__none__' class_depencencies would be better.
-		if(isset($board->modules[$import_session['module']]['class_depencencies']) && !empty($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] != "__none__")
+		if(isset($board->modules[$import_session['module']]['class_depencencies']) && !empty($board->modules[$import_session['module']]['class_depencencies']))
 		{
 			$module_dep_classname = $board->modules[$import_session['module']]['class_depencencies'];
-			require_once MERGE_ROOT."resources/modules/{$module_dep_classname}.php";
-		}
-		else if(isset($board->modules[$import_session['module']]['class_depencencies']) && $board->modules[$import_session['module']]['class_depencencies'] == "__none__")
-		{
-			// TODO: Do nothing? Yes, do nothing, for compatibility.
+			if($module_dep_classname != "__none__")
+			{
+				require_once MERGE_ROOT."resources/modules/{$module_dep_classname}.php";
+			}
 		}
 		else
 		{
