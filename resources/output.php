@@ -131,7 +131,7 @@ END;
 		}
 
 		// Only if we're in a module
-		if(IN_MODULE == 1)
+		if(defined("IN_MODULE") && IN_MODULE == 1)
 		{
 			echo "\n		<input type=\"hidden\" name=\"action\" value=\"module_list\" />\n";
 			echo "\n		<div id=\"pause_button\"><input type=\"submit\" class=\"submit_button\" value=\"&laquo; {$lang->pause}\" /></div>\n";
@@ -750,7 +750,7 @@ EOF;
 				$import_session['autorefresh'] = $mybb->input['autorefresh'];
 			}
 
-			if(IN_MODULE == 1)
+			if(defined("IN_MODULE") && IN_MODULE == 1)
 			{
 				echo "\n	</form>\n";
 				echo "\n	<form method=\"post\" action=\"".$this->script."\">\n";
