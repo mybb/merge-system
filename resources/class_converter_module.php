@@ -166,12 +166,20 @@ abstract class Converter_Module
 				$insert_array[$key] = $db->escape_string($value);
 			}
 
-			if(isset($column_length[$key]) && mb_strlen($insert_array[$key]) > $column_length[$key] && (!isset($this->binary_fields) || !in_array($key, $this->binary_fields))) {
-				if(is_int($insert_array[$key])) {
-					// TODO: check whether int(10) really can save "9999999999" as maximum
-					$insert_array[$key] = (int)str_repeat('9', $column_length[$key]);
-				} else {
-					$insert_array[$key] = my_substr($insert_array[$key], 0, $column_length[$key]-3)."...";
+			if(isset($column_length[$key]) && (!isset($this->binary_fields) || !in_array($key, $this->binary_fields))) {
+				$insert_field_length = mb_strlen($insert_array[$key]);
+				if(is_int($insert_array[$key]) && $insert_array[$key] < 0) {
+					$insert_field_length -= 1;
+					$insert_field_negative_int = true;
+				}
+				if($insert_field_length > $column_length[$key]) {
+					if(is_int($insert_array[$key])) {
+						// TODO: check whether int(10) really can save "9999999999" as maximum
+						$insert_array[$key] = ($insert_field_negative_int ? '-' : '') . str_repeat('9', $column_length[$key]);
+						$insert_array[$key] = (int)$insert_array[$key];
+					} else {
+						$insert_array[$key] = my_substr($insert_array[$key], 0, $column_length[$key]-3)."...";
+					}
 				}
 			}
 		}
