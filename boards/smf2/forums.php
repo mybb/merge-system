@@ -43,10 +43,20 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 
 		if($data['id_parent'])
 		{
-			$insert_data['pid'] = $this->get_import->fid_f($data['id_parent']);
+			// Parent board is a board.
+			$insert_data['import_pid'] = $data['id_parent'];
+
+			// Assign the already merged parent board, otherwise don't.
+			$pid = $this->get_import->fid_f($data['id_parent']);
+			if(!empty($pid))
+			{
+				$insert_data['pid'] = $this->get_import->fid_f($data['id_parent']);
+			}
 		}
 		else
 		{
+			// Parent board is a category. All categories should be already merged.
+			$insert_data['import_pid'] = $data['id_cat'];	// TODO: may needn't this, and this could be confusing.
 			$insert_data['pid'] = $this->get_import->fid_c($data['id_cat']);
 		}
 
@@ -71,6 +81,25 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 		return $import_session['total_forums'];
 	}
 
+	/**
+	 * Update imported forums that don't have a parent forum assigned.
+	 */
+	function finish()
+	{
+		global $db;
+
+		// 'f' type forum. Column `pid`'s default value is 0 when new record is inserted.
+		$query = $db->simple_select("forums", "fid,import_pid", "type = 'f' AND import_fid != 0 AND pid = 0");
+		while($forum = $db->fetch_array($query))
+		{
+			$pid = $this->get_import->fid($forum['import_pid']);
+			if(!empty($pid))	// Do another check, failure will leave dirty work to parent class's cleanup() function.
+			{
+				$db->update_query("forums", array('pid' => $pid), "fid='{$forum['fid']}'", 1);
+			}
+		}
+		$db->free_result($query);
+	}
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing
 	 * forums.
