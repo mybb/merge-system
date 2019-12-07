@@ -100,6 +100,7 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 		}
 		$db->free_result($query);
 	}
+
 	/**
 	 * Correctly associate any forums with their correct parent ids. This is automagically run after importing
 	 * forums.
