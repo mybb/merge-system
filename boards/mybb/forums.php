@@ -69,7 +69,7 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 		$insert_data['description'] = encode_to_utf8($insert_data['description'], "forums", "forums");
 
 		// This value NEEDS to be here for the cleanup() to work
-		$insert_data['pid'] = 0;
+		$insert_data['pid'] = 0;	// TODO: really needs this? `forums` table definition has `pid`'s default value set to '0'.
 
 		return $insert_data;
 	}
