@@ -59,7 +59,6 @@ class VBULLETIN4_Converter_Module_Forums extends Converter_Module_Forums {
 		if($data['parentid'] == '-1')
 		{
 			$insert_data['type'] = 'c';
-			$insert_data['import_fid'] = $data['forumid'];
 		}
 		// We have a forum
 		else
