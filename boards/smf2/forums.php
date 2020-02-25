@@ -43,19 +43,16 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 
 		if($data['id_parent'])
 		{
-			// Parent board is a board.
+			// Parent forum is a board.
 			$insert_data['import_pid'] = $data['id_parent'];
 
-			// Assign the already merged parent board, otherwise don't.
+			// Assign the already merged parent board's ID, otherwise 0.
 			$pid = $this->get_import->fid_f($data['id_parent']);
-			if(!empty($pid))
-			{
-				$insert_data['pid'] = $this->get_import->fid_f($data['id_parent']);
-			}
+			$insert_data['pid'] = empty($pid) ? 0 : $pid;
 		}
 		else
 		{
-			// Parent board is a category. All categories should be already merged.
+			// Parent forum is a category. All categories should have been already merged.
 			$insert_data['import_pid'] = $data['id_cat'];	// TODO: may needn't this, and this could be confusing.
 			$insert_data['pid'] = $this->get_import->fid_c($data['id_cat']);
 		}
@@ -88,7 +85,7 @@ class SMF2_Converter_Module_Forums extends Converter_Module_Forums {
 	{
 		global $db;
 
-		// 'f' type forum. Column `pid`'s default value is 0 when new record is inserted.
+		// 'f' type forum. Column `pid`'s value is 0 if this forum is merged before its parent being merged.
 		$query = $db->simple_select("forums", "fid,import_pid", "type = 'f' AND import_fid != 0 AND pid = 0");
 		while($forum = $db->fetch_array($query))
 		{
