@@ -68,9 +68,6 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['description'] = encode_to_utf8($insert_data['description'], "forums", "forums");
 
-		// This value NEEDS to be here for the cleanup() to work
-		$insert_data['pid'] = 0;
-
 		return $insert_data;
 	}
 
@@ -96,11 +93,19 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 	{
 		global $db;
 
+		// Imported root Category forums (type 'c' forums whose parent is "None").
+		$query = $db->simple_select("forums", "fid", "import_fid != '0' AND import_pid = '0'");
+		while($forum = $db->fetch_array($query))
+		{
+			$db->update_query("forums", array('parentlist' => $forum['fid']), "fid='{$forum['fid']}'", 1);
+		}
+
+		// Ohter imported forums.
 		$query = $db->query("
 			SELECT f.fid, f.import_fid, f2.fid as updatefid
 			FROM ".TABLE_PREFIX."forums f
 			LEFT JOIN ".TABLE_PREFIX."forums f2 ON (f2.import_fid=f.import_pid)
-			WHERE f.import_pid != '0' AND f.pid = '0'
+			WHERE f.import_pid != '0'
 		");
 		while($forum = $db->fetch_array($query))
 		{
