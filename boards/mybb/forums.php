@@ -93,14 +93,14 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 	{
 		global $db;
 
-		// Imported root Category forums (type 'c' forums whose parent is "None").
+		// Cleanup root category forums (type 'c' forums whose parent is "None").
 		$query = $db->simple_select("forums", "fid", "import_fid != '0' AND import_pid = '0'");
 		while($forum = $db->fetch_array($query))
 		{
 			$db->update_query("forums", array('parentlist' => $forum['fid']), "fid='{$forum['fid']}'", 1);
 		}
 
-		// Ohter imported forums.
+		// Cleanup other imported forums
 		$query = $db->query("
 			SELECT f.fid, f.import_fid, f2.fid as updatefid
 			FROM ".TABLE_PREFIX."forums f
@@ -115,5 +115,4 @@ class MYBB_Converter_Module_Forums extends Converter_Module_Forums  {
 		parent::cleanup();
 	}
 }
-
 
