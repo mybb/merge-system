@@ -57,7 +57,7 @@ function loginconvert_info()
 		"website"			=> "http://www.mybb.com",
 		"author"			=> "MyBB Group",
 		"authorsite"		=> "http://www.mybb.com",
-		"version"			=> "1.4.1",
+		"version"			=> "1.4.2",
 		"compatibility"		=> "18*",
 		"codename"			=> "loginconvert",
 	);
