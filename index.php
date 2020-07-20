@@ -36,8 +36,8 @@ define("SKIP_RECOUNTS", 0);
  *********** DON'T TOUCH ANYTHING ELSE HERE ***********
  ******************************************************/
 
-$merge_version = "1.8.11";
-$version_code = 1811;
+$merge_version = "1.8.23";
+$version_code = 1823;
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
@@ -1024,4 +1024,3 @@ else
 
 	$output->module_list();
 }
-
