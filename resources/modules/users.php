@@ -72,7 +72,7 @@ abstract class Converter_Module_Users extends Converter_Module
 		'showcodebuttons' => 1,
 		'totalpms' => 0,
 		'unreadpms' => 0,
-		'pmfolders' => '1**Inbox$%%$2**Sent Items$%%$3**Drafts$%%$4**Trash Can',
+		'pmfolders' => '0**$%%$1**$%%$2**$%%$3**$%%$4**',
 		'notepad' => '',
 		'threadmode' => '',
 		'showredirect' => 1,
