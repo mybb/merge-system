@@ -101,8 +101,10 @@ require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/settings.php";
 $mybb->settings = $settings;
 
-// Language
+// Force to show all types of errors and warnings.
+$mybb->settings['errortypemedium'] = 'both';
 
+// Language
 require_once MYBB_ROOT."inc/class_language.php";
 require_once MERGE_ROOT."resources/class_language.php";
 $lang = new debugMyLanguage();
@@ -1024,4 +1026,3 @@ else
 
 	$output->module_list();
 }
-
