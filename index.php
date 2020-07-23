@@ -39,6 +39,16 @@ define("SKIP_RECOUNTS", 0);
 $merge_version = "1.8.23";
 $version_code = 1823;
 
+// MyBB Group constants. Used for better readability
+// We need them here to make 100% sure they're defined when creating our classes
+define("MYBB_GUESTS", 1);
+define("MYBB_REGISTERED", 2);
+define("MYBB_SMODS", 3);
+define("MYBB_ADMINS", 4);
+define("MYBB_AWAITING", 5);
+define("MYBB_MODS", 6);
+define("MYBB_BANNED", 7);
+
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
 define("MERGE_ROOT", dirname(__FILE__).'/');
@@ -439,16 +449,6 @@ if($import_session['finished_convert'] == '1')
 	$import_session = null;
 	update_import_session();
 }
-
-// MyBB Group constants. Used for better readability
-// We need them here to make 100% sure they're defined when creating our classes
-define("MYBB_GUESTS",		1);
-define("MYBB_REGISTERED",	2);
-define("MYBB_SMODS",		3);
-define("MYBB_ADMINS",		4);
-define("MYBB_AWAITING",		5);
-define("MYBB_MODS",			6);
-define("MYBB_BANNED",		7);
 
 if($mybb->input['board'])
 {
