@@ -41,13 +41,13 @@ $version_code = 1823;
 
 // MyBB Group constants. Used for better readability
 // We need them here to make 100% sure they're defined when creating our classes
-define("MYBB_GUESTS",		1);
-define("MYBB_REGISTERED",	2);
-define("MYBB_SMODS",		3);
-define("MYBB_ADMINS",		4);
-define("MYBB_AWAITING",		5);
-define("MYBB_MODS",			6);
-define("MYBB_BANNED",		7);
+define("MYBB_GUESTS", 1);
+define("MYBB_REGISTERED", 2);
+define("MYBB_SMODS", 3);
+define("MYBB_ADMINS", 4);
+define("MYBB_AWAITING", 5);
+define("MYBB_MODS", 6);
+define("MYBB_BANNED", 7);
 
 // Load core files
 define("MYBB_ROOT", dirname(dirname(__FILE__)).'/');
