@@ -223,7 +223,7 @@ function delete_import_fields($text=true)
 		{
 			if($db->field_exists($column, $table))
 			{
-				$columns_sql .= "{$comma} DROP ".$column;
+				$columns_sql .= "{$comma} DROP COLUMN ".$column;
 				$comma = ",";
 			}
 		}
@@ -234,7 +234,10 @@ function delete_import_fields($text=true)
 			$progress += $increment;
 		}
 
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		if ($columns_sql !== '')
+		{
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		}
 	}
 
 	$db->delete_query("datacache", "title='import_cache'");
@@ -267,9 +270,8 @@ function create_import_fields($text=true)
 	$db->write_query("CREATE TABLE ".TABLE_PREFIX."trackers (
 	  type varchar(20) NOT NULL default '',
 	  count int NOT NULL default '0',
-	  PRIMARY KEY (type),
-	  KEY count (count)
-	) ENGINE=MyISAM;");
+	  PRIMARY KEY (type)
+	);");
 
 	$add_list = array(
 		"int" => array(
@@ -303,7 +305,7 @@ function create_import_fields($text=true)
 		{
 			if(!$db->field_exists($column, $table))
 			{
-				$columns_sql .= "{$comma} ADD ".$column." int NOT NULL default '0'";
+				$columns_sql .= "{$comma} ADD COLUMN ".$column." int NOT NULL default '0'";
 				$comma = ",";
 			}
 		}
@@ -314,7 +316,10 @@ function create_import_fields($text=true)
 			$progress += $increment;
 		}
 
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		if ($columns_sql !== '')
+		{
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		}
 
 		if($db->type == "mysql" || $db->type == "mysqli")
 		{
@@ -334,12 +339,15 @@ function create_import_fields($text=true)
 		{
 			if(!$db->field_exists($column, $table))
 			{
-				$columns_sql .= "{$comma} ADD ".$column." text";
+				$columns_sql .= "{$comma} ADD COLUMN ".$column." text";
 				$comma = ",";
 			}
 		}
 
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		if ($columns_sql !== '')
+		{
+			$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		}
 
 		if($text == true)
 		{
