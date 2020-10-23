@@ -172,7 +172,7 @@ abstract class Converter_Module
 					$insert_field_length -= 1;
 					$insert_field_negative_int = true;
 				}
-				if($insert_field_length > $column_length[$key]) {
+				if(in_array($key, $column_length) && $column_length[$key] !== 0 && $insert_field_length > $column_length[$key]) {
 					if(is_int($insert_array[$key])) {
 						// TODO: check whether int(10) really can save "9999999999" as maximum
 						$insert_array[$key] = ($insert_field_negative_int ? '-' : '') . str_repeat('9', $column_length[$key]);
