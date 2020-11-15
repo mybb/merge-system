@@ -163,13 +163,13 @@ abstract class Converter_Module_Forums extends Converter_Module
 				{
 					case "sqlite":
 					case "pgsql":
-						$query = $db->simple_select("forums", "fid", "','||parentlist||',' LIKE '%,{$forum['fid']},%'");
+						$query_child = $db->simple_select("forums", "fid", "','||parentlist||',' LIKE '%,{$forum['fid']},%'");
 						break;
 					default:
-						$query = $db->simple_select("forums", "fid", "CONCAT(',',parentlist,',') LIKE '%,{$forum['fid']},%'");
+						$query_child = $db->simple_select("forums", "fid", "CONCAT(',',parentlist,',') LIKE '%,{$forum['fid']},%'");
 				}
 
-				while($child = $db->fetch_array($query))
+				while($child = $db->fetch_array($query_child))
 				{
 					$db->update_query("forums", array("parentlist" => $this->make_mybb_parent_list($child['fid'])), "fid='{$child['fid']}'");
 				}
