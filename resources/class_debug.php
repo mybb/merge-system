@@ -108,7 +108,30 @@ class Log {
 	 */
 	public function datatrace($message, $data)
 	{
-		$this->write(self::DATATRACE, $message.': '.var_export($data, true));
+		$insert_data = $data;
+		if(is_array($insert_data))
+		{
+			foreach ($data as $key => $value)
+			{
+				if(is_string($value) && false === preg_match('//u', $value))
+				{
+					// the value is likely binary data. We'll try converting it to an IP first and if that fails we'll just set the field to blank.
+					$ip = inet_ntop($value);
+					if(false === $ip)
+					{
+						$value = '';
+					}
+					else
+					{
+						$value = $ip;
+					}
+				}
+
+				$insert_data[$key] = $value;
+			}
+		}
+
+		$this->write(self::DATATRACE, $message.': '.var_export($insert_data, true));
 	}
 
 	/**
