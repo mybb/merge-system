@@ -44,6 +44,9 @@ class VANILLA_Converter_Module_Privatemessages extends Converter_Module_Privatem
 		// Vanilla values
 		$recip = unserialize($data['recips']);
 		$to_send = array();
+		if (!is_array($recip) || empty($recip)) {
+			return array();
+		}
 		foreach($recip as $key => $id)
 		{
 			$recip[$key] = $this->get_import->uid($id);
