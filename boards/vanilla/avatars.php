@@ -49,6 +49,40 @@ class VANILLA_Converter_Module_Avatars extends Converter_Module_Avatars {
 		$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $data['Photo']);
 		$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
 
+		if (stripos($data['Photo'], 's3://') === 0) {
+			$data['Photo'] = ltrim(substr($data['Photo'], 5));
+
+			if (defined('VANILLA_S3_BASE_URL')) {
+				$url = rtrim(VANILLA_S3_BASE_URL, '/') . '/' . $data['Photo'];
+
+				// download the content of the avatar
+				$fileContent = fetch_remote_file($url);
+
+				if (false === $fileContent) {
+					return array();
+				}
+
+				// save the avatar locally
+				$temp_dir = sys_get_temp_dir() . '/vanilla_import_avatars';
+
+				if (false === mkdir($temp_dir)) {
+					return array();
+				}
+
+				$dest_file = tempnam($temp_dir, basename($data['Photo']));
+
+				if (false === $dest_file) {
+					return array();
+				}
+
+				if (file_put_contents($dest_file, $fileContent) === false) {
+					return array();
+				}
+			}
+
+			return array();
+		}
+
 		$img_size = getimagesize($import_session['avatarspath'].$this->generate_raw_filename($data));
 		$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
 

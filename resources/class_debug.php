@@ -168,6 +168,17 @@ class Log {
 				if(strlen($log_insert['message']) > 65535)
 				{
 					$log_insert['message'] = substr($log_insert['message'], 0, 65531)."...";
+
+					// check that the content is valid UTF-8 - we may have sliced part-way into a unicode codepoint
+					if (!preg_match('//u', $log_insert['message'])) {
+						if (function_exists('mb_convert_encoding')) {
+							$log_insert['message'] = mb_convert_encoding($log_insert['message'], 'UTF-8', 'UTF-8');
+						} else {
+							while (!empty($log_insert['message']) && !preg_match('//u', $log_insert['message'])) {
+								$log_insert['message'] = substr($log_insert['message'], 0, strlen($log_insert['message']) - 1);
+							}
+						}
+					}
 				}
 
 				// If we caused an error and the message we're trying to insert isn't the SQL error we'll skip the message
