@@ -39,7 +39,7 @@ class VANILLA_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $import_session;
+		global $mybb, $import_session;
 
 		$insert_data = array();
 
@@ -50,41 +50,19 @@ class VANILLA_Converter_Module_Avatars extends Converter_Module_Avatars {
 		$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
 
 		if (stripos($data['Photo'], 's3://') === 0) {
-			$data['Photo'] = ltrim(substr($data['Photo'], 5));
+			$insert_data['avatartype'] = AVATAR_TYPE_URL;
+			$insert_data['avatar'] = $data['Photo'];
 
-			if (defined('VANILLA_S3_BASE_URL')) {
-				$url = rtrim(VANILLA_S3_BASE_URL, '/') . '/' . $data['Photo'];
-
-				// download the content of the avatar
-				$fileContent = fetch_remote_file($url);
-
-				if (false === $fileContent) {
-					return array();
-				}
-
-				// save the avatar locally
-				$temp_dir = sys_get_temp_dir() . '/vanilla_import_avatars';
-
-				if (false === mkdir($temp_dir)) {
-					return array();
-				}
-
-				$dest_file = tempnam($temp_dir, basename($data['Photo']));
-
-				if (false === $dest_file) {
-					return array();
-				}
-
-				if (file_put_contents($dest_file, $fileContent) === false) {
-					return array();
-				}
+			if(!$mybb->settings['maxavatardims'])
+			{
+				$mybb->settings['maxavatardims'] = '100x100'; // Hard limit of 100 if there are no limits
 			}
-
-			return array();
+			list($maxwidth, $maxheight) = explode("x", my_strtolower($mybb->settings['maxavatardims']));
+			$insert_data['avatardimensions'] = "{$maxheight}|{$maxwidth}";
+		} else {
+			$img_size = getimagesize($import_session['avatarspath'].$this->generate_raw_filename($data));
+			$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
 		}
-
-		$img_size = getimagesize($import_session['avatarspath'].$this->generate_raw_filename($data));
-		$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
 
 		return $insert_data;
 	}
