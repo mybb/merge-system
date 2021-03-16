@@ -39,7 +39,7 @@ class VANILLA_Converter_Module_Avatars extends Converter_Module_Avatars {
 
 	function convert_data($data)
 	{
-		global $import_session;
+		global $mybb, $import_session;
 
 		$insert_data = array();
 
@@ -49,8 +49,20 @@ class VANILLA_Converter_Module_Avatars extends Converter_Module_Avatars {
 		$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $data['Photo']);
 		$insert_data['avatartype'] = AVATAR_TYPE_UPLOAD;
 
-		$img_size = getimagesize($import_session['avatarspath'].$this->generate_raw_filename($data));
-		$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
+		if (stripos($data['Photo'], 's3://') === 0) {
+			$insert_data['avatartype'] = AVATAR_TYPE_URL;
+			$insert_data['avatar'] = $data['Photo'];
+
+			if(!$mybb->settings['maxavatardims'])
+			{
+				$mybb->settings['maxavatardims'] = '100x100'; // Hard limit of 100 if there are no limits
+			}
+			list($maxwidth, $maxheight) = explode("x", my_strtolower($mybb->settings['maxavatardims']));
+			$insert_data['avatardimensions'] = "{$maxheight}|{$maxwidth}";
+		} else {
+			$img_size = getimagesize($import_session['avatarspath'].$this->generate_raw_filename($data));
+			$insert_data['avatardimensions'] = "{$img_size[1]}|{$img_size[0]}";
+		}
 
 		return $insert_data;
 	}

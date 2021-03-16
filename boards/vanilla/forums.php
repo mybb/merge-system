@@ -107,7 +107,7 @@ class VANILLA_Converter_Module_Forums extends Converter_Module_Forums {
 		$query = $db->query("
 			SELECT f.fid, f2.fid as updatefid, f.import_fid
 			FROM ".TABLE_PREFIX."forums f
-			LEFT JOIN ".TABLE_PREFIX."forums f2 ON (f2.import_fid=f.import_pid)
+			INNER JOIN ".TABLE_PREFIX."forums f2 ON (f2.import_fid=f.import_pid)
 			WHERE f.import_pid != 0 AND f.pid = 0
 		");
 		while($forum = $db->fetch_array($query))
