@@ -26,7 +26,7 @@ abstract class Converter_Module
 	var $default_values = array();
 
 	/**
-	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite
+	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite|PostgresPdoDbDriver|MysqlPdoDbDriver
 	 */
 	var $old_db;
 

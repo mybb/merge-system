@@ -446,15 +446,33 @@ END;
 			);
 		}
 
-		if(class_exists('PDO') && in_array("sqlite", $board->supported_databases))
+		if(class_exists('PDO'))
 		{
 			$supported_dbs = PDO::getAvailableDrivers();
-			if(in_array('sqlite', $supported_dbs))
+			if(in_array('sqlite', $supported_dbs) && in_array("sqlite", $board->supported_databases))
 			{
 				$dboptions['sqlite'] = array(
 					'class' => 'DB_SQLite',
 					'title' => 'SQLite 3',
 					'short_title' => 'SQLite',
+				);
+			}
+
+			if(in_array('pgsql', $supported_dbs) && in_array("pgsql", $board->supported_databases))
+			{
+				$dboptions['pgsql_pdo'] = array(
+					'class' => 'PostgresPdoDbDriver',
+					'title' => 'PostgreSQL (PDO)',
+					'short_title' => 'PostgreSQL (PDO)',
+				);
+			}
+
+			if(in_array('mysql', $supported_dbs) && in_array("mysql", $board->supported_databases))
+			{
+				$dboptions['mysql_pdo'] = array(
+					'class' => 'MysqlPdoDbDriver',
+					'title' => 'MySQL (PDO)',
+					'short_title' => 'MySQL (PDO)',
 				);
 			}
 		}
@@ -510,7 +528,7 @@ END;
 				continue;
 			}
 
-			/** @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite $db */
+			/** @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite|PostgresPdoDbDriver|MysqlPdoDbDriver $db */
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
 
