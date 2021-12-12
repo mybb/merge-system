@@ -216,25 +216,37 @@ function delete_import_fields($text=true)
 	$progress = 0;
 	foreach($drop_list as $table => $columns)
 	{
-		$columns_list = implode(', ', $columns);
-		$comma = "";
-		$columns_sql = "";
-		foreach($columns as $column)
-		{
-			if($db->field_exists($column, $table))
-			{
-				$columns_sql .= "{$comma} DROP ".$column;
-				$comma = ",";
-			}
-		}
-
 		if($text == true)
 		{
+			$columns_list = implode(', ', $columns);
 			$output->update_progress_bar($progress, $lang->sprintf($lang->removing_columns, $columns_list, TABLE_PREFIX.$table));
 			$progress += $increment;
 		}
 
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
+		$columns_to_drop = array();
+		foreach($columns as $column)
+		{
+			if($db->field_exists($column, $table))
+			{
+				$columns_to_drop[] = $column;
+			}
+		}
+		if(!empty($columns_to_drop))
+		{
+			if($db->type == "sqlite")
+			{
+				// Can be achieved in a transaction if we'd finally support it.
+				foreach($columns_to_drop as $column)
+				{
+					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." DROP {$column}");
+				}
+			}
+			else
+			{
+				$columns_sql = implode(", DROP ", $columns_to_drop);
+				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." DROP {$columns_sql}");
+			}
+		}
 	}
 
 	$db->delete_query("datacache", "title='import_cache'");
@@ -264,12 +276,21 @@ function create_import_fields($text=true)
 		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."trackers"));
 	}
 
-	$db->write_query("CREATE TABLE ".TABLE_PREFIX."trackers (
+	if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
+	{
+		$createtable_trackers_sql_table_engine = " ENGINE=MyISAM";
+	}
+	else
+	{
+		$createtable_trackers_sql_table_engine = "";
+	}
+	$createtable_trackers_sql = "CREATE TABLE ".TABLE_PREFIX."trackers (
 	  type varchar(20) NOT NULL default '',
 	  count int NOT NULL default '0',
-	  PRIMARY KEY (type),
-	  KEY count (count)
-	) ENGINE=MyISAM;");
+	  PRIMARY KEY (type)
+	){$createtable_trackers_sql_table_engine};";
+
+	$db->write_query($createtable_trackers_sql);
 
 	$add_list = array(
 		"int" => array(
@@ -296,55 +317,79 @@ function create_import_fields($text=true)
 	$progress = 0;
 	foreach($add_list['int'] as $table => $columns)
 	{
-		$columns_list = implode(', ', $columns);
-		$comma = "";
-		$columns_sql = "";
-		foreach($columns as $column)
-		{
-			if(!$db->field_exists($column, $table))
-			{
-				$columns_sql .= "{$comma} ADD ".$column." int NOT NULL default '0'";
-				$comma = ",";
-			}
-		}
-
 		if($text == true)
 		{
+			$columns_list = implode(', ', $columns);
 			$output->update_progress_bar($progress, $lang->sprintf($lang->creating_columns, "int", $columns_list, TABLE_PREFIX.$table));
 			$progress += $increment;
 		}
 
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
-
-		if($db->type == "mysql" || $db->type == "mysqli")
+		$columns_to_add = array();
+		foreach($columns as $column)
 		{
-			foreach($columns as $column)
+			if(!$db->field_exists($column, $table))
 			{
-				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD INDEX ( `{$column}` )");
+				$columns_to_add[] = $column;
+			}
+		}
+		if(!empty($columns_to_add))
+		{
+			if($db->type == "sqlite")
+			{
+				// Can be achieved in a transaction if we'd finally support it.
+				foreach($columns_to_add as $column)
+				{
+					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} int NOT NULL default '0'");
+				}
+			}
+			else
+			{
+				$columns_sql = implode(" int NOT NULL default '0', ADD ", $columns_to_add);
+				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL default '0'");
+
+				if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
+				{
+					foreach($columns as $column)
+					{
+						$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD INDEX ( `{$column}` )");
+					}
+				}
 			}
 		}
 	}
 
 	foreach($add_list['text'] as $table => $columns)
 	{
-		$columns_list = implode(', ', $columns);
-		$comma = "";
-		$columns_sql = "";
+		if($text == true)
+		{
+			$columns_list = implode(', ', $columns);
+			$output->update_progress_bar($progress, $lang->sprintf($lang->creating_columns, "text", $columns_list, TABLE_PREFIX.$table));
+			$progress += $increment;
+		}
+
+		$columns_to_add = array();
 		foreach($columns as $column)
 		{
 			if(!$db->field_exists($column, $table))
 			{
-				$columns_sql .= "{$comma} ADD ".$column." text";
-				$comma = ",";
+				$columns_to_add[] = $column;
 			}
 		}
-
-		$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table."{$columns_sql}");
-
-		if($text == true)
+		if(!empty($columns_to_add))
 		{
-			$output->update_progress_bar($progress, $lang->sprintf($lang->creating_columns, "text", $columns_list, TABLE_PREFIX.$table));
-			$progress += $increment;
+			if($db->type == "sqlite")
+			{
+				// Can be achieved in a transaction if we'd finally support it.
+				foreach($columns_to_add as $column)
+				{
+					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} text");
+				}
+			}
+			else
+			{
+				$columns_sql = implode(" text, ADD ", $columns_to_add);
+				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} text");
+			}
 		}
 	}
 
