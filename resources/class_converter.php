@@ -336,8 +336,10 @@ abstract class Converter
 			{
 				$mybb->input['config'][$dbs]['tableprefix'] = $tableprefix;
 			}
-			// Handling mysqli seperatly as the array above doesn't make a difference between mysql and mysqli
+			// Handling mysqli, mysql_pdo and pgsql_pdo separately.
 			$mybb->input['config']["mysqli"]['tableprefix'] = $tableprefix;
+			$mybb->input['config']["mysql_pdo"]['tableprefix'] = $tableprefix;
+			$mybb->input['config']["pgsql_pdo"]['tableprefix'] = $tableprefix;
 
 			if($import_session['old_db_user'])
 			{
