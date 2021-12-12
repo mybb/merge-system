@@ -226,6 +226,7 @@ class Log {
 					);");
 					break;
 				case "pgsql":
+				case "pgsql_pdo":
 					$db->write_query("CREATE TABLE ".TABLE_PREFIX."debuglogs (
 						dlid serial,
 						type int NOT NULL default '0',

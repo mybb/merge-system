@@ -163,6 +163,7 @@ abstract class Converter_Module_Forums extends Converter_Module
 				{
 					case "sqlite":
 					case "pgsql":
+					case "pgsql_pdo":
 						$query_child = $db->simple_select("forums", "fid", "','||parentlist||',' LIKE '%,{$forum['fid']},%'");
 						break;
 					default:
