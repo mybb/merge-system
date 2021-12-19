@@ -26,7 +26,7 @@ abstract class Converter
 	var $debug;
 
 	/**
-	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite
+	 * @var DB_MySQL|DB_MySQLi|DB_PgSQL|DB_SQLite|PostgresPdoDbDriver|MysqlPdoDbDriver
 	 */
 	var $old_db;
 
@@ -168,8 +168,14 @@ abstract class Converter
 			case "pgsql":
 				$this->old_db = new DB_PgSQL;
 				break;
+			case "pgsql_pdo":
+				$this->old_db = new PostgresPdoDbDriver();
+				break;
 			case "mysqli":
 				$this->old_db = new DB_MySQLi;
+				break;
+			case "mysql_pdo":
+				$this->old_db = new MysqlPdoDbDriver();
 				break;
 			default:
 				$this->old_db = new DB_MySQL;
@@ -211,8 +217,14 @@ abstract class Converter
 					case "pgsql":
 						$this->old_db = new DB_PgSQL;
 						break;
+					case "pgsql_pdo":
+						$this->old_db = new PostgresPdoDbDriver();
+						break;
 					case "mysqli":
 						$this->old_db = new DB_MySQLi;
+						break;
+					case "mysql_pdo":
+						$this->old_db = new MysqlPdoDbDriver();
 						break;
 					default:
 						$this->old_db = new DB_MySQL;
@@ -324,8 +336,10 @@ abstract class Converter
 			{
 				$mybb->input['config'][$dbs]['tableprefix'] = $tableprefix;
 			}
-			// Handling mysqli seperatly as the array above doesn't make a difference between mysql and mysqli
+			// Handling mysqli, mysql_pdo and pgsql_pdo separately.
 			$mybb->input['config']["mysqli"]['tableprefix'] = $tableprefix;
+			$mybb->input['config']["mysql_pdo"]['tableprefix'] = $tableprefix;
+			$mybb->input['config']["pgsql_pdo"]['tableprefix'] = $tableprefix;
 
 			if($import_session['old_db_user'])
 			{

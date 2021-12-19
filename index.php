@@ -126,8 +126,6 @@ if(substr($mybb->settings['uploadspath'], 0, 2) == "./" || substr($mybb->setting
 	$mybb->settings['uploadspath'] = MYBB_ROOT.$mybb->settings['uploadspath'];
 }
 
-require_once MYBB_ROOT."inc/class_xml.php";
-
 // Include the converter resources
 require_once MERGE_ROOT."resources/functions.php";
 require_once MERGE_ROOT.'resources/output.php';
@@ -137,11 +135,11 @@ require_once MERGE_ROOT.'resources/class_converter.php';
 
 $mybb->config = $config;
 
-if(file_exists(MYBB_ROOT."inc/db_base.php")) // MyBB 1.8.4+
-{
-	require_once MYBB_ROOT."inc/db_base.php";
-}
+require_once MYBB_ROOT."inc/db_base.php";
+require_once MYBB_ROOT.'inc/AbstractPdoDbDriver.php';
+
 require_once MYBB_ROOT."inc/db_{$config['database']['type']}.php";
+
 switch($config['database']['type'])
 {
 	case "sqlite":
@@ -150,8 +148,14 @@ switch($config['database']['type'])
 	case "pgsql":
 		$db = new DB_PgSQL;
 		break;
+	case "pgsql_pdo":
+		$db = new PostgresPdoDbDriver();
+		break;
 	case "mysqli":
 		$db = new DB_MySQLi;
+		break;
+	case "mysql_pdo":
+		$db = new MysqlPdoDbDriver();
 		break;
 	default:
 		$db = new DB_MySQL;
@@ -595,11 +599,10 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 	$checks['version_check_status'] = '<span class="pass">'.$lang->requirementspage_uptodate.'</span>';
 
 	// Check for a new version of the Merge System!
-	require_once MYBB_ROOT."inc/class_xml.php";
 	$contents = merge_fetch_remote_file("http://www.mybb.com/merge_version_check.php");
-	if($contents)
+	if(!empty($contents))
 	{
-		$parser = new XMLParser($contents);
+		$parser = create_xml_parser($contents);
 		$tree = $parser->get_tree();
 
 		$latest_code = (int)$tree['mybb_merge']['version_code']['value'];
