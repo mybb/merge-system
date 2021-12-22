@@ -276,7 +276,7 @@ function create_import_fields($text=true)
 		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."trackers"));
 	}
 
-	if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
+	if($db->type == "mysql" || $db->type == "mysqli")
 	{
 		$createtable_trackers_sql_table_engine = " ENGINE=MyISAM";
 	}
@@ -347,7 +347,7 @@ function create_import_fields($text=true)
 				$columns_sql = implode(" int NOT NULL default '0', ADD ", $columns_to_add);
 				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL default '0'");
 
-				if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
+				if($db->type == "mysql" || $db->type == "mysqli")
 				{
 					foreach($columns as $column)
 					{
