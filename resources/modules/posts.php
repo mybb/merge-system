@@ -10,13 +10,16 @@
 abstract class Converter_Module_Posts extends Converter_Module
 {
 	public $default_values = array(
+		'import_pid' => 0,
 		'import_uid' => 0,
+
 		'tid' => 0,
 		'replyto' => 0,
-		'subject' => '',
-		'username' => '',
 		'fid' => 0,
+		'subject' => '',
+		'icon' => 0,
 		'uid' => 0,
+		'username' => '',
 		'dateline' => 0,
 		'message' => '',
 		'ipaddress' => '',
@@ -24,7 +27,7 @@ abstract class Converter_Module_Posts extends Converter_Module
 		'smilieoff' => 0,
 		'edituid' => 0,
 		'edittime' => 0,
-		'icon' => 0,
+		'editreason' => '',
 		'visible' => 1,
 	);
 	
@@ -35,16 +38,17 @@ abstract class Converter_Module_Posts extends Converter_Module
 	public $integer_fields = array(
 		'import_pid',
 		'import_uid',
+
 		'tid',
 		'replyto',
 		'fid',
+		'icon',
 		'uid',
 		'dateline',
 		'includesig',
 		'smilieoff',
 		'edituid',
 		'edittime',
-		'icon',
 		'visible',
 	);
 
