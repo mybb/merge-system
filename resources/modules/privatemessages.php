@@ -51,7 +51,7 @@ abstract class Converter_Module_Privatemessages extends Converter_Module
 		'status',
 		'statustime',
 		'includesig',
-		'smielieoff',
+		'smilieoff',
 		'receipt',
 		'readtime',
 	);

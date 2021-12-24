@@ -10,10 +10,11 @@
 abstract class Converter_Module_Pollvotes extends Converter_Module
 {
 	public $default_values = array(
-		'vid' => 0,
+		'pid' => 0,
 		'uid' => 0,
 		'voteoption' => 0,
-		'dateline' => 0
+		'dateline' => 0,
+		'ipaddress' => '',
 	);
 
 	// The pollvotes table has ONLY integer fields - use the array above
@@ -23,6 +24,11 @@ abstract class Converter_Module_Pollvotes extends Converter_Module
 		parent::__construct($converter_class);
 		$this->integer_fields = array_keys($this->default_values);
 	}
+
+	public $binary_fields = array(
+		'ipaddress',
+	);
+
 
 	/**
 	 * Insert poll vote into database

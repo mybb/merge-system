@@ -11,7 +11,9 @@ abstract class Converter_Module_Attachments extends Converter_Module
 {
 	public $default_values = array(
 		'import_aid' => 0,
+
 		'pid' => 0,
+		'posthash' => '',
 		'uid' => 0,
 		'filename' => '',
 		'filetype' => '',
@@ -25,6 +27,7 @@ abstract class Converter_Module_Attachments extends Converter_Module
 
 	public $integer_fields = array(
 		'import_aid',
+
 		'pid',
 		'uid',
 		'filesize',

@@ -11,6 +11,8 @@ abstract class Converter_Module_Polls extends Converter_Module
 {
 	public $default_values = array(
 		'import_pid' => 0,
+		'import_tid' => 0,
+
 		'tid' => 0,
 		'question' => '',
 		'dateline' => 0,
@@ -21,11 +23,14 @@ abstract class Converter_Module_Polls extends Converter_Module
 		'timeout' => 0,
 		'closed' => 0,
 		'multiple' => 0,
-		'public' => 0
+		'public' => 0,
+		'maxoptions' => 0,
 	);
 
 	public $integer_fields = array(
 		'import_pid',
+		'import_tid',
+
 		'tid',
 		'dateline',
 		'numoptions',
@@ -34,6 +39,7 @@ abstract class Converter_Module_Polls extends Converter_Module
 		'closed',
 		'multiple',
 		'public',
+		'maxoptions',
 	);
 
 	var $mark_as_run_modules = array(
