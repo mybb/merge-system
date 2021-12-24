@@ -285,8 +285,8 @@ function create_import_fields($text=true)
 		$createtable_trackers_sql_table_engine = "";
 	}
 	$createtable_trackers_sql = "CREATE TABLE ".TABLE_PREFIX."trackers (
-	  type varchar(20) NOT NULL default '',
-	  count int NOT NULL default '0',
+	  type varchar(20) NOT NULL DEFAULT '',
+	  count int NOT NULL DEFAULT '0',
 	  PRIMARY KEY (type)
 	){$createtable_trackers_sql_table_engine};";
 
@@ -339,13 +339,13 @@ function create_import_fields($text=true)
 				// Can be achieved in a transaction if we'd finally support it.
 				foreach($columns_to_add as $column)
 				{
-					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} int NOT NULL default '0'");
+					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} int NOT NULL DEFAULT '0'");
 				}
 			}
 			else
 			{
 				$columns_sql = implode(" int NOT NULL default '0', ADD ", $columns_to_add);
-				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL default '0'");
+				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL DEFAULT '0'");
 
 				if($db->type == "mysql" || $db->type == "mysqli")
 				{
