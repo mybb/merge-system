@@ -250,7 +250,9 @@ abstract class Converter_Module
 				// If the target column is of boolean type.
 				if(isset($column['type']) && ($column['type'] == MERGE_DATATYPE_BOOL || isset($column['type_table']) && $column['type_table'] == MERGE_DATATYPE_BOOL))
 				{
-					if(empty((int) $value))
+					// PHP 5.4 and lower fix.
+					$value = (int) $value;
+					if(empty($value))
 					{
 						$value = 0;
 					}
