@@ -135,17 +135,18 @@ abstract class Converter_Module
 	 * Fills an array of insert data with default MyBB values if they were not specified
 	 *
 	 * @param array $values
-	 * @param bool|string $table In which table the array will be inserted. Used to determine the length
+	 * @param string $table In which table the array will be inserted. Used to determine the length
 	 *
 	 * @return array
 	 */
-	public function prepare_insert_array($values, $table=false)
+	public function prepare_insert_array($values, $table='')
 	{
-		global $db;
+		global $import_session, $db, $lang;
 
-		$column_length = array();
-		if($table !== false) {
-			$column_length = get_length_info($table);
+		$column_info = array();
+		if(!empty($table))
+		{
+			$column_info = get_column_length_info($table);
 		}
 
 		$data = array_merge($this->default_values, $values);
@@ -153,34 +154,232 @@ abstract class Converter_Module
 
 		foreach($data as $key => $value)
 		{
-			if(isset($this->binary_fields) && in_array($key, $this->binary_fields))
+			$value_original = $value;
+			if(!empty($column_info[$key]['type']))
 			{
-				$insert_array[$key] = $db->escape_binary($value);
-			}
-			else if(isset($this->integer_fields) && in_array($key, $this->integer_fields))
-			{
-				$insert_array[$key] = (int)$value;
+				$column = $column_info[$key];
 			}
 			else
 			{
-				$insert_array[$key] = $db->escape_string($value);
+				$column = array();
+				$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_unknown_column, $import_session['module'], TABLE_PREFIX.$table, $key));
 			}
 
-			if(isset($column_length[$key]) && (!isset($this->binary_fields) || !in_array($key, $this->binary_fields))) {
-				$insert_field_length = mb_strlen($insert_array[$key]);
-				if(is_int($insert_array[$key]) && $insert_array[$key] < 0) {
-					$insert_field_length -= 1;
-					$insert_field_negative_int = true;
-				}
-				if($insert_field_length > $column_length[$key]) {
-					if(is_int($insert_array[$key])) {
-						// TODO: check whether int(10) really can save "9999999999" as maximum
-						$insert_array[$key] = ($insert_field_negative_int ? '-' : '') . str_repeat('9', $column_length[$key]);
-						$insert_array[$key] = (int)$insert_array[$key];
-					} else {
-						$insert_array[$key] = my_substr($insert_array[$key], 0, $column_length[$key]-3)."...";
+			// It's expected to be a binary field data in MyBB.
+			// Actual column type varies, could be varbinary, *blob, bytea, etc.
+			if(isset($this->binary_fields) && in_array($key, $this->binary_fields))
+			{
+				$value_length = strlen($value);
+
+				// It'll be stored into a binary column.
+				if(isset($column['type']) && $column['type'] == MERGE_DATATYPE_BIN)
+				{
+					if(isset($column['length_table']))
+					{
+						$limit = $column['length_table'];
+						// Issue a warning (or an error?) of a data truncation of a binary field.
+					}
+					else
+					{
+						$limit = $column['length'];
+					}
+
+					if($value_length > $limit)
+					{
+						$value = substr($value, 0, $limit);
+						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_binary, TABLE_PREFIX.$table, $key, $column['def_type'], $value_length, $limit));
+						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY', var_export(bin2hex($value_original), true), var_export(bin2hex($value), true)));
 					}
 				}
+				else
+				{
+					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY'));
+				}
+
+				$insert_array[$key] = $db->escape_binary($value);
+			}
+			// It's expected to be an integer field data in MyBB.
+			// Actual column type varies, could be *int, numeric/decimal, etc.
+			else if(isset($this->integer_fields) && in_array($key, $this->integer_fields))
+			{
+				$value = strtolower(trim((string) $value));
+				if(strpos($value, '.') !== false)
+				{
+					$value = substr($value, 0, strpos($value, '.'));
+				}
+
+				if(!is_numeric($value))
+				{
+					$value = (string) ((int) $value);
+					$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_casting_integer, TABLE_PREFIX.$table, $key, $column['def_type']));
+					$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_casted, TABLE_PREFIX.$table, $key, $column['def_type'], 'The original', 'INTEGER', var_export($value_original, true), var_export($value, true)));
+				}
+				else if(strpos($value, 'e') !== false)
+				{
+					$value = number_format($value, 0, '.', '');
+				}
+
+				// Remove the sign, '+' or '-', if any, and save the positiveness.
+				$int_is_positive = true;
+				$value_length = strlen($value);
+				if($value_length)
+				{
+					switch($value[0])
+					{
+						case '-':
+							$int_is_positive = false;
+						case '+':
+							// Some older PHP versions may return false.
+							$value = substr($value, 1);
+							if($value ===  false)
+							{
+								$value = '';
+							}
+							break;
+					}
+				}
+				// Remove any leftmost '0' and recover one '0' if necessary.
+				$value = ltrim($value, '0');
+				if(empty($value))
+				{
+					$value = '0';
+				}
+
+				$value_length = strlen($value);
+
+				// If the target column is of boolean type.
+				if(isset($column['type']) && ($column['type'] == MERGE_DATATYPE_BOOL || isset($column['type_table']) && $column['type_table'] == MERGE_DATATYPE_BOOL))
+				{
+					if(empty((int) $value))
+					{
+						$value = 0;
+					}
+					else
+					{
+						$value = 1;
+					}
+				}
+				// If the target column is of integer or fixed-point type.
+				else if(isset($column['type']) && ($column['type'] == MERGE_DATATYPE_INT || $column['type'] == MERGE_DATATYPE_FIXED))
+				{
+					$int_is_limitless = false;
+					$int_limit = 0;
+					if($column['type'] == MERGE_DATATYPE_FIXED)
+					{
+						if(isset($column['length_table'], $column['scale_table']))
+						{
+							$fixed_point_precision = $column['length_table'];
+							$fixed_point_scale = $column['scale_table'];
+						}
+						else
+						{
+							$fixed_point_precision = $column['length'];
+							$fixed_point_scale = $column['scale'];
+						}
+
+						if($fixed_point_precision == -1)
+						{
+							$int_is_limitless = true;
+						}
+						else
+						{
+							$int_limit = str_repeat('9', $fixed_point_precision - $fixed_point_scale);
+						}
+
+					}
+					else if(isset($column['min_table'], $column['max_table']))
+					{
+						$int_limit = $int_is_positive ? $column['max_table'] :  $column['min_table'];
+					}
+					else
+					{
+						$int_limit = $int_is_positive ? $column['max'] :  $column['min'];
+					}
+
+					$int_is_truncated = false;
+					if(!$int_is_limitless && !empty($int_limit))
+					{
+						$int_limit_length = strlen($int_limit);
+						if($value_length > $int_limit_length)
+						{
+							$value = $int_limit;
+							$int_is_truncated = true;
+						}
+						else if($value_length == $int_limit_length)
+						{
+							for($i = 0; $i < $value_length; $i++)
+							{
+								if($value[$i] != $int_limit[$i])
+								{
+									if($value[$i] > $int_limit[$i])
+									{
+										$value = $int_limit;
+										$int_is_truncated = true;
+									}
+									break;
+								}
+							}
+						}
+					}
+
+					if($int_is_truncated)
+					{
+						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_integer, TABLE_PREFIX.$table, $key, $column['def_type'], $value_original, $int_limit));
+						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER', var_export($value_original, true), var_export($value, true)));
+					}
+
+					if(!$int_is_positive)
+					{
+						$value = '-' . $value;
+					}
+				}
+				else
+				{
+					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER'));
+				}
+
+				$insert_array[$key] = $value;
+			}
+			// It's expected to be a string/character field data in MyBB.
+			// Actual column type varies, could be *char*, *text, etc.
+			else
+			{
+				$value_char_length = mb_strlen($value);
+				$value_byte_length = strlen($value);
+
+				// It'll be stored into a binary column.
+				if(isset($column['type']) && $column['type'] == MERGE_DATATYPE_CHAR)
+				{
+					if(isset($column['length_table'], $column['length_type_table']))
+					{
+						$limit = $column['length_table'];
+						$limit_type = $column['length_type_table'];
+					}
+					else
+					{
+						$limit = $column['length'];
+						$limit_type = $column['length_type'];
+					}
+
+					if($limit_type == MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR && $value_char_length > $limit)
+					{
+						$value = my_substr($value, 0, $limit);
+						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_string, TABLE_PREFIX.$table, $key, $column['def_type'], 'char', $value_char_length, $limit));
+						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING (by char)', var_export($value_original, true), var_export($value, true)));
+					}
+					else if($limit_type == MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE && $value_byte_length > $limit)
+					{
+						$value = mb_strcut($value, 0, $limit);
+						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_string, TABLE_PREFIX.$table, $key, $column['def_type'], 'byte', $value_byte_length, $limit));
+						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING (by byte)', var_export($value_original, true), var_export($value, true)));
+					}
+				}
+				else
+				{
+					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING'));
+				}
+
+				$insert_array[$key] = $db->escape_string($value);
 			}
 		}
 

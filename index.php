@@ -55,6 +55,8 @@ define("MERGE_ROOT", dirname(__FILE__).'/');
 define("IN_MYBB", 1);
 define("TIME_NOW", time());
 
+require_once MERGE_ROOT."resources/constants.php";
+
 if(function_exists('date_default_timezone_set') && !ini_get('date.timezone'))
 {
 	date_default_timezone_set('GMT');
@@ -299,6 +301,29 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			$module_list = "{$lang->none}\r\n";
 		}
 
+		$warnings = "";
+		if(!empty($import_session['error_logs_columns']['module']))
+		{
+			foreach ($import_session['error_logs_columns']['module'] as $error_logs_columns_module => $error_logs_columns_module_column)
+			{
+				$warnings .= "Module '{$error_logs_columns_module}':\n";
+				foreach ($error_logs_columns_module_column as $error_logs_columns_module_column_name => $error_logs_columns_module_column_message)
+				{
+					$warnings .= "\tField '{$error_logs_columns_module_column_name}': {$error_logs_columns_module_column_message}\r\n";
+				}
+			}
+		}
+		if(!empty($import_session['error_logs_columns']['table']))
+		{
+			foreach($import_session['error_logs_columns']['table'] as $error_logs_columns_table => $error_logs_columns_table_column)
+			{
+				$warnings .= "Table '{$error_logs_columns_table}':\n";
+				foreach($error_logs_columns_table_column as $error_logs_columns_table_column_name => $error_logs_columns_table_column_message)
+				{
+					$warnings .= "\tColumn '{$error_logs_columns_table_column_name}': {$error_logs_columns_table_column_message}\r\n";
+				}
+			}
+		}
 		$errors = "";
 		if(!empty($import_session['error_logs']))
 		{
@@ -312,6 +337,10 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			}
 		}
 
+		if(empty($warnings))
+		{
+			$warnings = "{$lang->none}\r\n";
+		}
 		if(empty($errors))
 		{
 			$errors = "{$lang->none}\r\n";
@@ -351,6 +380,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			$module_list,
 			$board->bbname,
 			$import_totals,
+			$warnings,
 			$errors,
 			$generation_time
 		);
@@ -391,6 +421,31 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			$import_totals = "<dt>{$lang->none}</dt>\n";
 		}
 
+		$warnings = "";
+		if(!empty($import_session['error_logs_columns']['module']))
+		{
+			foreach ($import_session['error_logs_columns']['module'] as $error_logs_columns_module => $error_logs_columns_module_column)
+			{
+				$warnings .= "<li><strong>Module '{$error_logs_columns_module}':</strong>\n<ul>";
+				foreach ($error_logs_columns_module_column as $error_logs_columns_module_column_name => $error_logs_columns_module_column_message)
+				{
+					$warnings .= "<li>Field '{$error_logs_columns_module_column_name}': {$error_logs_columns_module_column_message}</li>\n";
+				}
+				$warnings .= "</ul>\n</li>";
+			}
+		}
+		if(!empty($import_session['error_logs_columns']['table']))
+		{
+			foreach($import_session['error_logs_columns']['table'] as $error_logs_columns_table => $error_logs_columns_table_column)
+			{
+				$warnings .= "<li><strong>Table '{$error_logs_columns_table}':</strong>\n<ul>";
+				foreach($error_logs_columns_table_column as $error_logs_columns_table_column_name => $error_logs_columns_table_column_message)
+				{
+					$warnings .= "<li>Column '{$error_logs_columns_table_column_name}': {$error_logs_columns_table_column_message}</li>\n";
+				}
+				$warnings .= "</ul>\n</li>";
+			}
+		}
 		$errors = "";
 		if(!empty($import_session['error_logs']))
 		{
@@ -405,6 +460,10 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			}
 		}
 
+		if(empty($warnings))
+		{
+			$warnings = "<li>{$lang->none}</li>\n";
+		}
 		if(empty($errors))
 		{
 			$errors = "<li>{$lang->none}</li>\n";
@@ -420,6 +479,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			$module_list,
 			$board->bbname,
 			$import_totals,
+			$warnings,
 			$errors,
 			$generation_time,
 			$year
