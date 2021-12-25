@@ -77,6 +77,7 @@ class MYBB_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['message'] = encode_to_utf8($this->bbcode_parser->convert($data['message']), "posts", "posts");
 		$insert_data['edituid'] = $this->get_import->uid($data['edituid']);
 		$insert_data['editreason'] = encode_to_utf8($data['editreason'], "posts", "posts");
+		$insert_data['ipaddress'] = $this->old_db->unescape_binary($data['ipaddress']);
 
 		return $insert_data;
 	}
