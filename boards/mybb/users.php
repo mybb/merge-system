@@ -92,6 +92,8 @@ class MYBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['signature'] = encode_to_utf8($data['signature'], "users", "users");
 		$insert_data['import_usergroup'] = $data['usergroup'];
 		$insert_data['import_additionalgroups'] = $data['additionalgroups'];
+		$insert_data['regip'] = $this->old_db->unescape_binary($data['regip']);
+		$insert_data['lastip'] = $this->old_db->unescape_binary($data['lastip']);
 
 		return $insert_data;
 	}

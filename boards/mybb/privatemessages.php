@@ -69,6 +69,7 @@ class MYBB_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 		$insert_data['toid'] = $this->get_import->uid($data['toid']);
 		$insert_data['subject'] = encode_to_utf8($data['subject'], "privatemessages", "privatemessages");
 		$insert_data['message'] = encode_to_utf8($data['message'], "privatemessages", "privatemessages");
+		$insert_data['ipaddress'] = $this->old_db->unescape_binary($data['ipaddress']);
 
 		$touserarray = unserialize($data['recipients']);
 

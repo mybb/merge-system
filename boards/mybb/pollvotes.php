@@ -66,6 +66,7 @@ class MYBB_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		// MyBB 1.8 values
 		$insert_data['uid'] = $this->get_import->uid($data['uid']);
 		$insert_data['pid'] = $this->get_import->pollid($data['pid']);
+		$insert_data['ipaddress'] = $this->old_db->unescape_binary($data['ipaddress']);
 
 		return $insert_data;
 	}
