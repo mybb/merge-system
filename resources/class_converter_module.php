@@ -265,7 +265,7 @@ abstract class Converter_Module
 				else if(isset($column['type']) && ($column['type'] == MERGE_DATATYPE_INT || $column['type'] == MERGE_DATATYPE_FIXED))
 				{
 					$int_is_limitless = false;
-					$int_limit = 0;
+					$int_limit = '0';
 					if($column['type'] == MERGE_DATATYPE_FIXED)
 					{
 						if(isset($column['length_table'], $column['scale_table']))
@@ -298,8 +298,13 @@ abstract class Converter_Module
 						$int_limit = $int_is_positive ? $column['max'] :  $column['min'];
 					}
 
+					if($int_limit[0] == '-')
+					{
+						$int_limit = substr($int_limit, 1);
+					}
+
 					$int_is_truncated = false;
-					if(!$int_is_limitless && !empty($int_limit))
+					if(!$int_is_limitless)
 					{
 						$int_limit_length = strlen($int_limit);
 						if($value_length > $int_limit_length)
@@ -313,7 +318,7 @@ abstract class Converter_Module
 							{
 								if($value[$i] != $int_limit[$i])
 								{
-									if($value[$i] > $int_limit[$i])
+									if((int) $value[$i] > (int) $int_limit[$i])
 									{
 										$value = $int_limit;
 										$int_is_truncated = true;
@@ -324,15 +329,15 @@ abstract class Converter_Module
 						}
 					}
 
+					if(!$int_is_positive && !empty($value))
+					{
+						$value = '-' . $value;
+					}
+
 					if($int_is_truncated)
 					{
 						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_integer, TABLE_PREFIX.$table, $key, $column['def_type'], $value_original, $int_limit));
 						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER', var_export($value_original, true), var_export($value, true)));
-					}
-
-					if(!$int_is_positive)
-					{
-						$value = '-' . $value;
 					}
 				}
 				else
