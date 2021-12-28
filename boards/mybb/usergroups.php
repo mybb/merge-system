@@ -54,10 +54,7 @@ class MYBB_Converter_Module_Usergroups extends Converter_Module_Usergroups {
 		{
 			if($field['Extra'] == 'auto_increment')
 			{
-				if($db->type != "sqlite")
-				{
-					unset($insert_data[$field['Field']]);
-				}
+				unset($insert_data[$field['Field']]);
 				continue;
 			}
 

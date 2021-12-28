@@ -50,10 +50,7 @@ class MYBB_Converter_Module_Pollvotes extends Converter_Module_Pollvotes {
 		{
 			if($field['Extra'] == 'auto_increment')
 			{
-				if($db->type != "sqlite")
-				{
-					unset($insert_data[$field['Field']]);
-				}
+				unset($insert_data[$field['Field']]);
 				continue;
 			}
 
