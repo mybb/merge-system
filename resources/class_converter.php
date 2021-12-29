@@ -536,26 +536,31 @@ abstract class Converter
 	}
 
 	/**
-	 * Used for modules if there are handleable column errors, e.g., unknown column type or mismatched data type, during the import process
+	 * Used for modules if there are handleable column warnings, e.g., unknown column type or mismatched data type, during the import process
 	 *
+	 * @param string $type Either 'column' so that the message will exist only once per table-column or 'entry' the message will be appended.
 	 * @param string $table
 	 * @param string $column
-	 * @param string $message
+	 * @param string $message The message that will be displayed in the output result file.
+	 * @param string $message_log The message that will be logged into the database.
 	 */
-	function log_column_error_notice_in_progress($table, $column, $message)
+	function set_column_warning_in_progress($type, $table, $column, $message, $message_log)
 	{
 		global $output, $import_session;
 
-		if(empty($table) && empty($import_session['error_logs_columns']['module'][$import_session['module']][$column]))
+		if($type == 'column')
 		{
-			$import_session['error_logs_columns']['module'][$import_session['module']][$column] = $message;
-			$this->debug->log->warning($message);
-			$output->set_error_notice_in_progress($message);
+			if(empty($import_session['warning_logs'][TABLE_PREFIX.$table][$column]['column']))
+			{
+				$import_session['warning_logs'][TABLE_PREFIX.$table][$column]['column'] = $message;
+				$this->debug->log->warning($message_log);
+				$output->set_error_notice_in_progress($message);
+			}
 		}
-		else if(empty($import_session['error_logs_columns']['table'][TABLE_PREFIX.$table][$column]))
+		else if($type == 'entry')
 		{
-			$import_session['error_logs_columns']['table'][TABLE_PREFIX.$table][$column] = $message;
-			$this->debug->log->warning($message);
+			$import_session['warning_logs'][TABLE_PREFIX.$table][$column]['entry'][] = $message;
+			$this->debug->log->warning($message_log);
 			$output->set_error_notice_in_progress($message);
 		}
 	}

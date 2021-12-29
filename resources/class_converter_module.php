@@ -162,7 +162,11 @@ abstract class Converter_Module
 			else
 			{
 				$column = array();
-				$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_unknown_column, $import_session['module'], TABLE_PREFIX.$table, $key));
+				$this->board->set_column_warning_in_progress(
+					'column', $table, $key,
+					$lang->sprintf($lang->warning_prepare_data_unknown_column, $import_session['module'], TABLE_PREFIX.$table, $key),
+					$lang->sprintf($lang->warning_prepare_data_unknown_column, $import_session['module'], TABLE_PREFIX.$table, $key)
+				);
 			}
 
 			// It's expected to be a binary field data in MyBB.
@@ -187,13 +191,20 @@ abstract class Converter_Module
 					if($value_length > $limit)
 					{
 						$value = substr($value, 0, $limit);
-						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_binary, TABLE_PREFIX.$table, $key, $column['def_type'], $value_length, $limit));
-						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY', var_export(bin2hex($value_original), true), var_export(bin2hex($value), true)));
+						$this->board->set_column_warning_in_progress(
+							'entry', $table, $key,
+							$lang->sprintf($lang->warning_prepare_data_data_truncation_binary, $column['def_type'], $value_length, $limit),
+							$lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'The input BINARY', var_export(bin2hex($value_original), true), var_export(bin2hex($value), true))
+						);
 					}
 				}
 				else
 				{
-					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY'));
+					$this->board->set_column_warning_in_progress(
+						'entry', $table, $key,
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY'),
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'BINARY')
+					);
 				}
 
 				$insert_array[$key] = $db->escape_binary($value);
@@ -211,8 +222,11 @@ abstract class Converter_Module
 				if(!is_numeric($value))
 				{
 					$value = (string) ((int) $value);
-					$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_casting_integer, TABLE_PREFIX.$table, $key, $column['def_type']));
-					$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_casted, TABLE_PREFIX.$table, $key, $column['def_type'], 'The original', 'INTEGER', var_export($value_original, true), var_export($value, true)));
+					$this->board->set_column_warning_in_progress(
+						'entry', $table, $key,
+						$lang->sprintf($lang->warning_prepare_data_data_casting_integer, $column['def_type']),
+						$lang->sprintf($lang->warning_prepare_data_data_casted, TABLE_PREFIX.$table, $key, $column['def_type'], 'The input', 'INTEGER', var_export($value_original, true), var_export($value, true))
+					);
 				}
 				else if(strpos($value, 'e') !== false)
 				{
@@ -336,13 +350,20 @@ abstract class Converter_Module
 
 					if($int_is_truncated)
 					{
-						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_integer, TABLE_PREFIX.$table, $key, $column['def_type'], $value_original, $int_limit));
-						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER', var_export($value_original, true), var_export($value, true)));
+						$this->board->set_column_warning_in_progress(
+							'entry', $table, $key,
+							$lang->sprintf($lang->warning_prepare_data_data_truncation_integer, $column['def_type'], $value_original, $int_limit),
+							$lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'The input INTEGER', var_export($value_original, true), var_export($value, true))
+						);
 					}
 				}
 				else
 				{
-					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER'));
+					$this->board->set_column_warning_in_progress(
+						'entry', $table, $key,
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER'),
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'INTEGER')
+					);
 				}
 
 				$insert_array[$key] = $value;
@@ -371,19 +392,29 @@ abstract class Converter_Module
 					if($limit_type == MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR && $value_char_length > $limit)
 					{
 						$value = my_substr($value, 0, $limit);
-						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_string, TABLE_PREFIX.$table, $key, $column['def_type'], 'char', $value_char_length, $limit));
-						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING (by char)', var_export($value_original, true), var_export($value, true)));
+						$this->board->set_column_warning_in_progress(
+							'entry', $table, $key,
+							$lang->sprintf($lang->warning_prepare_data_data_truncation_string, $column['def_type'], $value_char_length, $limit, 'char'),
+							$lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'The input STRING (by char)', var_export($value_original, true), var_export($value, true))
+						);
 					}
 					else if($limit_type == MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE && $value_byte_length > $limit)
 					{
 						$value = mb_strcut($value, 0, $limit);
-						$this->board->set_error_notice_in_progress($lang->sprintf($lang->warning_prepare_data_data_truncation_string, TABLE_PREFIX.$table, $key, $column['def_type'], 'byte', $value_byte_length, $limit));
-						$this->debug->log->warning($lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING (by byte)', var_export($value_original, true), var_export($value, true)));
+						$this->board->set_column_warning_in_progress(
+							'entry', $table, $key,
+							$lang->sprintf($lang->warning_prepare_data_data_truncation_string, $column['def_type'], $value_byte_length, $limit, 'byte'),
+							$lang->sprintf($lang->warning_prepare_data_data_truncated, TABLE_PREFIX.$table, $key, $column['def_type'], 'The input STRING (by byte)', var_export($value_original, true), var_export($value, true))
+						);
 					}
 				}
 				else
 				{
-					$this->board->log_column_error_notice_in_progress($table, $key, $lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING'));
+					$this->board->set_column_warning_in_progress(
+						'entry', $table, $key,
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING'),
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING')
+					);
 				}
 
 				$insert_array[$key] = $db->escape_string($value);

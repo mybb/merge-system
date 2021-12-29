@@ -302,25 +302,24 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		}
 
 		$warnings = "";
-		if(!empty($import_session['error_logs_columns']['module']))
+		if(!empty($import_session['warning_logs']))
 		{
-			foreach ($import_session['error_logs_columns']['module'] as $error_logs_columns_module => $error_logs_columns_module_column)
+			foreach($import_session['warning_logs'] as $warning_logs_table => $warning_logs_tablecolumns)
 			{
-				$warnings .= "Module '{$error_logs_columns_module}':\n";
-				foreach ($error_logs_columns_module_column as $error_logs_columns_module_column_name => $error_logs_columns_module_column_message)
+				$warnings .= "Table '{$warning_logs_table}':\n";
+				foreach($warning_logs_tablecolumns as $warning_logs_column => $warning_logs_columnmessages)
 				{
-					$warnings .= "\tField '{$error_logs_columns_module_column_name}': {$error_logs_columns_module_column_message}\r\n";
-				}
-			}
-		}
-		if(!empty($import_session['error_logs_columns']['table']))
-		{
-			foreach($import_session['error_logs_columns']['table'] as $error_logs_columns_table => $error_logs_columns_table_column)
-			{
-				$warnings .= "Table '{$error_logs_columns_table}':\n";
-				foreach($error_logs_columns_table_column as $error_logs_columns_table_column_name => $error_logs_columns_table_column_message)
-				{
-					$warnings .= "\tColumn '{$error_logs_columns_table_column_name}': {$error_logs_columns_table_column_message}\r\n";
+					if(!empty($warning_logs_columnmessages['column']))
+					{
+						$warnings .= "\tField '{$warning_logs_column}': {$warning_logs_columnmessages['column']}\r\n";
+					}
+					if(!empty($warning_logs_columnmessages['entry']))
+					{
+						foreach($warning_logs_columnmessages['entry'] as $warning_logs_column_entry)
+						{
+							$warnings .= "\tField '{$warning_logs_column}': {$warning_logs_column_entry}\r\n";
+						}
+					}
 				}
 			}
 		}
@@ -422,26 +421,24 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		}
 
 		$warnings = "";
-		if(!empty($import_session['error_logs_columns']['module']))
+		if(!empty($import_session['warning_logs']))
 		{
-			foreach ($import_session['error_logs_columns']['module'] as $error_logs_columns_module => $error_logs_columns_module_column)
+			foreach($import_session['warning_logs'] as $warning_logs_table => $warning_logs_tablecolumns)
 			{
-				$warnings .= "<li><strong>Module '{$error_logs_columns_module}':</strong>\n<ul>";
-				foreach ($error_logs_columns_module_column as $error_logs_columns_module_column_name => $error_logs_columns_module_column_message)
+				$warnings .= "<li><strong>Table '{$warning_logs_table}':</strong>\n<ul>";
+				foreach($warning_logs_tablecolumns as $warning_logs_column => $warning_logs_columnmessages)
 				{
-					$warnings .= "<li>Field '{$error_logs_columns_module_column_name}': {$error_logs_columns_module_column_message}</li>\n";
-				}
-				$warnings .= "</ul>\n</li>";
-			}
-		}
-		if(!empty($import_session['error_logs_columns']['table']))
-		{
-			foreach($import_session['error_logs_columns']['table'] as $error_logs_columns_table => $error_logs_columns_table_column)
-			{
-				$warnings .= "<li><strong>Table '{$error_logs_columns_table}':</strong>\n<ul>";
-				foreach($error_logs_columns_table_column as $error_logs_columns_table_column_name => $error_logs_columns_table_column_message)
-				{
-					$warnings .= "<li>Column '{$error_logs_columns_table_column_name}': {$error_logs_columns_table_column_message}</li>\n";
+					if(!empty($warning_logs_columnmessages['column']))
+					{
+						$warnings .= "<li>Field '{$warning_logs_column}': {$warning_logs_columnmessages['column']}</li>\n";
+					}
+					if(!empty($warning_logs_columnmessages['entry']))
+					{
+						foreach($warning_logs_columnmessages['entry'] as $warning_logs_column_entry)
+						{
+							$warnings .= "<li>Field '{$warning_logs_column}': {$warning_logs_column_entry}</li>\n";
+						}
+					}
 				}
 				$warnings .= "</ul>\n</li>";
 			}

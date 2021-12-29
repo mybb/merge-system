@@ -219,14 +219,14 @@ $l['finish_report_type_html'] = "HTML (Browser Viewable) File";
 
 $l['warning_innodb'] = "The table \"{1}\" is currently in InnoDB format. We strongly recommend converting these tables to MyISAM otherwise you may experience major slow-downs while running the merge system.";
 
-$l['warning_prepare_data_unknown_column'] = "Module '{1}', Table '{2}', Column '{3}': the Merge System couldn't probe the column's data type, the conversion may have errors.";
-$l['warning_prepare_data_mismatched_column'] = "Module '{1}', Table '{2}', Column '{3}': the data type ('{4}') is unknown or different from the type the Merge System expects ('{5}'), the conversion may have errors.";
-$l['warning_prepare_data_data_truncated'] = "Table '{1}', Column '{2}' ('{3}'): {4} data is truncated.\nOriginal:\n{5}\nTruncated:\n{6}";
-$l['warning_prepare_data_data_casted'] = "Table '{1}', Column '{2}' ('{3}'): {4} data is casted to {5}.\nOriginal:\n{6}\nCasted:\n{7}";
-$l['warning_prepare_data_data_truncation_binary'] = "Table '{1}', Column '{2}' ('{3}'): the BINARY data length ({4}) is larger than the target column's limit ({5}), the inserted data will be truncated.";
-$l['warning_prepare_data_data_truncation_integer'] = "Table '{1}', Column '{2}' ('{3}'): the INTEGER data ({4}) is out-of-bounds ({5}), the inserted data will be truncated.";
-$l['warning_prepare_data_data_truncation_string'] = "Table '{1}', Column '{2}' ('{3}'): the STRING data length (in {4}: {5}) is larger than the target column's limit ({6}), the inserted data will be truncated.";
-$l['warning_prepare_data_data_casting_integer'] = "Table '{1}', Column '{2}' ('{3}'): the input data isn't numeric and will be casted to an integer.";
+$l['warning_prepare_data_unknown_column'] = "Module '{1}', Table '{2}', Column '{3}': MyBB Merge System couldn't probe the column's data type, the conversion may have errors.";
+$l['warning_prepare_data_mismatched_column'] = "Module '{1}', Table '{2}', Column '{3}': The data type ('{4}') is unknown or different from the type MyBB Merge System expects ('{5}'), the conversion may have errors.";
+$l['warning_prepare_data_data_truncated'] = "Table '{1}', Column '{2}' ('{3}'): {4} data truncated.\nOriginal:\n{5}\nTruncated:\n{6}";
+$l['warning_prepare_data_data_casted'] = "Table '{1}', Column '{2}' ('{3}'): {4} data casted to {5}.\nOriginal:\n{6}\nCasted:\n{7}";
+$l['warning_prepare_data_data_truncation_binary'] = "BINARY data length larger than column limit ({2} > {3}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_truncation_integer'] = "INTEGER data out-of-bounds ({2} bigger/lower than {3}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_truncation_string'] = "STRING data length larger than column limit ({2} > {3}, in {4}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_casting_integer'] = "Not numeric data, casted to INTEGER (type '{1}').";
 
 $l['error_no_admin'] = 'Only admins can run the merge system. Please go to your forum index and login with an admin account.';
 
