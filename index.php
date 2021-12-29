@@ -606,7 +606,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		$tree = $parser->get_tree();
 
 		$latest_code = (int)$tree['mybbmerge']['version_code']['value'];
-		$latest_version = "<strong>".htmlspecialchars_uni($tree['mybb_merge']['latest_version']['value'])."</strong> (".$latest_code.")";
+		$latest_version = "<strong>".htmlspecialchars_uni($tree['mybbmerge']['latest_version']['value'])."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
 		{
 			$errors['version_check'] = "{$lang->requirementspage_outofdatedesc} <span style=\"color: #C00;\">".$latest_version."</span> (<a href=\"http://www.mybb.com/download/merge-system\" target=\"_blank\">{$lang->download}</a>)";
