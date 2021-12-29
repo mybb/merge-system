@@ -605,7 +605,7 @@ else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] ==
 		$parser = create_xml_parser($contents);
 		$tree = $parser->get_tree();
 
-		$latest_code = (int)$tree['mybb_merge']['version_code']['value'];
+		$latest_code = (int)$tree['mybbmerge']['version_code']['value'];
 		$latest_version = "<strong>".htmlspecialchars_uni($tree['mybb_merge']['latest_version']['value'])."</strong> (".$latest_code.")";
 		if($latest_code > $version_code)
 		{
