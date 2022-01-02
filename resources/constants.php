@@ -1,7 +1,7 @@
 <?php
 /**
  * MyBB 1.8 Merge System
- * Copyright 2021 MyBB Group, All Rights Reserved
+ * Copyright 2022 MyBB Group, All Rights Reserved
  *
  * Website: http://www.mybb.com
  * License: http://www.mybb.com/download/merge-system/license/
