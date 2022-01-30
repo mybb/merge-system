@@ -43,7 +43,7 @@ class BBCode_Parser extends BBCode_Parser_Plain
 		$convert_standards = array(
 			// xf 2.1, [URL unfurl="true"]...[/URL]
 			array(
-				'find' => "#\[url\s*(.*?)\](.*?)\[/url\]#i",
+				'find' => "#\[url\s+(.*?)\](.*?)\[/url\]#i",
 				'replacement' => "[url]$2[/url]",
 			),
 		);
