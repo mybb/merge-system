@@ -25,6 +25,10 @@ function update_import_session()
 	{
 		$import_session['completed'] = array();
 	}
+	if(!$import_session['disabled'])
+	{
+		$import_session['disabled'] = array();
+	}
 
 	// Stats
 	if(!empty($board->old_db->query_count))
@@ -35,6 +39,10 @@ function update_import_session()
 	$import_session['total_query_time'] += $db->query_time;
 
 	$import_session['completed'] = array_unique($import_session['completed']);
+	$import_session['disabled'] = array_unique($import_session['disabled']);
+
+	// To prevent the cache content being too long, remove it upon saving.
+	unset($import_session['column_length']);
 
 	$cache->update("import_cache", $import_session);
 
@@ -52,7 +60,7 @@ function update_import_session()
 		unset($debug_import_session['old_tbl_prefix']);
 		unset($debug_import_session['connect_config']);
 
-		$debug->log->datatrace('$debug_import_session', $debug_import_session);
+		$debug->log->datatrace('$debug_import_session', my_serialize($debug_import_session));
 	}
 }
 
@@ -1057,6 +1065,7 @@ define('SQL_MEDIUMTEXT', 16777215);
 define('SQL_LONGTEXT', 4294967295);
 
 /**
+ * @deprecated
  * Returns an array of length informations about one table
  *
  * @param string $table Which table should be checked
@@ -1077,7 +1086,7 @@ function get_length_info($table, $cache=true)
 
 	foreach($fieldinfo as $field) {
 		if($field['Type'] == 'tinytext') {
-			$length = SQL_TINYINT;
+			$length = SQL_TINYTEXT;
 		} elseif($field['Type'] == 'text' || $field['Type'] == 'blob') {
 			$length = SQL_TEXT;
 		} elseif($field['Type'] == 'mediumtext' || $field['Type'] == 'mediumblob') {
@@ -1097,4 +1106,420 @@ function get_length_info($table, $cache=true)
 	}
 
 	return $lengthinfo;
+}
+
+/**
+ * Returns an array of data types and length/limit information of each column in a table
+ *
+ * @param string $table Which table should be checked.
+ * @param bool $cache Whether to cache the returned array. Default is true.
+ * @param bool $hard Whether to fetch the information from the database system. Default is false.
+ *
+ * @return array
+ */
+function get_column_length_info($table, $cache=true, $hard=false)
+{
+	global $import_session, $db;
+
+	if(isset($import_session['column_length'][$table]) && !$hard)
+	{
+		return $import_session['column_length'][$table];
+	}
+
+	$table_columninfo = array();
+
+	$columns = $db->show_fields_from($table);
+
+	foreach($columns as $column)
+	{
+		$columninfo = array(
+			// (default) The data type can't be parsed by the Merge System.
+			'type' => MERGE_DATATYPE_UNKNOWN,
+			// The data type from the table definition.
+			'def_type' => $column['Type'],
+		);
+		$column_type = strtolower($column['Type']);
+
+		// Follow SQLite's type affinity to figure out our data types.
+		if($db->type == 'sqlite')
+		{
+			// The column data type from the table definition.
+			$column_type_table = $column_type;
+
+			// We'll also try to find what the column type was defined at the table creation.
+			if(preg_match('#([^()]*)?((?:\(([0-9,]*)\))|)#', $column_type, $column_type_matches) !== false)
+			{
+				$column_type_table = trim($column_type_matches[1]);
+
+				$column_type_arg = null;
+				$column_type_arg_1 = null;
+				$column_type_arg_2 = null;
+
+				// We got a parenthesised argument.
+				if (!empty($column_type_matches[2]))
+				{
+					$column_type_arg = trim($column_type_matches[3]);
+
+					if (strpos($column_type_arg, ',') !== false)
+					{
+						list($column_type_arg_1, $column_type_arg_2) = explode(',', $column_type_arg, 2);
+						$column_type_arg_1 = (int)trim($column_type_arg_1);
+						$column_type_arg_2 = (int)trim($column_type_arg_2);
+					}
+					else
+					{
+						$column_type_arg = (int)$column_type_arg;
+					}
+				}
+			}
+
+			// If the declared type contains the string "INT" then it is assigned INTEGER affinity.
+			if(strpos($column_type, 'int') !== false)
+			{
+				$columninfo['type'] = MERGE_DATATYPE_INT;
+
+				// SQLite's INITEGER type can store as large as an 8 bytes signed integer.
+				$columninfo['min'] = MERGE_DATATYPE_INT_BIGINT_MIN;
+				$columninfo['max'] = MERGE_DATATYPE_INT_BIGINT_MAX;
+
+				// The table suggests it as a BOOLEAN column created by MyBB.
+				if($column_type_table == 'tinyint(1)')
+				{
+					$columninfo['type_table'] = MERGE_DATATYPE_BOOL;
+					$columninfo['min_table'] = 0;
+					$columninfo['max_table'] = 1;
+				}
+				// Or MyBB will consider it a regular *signed* INTEGER column.
+				else
+				{
+					switch ($column_type_table)
+					{
+						case 'tinyint':
+							$int_type_min = 'MERGE_DATATYPE_INT_TINYINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_TINYINT_MAX';
+							break;
+						case 'smallint':
+							$int_type_min = 'MERGE_DATATYPE_INT_SMALLINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_SMALLINT_MAX';
+							break;
+						case 'mediumint':
+							$int_type_min = 'MERGE_DATATYPE_INT_MEDIUMINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_MEDIUMINT_MAX';
+							break;
+						case 'bigint':
+							$int_type_min = 'MERGE_DATATYPE_INT_BIGINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_BIGINT_MAX';
+							break;
+						case 'int':
+						case 'integer':
+						default:
+							$int_type_min = 'MERGE_DATATYPE_INT_INTEGER_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_INTEGER_MAX';
+					}
+
+					$columninfo['min_table'] = constant($int_type_min);
+					$columninfo['max_table'] = constant($int_type_max);
+				}
+			}
+			// If the declared type contains "CHAR", "CLOB", or "TEXT" then that column has TEXT affinity.
+			else if(strpos($column_type, 'char') !== false || strpos($column_type, 'clob') !== false || strpos($column_type, 'text') !== false)
+			{
+				$columninfo['type'] = MERGE_DATATYPE_CHAR;
+				$columninfo['length_type'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE;
+				$columninfo['length'] = MERGE_DATATYPE_CHAR_TEXT_LENGTH_SQLITE;
+
+				// The table suggests it should be a CHAR(n) or VARCHAR(n) column.
+				if(!is_null($column_type_arg) && ($column_type_table == 'char' || $column_type_table == 'varchar'))
+				{
+					$columninfo['length_table'] = $column_type_arg;
+					$columninfo['length_type_table'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR;
+				}
+				// Or it's declared as a TEXT column.
+				else if(strpos($column_type_table, 'text') !== false)
+				{
+					switch($column_type_table)
+					{
+						case 'tinytext':
+							$char_type_length = MERGE_DATATYPE_CHAR_TINYTEXT_LENGTH;
+							break;
+						case 'mediumtext':
+							$char_type_length = MERGE_DATATYPE_CHAR_MEDIUMTEXT_LENGTH;
+							break;
+						case 'longtext':
+							$char_type_length = MERGE_DATATYPE_CHAR_LONGTEXT_LENGTH;
+							break;
+						case 'text':
+						default:
+							$char_type_length = MERGE_DATATYPE_CHAR_TEXT_LENGTH;
+					}
+
+					$columninfo['length_table'] = $char_type_length;
+					$columninfo['length_type_table'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE;
+				}
+			}
+			// If the declared type for a column contains "BLOB" or if no type is specified then the column has affinity BLOB.
+			else if(strpos($column_type, 'blob') !== false || empty($column_type))
+			{
+				$columninfo['type'] = MERGE_DATATYPE_BIN;
+				$columninfo['length'] = MERGE_DATATYPE_BIN_BLOB_LENGTH_SQLITE;
+
+				// It's declared as a BLOB(n) column.
+				if(!is_null($column_type_arg) && $column_type_table == 'blob')
+				{
+					$columninfo['length_table'] = $column_type_arg;
+				}
+			}
+			// If the declared type contains "REAL", "FLOA", or "DOUB" then the column has REAL affinity.
+			else if(strpos($column_type, 'real') !== false || strpos($column_type, 'floa') !== false || strpos($column_type, 'doub') !== false)
+			{
+				$columninfo['type'] = MERGE_DATATYPE_DBL;
+			}
+			// Otherwise, the affinity is NUMERIC.
+			else
+			{
+				$columninfo['type'] = MERGE_DATATYPE_FIXED;
+
+				// It's declared as a NUMERIC(n) column.
+				if(!is_null($column_type_arg) && ($column_type_table == 'numeric' || $column_type_table == 'decimal'))
+				{
+					$columninfo['length_table'] = $column_type_arg_1;
+					$columninfo['scale_table'] = $column_type_arg_2;
+				}
+				else
+				{
+					$columninfo['length'] = -1;
+					$columninfo['scale'] = -1;
+				}
+			}
+		}
+		// Now we start dealing with MySQL and PostgreSQL.
+		// tinyint(1) is a specialty in MySQL for BOOL/BOOLEAN, getting it done will ease our job.
+		// The boolean type that is equivalent to TINYINT(1) in MySQL and boolean in PostgreSQL.
+		else if($column_type == 'tinyint(1)' || $column_type == 'boolean')
+		{
+			$columninfo['type'] = MERGE_DATATYPE_BOOL;
+			$columninfo['min'] = 0;
+			$columninfo['max'] = 1;
+		}
+		// Then, we figure out the other data types for MySQL and PostgreSQL.
+		else
+		{
+			$unsigned = '';
+			if(strpos($column_type, 'unsigned') !== false)
+			{
+				$unsigned = '_UNSIGNED';
+				$column_type = trim(str_replace('unsigned', '', $column_type));
+			}
+
+			if(preg_match('#([^()]*)?((?:\(([0-9,]*)\))|)#', $column_type, $column_type_matches) !== false)
+			{
+				$column_type = trim($column_type_matches[1]);
+
+				$column_type_arg = null;
+				$column_type_arg_1 = null;
+				$column_type_arg_2 = null;
+
+				// We got a parenthesised argument.
+				if(!empty($column_type_matches[2]))
+				{
+					$column_type_arg = trim($column_type_matches[3]);
+
+					if(strpos($column_type_arg, ',') !== false)
+					{
+						list($column_type_arg_1, $column_type_arg_2) = explode(',', $column_type_arg, 2);
+						$column_type_arg_1 = (int) trim($column_type_arg_1);
+						$column_type_arg_2 = (int) trim($column_type_arg_2);
+					}
+					else
+					{
+						$column_type_arg = (int) $column_type_arg;
+					}
+				}
+
+				// The bit type that is equivalent to BIT in MySQL and bit, bit varying in PostgreSQL.
+				if($column_type == 'bit' || $column_type == 'bit varying')
+				{
+					$columninfo['type'] = MERGE_DATATYPE_BIT;
+
+					if(!is_null($column_type_arg))
+					{
+						$columninfo['length'] = $column_type_arg;
+					}
+					else
+					{
+						if($column_type == 'bit varying' && $db->type == 'pgsql')
+						{
+							$columninfo['length'] = -1;
+						}
+						else
+						{
+							$columninfo['length'] = 1;
+						}
+					}
+				}
+				// The integer type that can be TINYINT, SMALLINT, MEDIUMINT, INT, BIGINT in MySQL and smallint, integer, bigint in PostgreSQL.
+				else if(strpos($column_type, 'int') !== false)
+				{
+					$columninfo['type'] = MERGE_DATATYPE_INT;
+
+					switch($column_type)
+					{
+						case 'tinyint':
+							// TINYINT in MySQL.
+							$int_type_min = 'MERGE_DATATYPE_INT_TINYINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_TINYINT_MAX';
+							break;
+						case 'smallint':
+							// SMALLINT in MySQL and smallint in PostgreSQL.
+							$int_type_min = 'MERGE_DATATYPE_INT_SMALLINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_SMALLINT_MAX';
+							break;
+						case 'mediumint':
+							// MEDIUMINT in MySQL.
+							$int_type_min = 'MERGE_DATATYPE_INT_MEDIUMINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_MEDIUMINT_MAX';
+							break;
+						case 'bigint':
+							// BIGINT in MySQL and bigint in PostgreSQL.
+							$int_type_min = 'MERGE_DATATYPE_INT_BIGINT_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_BIGINT_MAX';
+							break;
+						case 'int':
+						case 'integer':
+						default:
+							// INT in MySQL and integer in PostgreSQL.
+							$int_type_min = 'MERGE_DATATYPE_INT_INTEGER_MIN';
+							$int_type_max = 'MERGE_DATATYPE_INT_INTEGER_MAX';
+					}
+
+					$columninfo['min'] = constant($int_type_min.$unsigned);
+					$columninfo['max'] = constant($int_type_max.$unsigned);
+				}
+				// The fixed-point type that can be DECIMAL in MySQL and decimal/numeric in PostgreSQL.
+				else if($column_type == 'decimal' || $column_type == 'numeric')
+				{
+					$columninfo['type'] = MERGE_DATATYPE_FIXED;
+
+					if(!is_null($column_type_arg))
+					{
+						$columninfo['length'] = $column_type_arg_1;
+						$columninfo['scale'] = $column_type_arg_2;
+					}
+					else
+					{
+						$columninfo['length'] = -1;
+						$columninfo['scale'] = -1;
+					}
+				}
+				// The single precision float-point type that can be FLOAT in MySQL and real in PostgreSQL.
+				else if($column_type == 'float' || $column_type == 'real')
+				{
+					$columninfo['type'] = MERGE_DATATYPE_FLT;
+				}
+				// The double precision float-point type that can be DOUBLE in MySQL and double precision in PostgreSQL.
+				else if($column_type == 'double' || $column_type == 'double precision')
+				{
+					$columninfo['type'] = MERGE_DATATYPE_DBL;
+				}
+				// The character/string type that can be CHAR, VARCHAR, TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT in MySQL and character, char, character varying, varchar, text in PostgreSQL.
+				else if(strpos($column_type, 'char') !== false || strpos($column_type, 'text') !== false)
+				{
+					$columninfo['type'] = MERGE_DATATYPE_CHAR;
+
+					// If a designated character length is given.
+					if(!is_null($column_type_arg))
+					{
+						$columninfo['length'] = $column_type_arg;
+						$columninfo['length_type'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR;
+					}
+					// Only MySQL has various TEXT types.
+					else if(strpos($column_type, 'text') !== false && ($db->type == 'mysql' || $db->type == 'mysqli'))
+					{
+						switch($column_type)
+						{
+							case 'tinytext':
+								$char_type_length = MERGE_DATATYPE_CHAR_TINYTEXT_LENGTH;
+								break;
+							case 'mediumtext':
+								$char_type_length = MERGE_DATATYPE_CHAR_MEDIUMTEXT_LENGTH;
+								break;
+							case 'longtext':
+								$char_type_length = MERGE_DATATYPE_CHAR_LONGTEXT_LENGTH;
+								break;
+							case 'text':
+							default:
+								$char_type_length = MERGE_DATATYPE_CHAR_TEXT_LENGTH;
+						}
+
+						$columninfo['length'] = $char_type_length;
+						$columninfo['length_type'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE;
+					}
+					// On PostgreSQL without a specific character length argument, char type will get ~1GB storage.
+					else if($db->type == 'pgsql')
+					{
+						$columninfo['length'] = MERGE_DATATYPE_CHAR_TEXT_LENGTH_PGSQL;
+						$columninfo['length_type'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_BYTE;
+					}
+					// To be safe.
+					else
+					{
+						$columninfo['length'] = 0;
+						$columninfo['length_type'] = MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR;
+					}
+				}
+				// The binary type that can be BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB in MySQL and bytea in PostgreSQL.
+				else if(strpos($column_type, 'binary') !== false || strpos($column_type, 'blob') !== false || $column_type == 'bytea')
+				{
+					$columninfo['type'] = MERGE_DATATYPE_BIN;
+
+					// If a designated character length is given.
+					if(!is_null($column_type_arg))
+					{
+						$columninfo['length'] = $column_type_arg;
+					}
+					// Only MySQL has various BLOB types.
+					else if(strpos($column_type, 'blob') !== false && ($db->type == 'mysql' || $db->type == 'mysqli'))
+					{
+						switch($column_type)
+						{
+							case 'tinyblob':
+								$bin_type_length = MERGE_DATATYPE_BIN_TINYBLOB_LENGTH;
+								break;
+							case 'mediumblob':
+								$bin_type_length = MERGE_DATATYPE_BIN_MEDIUMBLOB_LENGTH;
+								break;
+							case 'longblob':
+								$bin_type_length = MERGE_DATATYPE_BIN_LONGBLOB_LENGTH;
+								break;
+							case 'blob':
+							default:
+								$bin_type_length = MERGE_DATATYPE_BIN_BLOB_LENGTH;
+						}
+
+						$columninfo['length'] = $bin_type_length;
+					}
+					// On PostgreSQL without a specific character length argument.
+					else if($db->type == 'pgsql')
+					{
+						// bytea type will get ~1GB storage but the actual size may be subject to host hardware limit.
+						$columninfo['length'] = MERGE_DATATYPE_BIN_BLOB_LENGTH_PGSQL;
+					}
+					// To be safe.
+					else
+					{
+						$columninfo['length'] = 0;
+					}
+				}
+			}
+		}
+
+		$table_columninfo[$column['Field']] = $columninfo;
+	}
+
+	if($cache)
+	{
+		$import_session['column_length'][$table] = $table_columninfo;
+	}
+
+	return $table_columninfo;
 }

@@ -219,6 +219,15 @@ $l['finish_report_type_html'] = "HTML (Browser Viewable) File";
 
 $l['warning_innodb'] = "The table \"{1}\" is currently in InnoDB format. We strongly recommend converting these tables to MyISAM otherwise you may experience major slow-downs while running the merge system.";
 
+$l['warning_prepare_data_unknown_column'] = "Module '{1}', Table '{2}', Column '{3}': MyBB Merge System couldn't probe the column's data type, the conversion may have errors.";
+$l['warning_prepare_data_mismatched_column'] = "Module '{1}', Table '{2}', Column '{3}': The data type ('{4}') is unknown or different from the type MyBB Merge System expects ('{5}'), the conversion may have errors.";
+$l['warning_prepare_data_data_truncated'] = "Table '{1}', Column '{2}' ('{3}'): {4} data truncated.\nOriginal:\n{5}\nTruncated:\n{6}";
+$l['warning_prepare_data_data_casted'] = "Table '{1}', Column '{2}' ('{3}'): {4} data casted to {5}.\nOriginal:\n{6}\nCasted:\n{7}";
+$l['warning_prepare_data_data_truncation_binary'] = "BINARY data length larger than column limit ({2} > {3}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_truncation_integer'] = "INTEGER data out-of-bounds ({2} bigger/lower than {3}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_truncation_string'] = "STRING data length larger than column limit ({2} > {3}, in {4}, type '{1}'), data truncated.";
+$l['warning_prepare_data_data_casting_integer'] = "Not numeric data, casted to INTEGER (type '{1}').";
+
 $l['error_no_admin'] = 'Only admins can run the merge system. Please go to your forum index and login with an admin account.';
 
 $l['error_invalid_board'] = "The board module you have selected does not exist.";
@@ -274,10 +283,15 @@ Import Statistics
 The MyBB import system imported the following from your copy of {8}:
 {9}
 
+Warnings
+------
+The following warnings were logged during the process of the Merge System:
+{10}
+
 Errors
 ------
 The following errors were logged during the process of the Merge System:
-{10}
+{11}
 
 Problems?
 ---------
@@ -286,7 +300,7 @@ debug information about this merge. If you find problems
 please file a support inquery at http://community.mybb.com/.
 
 --------------------------------------------------------
-Generated: {11}';
+Generated: {12}';
 
 $l['report_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -404,10 +418,17 @@ $l['report_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//
 		</dl>
 	</div>
 	<div id="errors">
+		<h3>Warnings</h3>
+		<p>The following warnings were logged during the process of the Merge System:</p>
+		<ul>
+		{10}
+		</ul>
+	</div>
+	<div id="errors">
 		<h3>Errors</h3>
 		<p>The following errors were logged during the process of the Merge System:</p>
 		<ul>
-		{10}
+		{11}
 		</ul>
 	</div>
 	<div id="problems">
@@ -415,8 +436,8 @@ $l['report_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//
 		<p>The "mybb_debuglogs" table located in your database contains debug information about this merge. If you find problems please file a support inquiry at the <a href="http://community.mybb.com/">MyBB Community Forums</a>.</p>
 	</div>
 	<div id="footer">
-		<div class="float_right">MyBB &copy; 2002-{12} MyBB Group</div>
-		<div>Generated {11}</div>
+		<div class="float_right">MyBB &copy; 2002-{13} MyBB Group</div>
+		<div>Generated {12}</div>
 	</div>
 </div>
 </body>

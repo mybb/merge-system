@@ -408,15 +408,44 @@ abstract class Converter
 		$invalid_columns = array();
 		foreach($this->column_length_to_check as $old_table => $t1) {
 			foreach($t1 as $new_table => $columns) {
-				$columnLength = get_length_info($new_table, false);
+				$columnLength = get_column_length_info($new_table, false, true);
 
 				foreach($columns as $old_column => $new_column) {
-					// First: get the length of the largest entry
-					$query = "SELECT LENGTH({$old_column}) as length FROM ".OLD_TABLE_PREFIX."{$old_table} ORDER BY length DESC LIMIT 1";
-					$length = $this->old_db->fetch_field($this->old_db->query($query), 'length');
+					$column_info = $columnLength[$new_column];
+					if(isset($column_info['type']) && ($column_info['type'] == MERGE_DATATYPE_FIXED || $column_info['type'] == MERGE_DATATYPE_BOOL || $column_info['type'] == MERGE_DATATYPE_INT)) {
+						// TODO: implement or not?
+						// $query = "SELECT MAX({$old_column}) as valmax, MIN({$old_column}) as valmin FROM ".OLD_TABLE_PREFIX."{$old_table}";
+					}
+					else if(isset($column_info['type']) && ($column_info['type'] == MERGE_DATATYPE_CHAR || $column_info['type'] == MERGE_DATATYPE_BIN)) {
+						if(isset($column_info['length_table'])) {
+							$limit = $column_info['length_table'];
+						} else {
+							$limit = $column_info['length'];
+						}
 
-					if($length > $columnLength[$new_column]) {
-						$invalid_columns[$new_table][$new_column] = $length;
+						if(isset($column_info['length_type_table']) && $column_info['length_type_table'] == MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR || isset($column_info['length_type']) && $column_info['length_type'] == MERGE_DATATYPE_CHAR_LENGTHTYPE_CHAR) {
+							switch($this->old_db->type) {
+								case 'mysql':
+								case 'mysqli':
+									$select_func = 'char_length';
+									break;
+								case 'pgsql':
+								case 'sqlite':
+									$select_func = 'length';
+									break;
+							}
+						} else if($this->old_db->type != 'sqlite') {
+							$select_func = 'octet_length';
+						} else {
+							$select_func = 'length';
+						}
+
+						$query = "SELECT {$select_func}({$old_column}) as length FROM ".OLD_TABLE_PREFIX."{$old_table} ORDER BY length DESC LIMIT 1";
+						$length = $this->old_db->fetch_field($this->old_db->query($query), 'length');
+
+						if($length > $limit) {
+							$invalid_columns[$new_table][$new_column] = $length;
+						}
 					}
 
 					++$progress;
@@ -504,6 +533,36 @@ abstract class Converter
 		$import_session['error_logs'][$import_session['module']][] = $error_message;
 
 		$output->set_error_notice_in_progress($error_message);
+	}
+
+	/**
+	 * Used for modules if there are handleable column warnings, e.g., unknown column type or mismatched data type, during the import process
+	 *
+	 * @param string $type Either 'column' so that the message will exist only once per table-column or 'entry' the message will be appended.
+	 * @param string $table
+	 * @param string $column
+	 * @param string $message The message that will be displayed in the output result file.
+	 * @param string $message_log The message that will be logged into the database.
+	 */
+	function set_column_warning_in_progress($type, $table, $column, $message, $message_log)
+	{
+		global $output, $import_session;
+
+		if($type == 'column')
+		{
+			if(empty($import_session['warning_logs'][TABLE_PREFIX.$table][$column]['column']))
+			{
+				$import_session['warning_logs'][TABLE_PREFIX.$table][$column]['column'] = $message;
+				$this->debug->log->warning($message_log);
+				$output->set_error_notice_in_progress($message);
+			}
+		}
+		else if($type == 'entry')
+		{
+			$import_session['warning_logs'][TABLE_PREFIX.$table][$column]['entry'][] = $message;
+			$this->debug->log->warning($message_log);
+			$output->set_error_notice_in_progress($message);
+		}
 	}
 
 	/**
