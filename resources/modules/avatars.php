@@ -14,6 +14,17 @@ define('AVATAR_TYPE_GRAVATAR', 'gravatar');
 
 abstract class Converter_Module_Avatars extends Converter_Module
 {
+	public $default_values = array(
+		'uid' => 0,
+		'avatar' => '',
+		'avatardimensions' => '',
+		'avatartype' => '',
+	);
+
+	public $integer_fields = array(
+		'uid',
+	);
+
 	abstract function get_avatar_path();
 
 	function pre_setup()
@@ -68,7 +79,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 		$data = $converted_values = $this->convert_data($data);
 
 		// Should loop through and fill in any values that aren't set based on the MyBB db schema or other standard default values and escape them properly
-		$insert_array = $this->prepare_insert_array($data);
+		$insert_array = $this->prepare_insert_array($data, 'users');
 
 		unset($insert_array['avatar_type']);
 
