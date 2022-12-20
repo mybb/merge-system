@@ -33,7 +33,7 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 		$query = $this->old_db->query("
 			SELECT *
 			FROM ".OLD_TABLE_PREFIX."core_members m
-			LIMIT ".$this->trackers['start_users'].", ".$import_session['users_per_screen']
+			LIMIT ".($this->trackers['start_users'] ? $this->trackers['start_users'].", " : "")." ".$import_session['users_per_screen']
 		);
 		while($user = $this->old_db->fetch_array($query))
 		{
