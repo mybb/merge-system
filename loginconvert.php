@@ -160,9 +160,12 @@ function loginconvert_convert(&$login)
 		$check = $function($login->data['password'], $user);
 
 		// If the password was wrong, an utf8 password and we want to check utf8 passwords we call the function again
-		if(!$check && in_array($login_type, $utf8_recheck) && utf8_decode($login->data['password']) != $login->data['password'])
+		if(!$check && in_array($login_type, $utf8_recheck) && mb_convert_encoding(
+			$login->data['password'],
+			'ISO-8859-1',
+			'UTF-8') !== $login->data['password'])
 		{
-			$check = $function(utf8_decode($login->data['password']), $user);
+			$check = $function(mb_convert_encoding($login->data['password'], 'ISO-8859-1', 'UTF-8'), $user);
 		}
 
 		if(!$check)
@@ -331,6 +334,11 @@ function check_punbb($password, $user)
 	{
 		return true;
 	}
+	elseif(function_exists('hash') && $is_sha1 && (hash('sha1', $password) === $user['passwordconvert'] || hash('sha1', $user['passwordconvertsalt'].hash('sha1', $password)) === $user['passwordconvert']))
+	{
+		return true;
+	}
+    // mhash() is deprecated as of PHP8.1
 	elseif(function_exists('mhash') && $is_sha1 && (bin2hex(mhash(MHASH_SHA1, $password)) == $user['passwordconvert'] || bin2hex(mhash(MHASH_SHA1, $user['passwordconvertsalt'].bin2hex(mhash(MHASH_SHA1, $password)))) == $user['passwordconvert']))
 	{
 		return true;

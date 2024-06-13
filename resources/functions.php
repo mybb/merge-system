@@ -459,12 +459,12 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
     {
         if(!function_exists('iconv'))
         {
-            if(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]) != 'iso-8859-1' || !function_exists("utf8_encode"))
+            if(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]) != 'iso-8859-1' || !function_exists("mb_convert_encoding"))
             {
                 return $text;
             }
 
-			return utf8_encode($text);
+			return mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1');
         }
 
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
@@ -781,8 +781,12 @@ if(!function_exists('htmlspecialchars_decode'))
 function utf8_unhtmlentities($string)
 {
 	// Replace numeric entities
-	$string = preg_replace_callback('~&#x([0-9a-f]+);~i', create_function('$matches', 'return unichr(hexdec($matches[1]));'), $string);
-	$string = preg_replace_callback('~&#([0-9]+);~', create_function('$matches', 'return unichr($matches[1]);'), $string);
+	$string = preg_replace_callback('~&#x([0-9a-f]+);~i', function($matches) {
+		return unichr(hexdec($matches[1]));
+	}, $string);
+	$string = preg_replace_callback('~&#([0-9]+);~', function($matches) {
+		return unichr($matches[1]);
+	}, $string);
 
 	// Replace literal entities
 	$trans_tbl = get_html_translation_table(HTML_ENTITIES);

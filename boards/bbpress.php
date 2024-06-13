@@ -97,7 +97,7 @@ class BBPRESS_Converter extends Converter
 	 * @param string $gids A serialized list of original roles
 	 * @return string group id(s)
 	 */
-	function get_group_id($gids)
+	function get_group_id($gids, $remove=array())
 	{
 		// bbPress saves roles as ["name" => true]
 		$roles = array_keys(unserialize($gids));
