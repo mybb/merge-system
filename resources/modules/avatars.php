@@ -148,22 +148,22 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 		$this->debug->log->trace0("Checking readability of avatars from specified path");
 
-		if($mybb->input['avatarspath'])
+		if($mybb->get_input('avatarspath'))
 		{
-			$import_session['avatarspath'] = $mybb->input['avatarspath'];
+			$import_session['avatarspath'] = $mybb->get_input('avatarspath');
 			if(!empty($import_session['avatarspath']) && my_substr($import_session['avatarspath'], -1) != '/')
 			{
 				$import_session['avatarspath'] .= '/';
 			}
 		}
 
-		if(strpos($mybb->input['avatarspath'], "localhost") !== false)
+		if(strpos($mybb->get_input('avatarspath'), "localhost") !== false)
 		{
 			$this->errors[] = "<p>{$lang->attmodule_ipadress}</p>";
 			$import_session['uploads_avatars_test'] = 0;
 		}
 
-		if(strpos($mybb->input['avatarspath'], "127.0.0.1") !== false)
+		if(strpos($mybb->get_input('avatarspath'), "127.0.0.1") !== false)
 		{
 			$this->errors[] = "<p>{$lang->attmodule_ipadress2}</p>";
 			$import_session['uploads_avatars_test'] = 0;

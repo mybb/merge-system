@@ -151,7 +151,7 @@ class WBB4_Converter extends Converter
 			</tr>
 			<tr class=\"last\">
 				<td class=\"first\"><label for=\"installationnumber\">{$lang->wbb_installationnumber_desc}</label></td>
-				<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"installationnumber\" id=\"installationnumber\" value=\"".htmlspecialchars_uni($mybb->input['installationnumber'])."\" /></td>
+				<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"installationnumber\" id=\"installationnumber\" value=\"".htmlspecialchars_uni($mybb->get_input('installationnumber'))."\" /></td>
 			</td>
 		</tr>
 		</tbody>";

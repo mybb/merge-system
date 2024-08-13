@@ -485,7 +485,7 @@ END;
 		// Loop through database engines
 		foreach($dboptions as $dbfile => $dbtype)
 		{
-			if($mybb->input['dbengine'] == $dbfile)
+			if($mybb->get_input('dbengine') == $dbfile)
 			{
 				$dbengines .= "<option value=\"{$dbfile}\" selected=\"selected\">{$dbtype['title']}</option>";
 			}
@@ -532,7 +532,7 @@ END;
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
 
-			if(!$mybb->input['config'][$dbfile]['dbhost'])
+			if(!isset($mybb->input['config'][$dbfile]['dbhost']))
 			{
 				$mybb->input['config'][$dbfile]['dbhost'] = "localhost";
 			}
@@ -540,18 +540,18 @@ END;
 			{
 				$mybb->input['config'][$dbfile]['tableprefix'] = "mybb_";
 			}
-			if(!$mybb->input['config'][$dbfile]['encoding'])
+			if(!isset($mybb->input['config'][$dbfile]['encoding']))
 			{
 				$mybb->input['config'][$dbfile]['encoding'] = "utf8";
 			}
 
 			$class = '';
-			if(!isset($first) && !$mybb->input['dbengine'])
+			if(!isset($first) && !$mybb->get_input('dbengine'))
 			{
 				$mybb->input['dbengine'] = $dbfile;
 				$first = true;
 			}
-			if($dbfile == $mybb->input['dbengine'])
+			if($dbfile == $mybb->get_input('dbengine'))
 			{
 				$class = "_selected";
 			}
@@ -643,7 +643,7 @@ END;
 		}
 		$dbconfig = implode("", $db_info);
 
-		if($mybb->input['encode_to_utf8'] === 0)
+		if($mybb->get_input('encode_to_utf8', \MyBB::INPUT_INT) === 0)
 		{
 			$encoding_checked_no = "checked=\"checked\"";
 			$encoding_checked_yes = "";
@@ -763,9 +763,9 @@ EOF;
 
 		if($this->opened_form && $override_form != true)
 		{
-			if($mybb->input['autorefresh'] == "yes" || $mybb->input['autorefresh'] == "no")
+			if($mybb->get_input('autorefresh') == "yes" || $mybb->get_input('autorefresh') == "no")
 			{
-				$import_session['autorefresh'] = $mybb->input['autorefresh'];
+				$import_session['autorefresh'] = $mybb->get_input('autorefresh');
 			}
 
 			if(defined("IN_MODULE") && IN_MODULE == 1)
@@ -929,7 +929,7 @@ END;
 </tr>';
 
 		$import_session['autorefresh'] = "";
-		$mybb->input['autorefresh'] = "no";
+		$mybb->get_input('autorefresh') = "no";
 
 		$print_screen_func = "print_{$module_name}_per_screen_page";
 

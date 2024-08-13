@@ -183,22 +183,22 @@ abstract class Converter_Module_Attachments extends Converter_Module
 
 		$this->debug->log->trace0("Checking readability of attachments from specified path");
 
-		if($mybb->input['uploadspath'])
+		if($mybb->get_input('uploadspath'))
 		{
-			$import_session['uploadspath'] = $mybb->input['uploadspath'];
+			$import_session['uploadspath'] = $mybb->get_input('uploadspath');
 			if(!empty($import_session['uploadspath']) && my_substr($import_session['uploadspath'], -1) != '/')
 			{
 				$import_session['uploadspath'] .= '/';
 			}
 		}
 
-		if(strpos($mybb->input['uploadspath'], "localhost") !== false)
+		if(strpos($mybb->get_input('uploadspath'), "localhost") !== false)
 		{
 			$this->errors[] = "<p>{$lang->attmodule_ipadress}</p>";
 			$import_session['uploads_test'] = 0;
 		}
 
-		if(strpos($mybb->input['uploadspath'], "127.0.0.1") !== false)
+		if(strpos($mybb->get_input('uploadspath'), "127.0.0.1") !== false)
 		{
 			$this->errors[] = "<p>{$lang->attmodule_ipadress2}</p>";
 			$import_session['uploads_test'] = 0;

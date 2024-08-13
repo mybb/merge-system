@@ -192,24 +192,24 @@ abstract class Converter
 		global $mybb, $output, $import_session, $tableprefix, $lang;
 
 		// Just posted back to this form?
-		if($mybb->input['dbengine'])
+		if($mybb->get_input('dbengine'))
 		{
-			$config_data = $mybb->input['config'][$mybb->input['dbengine']];
+			$config_data = $mybb->input['config'][$mybb->get_input('dbengine')];
 
-			if(strstr($mybb->input['dbengine'], "sqlite") !== false && (strstr($config_data['dbname'], "./") !== false || strstr($config_data['dbname'], "../") !== false))
+			if(strstr($mybb->get_input('dbengine'), "sqlite") !== false && (strstr($config_data['dbname'], "./") !== false || strstr($config_data['dbname'], "../") !== false))
 			{
 				$errors[] = $lang->error_database_relative;
 			}
-			else if(!file_exists(MYBB_ROOT."inc/db_{$mybb->input['dbengine']}.php"))
+			else if(!file_exists(MYBB_ROOT."inc/db_{$mybb->get_input('dbengine')}.php"))
 			{
 				$errors[] = $lang->error_database_invalid_engine;
 			}
 			else
 			{
 				// Attempt to connect to the db
-				require_once MYBB_ROOT."inc/db_{$mybb->input['dbengine']}.php";
+				require_once MYBB_ROOT."inc/db_{$mybb->get_input('dbengine')}.php";
 
-				switch($mybb->input['dbengine'])
+				switch($mybb->get_input('dbengine'))
 				{
 					case "sqlite":
 						$this->old_db = new DB_SQLite;
@@ -231,7 +231,7 @@ abstract class Converter
 				}
 				$this->old_db->error_reporting = 0;
 
-				$connect_config['type'] = $mybb->input['dbengine'];
+				$connect_config['type'] = $mybb->get_input('dbengine');
 				$connect_config['database'] = $config_data['dbname'];
 				$connect_config['table_prefix'] = $config_data['tableprefix'];
 				$connect_config['hostname'] = $config_data['dbhost'];
@@ -266,14 +266,14 @@ abstract class Converter
 					echo "<br />\n{$lang->database_check_success}<br /><br />\n";
 					flush();
 
-					$import_session['old_db_engine'] = $mybb->input['dbengine'];
+					$import_session['old_db_engine'] = $mybb->get_input('dbengine');
 					$import_session['old_db_host'] = $config_data['dbhost'];
 					$import_session['old_db_user'] = $config_data['dbuser'];
 					$import_session['old_db_pass'] = $config_data['dbpass'];
 					$import_session['old_db_name'] = $config_data['dbname'];
 					$import_session['old_tbl_prefix'] = $config_data['tableprefix'];
 					$import_session['connect_config'] = serialize($connect_config);
-					$import_session['encode_to_utf8'] = intval($mybb->input['encode_to_utf8']);
+					$import_session['encode_to_utf8'] = $mybb->get_input('encode_to_utf8', \MyBB::INPUT_INT);
 
 					// Create temporary import data fields
 					create_import_fields();
@@ -316,11 +316,11 @@ abstract class Converter
 
 			if($import_session['old_db_host'])
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbhost'] = $import_session['old_db_host'];
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbhost'] = $import_session['old_db_host'];
 			}
 			else
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbhost'] = 'localhost';
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbhost'] = 'localhost';
 			}
 
 			if($import_session['old_tbl_prefix'])
@@ -343,20 +343,20 @@ abstract class Converter
 
 			if($import_session['old_db_user'])
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbuser'] = $import_session['old_db_user'];
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbuser'] = $import_session['old_db_user'];
 			}
 			else
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbuser'] = '';
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbuser'] = '';
 			}
 
 			if($import_session['old_db_name'])
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbname'] = $import_session['old_db_name'];
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbname'] = $import_session['old_db_name'];
 			}
 			else
 			{
-				$mybb->input['config'][$mybb->input['dbengine']]['dbname'] = '';
+				$mybb->input['config'][$mybb->get_input('dbengine')]['dbname'] = '';
 			}
 		}
 

@@ -188,20 +188,20 @@ $cache->cache();
 $start_timer = microtime(true);
 
 // Get the import session cache if exists
-$import_session = $cache->read("import_cache", 1);
+$import_session = $cache->read("import_cache", true);
 
 // Setup our arrays if they don't exist yet
-if(!$import_session['resume_module'])
+if(empty($import_session['resume_module']))
 {
 	$import_session['resume_module'] = array();
 }
 
-if(!$import_session['disabled'])
+if(empty($import_session['disabled']))
 {
 	$import_session['disabled'] = array();
 }
 
-if(!$import_session['resume_module'])
+if(empty($import_session['resume_module']))
 {
 	$import_session['resume_module'] = array();
 }
@@ -278,10 +278,10 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 
 	$year = gmdate("Y");
 
-	$debug->log->trace2("Generating report in {$mybb->input['reportgen']} format");
+	$debug->log->trace2("Generating report in {$mybb->get_input('reportgen')} format");
 
 	// Did we request it in plain txt format?
-	if($mybb->input['reportgen'] == "txt")
+	if($mybb->get_input('reportgen') == "txt")
 	{
 		$ext = "txt";
 		$mime = "text/plain";
@@ -386,7 +386,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 	}
 
 	// Ah, our users requests our pretty html format!
-	if($mybb->input['reportgen'] == "html")
+	if($mybb->get_input('reportgen') == "html")
 	{
 		$ext = "html";
 		$mime = "text/html";
@@ -502,7 +502,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 // The Report Generations are run right above this piece of code which we "exit;" before we reach this code so we don't clear out
 // our statistics we've got saved. This will only run the next time someone visits the merge system script after we visit the
 // 'finished' page and we're not downloading a report for the last merge.
-if($import_session['finished_convert'] == '1')
+if(!empty($import_session['finished_convert']))
 {
 	$debug->log->event("Running import session cleanup");
 
@@ -511,23 +511,23 @@ if($import_session['finished_convert'] == '1')
 	update_import_session();
 }
 
-if($mybb->input['board'])
+if($mybb->get_input('board'))
 {
-	$debug->log->event("Setting up board merge classes: {$mybb->input['board']}");
+	$debug->log->event("Setting up board merge classes: {$mybb->get_input('board')}");
 
 	// Sanatize and check if it exists.
-	$mybb->input['board'] = str_replace(".", "", $mybb->input['board']);
+	$mybb->input['board'] = str_replace(".", "", $mybb->get_input('board'));
 
-	$debug->log->trace1("Loading board module {$mybb->input['board']}");
+	$debug->log->trace1("Loading board module {$mybb->get_input('board')}");
 
-	if(!file_exists(MERGE_ROOT."boards/".$mybb->input['board'].".php"))
+	if(!file_exists(MERGE_ROOT."boards/".$mybb->get_input('board').".php"))
 	{
 		$output->print_error($lang->error_invalid_board);
 	}
 
 	// Get the converter up.
-	require_once MERGE_ROOT."boards/{$mybb->input['board']}.php";
-	$class_name = strtoupper($mybb->input['board'])."_Converter";
+	require_once MERGE_ROOT."boards/{$mybb->get_input('board')}.php";
+	$class_name = strtoupper($mybb->get_input('board'))."_Converter";
 
 	$board = new $class_name;
 
@@ -556,7 +556,7 @@ if($mybb->input['board'])
 
 			echo $lang->loginconvert_message;
 
-			echo "			<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->input['board'])."\" />";
+			echo "			<input type=\"hidden\" name=\"board\" value=\"".htmlspecialchars_uni($mybb->get_input('board'))."\" />";
 
 			$output->print_footer();
 		}
@@ -573,13 +573,13 @@ if($mybb->input['board'])
 	}
 
 	// Save it to the import session so we don't have to carry it around in the url/source.
-	$import_session['board'] = $mybb->input['board'];
+	$import_session['board'] = $mybb->get_input('board');
 }
 
 // Did we just start running a specific module (user import, thread import, post import, etc)
-if($mybb->input['module'])
+if($mybb->get_input('module'))
 {
-	$debug->log->event("Setting up board module specific classes: {$mybb->input['module']}");
+	$debug->log->event("Setting up board module specific classes: {$mybb->get_input('module')}");
 
 	// Set our $resume_module variable to the last module we were working on (if there is one)
 	// incase we come back to it at a later time.
@@ -591,11 +591,11 @@ if($mybb->input['module'])
 	}
 
 	// Save our new module we're working on to the import session
-	$import_session['module'] = $mybb->input['module'];
+	$import_session['module'] = $mybb->get_input('module');
 }
 
 // Otherwise show them the agreement and ask them to agree to it to continue.
-if(!$import_session['first_page'] && !$mybb->input['first_page'])
+if(!$import_session['first_page'] && empty($mybb->input['first_page']))
 {
 	$debug->log->event("Showing first agreement/welcome page");
 
@@ -622,7 +622,7 @@ if(!$import_session['first_page'] && !$mybb->input['first_page'])
 
 
 // Did we just pass the requirements check?
-if($mybb->input['requirements_check'] == 1 && $import_session['requirements_pass'] == 1 && $mybb->request_method == "post")
+if(isset($mybb->input['requirements_check']) && $import_session['requirements_pass'] == 1 && $mybb->request_method == "post")
 {
 	$debug->log->event("Passed requirements check");
 
@@ -632,15 +632,15 @@ if($mybb->input['requirements_check'] == 1 && $import_session['requirements_pass
 	update_import_session();
 }
 // Otherwise show our requirements check to our user
-else if(!$import_session['requirements_check'] || ($mybb->input['first_page'] == 1 && $mybb->request_method == "post") || !$import_session['requirements_pass'])
+else if(!$import_session['requirements_check'] || (!empty($mybb->input['first_page']) && $mybb->request_method == "post") || !$import_session['requirements_pass'])
 {
 	$debug->log->event("Showing requirements check page");
 
-	$import_session['allow_anonymous_info'] = intval($mybb->input['allow_anonymous_info']);
+	$import_session['allow_anonymous_info'] = $mybb->get_input('allow_anonymous_info', \MyBB::INPUT_INT);
 	$import_session['first_page'] = 1;
 
 	// We should close the board - which shouldn't be necessary if they would do the merge locally...
-	if((int)$mybb->input['close_board'] == 1)
+	if($mybb->get_input('close_board', \MyBB::INPUT_INT) == 1)
 	{
 		$db->update_query("settings", array("value" => 1), "name='boardclosed'");
 		rebuild_settings();
@@ -747,7 +747,7 @@ if(!$import_session['board'])
 	$output->board_list();
 }
 // Show the completion page
-elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'completed')
+elseif($mybb->get_input('action') == 'completed')
 {
 	$debug->log->event("Show the merge competion page");
 
@@ -758,7 +758,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'completed')
 	$output->finish_conversion();
 }
 // Perhaps we have selected to stop converting or we are actually finished
-elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
+elseif($mybb->get_input('action') == 'finish')
 {
 	$debug->log->event("Show the merge cleanup page");
 
@@ -912,7 +912,7 @@ elseif(isset($mybb->input['action']) && $mybb->input['action'] == 'finish')
 	exit;
 }
 // Otherwise that means we've selected a module to run or we're in one
-elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
+elseif($import_session['module'] && $mybb->get_input('action') != 'module_list')
 {
 	$debug->log->event("Running a specific module");
 
@@ -968,7 +968,7 @@ elseif($import_session['module'] && $mybb->input['action'] != 'module_list')
 			// Get number of posts per screen from the form if it was just submitted
 			if(isset($mybb->input[$module_name.'_per_screen']))
 			{
-				$import_session[$module_name.'_per_screen'] = intval($mybb->input[$module_name.'_per_screen']);
+				$import_session[$module_name.'_per_screen'] = $mybb->get_input($module_name.'_per_screen', \MyBB::INPUT_INT);
 
 				// This needs to be here so if we "Pause" (aka terminate script execution) our "per screen" amount will still be saved
 				update_import_session();
