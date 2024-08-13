@@ -61,7 +61,13 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 		if(!is_array($touserarray))
 		{
 			$touserarray = unserialize(mb_convert_encoding($data['touserarray'], 'ISO-8859-1', 'UTF-8'));
-			array_walk_recursive($touserarray, function (&$value, &$key) {
+
+			if(!is_array($touserarray))
+			{
+				$touserarray = array();
+			}
+
+			array_walk_recursive($touserarray, function (&$value, $key) {
 				$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
 			});
 		}
@@ -97,7 +103,7 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 			// Inserting a pm for one of the recipients so the toid is our id
 			$insert_data['toid'] = $insert_data['uid'];
 		}
-		elseif(count($recipients['to']) == 1)
+		elseif(isset($recipients['to']) && count($recipients['to']) == 1)
 		{
 			// Inserting a pm for the sender with only one recipient so we can set the toid
 			$insert_data['toid'] = $recipients['to'][0];

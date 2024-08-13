@@ -34,7 +34,8 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 
 			// Restore connections
 			$thread = $this->get_import_tid_poll($poll['pollid']);
-			$db->update_query("threads", array('poll' => $pid), "import_tid = '".$thread['import_tid']."'");
+
+			$db->update_query("threads", array('poll' => $pid), "import_tid = '".(isset($thread['import_tid']) ? $thread['import_tid'] : 0)."'");
 		}
 	}
 
@@ -47,8 +48,8 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 		$votes = @explode('|||', $data['votes']);
 
 		$insert_data['import_pid'] = $data['pollid'];
-		$insert_data['import_tid'] = $thread['import_tid'];
-		$insert_data['tid'] = $thread['tid'];
+		$insert_data['import_tid'] = isset($thread['import_tid']) ? $thread['import_tid'] : 0;
+		$insert_data['tid'] = isset($thread['tid']) ? $thread['tid'] : 0;
 		$insert_data['question'] = $data['question'];
 		$insert_data['dateline'] = $data['dateline'];
 		$insert_data['options'] = str_replace('|||', '||~|~||', $data['options']);
@@ -76,7 +77,7 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 			$db->free_result($query);
 		}
 
-		return $this->cache_tid_polls[$import_pid];
+		return isset($this->cache_tid_polls[$import_pid]) ? $this->cache_tid_polls[$import_pid] : 0;
 	}
 
 	function fetch_total()

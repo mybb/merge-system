@@ -25,7 +25,20 @@ class VBULLETIN4_Converter_Module_Moderators extends Converter_Module_Moderators
 	{
 		global $import_session;
 
-		$query = $this->old_db->simple_select("moderator", "*", "forumid != '-1'", array('limit_start' => $this->trackers['start_mods'], 'limit' => $import_session['mods_per_screen']));
+		$query_options = array();
+
+		if(isset($this->trackers['start_mods']))
+		{
+			$query_options['limit_start'] = $this->trackers['start_mods'];
+		}
+
+		if(isset($import_session['mods_per_screen']))
+		{
+			$query_options['limit'] = $import_session['mods_per_screen'];
+		}
+
+		$query = $this->old_db->simple_select("moderator", "*", "forumid != '-1'", $query_options);
+
 		while($moderator = $this->old_db->fetch_array($query))
 		{
 			$this->insert($moderator);

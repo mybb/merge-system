@@ -135,7 +135,7 @@ class VBULLETIN4_Converter_Module_Settings extends Converter_Module_Settings {
 
 			if($setting['varname'] == "moderatenewmembers")
 			{
-				if($setting['config_value'] == 1)
+				if(isset($setting['config_value']) && $setting['config_value'] == 1)
 				{
 					$value = "admin";
 				}
