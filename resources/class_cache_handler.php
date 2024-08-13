@@ -337,7 +337,7 @@ class Cache_Handler
 			$this->cache_forums();
 		}
 
-		return $this->cache_fids[$old_fid];
+		return isset($this->cache_fids[$old_fid]) ? $this->cache_fids[$old_fid] : 0;
 	}
 
 	/**
@@ -448,7 +448,7 @@ class Cache_Handler
 			$this->cache_threads();
 		}
 
-		return $this->cache_tids[$old_tid];
+		return isset($this->cache_tids[$old_tid]) ? $this->cache_tids[$old_tid] : 0;
 	}
 
 	/**

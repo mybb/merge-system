@@ -255,28 +255,11 @@ function delete_import_fields($text=true)
 			$progress += $increment;
 		}
 
-		$columns_to_drop = array();
 		foreach($columns as $column)
 		{
 			if($db->field_exists($column, $table))
 			{
-				$columns_to_drop[] = $column;
-			}
-		}
-		if(!empty($columns_to_drop))
-		{
-			if($db->type == "sqlite")
-			{
-				// Can be achieved in a transaction if we'd finally support it.
-				foreach($columns_to_drop as $column)
-				{
-					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." DROP {$column}");
-				}
-			}
-			else
-			{
-				$columns_sql = implode(", DROP ", $columns_to_drop);
-				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." DROP {$columns_sql}");
+				$db->drop_column($table, $column);
 			}
 		}
 	}
