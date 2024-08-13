@@ -29,6 +29,7 @@ $l['back'] = "Back";
 $l['found_error'] = "Error Encountered";
 $l['loading_data'] = "Loading data from database...";
 $l['done'] = "Done";
+$l['size_mb'] = "MB";
 
 // Modules, english names are hardcoded. Uncomment this for your language
 // Descriptions are added as "module_{key}_desc, however the current ones doesn't have a description
@@ -246,6 +247,7 @@ $l['error_column_length_desc'] = 'The old database contains data which can\'t be
 $l['error_column_length_table'] = 'In the <b>{1}</b> table the following columns contain data that will be stripped';
 $l['error_column_length'] = '- {1} (Maximum length: {2})';
 
+$l['loginconvert_header'] = "MyBB Merge System - Setup Password Conversion";
 $l['loginconvert_title'] = "MyBB Merge System - Setup Password Conversion";
 $l['loginconvert_message'] = "			<div class=\"error\">\n
 				<h3>Error</h3>

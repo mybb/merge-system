@@ -245,7 +245,9 @@ abstract class Converter_Module_Users extends Converter_Module
 
 		// Using strtolower and my_strtolower to check, instead of in the query, is exponentially faster
 		// If we used LOWER() function in the query the index wouldn't be used by MySQL
-		if(strtolower($duplicate_user['username']) == strtolower($username) || my_strtolower($duplicate_user['username']) == strtolower($encoded_username))
+		if(is_array($duplicate_user) && (
+				strtolower($duplicate_user['username']) == strtolower($username) || my_strtolower($duplicate_user['username']) == strtolower($encoded_username)
+			))
 		{
 			if($user[$this->settings['email_column']] == $duplicate_user['email'])
 			{

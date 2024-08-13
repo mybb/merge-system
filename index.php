@@ -288,6 +288,7 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 
 		// Generate the list of all the modules we ran (Threads, Posts, Users, etc)
 		$module_list = "";
+
 		foreach($board->modules as $key => $module)
 		{
 			if(in_array($key, $import_session['completed']))
@@ -356,6 +357,8 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 			}
 		}
 
+		$import_totals = "";
+
 		// Generate the list of stats we have (Amount of threads imported, amount of posts imported, etc)
 		foreach($import_stats as $key => $title)
 		{
@@ -391,6 +394,8 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		$ext = "html";
 		$mime = "text/html";
 
+		$module_list = "";
+
 		// Generate the list of all the modules we ran (Threads, Posts, Users, etc)
 		foreach($board->modules as $key => $module)
 		{
@@ -404,6 +409,8 @@ if(isset($mybb->input['reportgen']) && !empty($import_session['board']))
 		{
 			$module_list = "<li>{$lang->none}</li>\n";
 		}
+
+		$import_totals = "";
 
 		// Generate the list of stats we have (Amount of threads imported, amount of posts imported, etc)
 		foreach($import_stats as $key => $title)
@@ -562,7 +569,7 @@ if($mybb->get_input('board'))
 		}
 
 		$plugins_cache = $cache->read("plugins", true);
-		$active_plugins = $plugins_cache['active'];
+		$active_plugins = isset($plugins_cache['active']) ? $plugins_cache['active'] : [];
 
 		$active_plugins['loginconvert'] = "loginconvert";
 
@@ -583,9 +590,9 @@ if($mybb->get_input('module'))
 
 	// Set our $resume_module variable to the last module we were working on (if there is one)
 	// incase we come back to it at a later time.
-	$resume_module = $import_session['module'];
+	$resume_module = isset($import_session['module']) ? $import_session['module'] : '';
 
-	if(!array_search($import_session['module'], $import_session['resume_module']))
+	if(isset($import_session['module']) && !array_search($import_session['module'], $import_session['resume_module']))
 	{
 		$import_session['resume_module'][] = $resume_module;
 	}
@@ -595,7 +602,7 @@ if($mybb->get_input('module'))
 }
 
 // Otherwise show them the agreement and ask them to agree to it to continue.
-if(!$import_session['first_page'] && empty($mybb->input['first_page']))
+if(empty($import_session['first_page']) && empty($mybb->input['first_page']))
 {
 	$debug->log->event("Showing first agreement/welcome page");
 
@@ -632,7 +639,7 @@ if(isset($mybb->input['requirements_check']) && $import_session['requirements_pa
 	update_import_session();
 }
 // Otherwise show our requirements check to our user
-else if(!$import_session['requirements_check'] || (!empty($mybb->input['first_page']) && $mybb->request_method == "post") || !$import_session['requirements_pass'])
+else if(empty($import_session['requirements_check']) || (!empty($mybb->get_input('first_page')) && $mybb->request_method == "post") || !$import_session['requirements_pass'])
 {
 	$debug->log->event("Showing requirements check page");
 
@@ -672,7 +679,7 @@ else if(!$import_session['requirements_check'] || (!empty($mybb->input['first_pa
 		}
 	}
 
-	// Uh oh, problemos mi amigo?
+	// Uh oh, problemas mi amigo?
 	if(!$contents || !$latest_code)
 	{
 		$checks['version_check_status'] = '<span class="pass"><i>'.$lang->requirementspage_unabletocheck.'</i></span>';
@@ -741,7 +748,7 @@ else if(!$import_session['requirements_check'] || (!empty($mybb->input['first_pa
 }
 
 // If no board is selected then we show the main page where users can select a board
-if(!$import_session['board'])
+if(empty($import_session['board']))
 {
 	$debug->log->event("Show the board listing page");
 	$output->board_list();
@@ -912,7 +919,7 @@ elseif($mybb->get_input('action') == 'finish')
 	exit;
 }
 // Otherwise that means we've selected a module to run or we're in one
-elseif($import_session['module'] && $mybb->get_input('action') != 'module_list')
+elseif(!empty($import_session['module']) && $mybb->get_input('action') != 'module_list')
 {
 	$debug->log->event("Running a specific module");
 
@@ -981,7 +988,7 @@ elseif($import_session['module'] && $mybb->get_input('action') != 'module_list')
 			update_import_session();
 
 			// Have we set our "per screen" amount yet?
-			if($import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
+			if(isset($import_session[$module_name.'_per_screen']) && $import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
 			{
 				// Print our header
 				$output->print_header($module->board->modules[$import_session['module']]['name']);
@@ -1072,7 +1079,7 @@ else
 	$debug->log->event("Show the module selection list page.");
 
 	// Set the start date for the end report.
-	if(!$import_session['start_date'])
+	if(empty($import_session['start_date']))
 	{
 		$import_session['start_date'] = time();
 	}

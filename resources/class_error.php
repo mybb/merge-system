@@ -46,15 +46,24 @@ class debugErrorHandler extends errorHandler {
 
 		$file = str_replace(MYBB_ROOT, "", $file);
 
+		if(is_array($message))
+		{
+			$message_string = "<strong>[SQL] [{$message['error_no']}]{$message['error']} </strong><br />{$message['query']}";
+		}
+		else
+		{
+			$message_string = $message;
+		}
+
 		// Do we have a PHP error?
 		if(my_strpos(my_strtolower($this->error_types[$type]), 'warning') === false)
 		{
-			$this->debug->log->error("\$type: {$type} \$message: {$message} \$file: {$file} \$line: {$line}");
+			$this->debug->log->error("\$type: {$type} \$message: {$message_string} \$file: {$file} \$line: {$line}");
 		}
 		// PHP Warning
 		else
 		{
-			$this->debug->log->warning("\$type: {$type} \$message: {$message} \$file: {$file} \$line: {$line}");
+			$this->debug->log->warning("\$type: {$type} \$message: {$message_string} \$file: {$file} \$line: {$line}");
 		}
 
 		return parent::error($type, $message, $file, $line, $allow_output);

@@ -305,7 +305,7 @@ abstract class Converter
 		else
 		{
 			echo "<p>".$lang->sprintf($lang->database_details, $this->plain_bbname)."</p>";
-			if($import_session['old_db_engine'])
+			if(!empty($import_session['old_db_engine']))
 			{
 				$mybb->input['dbengine'] = $import_session['old_db_engine'];
 			}
@@ -314,7 +314,7 @@ abstract class Converter
 				$mybb->input['dbengine'] = $mybb->config['database']['type'];
 			}
 
-			if($import_session['old_db_host'])
+			if(!empty($import_session['old_db_host']))
 			{
 				$mybb->input['config'][$mybb->get_input('dbengine')]['dbhost'] = $import_session['old_db_host'];
 			}
@@ -323,7 +323,7 @@ abstract class Converter
 				$mybb->input['config'][$mybb->get_input('dbengine')]['dbhost'] = 'localhost';
 			}
 
-			if($import_session['old_tbl_prefix'])
+			if(!empty($import_session['old_tbl_prefix']))
 			{
 				$tableprefix = $import_session['old_tbl_prefix'];
 			}
@@ -331,17 +331,19 @@ abstract class Converter
 			{
 				$tableprefix = $this->prefix_suggestion;
 			}
+
 			// This looks probably odd, but we want that the table prefix is shown everywhere correctly
 			foreach($this->supported_databases as $dbs)
 			{
 				$mybb->input['config'][$dbs]['tableprefix'] = $tableprefix;
 			}
+
 			// Handling mysqli, mysql_pdo and pgsql_pdo separately.
 			$mybb->input['config']["mysqli"]['tableprefix'] = $tableprefix;
 			$mybb->input['config']["mysql_pdo"]['tableprefix'] = $tableprefix;
 			$mybb->input['config']["pgsql_pdo"]['tableprefix'] = $tableprefix;
 
-			if($import_session['old_db_user'])
+			if(!empty($import_session['old_db_user']))
 			{
 				$mybb->input['config'][$mybb->get_input('dbengine')]['dbuser'] = $import_session['old_db_user'];
 			}
@@ -350,7 +352,7 @@ abstract class Converter
 				$mybb->input['config'][$mybb->get_input('dbengine')]['dbuser'] = '';
 			}
 
-			if($import_session['old_db_name'])
+			if(!empty($import_session['old_db_name']))
 			{
 				$mybb->input['config'][$mybb->get_input('dbengine')]['dbname'] = $import_session['old_db_name'];
 			}
@@ -506,10 +508,12 @@ abstract class Converter
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
 
-		$this->debug->log->datatrace("total_{$module_name}, start_{$module_name}", array($import_session['total_'.$module_name], $this->trackers['start_'.$module_name]));
+		$start_module = isset($this->trackers['start_'.$module_name]) ? $this->trackers['start_'.$module_name] : 0;
+
+		$this->debug->log->datatrace("total_{$module_name}, start_{$module_name}", array($import_session['total_'.$module_name], $start_module));
 
 		// If there are more work to do, continue, or else, move onto next module
-		if($import_session['total_'.$module_name] - $this->trackers['start_'.$module_name] <= 0 || $import_session['total_'.$module_name] == 0)
+		if($import_session['total_'.$module_name] - $start_module <= 0 || $import_session['total_'.$module_name] == 0)
 		{
 			$import_session['disabled'][] = 'import_'.$module_name;
 			$import_session['flash_message'] = $lang->sprintf($lang->import_successfully, $this->settings['friendly_name']);

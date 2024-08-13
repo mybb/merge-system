@@ -84,6 +84,7 @@ class converterOutput
 	var $_progress_bar_constructed = 0;
 
 	var $_last_left = 0;
+	private $trackers = array();
 
 	/**
 	 * Method to print the converter header
@@ -280,7 +281,7 @@ END;
 
 		$this->print_header($lang->module_selection, "", 0);
 
-		if($import_session['flash_message'])
+		if(!empty($import_session['flash_message']))
 		{
 			echo "<div class=\"flash_success\"><p><em>{$import_session['flash_message']}</em></p></div>\n";
 			$import_session['flash_message'] = null;
@@ -349,7 +350,7 @@ END;
 			echo "<tr class=\"{$class}\">\n";
 			echo "<td class=\"first\"><div class=\"module{$icon}\">".$module['name']."</div>\n";
 
-			if($module['description'])
+			if(!empty($module['description']))
 			{
 				echo "<div class=\"module_description\">".$module['description']."</div>\n";
 			}
@@ -369,7 +370,7 @@ END;
 			echo "<td class=\"last\" width=\"1\">\n";
 			echo "<form method=\"post\" action=\"{$this->script}\">\n";
 
-			if($import_session['module'] == $key || in_array($key, $import_session['resume_module']))
+			if(isset($import_session['module']) && $import_session['module'] == $key || in_array($key, $import_session['resume_module']))
 			{
 				echo "<input type=\"submit\" class=\"submit_button\" value=\"{$lang->resume} &raquo;\" />\n";
 			}
@@ -519,9 +520,16 @@ END;
 		});
 		</script>";
 
+		$config = $mybb->get_input('config', \MyBB::INPUT_ARRAY);
+
 		$db_info = array();
 		foreach($dboptions as $dbfile => $dbtype)
 		{
+			if(!isset($config[$dbfile]))
+			{
+				$config[$dbfile] = [];
+			}
+
 			require_once MYBB_ROOT."inc/db_{$dbfile}.php";
 			if(!class_exists($dbtype['class']))
 			{
@@ -532,17 +540,17 @@ END;
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
 
-			if(!isset($mybb->input['config'][$dbfile]['dbhost']))
+			if(!isset($config[$dbfile]['dbhost']))
 			{
-				$mybb->input['config'][$dbfile]['dbhost'] = "localhost";
+				$config[$dbfile]['dbhost'] = "localhost";
 			}
-			if(!isset($mybb->input['config'][$dbfile]['tableprefix']))
+			if(!isset($config[$dbfile]['tableprefix']))
 			{
-				$mybb->input['config'][$dbfile]['tableprefix'] = "mybb_";
+				$config[$dbfile]['tableprefix'] = "mybb_";
 			}
-			if(!isset($mybb->input['config'][$dbfile]['encoding']))
+			if(!isset($config[$dbfile]['encoding']))
 			{
-				$mybb->input['config'][$dbfile]['encoding'] = "utf8";
+				$config[$dbfile]['encoding'] = "utf8";
 			}
 
 			$class = '';
@@ -568,7 +576,7 @@ END;
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
 						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_path}:</label></td>
-						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".(isset($config[$dbfile]['dbname']) ? htmlspecialchars_uni($config[$dbfile]['dbname']) : '')."\" /></td>
 					</tr>";
 			}
 			// Others get db host, username, password etc
@@ -577,19 +585,19 @@ END;
 				$db_info[$dbfile] .= "
 					<tr class=\"alt_row\">
 						<td class=\"first\"><label for=\"config_{$dbfile}_dbhost\">{$lang->database_host}:</label></td>
-						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbhost]\" id=\"config_{$dbfile}_dbhost\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbhost'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbhost]\" id=\"config_{$dbfile}_dbhost\" value=\"".(isset($config[$dbfile]['dbhost']) ? htmlspecialchars_uni($config[$dbfile]['dbhost']) : '')."\" /></td>
 					</tr>
 					<tr>
 						<td class=\"first\"><label for=\"config_{$dbfile}_dbuser\">{$lang->database_user}:</label></td>
-						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbuser]\" id=\"config_{$dbfile}_dbuser\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbuser'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbuser]\" id=\"config_{$dbfile}_dbuser\" value=\"".(isset($config[$dbfile]['dbuser']) ? htmlspecialchars_uni($config[$dbfile]['dbuser']) : '')."\" /></td>
 					</tr>
 					<tr class=\"alt_row\">
 						<td class=\"first\"><label for=\"config_{$dbfile}_dbpass\">{$lang->database_pw}:</label></td>
-						<td class=\"last alt_col\"><input type=\"password\" class=\"text_input\" name=\"config[{$dbfile}][dbpass]\" id=\"config_{$dbfile}_dbpass\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbpass'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"password\" class=\"text_input\" name=\"config[{$dbfile}][dbpass]\" id=\"config_{$dbfile}_dbpass\" value=\"".(isset($config[$dbfile]['dbpass']) ? htmlspecialchars_uni($config[$dbfile]['dbpass']) : '')."\" /></td>
 					</tr>
 					<tr class=\"last\">
 						<td class=\"first\"><label for=\"config_{$dbfile}_dbname\">{$lang->database_name}:</label></td>
-						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['dbname'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][dbname]\" id=\"config_{$dbfile}_dbname\" value=\"".(isset($config[$dbfile]['dbname']) ? htmlspecialchars_uni($config[$dbfile]['dbname']) : '')."\" /></td>
 					</tr>";
 			}
 
@@ -606,14 +614,14 @@ END;
 				$db_info[$dbfile] .= "
 					<tr class=\"first\">
 						<td class=\"first\"><label for=\"config_{$dbfile}_tableprefix\">{$lang->database_table_prefix}:</label></td>
-						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" /></td>
+						<td class=\"last alt_col\"><input type=\"text\" class=\"text_input\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($config[$dbfile]['tableprefix'])."\" /></td>
 					</tr>
 					";
 			}
 			else
 			{
 				$db_info[$dbfile] .= "
-					<input type=\"hidden\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($mybb->input['config'][$dbfile]['tableprefix'])."\" />
+					<input type=\"hidden\" name=\"config[{$dbfile}][tableprefix]\" id=\"config_{$dbfile}_tableprefix\" value=\"".htmlspecialchars_uni($config[$dbfile]['tableprefix'])."\" />
 				";
 			}
 
@@ -623,7 +631,7 @@ END;
 				$select_options = "";
 				foreach($encodings as $encoding => $title)
 				{
-					if($mybb->input['config'][$dbfile]['encoding'] == $encoding)
+					if($config[$dbfile]['encoding'] == $encoding)
 					{
 						$select_options .= "<option value=\"{$encoding}\" selected=\"selected\">{$title}</option>";
 					}
@@ -774,9 +782,9 @@ EOF;
 				echo "\n	<form method=\"post\" action=\"".$this->script."\">\n";
 			}
 
-			if($import_session['autorefresh'] == "yes" && !$conf_global_not_found)
+			if(isset($import_session['autorefresh']) && $import_session['autorefresh'] == "yes" && !$conf_global_not_found)
 			{
-				echo "\n		<meta http-equiv=\"Refresh\" content=\"2; url=".$this->script."\" />";
+				echo "\n		<meta http-equiv=\"Refresh\" content=\"0; url=".$this->script."\" />";
 				echo "\n		<div id=\"next_button\"><input type=\"submit\" class=\"submit_button {$extra_class}\" value=\"{$lang->redirecting} &raquo;\" alt=\"{$lang->dont_wait}\" {$button_extra} /></div>";
 			}
 			else
@@ -788,7 +796,7 @@ EOF;
 			echo "\n	</form>\n";
 
 			// Only if we're in a module
-			if($import_session['module'] && (!defined('BACK_BUTTON') || BACK_BUTTON != false))
+			if(isset($import_session['module']) && (!defined('BACK_BUTTON') || BACK_BUTTON != false))
 			{
 				echo "\n	<form method=\"post\" action=\"".$this->script."\">\n";
 				if($import_session['module'] == 'db_configuration')
@@ -890,7 +898,7 @@ END;
 
 		// TODO: $this->trackers is never defined and will always be 0 therefore
 		$replacements = array(
-			"count"		=> (int) $this->trackers['start_'.$module_name],
+			"count"		=> isset($this->trackers['start_'.$module_name]) ? (int) $this->trackers['start_'.$module_name] : 0,
 			"type"		=> $db->escape_string($module_name)
 		);
 		$db->replace_query("trackers", $replacements);
@@ -929,7 +937,7 @@ END;
 </tr>';
 
 		$import_session['autorefresh'] = "";
-		$mybb->get_input('autorefresh') = "no";
+		$mybb->input['autorefresh'] = "no";
 
 		$print_screen_func = "print_{$module_name}_per_screen_page";
 
@@ -948,6 +956,12 @@ END;
 		global $import_session, $module, $lang;
 
 		$module_name = str_replace(array("import_", ".", ".."), "", $import_session['module']);
+
+		$import_session['total_'.$module_name] = isset($import_session['total_'.$module_name]) ? $import_session['total_'.$module_name] : 0;
+
+		$module->trackers['start_'.$module_name] = isset($module->trackers['start_'.$module_name]) ? $module->trackers['start_'.$module_name] : 0;
+
+		$import_session[$module_name.'_per_screen'] = isset($import_session[$module_name.'_per_screen']) ? $import_session[$module_name.'_per_screen'] : 0;
 
 		$left = $import_session['total_'.$module_name]-$module->trackers['start_'.$module_name]-$import_session[$module_name.'_per_screen'];
 

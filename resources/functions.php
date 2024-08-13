@@ -21,11 +21,12 @@ function update_import_session()
 {
 	global $import_session, $cache, $board, $db;
 
-	if(!$import_session['completed'])
+	if(empty($import_session['completed']))
 	{
 		$import_session['completed'] = array();
 	}
-	if(!$import_session['disabled'])
+
+	if(empty($import_session['disabled']))
 	{
 		$import_session['disabled'] = array();
 	}
@@ -33,10 +34,33 @@ function update_import_session()
 	// Stats
 	if(!empty($board->old_db->query_count))
 	{
-		$import_session['olddb_query_count'] += $board->old_db->query_count;
+		if(empty($import_session['olddb_query_count']))
+		{
+			$import_session['olddb_query_count'] = $board->old_db->query_count;
+		}
+		else
+		{
+			$import_session['olddb_query_count'] += $board->old_db->query_count;
+		}
 	}
-	$import_session['newdb_query_count'] += $db->query_count;
-	$import_session['total_query_time'] += $db->query_time;
+
+	if(empty($import_session['newdb_query_count']))
+	{
+		$import_session['newdb_query_count'] = $db->query_count;
+	}
+	else
+	{
+		$import_session['newdb_query_count'] += $db->query_count;
+	}
+
+	if(empty($import_session['total_query_time']))
+	{
+		$import_session['total_query_time'] = $db->query_time;
+	}
+	else
+	{
+		$import_session['total_query_time'] += $db->query_time;
+	}
 
 	$import_session['completed'] = array_unique($import_session['completed']);
 	$import_session['disabled'] = array_unique($import_session['disabled']);
