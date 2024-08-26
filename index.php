@@ -569,7 +569,7 @@ if($mybb->get_input('board'))
 		}
 
 		$plugins_cache = $cache->read("plugins", true);
-		$active_plugins = isset($plugins_cache['active']) ? $plugins_cache['active'] : [];
+		$active_plugins = isset($plugins_cache['active']) ? $plugins_cache['active'] : array();
 
 		$active_plugins['loginconvert'] = "loginconvert";
 
