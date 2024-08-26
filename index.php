@@ -639,7 +639,7 @@ if(isset($mybb->input['requirements_check']) && $import_session['requirements_pa
 	update_import_session();
 }
 // Otherwise show our requirements check to our user
-else if(empty($import_session['requirements_check']) || (!empty($mybb->get_input('first_page')) && $mybb->request_method == "post") || !$import_session['requirements_pass'])
+else if(empty($import_session['requirements_check']) || (!empty($mybb->input['first_page']) && $mybb->request_method == "post") || !$import_session['requirements_pass'])
 {
 	$debug->log->event("Showing requirements check page");
 
