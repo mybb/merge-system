@@ -527,7 +527,7 @@ END;
 		{
 			if(!isset($config[$dbfile]))
 			{
-				$config[$dbfile] = [];
+				$config[$dbfile] = array();
 			}
 
 			require_once MYBB_ROOT."inc/db_{$dbfile}.php";
