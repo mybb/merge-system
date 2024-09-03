@@ -87,7 +87,7 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 		$results = $this->old_db->fetch_field($query, "poll_option_id");
 		$this->old_db->free_result($query);
 
-		$this->get_poll_pid_cache[$tid] = $results;
+		$this->get_poll_pid_cache[$tid] = (int)$results;
 
 		return $results;
 	}

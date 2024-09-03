@@ -71,7 +71,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['regdate'] = $data['user_regdate'];
 		$insert_data['lastactive'] = $data['user_lastvisit'];
 		$insert_data['lastvisit'] = $data['user_lastvisit'];
-		$insert_data['website'] = $data['user_website'];
+		$insert_data['website'] = $data['user_website'] ?? '';
 		$insert_data['lastpost'] = $data['user_lastpost_time'];
 
 		$birthday = '';
@@ -125,7 +125,7 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			// phpBB 3.1
 			$insert_data['timezone'] = get_timezone($data['user_timezone']);
 		}
-		$insert_data['dst'] = $data['user_dst'];
+		$insert_data['dst'] = $data['user_dst'] ?? 0;
 		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['user_sig'], $data['user_sig_bbcode_uid']), "users", "users");
 		$insert_data['regip'] = my_inet_pton($data['user_ip']);
 		$insert_data['lastip'] = my_inet_pton($data['user_ip']);

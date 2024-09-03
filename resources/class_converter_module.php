@@ -412,8 +412,8 @@ abstract class Converter_Module
 				{
 					$this->board->set_column_warning_in_progress(
 						'entry', $table, $key,
-						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING'),
-						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'], 'STRING')
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'] ?? '', 'STRING'),
+						$lang->sprintf($lang->warning_prepare_data_mismatched_column, $import_session['module'], TABLE_PREFIX.$table, $key, $column['def_type'] ?? '', 'STRING')
 					);
 				}
 
