@@ -34,7 +34,7 @@ abstract class Converter_Module_Users extends Converter_Module
 		'lastvisit' => TIME_NOW,
 		'lastpost' => 0,
 		'website' => '',
-		'icq' => '',
+		//'icq' => '',
 		'skype' => '',
 		'google' => '',
 		'birthday' => '',

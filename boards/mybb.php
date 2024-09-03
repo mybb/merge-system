@@ -92,7 +92,7 @@ class MYBB_Converter extends Converter
 	var $column_length_to_check = array(
 		'users' => array(
 			'users' => array(
-				'icq' => 'icq'
+				//'icq' => 'icq'
 			)
 		)
 	);

@@ -103,7 +103,7 @@ class VBULLETIN5_Converter extends Converter
 		),
 		'user' => array(
 			'users' => array(
-				'icq' => 'icq'
+				//'icq' => 'icq'
 			)
 		)
 	);

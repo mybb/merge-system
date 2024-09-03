@@ -76,7 +76,7 @@ class PUNBB_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $data['timezone']);
 
 		$insert_data['lastpost'] = $data['last_post'];
-		$insert_data['icq'] = $data['icq'];
+		//$insert_data['icq'] = $data['icq'];
 		$insert_data['hideemail'] = $data['email_setting'];
 		$insert_data['allownotices'] = $data['notify_with_post'];
 		$insert_data['regip'] = my_inet_pton($data['registration_ip']);

@@ -71,7 +71,7 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 			list($bmonth, $bday, $byear) = explode("-", $data['birthday']);
 			$insert_data['birthday'] = $bday."-".$bmonth."-".$byear;
 		}
-		$insert_data['icq'] = $data['icq'];
+		//$insert_data['icq'] = $data['icq'];
 		$insert_data['skype'] = $data['skype'];
 		$insert_data['timezone'] = isset($insert_data['timezone']) ? str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']) : '';
 		$insert_data['style'] = 0;
