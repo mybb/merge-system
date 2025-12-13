@@ -715,7 +715,11 @@ function merge_fetch_remote_file($url, $post_data=array())
 			$url['path'] .= "?{$url['query']}";
 		}
 		$fp = @fsockopen($url['host'], $url['port'], $error_no, $error, 10);
-		@stream_set_timeout($fp, 10);
+
+		if($fp !== false) {
+			stream_set_timeout($fp, 10);
+		}
+
 		if(!$fp)
 		{
 			return false;
@@ -788,12 +792,22 @@ if(!function_exists('htmlspecialchars_decode'))
 function utf8_unhtmlentities($string)
 {
 	// Replace numeric entities
-	$string = preg_replace_callback('~&#x([0-9a-f]+);~i', function($matches) {
-		return unichr(hexdec($matches[1]));
-	}, $string);
-	$string = preg_replace_callback('~&#([0-9]+);~', function($matches) {
-		return unichr($matches[1]);
-	}, $string);
+	$string = preg_replace_callback(
+		'~&#x([0-9a-f]+);~i',
+		function($matches) {
+			return unichr(hexdec($matches[1]));
+		},
+		$string
+	);
+
+	// Replace literal entities
+	$string = preg_replace_callback(
+		'~&#([0-9]+);~',
+		function($matches) {
+			return unichr($matches[1]);
+		},
+		$string
+	);
 
 	// Replace literal entities
 	$trans_tbl = get_html_translation_table(HTML_ENTITIES);

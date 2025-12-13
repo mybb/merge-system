@@ -42,7 +42,7 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 		// Smilies are saved as img code, with comments before and after. Remove that stuff.
 		$text = preg_replace("#<!-- s(.*?) --><img src=\"{SMILIES_PATH}(.*?)\" alt=\"(.*?)\" (.*?) /><!-- s(.*?) -->#i", "$1", $text);
 
-		// Resett attachment counter
+		// Reset attachment counter
 		$this->pid = $pid;
 
 		return parent::convert($text);
@@ -65,9 +65,9 @@ class BBCode_Parser extends BBCode_Parser_Plain {
 		global $module;
 
 		$options = array(
-			"order_by"		=> "attach_id",
-			"limit"			=> 1,
-			"limit_start"	=> $matches[1],
+			"order_by"       => "attach_id",
+			"limit"          => 1,
+			"limit_start"    => $matches[1],
 		);
 		$query = $module->old_db->simple_select("attachments", "attach_id", "post_msg_id={$this->pid}", $options);
 		$id = $module->old_db->fetch_field($query, "attach_id");
