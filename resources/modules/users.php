@@ -35,8 +35,6 @@ abstract class Converter_Module_Users extends Converter_Module
 		'lastpost' => 0,
 		'website' => '',
 		//'icq' => '',
-		'skype' => '',
-		'google' => '',
 		'birthday' => '',
 		'birthdayprivacy' => 'all',
 		'signature' => '',

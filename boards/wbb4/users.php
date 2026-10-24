@@ -30,8 +30,6 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 		"birthday",
 		"timezone",
 		//"icq",
-		"skype",
-		"googlePlus",
 	);
 
 	var $nice_options;
@@ -151,8 +149,6 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 
 		$insert_data['birthday'] = $birthday;
 		//$insert_data['icq'] = $data['icq'];
-		$insert_data['skype'] = $data['skype'];
-		$insert_data['google'] = $data['googlePlus'];
 
 		if(!empty($data['timezone']))
 		{
