@@ -35,7 +35,10 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 			// Restore connections
 			$thread = $this->get_import_tid_poll($poll['pollid']);
 
-			$db->update_query("threads", array('poll' => $pid), "import_tid = '".(isset($thread['import_tid']) ? $thread['import_tid'] : 0)."'");
+			if(is_array($thread) && isset($thread['import_tid']))
+			{
+				$db->update_query("threads", array('poll' => $pid), "import_tid = '".$thread['import_tid']."'");
+			}
 		}
 	}
 
@@ -95,5 +98,4 @@ class VBULLETIN4_Converter_Module_Polls extends Converter_Module_Polls {
 		return $import_session['total_polls'];
 	}
 }
-
 
