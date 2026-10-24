@@ -58,7 +58,10 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['dateline'] = $data['post_date'];
 		$insert_data['message'] = $this->bbcode_parser->convert($data['post']);
 		$insert_data['ipaddress'] = my_inet_pton($data['ip_address']);
-		$insert_data['includesig'] = $data['use_sig'];
+		if(isset($data['use_sig']))
+		{
+			$insert_data['includesig'] = $data['use_sig'];
+		}
 		$insert_data['smilieoff'] = int_to_01($data['use_emo']);
 		$insert_data['edituid'] = $this->get_import->uid($this->get_uid_from_username($data['edit_name']));
 		$insert_data['edittime'] = $data['edit_time'];
