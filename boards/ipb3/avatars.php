@@ -60,19 +60,12 @@ class IPB3_Converter_Module_Avatars extends Converter_Module_Avatars {
 			$insert_data['avatar'] = $this->get_upload_avatar_name($insert_data['uid'], $data['pp_main_photo']);
 			$insert_data['avatardimensions'] = "{$data['pp_main_height']}|{$data['pp_main_width']}";
 		}
-		elseif($data['pp_photo_type'] == 'gravatar' || $this->check_gravatar_exists($data['email']))
+		// Preserve explicitly selected Gravatars without looking up other users' email addresses.
+		elseif($data['pp_photo_type'] == 'gravatar')
 		{
 			$insert_data['avatartype'] = AVATAR_TYPE_GRAVATAR;
 
-			if($data['pp_photo_type'] == 'gravatar')
-			{
-				$email = $data['pp_gravatar'];
-			}
-			else
-			{
-				$email = $data['email'];
-			}
-			$insert_data['avatar'] = $this->get_gravatar_url($email);
+			$insert_data['avatar'] = $this->get_gravatar_url($data['pp_gravatar']);
 
 			if(!$mybb->settings['maxavatardims'])
 			{
