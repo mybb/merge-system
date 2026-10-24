@@ -629,7 +629,7 @@ if(empty($import_session['first_page']) && empty($mybb->input['first_page']))
 
 
 // Did we just pass the requirements check?
-if(isset($mybb->input['requirements_check']) && $import_session['requirements_pass'] == 1 && $mybb->request_method == "post")
+if($mybb->get_input('requirements_check', \MyBB::INPUT_INT) === 1 && $import_session['requirements_pass'] == 1 && $mybb->request_method == "post")
 {
 	$debug->log->event("Passed requirements check");
 
