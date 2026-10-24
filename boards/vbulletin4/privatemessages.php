@@ -23,7 +23,7 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 	function import()
 	{
-		global $import_session, $output;
+		global $import_session, $output, $mybb;
 
 			$query = $this->old_db->query("
 				SELECT *
@@ -41,6 +41,7 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 				{
 					$this->errors[] = $error->getMessage();
 					$this->is_errors = true;
+					$mybb->input['autorefresh'] = 'no';
 					$output->print_inline_errors();
 					return;
 				}
