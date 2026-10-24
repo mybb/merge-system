@@ -988,7 +988,7 @@ elseif(!empty($import_session['module']) && $mybb->get_input('action') != 'modul
 			update_import_session();
 
 			// Have we set our "per screen" amount yet?
-			if(isset($import_session[$module_name.'_per_screen']) && $import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
+			if(!isset($import_session[$module_name.'_per_screen']) || $import_session[$module_name.'_per_screen'] <= 0 || $module->is_errors)
 			{
 				// Print our header
 				$output->print_header($module->board->modules[$import_session['module']]['name']);
