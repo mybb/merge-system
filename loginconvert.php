@@ -273,12 +273,12 @@ function check_ipb($password, $user)
 
 function check_ipb4($password, $user)
 {
-	if($user['passwordconvert'] == crypt($password, '$2a$13$'.$user['passwordconvertsalt']))
+	if(function_exists('password_verify'))
 	{
-		return true;
+		return password_verify($password, $user['passwordconvert']);
 	}
 
-	return false;
+	return strlen($user['passwordconvert']) === 60 && $user['passwordconvert'] === crypt($password, $user['passwordconvert']);
 }
 
 function check_smf($password, $user)

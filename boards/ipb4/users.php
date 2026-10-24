@@ -72,9 +72,10 @@ class IPB4_Converter_Module_Users extends Converter_Module_Users {
 		$insert_data['totalpms'] = $data['msg_count_total'];
 		$insert_data['unreadpms'] = $data['msg_count_new'];
 		$insert_data['signature'] =  $this->bbcode_parser->convert($data['signature']);
-		$insert_data['passwordconvertsalt'] = $data['members_pass_salt'];
+		$insert_data['passwordconvertsalt'] = isset($data['members_pass_salt']) ? $data['members_pass_salt'] : '';
 		$insert_data['passwordconvert'] = $data['members_pass_hash'];
-		if(mb_strlen($insert_data['passwordconvertsalt']) === 22)
+		// IPB4 bcrypt hashes are 60 characters; legacy IPB3 MD5 hashes are 32.
+		if(strlen($insert_data['passwordconvert']) === 60)
 		{
 			$insert_data['passwordconverttype'] = 'ipb4';
 		}
