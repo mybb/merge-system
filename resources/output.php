@@ -521,6 +521,10 @@ END;
 		</script>";
 
 		$config = $mybb->get_input('config', \MyBB::INPUT_ARRAY);
+		if(!is_array($config))
+		{
+			$config = array();
+		}
 
 		$db_info = array();
 		foreach($dboptions as $dbfile => $dbtype)
@@ -1176,4 +1180,3 @@ END;
 		define("BACK_BUTTON", false);
 	}
 }
-
