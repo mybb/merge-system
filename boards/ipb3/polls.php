@@ -48,9 +48,13 @@ class IPB3_Converter_Module_Polls extends Converter_Module_Polls {
 		{
 			$choices = mb_convert_encoding($data['choices'], 'ISO-8859-1', 'UTF-8');
 		}
+		elseif(function_exists('iconv'))
+		{
+			$choices = iconv('UTF-8', 'ISO-8859-1', $data['choices']);
+		}
 		else
 		{
-			$choices = utf8_decode($data['choices']);
+			$choices = $data['choices'];
 		}
 		$choices = unserialize($choices);
 		$choices = $choices[1];
@@ -99,4 +103,3 @@ class IPB3_Converter_Module_Polls extends Converter_Module_Polls {
 		return $import_session['total_polls'];
 	}
 }
-

@@ -64,27 +64,34 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 			{
 				$touserdata = mb_convert_encoding($data['touserarray'], 'ISO-8859-1', 'UTF-8');
 			}
+			elseif(function_exists('iconv'))
+			{
+				$touserdata = iconv('UTF-8', 'ISO-8859-1', $data['touserarray']);
+			}
 			else
 			{
-				$touserdata = utf8_decode($data['touserarray']);
+				$touserdata = false;
 			}
-			$touserarray = unserialize($touserdata);
+			$touserarray = $touserdata === false ? false : unserialize($touserdata);
 
 			if(!is_array($touserarray))
 			{
 				$touserarray = array();
 			}
 
-			array_walk_recursive($touserarray, function (&$value, $key) {
-				if(function_exists('mb_convert_encoding'))
-				{
-					$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
-				}
-				else
-				{
-					$value = utf8_encode($value);
-				}
-			});
+			if(function_exists('mb_convert_encoding') || function_exists('iconv'))
+			{
+				array_walk_recursive($touserarray, function (&$value, $key) {
+					if(function_exists('mb_convert_encoding'))
+					{
+						$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+					}
+					else
+					{
+						$value = iconv('ISO-8859-1', 'UTF-8', $value);
+					}
+				});
+			}
 		}
 
 		// This is the original check in vB
