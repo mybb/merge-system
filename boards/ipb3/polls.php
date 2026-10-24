@@ -44,7 +44,15 @@ class IPB3_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
-		$choices = unserialize(mb_convert_encoding($data['choices'], 'ISO-8859-1', 'UTF-8'));
+		if(function_exists('mb_convert_encoding'))
+		{
+			$choices = mb_convert_encoding($data['choices'], 'ISO-8859-1', 'UTF-8');
+		}
+		else
+		{
+			$choices = utf8_decode($data['choices']);
+		}
+		$choices = unserialize($choices);
 		$choices = $choices[1];
 
 		$seperator = '';

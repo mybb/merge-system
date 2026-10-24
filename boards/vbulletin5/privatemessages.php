@@ -60,7 +60,15 @@ class VBULLETIN5_Converter_Module_Privatemessages extends Converter_Module_Priva
 		// However afterwards we need to properly encode all elements again, otherwise we'd get other issues again
 		if(!is_array($touserarray))
 		{
-			$touserarray = unserialize(mb_convert_encoding($data['touserarray'], 'ISO-8859-1', 'UTF-8'));
+			if(function_exists('mb_convert_encoding'))
+			{
+				$touserdata = mb_convert_encoding($data['touserarray'], 'ISO-8859-1', 'UTF-8');
+			}
+			else
+			{
+				$touserdata = utf8_decode($data['touserarray']);
+			}
+			$touserarray = unserialize($touserdata);
 
 			if(!is_array($touserarray))
 			{
@@ -68,7 +76,14 @@ class VBULLETIN5_Converter_Module_Privatemessages extends Converter_Module_Priva
 			}
 
 			array_walk_recursive($touserarray, function (&$value, $key) {
-				$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+				if(function_exists('mb_convert_encoding'))
+				{
+					$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+				}
+				else
+				{
+					$value = utf8_encode($value);
+				}
 			});
 		}
 
@@ -151,4 +166,3 @@ class VBULLETIN5_Converter_Module_Privatemessages extends Converter_Module_Priva
 		return $import_session['total_privatemessages'];
 	}
 }
-
