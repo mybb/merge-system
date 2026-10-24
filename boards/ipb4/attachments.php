@@ -41,6 +41,7 @@ class IPB4_Converter_Module_Attachments extends Converter_Module_Attachments {
 				FROM ".OLD_TABLE_PREFIX."core_attachments a
 				LEFT JOIN ".OLD_TABLE_PREFIX."core_attachments_map m ON(m.attachment_id=a.attach_id)
 				WHERE m.location_key='forums_Forums'
+				ORDER BY a.attach_id, m.id2
 				LIMIT {$this->trackers['start_attachments']}, {$import_session['attachments_per_screen']}");
 		while($attachment = $this->old_db->fetch_array($query))
 		{
