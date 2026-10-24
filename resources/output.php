@@ -544,7 +544,7 @@ END;
 			$db = new $dbtype['class'];
 			$encodings = $db->fetch_db_charsets();
 
-			if(!isset($config[$dbfile]['dbhost']))
+			if(empty($config[$dbfile]['dbhost']))
 			{
 				$config[$dbfile]['dbhost'] = "localhost";
 			}
@@ -552,7 +552,7 @@ END;
 			{
 				$config[$dbfile]['tableprefix'] = "mybb_";
 			}
-			if(!isset($config[$dbfile]['encoding']))
+			if(empty($config[$dbfile]['encoding']))
 			{
 				$config[$dbfile]['encoding'] = "utf8";
 			}
