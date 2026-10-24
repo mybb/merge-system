@@ -54,13 +54,13 @@ class IPB3_Converter_Module_Polls extends Converter_Module_Polls {
 		$insert_data['import_tid'] = $data['tid'];
 		$insert_data['import_pid'] = $data['pid'];
 		$insert_data['tid'] = $this->get_import->tid($data['tid']);
-		if(function_exists('iconv'))
-		{
-			$choices = iconv('UTF-8', 'ISO-8859-1', $data['choices']);
-		}
-		elseif(function_exists('mb_convert_encoding'))
+		if(function_exists('mb_convert_encoding'))
 		{
 			$choices = mb_convert_encoding($data['choices'], 'ISO-8859-1', 'UTF-8');
+		}
+		elseif(function_exists('iconv'))
+		{
+			$choices = iconv('UTF-8', 'ISO-8859-1', $data['choices']);
 		}
 		else
 		{
