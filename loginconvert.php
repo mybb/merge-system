@@ -348,7 +348,7 @@ function check_punbb($password, $user)
 		return true;
 	}
     // mhash() is deprecated as of PHP8.1
-	elseif(function_exists('mhash') && $is_sha1 && (bin2hex(mhash(MHASH_SHA1, $password)) == $user['passwordconvert'] || bin2hex(mhash(MHASH_SHA1, $user['passwordconvertsalt'].bin2hex(mhash(MHASH_SHA1, $password)))) == $user['passwordconvert']))
+	elseif(PHP_VERSION_ID < 80100 && function_exists('mhash') && $is_sha1 && (bin2hex(mhash(MHASH_SHA1, $password)) == $user['passwordconvert'] || bin2hex(mhash(MHASH_SHA1, $user['passwordconvertsalt'].bin2hex(mhash(MHASH_SHA1, $password)))) == $user['passwordconvert']))
 	{
 		return true;
 	}
