@@ -23,7 +23,7 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 
 	function import()
 	{
-		global $import_session;
+		global $import_session, $output;
 
 			$query = $this->old_db->query("
 				SELECT *
@@ -33,7 +33,17 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 			);
 			while($pm = $this->old_db->fetch_array($query))
 			{
-				$this->insert($pm);
+				try
+				{
+					$this->insert($pm);
+				}
+				catch(RuntimeException $error)
+				{
+					$this->errors[] = $error->getMessage();
+					$this->is_errors = true;
+					$output->print_inline_errors();
+					return;
+				}
 			}
 	}
 
@@ -70,27 +80,34 @@ class VBULLETIN4_Converter_Module_Privatemessages extends Converter_Module_Priva
 			}
 			else
 			{
-				$touserdata = false;
+				throw new RuntimeException('Importing vBulletin private messages requires the PHP iconv or mbstring extension.');
 			}
-			$touserarray = $touserdata === false ? false : unserialize($touserdata);
+			if($touserdata === false)
+			{
+				throw new RuntimeException('Unable to convert vBulletin private message recipients from UTF-8 to ISO-8859-1.');
+			}
+			$touserarray = unserialize($touserdata);
 
 			if(!is_array($touserarray))
 			{
 				$touserarray = array();
 			}
 
-			if(function_exists('mb_convert_encoding') || function_exists('iconv'))
+			if(function_exists('iconv'))
 			{
 				array_walk_recursive($touserarray, function (&$value, $key) {
-					if(function_exists('mb_convert_encoding'))
-					{
-						$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
-					}
-					else
-					{
-						$value = iconv('ISO-8859-1', 'UTF-8', $value);
-					}
+					$value = iconv('ISO-8859-1', 'UTF-8', $value);
 				});
+			}
+			elseif(function_exists('mb_convert_encoding'))
+			{
+				array_walk_recursive($touserarray, function (&$value, $key) {
+					$value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
+				});
+			}
+			else
+			{
+				throw new RuntimeException('Importing vBulletin private messages requires the PHP iconv or mbstring extension.');
 			}
 		}
 

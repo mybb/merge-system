@@ -162,16 +162,21 @@ function loginconvert_convert(&$login)
 		// If the password was wrong, an utf8 password and we want to check utf8 passwords we call the function again
 		if(!$check && in_array($login_type, $utf8_recheck))
 		{
-			if(function_exists('mb_convert_encoding'))
-			{
-				$password = mb_convert_encoding($login->data['password'], 'ISO-8859-1', 'UTF-8');
-			}
-			elseif(function_exists('iconv'))
+			if(function_exists('iconv'))
 			{
 				$password = iconv('UTF-8', 'ISO-8859-1', $login->data['password']);
 			}
+			elseif(function_exists('mb_convert_encoding'))
+			{
+				$password = mb_convert_encoding($login->data['password'], 'ISO-8859-1', 'UTF-8');
+			}
 			else
 			{
+				if(preg_match('/[^\x00-\x7F]/', $login->data['password']))
+				{
+					redirect($mybb->settings['bburl']."/member.php?action=lostpw", "This legacy password requires the PHP iconv or mbstring extension. Please contact the forum administrator.", "", true);
+				}
+
 				$password = $login->data['password'];
 			}
 
