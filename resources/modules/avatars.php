@@ -303,31 +303,7 @@ abstract class Converter_Module_Avatars extends Converter_Module
 
 		$s = "?s={$maxheight}&r={$rating}&d={$default}";
 
-		return "http://www.gravatar.com/avatar/{$email}{$s}";
-	}
-
-	/**
-	 * Check whether the email has an associated gravatar
-	 *
-	 * @param string $email
-	 * @return bool
-	 */
-	function check_gravatar_exists($email)
-	{
-		$headers = @get_headers($this->get_gravatar_url($email, '404'));
-
-		$status = 0;
-		if(preg_match('#HTTP[/]1.?[0-9]{1,} ?([0-9]{3}) ?(.*)#i', $headers[0], $matches))
-		{
-			$status = $matches[1];
-		}
-
-		if($status >= 200 & $status < 300)
-		{
-			return true;
-		}
-
-		return false;
+		return "https://www.gravatar.com/avatar/{$email}{$s}";
 	}
 
 	/**
