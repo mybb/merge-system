@@ -592,7 +592,7 @@ if($mybb->get_input('module'))
 	// incase we come back to it at a later time.
 	$resume_module = isset($import_session['module']) ? $import_session['module'] : '';
 
-	if(isset($import_session['module']) && !array_search($import_session['module'], $import_session['resume_module']))
+	if(isset($import_session['module']) && array_search($import_session['module'], $import_session['resume_module']) === false)
 	{
 		$import_session['resume_module'][] = $resume_module;
 	}
