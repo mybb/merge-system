@@ -36,6 +36,13 @@ class IPB4_Converter_Module_Avatars extends Converter_Module_Avatars {
 		$query = $this->old_db->simple_select("core_members", "*", "", array('limit_start' => $this->trackers['start_avatars'], 'limit' => $import_session['avatars_per_screen']));
 		while($avatar = $this->old_db->fetch_array($query))
 		{
+			if(!$this->get_import->uid($avatar['member_id']))
+			{
+				$this->debug->log->warning("Skipping avatar for IPB4 member {$avatar['member_id']}: no mapped MyBB user.");
+				$this->increment_tracker('avatars');
+				continue;
+			}
+
 			$this->insert($avatar);
 		}
 	}
