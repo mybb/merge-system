@@ -166,12 +166,16 @@ function loginconvert_convert(&$login)
 			{
 				$password = mb_convert_encoding($login->data['password'], 'ISO-8859-1', 'UTF-8');
 			}
+			elseif(function_exists('iconv'))
+			{
+				$password = iconv('UTF-8', 'ISO-8859-1', $login->data['password']);
+			}
 			else
 			{
-				$password = utf8_decode($login->data['password']);
+				$password = $login->data['password'];
 			}
 
-			if($password !== $login->data['password'])
+			if($password !== false && $password !== $login->data['password'])
 			{
 				$check = $function($password, $user);
 			}
