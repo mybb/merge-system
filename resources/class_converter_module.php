@@ -123,12 +123,12 @@ abstract class Converter_Module
 			$this->trackers['start_'.$tracker['type']] = $tracker['count'];
 		}
 
-		$this->board = &$converter_class;
-		$this->old_db = &$this->board->old_db;
+		$this->board = $converter_class;
+		$this->old_db = $this->board->old_db;
 		$this->board->settings = &$this->settings;
-		$this->board->get_import = &$this->get_import;
+		$this->board->get_import = $this->get_import;
 		$this->board->trackers = &$this->trackers;
-		$this->debug = &$debug;
+		$this->debug = $debug;
 	}
 
 	/**
@@ -441,10 +441,10 @@ abstract class Converter_Module
 			foreach($tables as $table)
 			{
 				$table_sql = $this->old_db->show_create_table($table);
-				if(stripos($table_sql, "ENGINE=InnoDB") !== false)
+				if(stripos($table_sql, "ENGINE=MyISAM") !== false)
 				{
-					$output->print_warning($lang->sprintf($lang->warning_innodb, $table));
-					$this->debug->log->warning("{$table} is in InnoDB format. This can cause major slow-downs");
+					$output->print_warning($lang->sprintf($lang->warning_myisam, $table));
+					$this->debug->log->warning("{$table} is in MyISAM format. Consider converting to InnoDB for better performance and data integrity.");
 				}
 			}
 		}
@@ -456,15 +456,28 @@ abstract class Converter_Module
 	 */
 	function increment_tracker($type, $amount=1)
 	{
+		$this->trackers['start_'.$type] += $amount;
+	}
+
+	/**
+	 * Write tracker values to the database. Called once per screen after import() completes.
+	 */
+	function flush_trackers()
+	{
 		global $db;
 
-		$this->trackers['start_'.$type] += $amount;
-
-		$replacements = array(
-			"count"		=> (int) $this->trackers['start_'.$type],
-			"type"		=> $db->escape_string($type)
-		);
-		$db->replace_query("trackers", $replacements);
+		foreach($this->trackers as $key => $count)
+		{
+			if(strpos($key, 'start_') === 0)
+			{
+				$type = substr($key, 6);
+				$replacements = array(
+					"count" => (int)$count,
+					"type"  => $db->escape_string($type)
+				);
+				$db->replace_query("trackers", $replacements);
+			}
+		}
 	}
 
 	/**

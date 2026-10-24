@@ -23,6 +23,14 @@ class BBCode_Parser extends BBCode_Parser_HTML {
 	 */
 	function convert($text)
 	{
+		// Strip IPB4 attachment links BEFORE HTML→BBcode conversion.
+		// Attachments are imported separately; these inline links would otherwise
+		// be converted to broken URL tags in the post content.
+		// Non-image attachments: <a class="ipsAttachLink" href="...">filename</a>
+		$text = preg_replace('#<a\s+class="ipsAttachLink[^"]*"\s+href="[^"]*"[^>]*>[^<]*</a>#si', '', $text);
+		// Image attachments: unwrap the <a> but keep the <img> for conversion
+		$text = preg_replace('#<a\s+[^>]*class="[^"]*ipsAttachLink_image[^"]*"[^>]*>(<img[^>]*>)</a>#si', '$1', $text);
+
 		$text = preg_replace('# data-ipb=\'(.*?)\'#si', "", $text);
 		$text = preg_replace('# rel="(.*?)"#si', "", $text);
 		$text = preg_replace('#line-height:(.*?)px;#si', "", $text);

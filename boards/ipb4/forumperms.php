@@ -61,14 +61,9 @@ class IPB4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			}
 			foreach($groups as $ogid => $gid)
 			{
-				// All permissions are on (global)
 				if($data[$perm] == '*' || in_array($ogid, $perm_split))
 				{
 					$new_perms[$gid][$operm] = 1;
-				}
-				else
-				{
-					$new_perms[$gid][$operm] = 0;
 				}
 			}
 		}
@@ -79,6 +74,23 @@ class IPB4_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 
 			foreach($new_perms as $gid => $perm2)
 			{
+				// Skip permission rows with no positive permissions to avoid
+				// overriding MyBB's permission inheritance with explicit denies.
+				$has_permission = false;
+				foreach($perm2 as $value)
+				{
+					if($value == 1)
+					{
+						$has_permission = true;
+						break;
+					}
+				}
+
+				if(!$has_permission)
+				{
+					continue;
+				}
+
 				$perm_array = $perm2;
 				$perm_array['gid'] = $gid;
 				$perm_array['fid'] = $fid;

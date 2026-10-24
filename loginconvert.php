@@ -25,6 +25,7 @@ $valid_login_types = array(
 	"ipb2"		=> "ipb",		// Module isn't supported anymore, but old merges may require it
 	"ipb3"		=> "ipb",
 	"ipb4"		=> "ipb4",
+	"ipb5"		=> "ipb5",
 	"smf"		=> "smf",		// Isn't supported anymore, but the function is still required by smf 1.1 and 2 and there may be "old" users
 	"smf11"		=> "smf11",
 	"smf2"		=> "smf2",
@@ -36,6 +37,7 @@ $valid_login_types = array(
 	"wbb3"		=> "wcf1",		// WBB 3 and Lite 2 use WoltLab Community Framework 1.x with some special parameters
 	"wbb4"		=> "wcf2",		// WBB 4 uses WoltLab Community Framework 2.x
 	"vanilla"	=> "vanilla",
+	"discourse"	=> "discourse",
 	"fluxbb"	=> "punbb",		// FluxBB is a fork of PunBB and they didn't change the hashing part
 );
 
@@ -160,9 +162,9 @@ function loginconvert_convert(&$login)
 		$check = $function($login->data['password'], $user);
 
 		// If the password was wrong, an utf8 password and we want to check utf8 passwords we call the function again
-		if(!$check && in_array($login_type, $utf8_recheck) && utf8_decode($login->data['password']) != $login->data['password'])
+		if(!$check && in_array($login_type, $utf8_recheck) && merge_utf8_decode($login->data['password']) != $login->data['password'])
 		{
-			$check = $function(utf8_decode($login->data['password']), $user);
+			$check = $function(merge_utf8_decode($login->data['password']), $user);
 		}
 
 		if(!$check)
@@ -251,6 +253,26 @@ function check_ipb4($password, $user)
 	if($user['passwordconvert'] == crypt($password, '$2a$13$'.$user['passwordconvertsalt']))
 	{
 		return true;
+	}
+
+	return false;
+}
+
+function check_ipb5($password, $user)
+{
+	if(function_exists('password_verify'))
+	{
+		return password_verify($password, $user['passwordconvert']);
+	}
+
+	return false;
+}
+
+function check_discourse($password, $user)
+{
+	if(function_exists('password_verify'))
+	{
+		return password_verify($password, $user['passwordconvert']);
 	}
 
 	return false;
@@ -456,7 +478,7 @@ function wcf1_encrypt($value, $method) {
 		case 'sha1': return sha1($value);
 		case 'md5': return md5($value);
 		case 'crc32': return crc32($value);
-		case 'crypt': return crypt($value);
+		case 'crypt': return crypt($value, $value);
 		default: return $value;
 	}
 }

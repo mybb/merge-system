@@ -8,10 +8,10 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['5.3', '7.4', '8.0'] # PHP 5.3 is the minimum available version, and we choose a version from each branch
+        php-versions: ['5.3', '7.4', '8.0', '8.1', '8.2', '8.3']
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

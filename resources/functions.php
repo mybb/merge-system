@@ -14,6 +14,48 @@ if(!defined("IN_MYBB"))
 }
 
 /**
+ * Encode an ISO-8859-1 string to UTF-8
+ * Replaces the deprecated utf8_encode() with mbstring/iconv fallbacks
+ */
+function merge_utf8_encode($text)
+{
+	if(function_exists('mb_convert_encoding'))
+	{
+		return mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1');
+	}
+	if(function_exists('iconv'))
+	{
+		return iconv('ISO-8859-1', 'UTF-8', $text);
+	}
+	if(function_exists('utf8_encode'))
+	{
+		return @utf8_encode($text);
+	}
+	return $text;
+}
+
+/**
+ * Decode a UTF-8 string to ISO-8859-1
+ * Replaces the deprecated utf8_decode() with mbstring/iconv fallbacks
+ */
+function merge_utf8_decode($text)
+{
+	if(function_exists('mb_convert_encoding'))
+	{
+		return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+	}
+	if(function_exists('iconv'))
+	{
+		return iconv('UTF-8', 'ISO-8859-1', $text);
+	}
+	if(function_exists('utf8_decode'))
+	{
+		return @utf8_decode($text);
+	}
+	return $text;
+}
+
+/**
  * Updates the import session cache which contains: stats, completed modules, paused modules, current modules, etc
  *
  */
@@ -284,9 +326,9 @@ function create_import_fields($text=true)
 		$output->update_progress_bar(0, $lang->sprintf($lang->creating_table, TABLE_PREFIX."trackers"));
 	}
 
-	if($db->type == "mysql" || $db->type == "mysqli")
+	if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
 	{
-		$createtable_trackers_sql_table_engine = " ENGINE=MyISAM";
+		$createtable_trackers_sql_table_engine = " ENGINE=InnoDB";
 	}
 	else
 	{
@@ -347,15 +389,15 @@ function create_import_fields($text=true)
 				// Can be achieved in a transaction if we'd finally support it.
 				foreach($columns_to_add as $column)
 				{
-					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} int NOT NULL DEFAULT '0'");
+					$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$column} int NOT NULL DEFAULT 0");
 				}
 			}
 			else
 			{
 				$columns_sql = implode(" int NOT NULL default '0', ADD ", $columns_to_add);
-				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL DEFAULT '0'");
+				$db->write_query("ALTER TABLE ".TABLE_PREFIX.$table." ADD {$columns_sql} int NOT NULL DEFAULT 0");
 
-				if($db->type == "mysql" || $db->type == "mysqli")
+				if($db->type == "mysql" || $db->type == "mysqli" || $db->type == "mysql_pdo")
 				{
 					foreach($columns as $column)
 					{
@@ -459,12 +501,12 @@ function encode_to_utf8($text, $old_table_name, $new_table_name)
     {
         if(!function_exists('iconv'))
         {
-            if(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]) != 'iso-8859-1' || !function_exists("utf8_encode"))
+            if(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]) != 'iso-8859-1')
             {
                 return $text;
             }
 
-			return utf8_encode($text);
+			return merge_utf8_encode($text);
         }
 
 		$converted_str = iconv(fetch_iconv_encoding($import_session['table_charset_old'][$old_table_name]), fetch_iconv_encoding($import_session['table_charset_new'][$new_table_name]).'//TRANSLIT', $text);
@@ -781,8 +823,8 @@ if(!function_exists('htmlspecialchars_decode'))
 function utf8_unhtmlentities($string)
 {
 	// Replace numeric entities
-	$string = preg_replace_callback('~&#x([0-9a-f]+);~i', create_function('$matches', 'return unichr(hexdec($matches[1]));'), $string);
-	$string = preg_replace_callback('~&#([0-9]+);~', create_function('$matches', 'return unichr($matches[1]);'), $string);
+	$string = preg_replace_callback('~&#x([0-9a-f]+);~i', function($matches) { return unichr(hexdec($matches[1])); }, $string);
+	$string = preg_replace_callback('~&#([0-9]+);~', function($matches) { return unichr($matches[1]); }, $string);
 
 	// Replace literal entities
 	$trans_tbl = get_html_translation_table(HTML_ENTITIES);
@@ -1183,7 +1225,7 @@ function get_column_length_info($table, $cache=true, $hard=false)
 				$columninfo['max'] = MERGE_DATATYPE_INT_BIGINT_MAX;
 
 				// The table suggests it as a BOOLEAN column created by MyBB.
-				if($column_type_table == 'tinyint(1)')
+				if($column_type_table == 'tinyint(1)' || $column_type_table == 'tinyint')
 				{
 					$columninfo['type_table'] = MERGE_DATATYPE_BOOL;
 					$columninfo['min_table'] = 0;
@@ -1295,7 +1337,7 @@ function get_column_length_info($table, $cache=true, $hard=false)
 		// Now we start dealing with MySQL and PostgreSQL.
 		// tinyint(1) is a specialty in MySQL for BOOL/BOOLEAN, getting it done will ease our job.
 		// The boolean type that is equivalent to TINYINT(1) in MySQL and boolean in PostgreSQL.
-		else if($column_type == 'tinyint(1)' || $column_type == 'boolean')
+		else if($column_type == 'tinyint(1)' || $column_type == 'tinyint' || $column_type == 'boolean')
 		{
 			$columninfo['type'] = MERGE_DATATYPE_BOOL;
 			$columninfo['min'] = 0;

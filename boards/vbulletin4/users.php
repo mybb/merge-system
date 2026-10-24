@@ -73,6 +73,7 @@ class VBULLETIN4_Converter_Module_Users extends Converter_Module_Users {
 		}
 		$insert_data['icq'] = $data['icq'];
 		$insert_data['skype'] = $data['skype'];
+		$insert_data['timezone'] = $data['timezoneoffset'];
 		$insert_data['timezone'] = str_replace(array('.0', '.00'), array('', ''), $insert_data['timezone']);
 		$insert_data['style'] = 0;
 		$insert_data['referrer'] = $data['referrerid'];

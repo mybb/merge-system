@@ -30,7 +30,7 @@ abstract class Converter_Module_Bans extends Converter_Module
         'olddisplaygroup',
         'admin',
         'dateline',
-        'lifed'
+        'lifted'
     );
 
     public function insert($data)

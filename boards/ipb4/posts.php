@@ -22,6 +22,9 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 		'check_table_type' => 'forums_posts',
 	);
 
+	var $get_thread_cache = array();
+	var $uid_username_cache = array();
+
 	function import()
 	{
 		global $import_session;
@@ -89,9 +92,16 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 	 */
 	function get_thread($tid)
 	{
+		if(array_key_exists($tid, $this->get_thread_cache))
+		{
+			return $this->get_thread_cache[$tid];
+		}
+
 		$query = $this->old_db->simple_select("forums_topics", "*", "tid='{$tid}'", array('limit' => 1));
 		$results = $this->old_db->fetch_array($query);
 		$this->old_db->free_result($query);
+
+		$this->get_thread_cache[$tid] = $results;
 
 		return $results;
 	}
@@ -109,10 +119,17 @@ class IPB4_Converter_Module_Posts extends Converter_Module_Posts {
 			return 0;
 		}
 
+		if(array_key_exists($username, $this->uid_username_cache))
+		{
+			return $this->uid_username_cache[$username];
+		}
+
 		$query = $this->old_db->simple_select("core_members", "member_id", "name='".$this->old_db->escape_string($username)."'", array('limit' => 1));
 
 		$results = $this->old_db->fetch_field($query, "member_id");
 		$this->old_db->free_result($query);
+
+		$this->uid_username_cache[$username] = $results;
 
 		return $results;
 	}

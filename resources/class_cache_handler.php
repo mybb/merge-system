@@ -337,6 +337,11 @@ class Cache_Handler
 			$this->cache_forums();
 		}
 
+		if(!isset($this->cache_fids[$old_fid]) || $old_fid == 0)
+		{
+			return 0;
+		}
+
 		return $this->cache_fids[$old_fid];
 	}
 
@@ -372,6 +377,11 @@ class Cache_Handler
 		if(!is_array($this->cache_fids_f))
 		{
 			$this->cache_forums_f();
+		}
+
+		if(!isset($this->cache_fids_f[$old_fid]) || $old_fid == 0)
+		{
+			return 0;
 		}
 
 		return $this->cache_fids_f[$old_fid];
@@ -411,6 +421,11 @@ class Cache_Handler
 			$this->cache_forums_c();
 		}
 
+		if(!isset($this->cache_fids_c[$old_fid]) || $old_fid == 0)
+		{
+			return 0;
+		}
+
 		return $this->cache_fids_c[$old_fid];
 	}
 
@@ -446,6 +461,11 @@ class Cache_Handler
 		if(!is_array($this->cache_tids))
 		{
 			$this->cache_threads();
+		}
+
+		if(!isset($this->cache_tids[$old_tid]) || $old_tid == 0)
+		{
+			return 0;
 		}
 
 		return $this->cache_tids[$old_tid];
@@ -485,6 +505,11 @@ class Cache_Handler
 			$this->cache_usergroups();
 		}
 
+		if(!isset($this->cache_gids[$old_gid]) || $old_gid == 0)
+		{
+			return 0;
+		}
+
 		return $this->cache_gids[$old_gid];
 	}
 
@@ -522,6 +547,11 @@ class Cache_Handler
 			$this->cache_attachments();
 		}
 
+		if(!isset($this->cache_attachments[$old_aid]) || $old_aid == 0)
+		{
+			return 0;
+		}
+
 		return $this->cache_attachments[$old_aid];
 	}
 
@@ -557,6 +587,11 @@ class Cache_Handler
 		if(!is_array($this->cache_posts))
 		{
 			$this->cache_posts();
+		}
+
+		if(!isset($this->cache_posts[$old_pid]) || $old_pid == 0)
+		{
+			return 0;
 		}
 
 		return $this->cache_posts[$old_pid];

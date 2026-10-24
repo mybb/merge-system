@@ -57,7 +57,7 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 		}
 		else if(isset($data['topic_visibility']))
 		{
-			// phpBB 3.1
+			// phpBB 3.1+
 			$insert_data['visible'] = $data['topic_visibility'];
 
 			// Deleted thread
@@ -65,6 +65,11 @@ class PHPBB3_Converter_Module_Threads extends Converter_Module_Threads {
 			{
 				$insert_data['visible'] = -1;
 			}
+		}
+		else
+		{
+			// Fallback for unknown phpBB versions
+			$insert_data['visible'] = 1;
 		}
 
 		return $insert_data;

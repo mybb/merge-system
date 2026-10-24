@@ -143,7 +143,7 @@ abstract class Converter
 			}
 		}
 
-		$this->debug = &$debug;
+		$this->debug = $debug;
 		return 'MyBB';
 	}
 

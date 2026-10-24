@@ -10,14 +10,30 @@ logs/*
 !logs/index.html
 
 ### Old Modules
+boards/bbpress
+boards/bbpress.php
+boards/fluxbb
+boards/fluxbb.php
 boards/ipb2
 boards/ipb2.php
+boards/ipb3
+boards/ipb3.php
 boards/mingle
 boards/mingle.php
 boards/nabble
 boards/nabble.php
 boards/phpbb2
 boards/phpbb2.php
+boards/punbb
+boards/punbb.php
+boards/smf
+boards/smf.php
+boards/vanilla
+boards/vanilla.php
+boards/vbulletin3
+boards/vbulletin3.php
+boards/wbb3
+boards/wbb3.php
 
 # MyBB Misc
 error.log

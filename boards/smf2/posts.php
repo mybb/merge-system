@@ -23,6 +23,7 @@ class SMF2_Converter_Module_Posts extends Converter_Module_Posts {
 	);
 
 	var $cache_first_posts = array();
+	var $edit_uid_cache = array();
 
 	function import()
 	{
@@ -82,12 +83,20 @@ class SMF2_Converter_Module_Posts extends Converter_Module_Posts {
 		$insert_data['edituid'] = 0;
 		if(!empty($data['modified_name']))
 		{
-			$query = $this->old_db->simple_select('members', 'id_member', "member_name='".$this->old_db->escape_string($data['modified_name'])."'");
-			if($this->old_db->num_rows($query) == 1)
+			if(!array_key_exists($data['modified_name'], $this->edit_uid_cache))
 			{
-				$insert_data['edituid'] = $this->get_import->uid($this->old_db->fetch_field($query, 'id_member'));
+				$query = $this->old_db->simple_select('members', 'id_member', "member_name='".$this->old_db->escape_string($data['modified_name'])."'");
+				if($this->old_db->num_rows($query) == 1)
+				{
+					$this->edit_uid_cache[$data['modified_name']] = $this->old_db->fetch_field($query, 'id_member');
+				}
+				else
+				{
+					$this->edit_uid_cache[$data['modified_name']] = 0;
+				}
+				$this->old_db->free_result($query);
 			}
-			$this->old_db->free_result($query);
+			$insert_data['edituid'] = $this->get_import->uid($this->edit_uid_cache[$data['modified_name']]);
 		}
 
 		$insert_data['edittime'] = $data['modified_time'];

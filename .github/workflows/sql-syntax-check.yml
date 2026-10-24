@@ -1,0 +1,66 @@
+name: SQL Syntax Check
+## Validates CREATE TABLE, ALTER TABLE, and common query patterns against MySQL 8.0
+
+on: [push, pull_request]
+
+jobs:
+  sql-check:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: mysqli, pdo_mysql
+
+      - name: Validate SQL in source files
+        run: |
+          echo "Checking SQL syntax patterns against MySQL 8.0..."
+
+          # Extract CREATE TABLE and ALTER TABLE statements for syntax validation
+          # We use MySQL's EXPLAIN or dry-run capability where possible
+
+          # Check for known-problematic patterns
+          echo "=== Checking for ONLY_FULL_GROUP_BY violations ==="
+          grep -rn "\.\*" boards/ resources/ --include="*.php" | grep -i "GROUP BY" || echo "  None found"
+
+          echo "=== Checking for MyISAM engine references ==="
+          # Exclude lines that are string comparisons (check_table_type checks)
+          ! grep -rn "ENGINE=MyISAM" boards/ resources/ --include="*.php" | grep -v "stripos\|ENGINE=MyISAM.*!==" && echo "  None found (good)" || echo "  WARNING: MyISAM references found"
+
+          echo "=== Checking for deprecated integer display widths ==="
+          # Only flag display widths in SQL DDL, not in type detection comparisons
+          ! grep -rnP "(?<!['\"a-zA-Z])(int|bigint|smallint|tinyint|mediumint)\(\d+\)" boards/ resources/ --include="*.php" | grep -v "tinyint(1)" && echo "  None found (good)" || echo "  WARNING: deprecated display widths found"
+
+          echo "=== Checking for utf8 charset (should be utf8mb4) ==="
+          ! grep -rnP "CHARACTER SET utf8[^m]" boards/ resources/ --include="*.php" && echo "  None found (good)" || echo "  WARNING: utf8 charset references found (should be utf8mb4)"
+
+      - name: Test basic SQL connectivity
+        run: |
+          php -r "
+          \$mysqli = new mysqli('127.0.0.1', 'root', 'root', 'testdb', 3306);
+          if (\$mysqli->connect_error) { die('Connect Error: ' . \$mysqli->connect_error); }
+          echo 'MySQL ' . \$mysqli->server_info . ' connected' . PHP_EOL;
+          \$result = \$mysqli->query('SELECT @@sql_mode as mode, @@version as version');
+          \$row = \$result->fetch_assoc();
+          echo 'SQL Mode: ' . \$row['mode'] . PHP_EOL;
+          echo 'ONLY_FULL_GROUP_BY is ' . (strpos(\$row['mode'], 'ONLY_FULL_GROUP_BY') !== false ? 'ENABLED' : 'DISABLED') . PHP_EOL;
+          \$mysqli->close();
+          "

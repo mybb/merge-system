@@ -42,7 +42,7 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 			FROM ".OLD_TABLE_PREFIX."boards b
 			LEFT JOIN ".OLD_TABLE_PREFIX."board_permissions p ON (p.id_profile=b.id_profile)
 			WHERE p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
-			GROUP BY b.id_board
+			GROUP BY b.id_board, p.id_group
 			LIMIT {$this->trackers['start_forumperms']}, {$import_session['forumperms_per_screen']}
 		");
 		while($perm = $this->old_db->fetch_array($query))
@@ -86,7 +86,7 @@ class SMF2_Converter_Module_Forumperms extends Converter_Module_Forumperms {
 				FROM ".OLD_TABLE_PREFIX."boards b
 				LEFT JOIN ".OLD_TABLE_PREFIX."board_permissions p ON (p.id_profile=b.id_profile)
 				WHERE p.permission IN ('".implode("','", array_keys($this->perm2mybb))."')
-				GROUP BY b.id_board
+				GROUP BY b.id_board, p.id_group
 			");
 			$import_session['total_forumperms'] = $this->old_db->num_rows($query);
 			$this->old_db->free_result($query);

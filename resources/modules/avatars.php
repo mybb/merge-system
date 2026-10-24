@@ -157,15 +157,11 @@ abstract class Converter_Module_Avatars extends Converter_Module
 			}
 		}
 
-		if(strpos($mybb->input['avatarspath'], "localhost") !== false)
+		$parsed_url = parse_url($mybb->input['avatarspath']);
+		$path_host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+		if($path_host === 'localhost' || $path_host === '127.0.0.1')
 		{
 			$this->errors[] = "<p>{$lang->attmodule_ipadress}</p>";
-			$import_session['uploads_avatars_test'] = 0;
-		}
-
-		if(strpos($mybb->input['avatarspath'], "127.0.0.1") !== false)
-		{
-			$this->errors[] = "<p>{$lang->attmodule_ipadress2}</p>";
 			$import_session['uploads_avatars_test'] = 0;
 		}
 

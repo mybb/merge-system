@@ -129,7 +129,7 @@ class PHPBB3_Converter_Module_Polls extends Converter_Module_Polls {
 		// Get number of polls
 		if(!isset($import_session['total_polls']))
 		{
-			$query = $this->old_db->simple_select("poll_votes", "COUNT(DISTINCT topic_id) as count");
+			$query = $this->old_db->query("SELECT COUNT(*) as count FROM (SELECT DISTINCT topic_id FROM ".OLD_TABLE_PREFIX."poll_votes) as tmp");
 			$import_session['total_polls'] = $this->old_db->fetch_field($query, 'count');
 			$this->old_db->free_result($query);
 		}

@@ -57,7 +57,11 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$this->nice_options = $import_session['nice_options'];
 		}
-		$this->fields = "o.userOption".implode(", o.userOption", array_keys($this->nice_options));
+		$this->fields = '';
+		if(!empty($this->nice_options))
+		{
+			$this->fields = ", o.userOption".implode(", o.userOption", array_keys($this->nice_options));
+		}
 	}
 
 	function finish()
@@ -74,12 +78,16 @@ class WBB4_Converter_Module_Users extends Converter_Module_Users {
 		// We need to do that as WBB uses different prefixes and we cant set it above
 		$this->settings['encode_table'] = WCF_PREFIX.$this->settings['encode_table'];
 
-		// Get members
-		$query = $this->old_db->query("SELECT u.*, {$this->fields}, GROUP_CONCAT(g.groupID) as usergroups
+		// Get members - use subquery for GROUP_CONCAT to avoid ONLY_FULL_GROUP_BY issues
+		$query = $this->old_db->query("SELECT u.*{$this->fields}, COALESCE(groups.usergroups, '') as usergroups
 			FROM ".WCF_PREFIX."user u
 			LEFT JOIN ".WCF_PREFIX."user_option_value o ON (o.userID=u.userID)
-			LEFT JOIN ".WCF_PREFIX."user_to_group g ON (g.userID=u.userID AND g.groupID != 1)
-			GROUP BY u.userID
+			LEFT JOIN (
+				SELECT userID, GROUP_CONCAT(groupID) as usergroups
+				FROM ".WCF_PREFIX."user_to_group
+				WHERE groupID != 1
+				GROUP BY userID
+			) groups ON groups.userID = u.userID
 			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}");
 
     	while($user = $this->old_db->fetch_array($query))

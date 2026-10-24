@@ -17,7 +17,7 @@ class debugErrorHandler extends errorHandler {
 	{
 		global $debug;
 
-		$this->debug = &$debug;
+		$this->debug = $debug;
 
 		parent::__construct();
 	}

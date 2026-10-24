@@ -46,9 +46,9 @@ class IPB4_Converter_Module_Privatemessages extends Converter_Module_Privatemess
 
 		// Invision Power Board 4 values
 		$insert_data['fromid'] = $this->get_import->uid($data['msg_author_id']);
-		$insert_data['subject'] = $data['mt_title'];
+		$insert_data['subject'] = encode_to_utf8($data['mt_title'], "core_message_topics", "privatemessages");
 		// For some reason PMs are surrounded by new lines. Trimming them may break a few PMs but better than all
-		$insert_data['message'] = trim($this->bbcode_parser->convert($data['msg_post']));
+		$insert_data['message'] = trim(encode_to_utf8($this->bbcode_parser->convert($data['msg_post']), "core_message_posts", "privatemessages"));
 		$insert_data['ipaddress'] = my_inet_pton($data['msg_ip_address']);
 		$insert_data['dateline'] = $data['msg_date'];
 

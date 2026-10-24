@@ -19,7 +19,7 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		'friendly_name' => 'users',
 		'progress_column' => 'user_id',
 		'encode_table' => 'user',
-		'postnum_column' => 'posts', // TODO: Search it!
+		'postnum_column' => 'message_count',
 		'username_column' => 'username',
 		'email_column' => 'email',
 		'default_per_screen' => 1000,
@@ -66,11 +66,11 @@ class XENFORO_Converter_Module_Users extends Converter_Module_Users {
 		}
 		$insert_data['timezone'] = get_timezone($data['timezone']);
 
-		if($data['scheme_class'] == "XenForo_Authentication_Core")
+		if($data['scheme_class'] == "XenForo_Authentication_Core" || $data['scheme_class'] == "XF:Core")
 		{
 			$insert_data['passwordconverttype'] = "xf";
 		}
-		else if($data['scheme_class'] == "XenForo_Authentication_Core12")
+		else if($data['scheme_class'] == "XenForo_Authentication_Core12" || $data['scheme_class'] == "XF:Core12")
 		{
 			$insert_data['passwordconverttype'] = "xf12"; // Yeah, they changed their password hashing method in a minor release...
 		}

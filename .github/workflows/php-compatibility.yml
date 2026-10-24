@@ -1,0 +1,30 @@
+name: PHP Compatibility Check
+## Scans for use of functions/features removed or deprecated in target PHP versions
+
+on: [push, pull_request]
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpcs
+
+      - name: Install PHPCompatibility standard
+        run: |
+          composer global require phpcompatibility/php-compatibility --no-interaction
+          phpcs --config-set installed_paths ~/.composer/vendor/phpcompatibility/php-compatibility
+
+      - name: Run PHPCompatibility check
+        run: |
+          phpcs -p --standard=PHPCompatibility --runtime-set testVersion ${{ matrix.php-version }} \
+            --ignore=vendor,node_modules --extensions=php .

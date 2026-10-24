@@ -67,6 +67,8 @@ class SMF2_Converter extends Converter
 	 *
 	 * @var String
 	 */
+	var $supported_databases = array("mysql");
+
 	var $check_table = "boards";
 
 	/**

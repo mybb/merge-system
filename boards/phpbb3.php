@@ -63,7 +63,9 @@ class PHPBB3_Converter extends Converter
      *
      * @var String
      */
-    var $check_table = "user_group";
+	var $supported_databases = array("mysql");
+
+	var $check_table = "user_group";
 
     /**
      * The table prefix we suggest to use

@@ -33,11 +33,15 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 
 		// Get members
 		$query = $this->old_db->query("
-			SELECT u.*, GROUP_CONCAT(g.group_id) as usergroups
+			SELECT u.*, COALESCE(groups.usergroups, '') as usergroups
 			FROM ".OLD_TABLE_PREFIX."users u
-			LEFT JOIN ".OLD_TABLE_PREFIX."user_group g ON(g.user_id=u.user_id AND g.user_pending=0)
+			LEFT JOIN (
+				SELECT user_id, GROUP_CONCAT(group_id) as usergroups
+				FROM ".OLD_TABLE_PREFIX."user_group
+				WHERE user_pending = 0
+				GROUP BY user_id
+			) groups ON groups.user_id = u.user_id
 			WHERE u.user_id > 0 AND u.username != 'Anonymous' AND u.group_id != 6
-			GROUP BY u.user_id
 			LIMIT {$this->trackers['start_users']}, {$import_session['users_per_screen']}
 		");
 		while($user = $this->old_db->fetch_array($query))
@@ -80,9 +84,10 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 		{
 			$birthday_arr = explode('-', $data['user_birthday']);
 
-			foreach($birthday_arr as $bday_part)
+			foreach($birthday_arr as $i => $bday_part)
 			{
-				if(substr($bday_part, 0, 1) == "0")
+				$bday_part = trim($bday_part);
+				if(substr($bday_part, 0, 1) == "0" && strlen($bday_part) > 1)
 				{
 					$birthday .= substr($bday_part, 1);
 				}
@@ -91,13 +96,16 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 					$birthday .= $bday_part;
 				}
 
-				$birthday .= "-";
+				if($i < count($birthday_arr) - 1)
+				{
+					$birthday .= "-";
+				}
 			}
 		}
 
 		$insert_data['birthday'] = $birthday;
 		$insert_data['icq'] = $data['user_icq'];
-		$insert_data['hideemail'] = $data['user_allow_viewemail'];
+		$insert_data['hideemail'] = int_to_01($data['user_allow_viewemail']);
 		$insert_data['invisible'] = int_to_01($data['user_allow_viewonline']);
 		$insert_data['allownotices'] = $data['user_notify'];
 		if($data['user_notify'] == 1)
@@ -126,7 +134,15 @@ class PHPBB3_Converter_Module_Users extends Converter_Module_Users {
 			$insert_data['timezone'] = get_timezone($data['user_timezone']);
 		}
 		$insert_data['dst'] = $data['user_dst'];
-		$insert_data['signature'] = encode_to_utf8($this->bbcode_parser->convert($data['user_sig'], $data['user_sig_bbcode_uid']), "users", "users");
+		$signature = $this->bbcode_parser->convert($data['user_sig'], $data['user_sig_bbcode_uid']);
+		// phpBB3 stores parsed HTML in signatures. Strip remaining HTML tags and entities.
+		$signature = utf8_unhtmlentities($signature);
+		$signature = strip_tags($signature, '<br><p>');
+		// Convert remaining <br> and <p> tags to newlines
+		$signature = str_ireplace(array('<br />', '<br>', '<br/>'), "\n", $signature);
+		$signature = preg_replace('#</?p[^>]*>#i', "\n", $signature);
+		$signature = trim($signature);
+		$insert_data['signature'] = encode_to_utf8($signature, "users", "users");
 		$insert_data['regip'] = my_inet_pton($data['user_ip']);
 		$insert_data['lastip'] = my_inet_pton($data['user_ip']);
 		$insert_data['totalpms'] = $this->get_private_messages($data['user_id']);

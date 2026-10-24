@@ -104,8 +104,8 @@ class converterOutput
 		$this->doneheader = 1;
 
 		echo <<<END
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 	<title>$this->title &gt; $title</title>
 	<link rel="stylesheet" href="stylesheet.css" type="text/css" />
@@ -230,7 +230,7 @@ END;
 				$board_script = file_get_contents(MERGE_ROOT."boards/{$file}");
 				// Match out board name
 				preg_match("#var \\\$bbname \= \"(.*?)\"\;#i", $board_script, $version_info);
-				if($version_info[1])
+				if(isset($version_info[1]))
 				{
 					$board_array[$bb_name] = $version_info[1];
 				}
@@ -418,15 +418,6 @@ END;
 		global $board, $dbengines, $mybb, $lang;
 
 		$dboptions = array();
-
-		if(function_exists('mysql_connect') && in_array("mysql", $board->supported_databases))
-		{
-			$dboptions['mysql'] = array(
-				'class' => 'DB_MySQL',
-				'title' => 'MySQL',
-				'short_title' => 'MySQL',
-			);
-		}
 
 		if(function_exists('mysqli_connect') && in_array("mysql", $board->supported_databases))
 		{
@@ -888,9 +879,8 @@ END;
 
 		$module->trackers['start_'.$module_name] = 0;
 
-		// TODO: $this->trackers is never defined and will always be 0 therefore
 		$replacements = array(
-			"count"		=> (int) $this->trackers['start_'.$module_name],
+			"count"		=> (int) $module->trackers['start_'.$module_name],
 			"type"		=> $db->escape_string($module_name)
 		);
 		$db->replace_query("trackers", $replacements);
@@ -987,7 +977,6 @@ END;
 		flush();
 	}
 
-	// TODO: Research! This function is called from the converter class. But the variable is never called again and seems pretty useless to me
 	function set_error_notice_in_progress($error_message)
 	{
 		$this->error_notice_in_progress = $error_message;
@@ -1023,6 +1012,15 @@ END;
 		{
 			return;
 		}
+
+		// Throttle updates to avoid excessive DOM manipulation and flush overhead
+		static $last_update = 0;
+		$now = microtime(true);
+		if(!empty($status_message) && $now - $last_update < 0.1)
+		{
+			return;
+		}
+		$last_update = $now;
 
 		echo "<script type=\"text/javascript\">";
 		if($this->_last_left != $left)
